@@ -23,6 +23,17 @@ struct WindowsBrushFixtureTests {
                    "Run the Avalonia brush probe and set AVALONIA_BRUSH_DIR to its output."))
     func avaloniaBrushPackageReopensWithExportedPixels() async throws {
         let path = try #require(ProcessInfo.processInfo.environment["AVALONIA_BRUSH_DIR"])
+        try await brushPackageReopensWithExportedPixels(path: path)
+    }
+
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["QT_BRUSH_DIR"] != nil,
+                   "Run the Qt brush probe and set QT_BRUSH_DIR to its output."))
+    func qtBrushPackageReopensWithExportedPixels() async throws {
+        let path = try #require(ProcessInfo.processInfo.environment["QT_BRUSH_DIR"])
+        try await brushPackageReopensWithExportedPixels(path: path)
+    }
+
+    private func brushPackageReopensWithExportedPixels(path: String) async throws {
         let root = URL(fileURLWithPath: path)
         let snapshot = try await ProjectStore.shared.load(from: root.appendingPathComponent("brush.comp"))
         #expect(snapshot.manifest.version == 8 && snapshot.manifest.width == 4000 && snapshot.manifest.height == 4000)
@@ -31,8 +42,8 @@ struct WindowsBrushFixtureTests {
         #expect(layer.transform.origin == .zero && layer.transform.size == CGSize(width: 4000, height: 4000))
         let reference = try #require(NSBitmapImageRep(data: Data(contentsOf: root.appendingPathComponent("final.png")))?.cgImage)
         let rendered = try await ImageExporter.shared.render(snapshot).image
-        #expect(try pixels(rendered) == pixels(reference), "Mac reads the C# brush output without changing pixels")
-        let resaved = FileManager.default.temporaryDirectory.appendingPathComponent("Compositor-Avalonia-Brush-\(UUID()).comp")
+        #expect(try pixels(rendered) == pixels(reference), "Mac reads cross-platform brush output without changing pixels")
+        let resaved = FileManager.default.temporaryDirectory.appendingPathComponent("Compositor-Cross-Platform-Brush-\(UUID()).comp")
         defer { try? FileManager.default.removeItem(at: resaved) }
         try await ProjectStore.shared.save(snapshot, to: resaved)
         let reopened = try await ProjectStore.shared.load(from: resaved)

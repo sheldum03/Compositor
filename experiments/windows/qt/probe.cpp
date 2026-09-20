@@ -1,4 +1,5 @@
 #include "scene.hpp"
+#include "brush.hpp"
 #include <QApplication>
 #include <QCryptographicHash>
 #include <QDir>
@@ -121,7 +122,9 @@ void compositionChecks(const QString &fixtures) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
-        auto args = app.arguments(); require(args.size() == 3, "Usage: qt_probe <fixed-fixtures> <new-output>");
+        auto args = app.arguments();
+        if (args.size() == 4 && args[1] == "--brush") { runBrushProbe(QFileInfo(args[2]).absoluteFilePath(), QFileInfo(args[3]).absoluteFilePath()); return 0; }
+        require(args.size() == 3, "Usage: qt_probe [--brush] <fixed-fixtures> <new-output>");
         QString fixtures = QFileInfo(args[1]).absoluteFilePath(), output = QFileInfo(args[2]).absoluteFilePath();
         verifyCorpus(fixtures);
         require(!QFileInfo::exists(output) && QDir().mkpath(output), "Output must be a new directory");

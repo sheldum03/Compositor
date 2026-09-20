@@ -1,6 +1,6 @@
 # Qt compositor and project round-trip — W-007 preparation
 
-This isolated C++17 / Qt Widgets experiment renders the same F01–F07 and B01–B13 fixed specimens as the Avalonia compositor probe. It covers a portion of the composition and JSON/PNG round-trip paths. The brush and text/IME paths, Windows execution and framework selection remain open. No Windows product directory, installer or second GPU backend is introduced.
+This isolated C++17 / Qt Widgets experiment renders the same F01–F07 and B01–B13 fixed specimens as the Avalonia compositor probe. It covers a portion of the composition and JSON/PNG round-trip paths. The companion [soft-brush probe](BRUSH.md) adds a fixed 4K tile/history path. Text/IME, Windows execution and framework selection remain open. No Windows product directory, installer or second GPU backend is introduced.
 
 ## Pinned build
 
@@ -87,4 +87,4 @@ python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures \
   <QT_OUTPUT_DIRECTORY> <NEW_CONTACT_SHEET.png> --candidate-label 'Qt CPU'
 ```
 
-Remaining W-007 work: complete soft-brush transaction/next-stroke/undo path, transformed text/shared layout/native IME, Windows deployment/execution, matched performance/resource measurements and resulting integration gaps. M0/M1 remain unpassed; this does not authorize production framework selection.
+The fixed soft-brush transaction/next-stroke/undo path now has [separate preparation evidence](BRUSH.md). Remaining W-007 work: transformed text/shared layout/native IME, Windows deployment/execution, matched performance/resource measurements and resulting integration gaps. M0/M1 remain unpassed; this does not authorize production framework selection.

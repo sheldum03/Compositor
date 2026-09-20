@@ -427,3 +427,33 @@ Mac 测试将原 Avalonia readback 函数提取为共享 helper，并增加 `QT_
 最后一次整进程 Mac `time -l` 记录 0.24 s wall、最大 RSS 20,791,296 bytes；包括所有微型样本和 guards，不是 Windows private RAM/VRAM 或 S04/S05。不得拿它与 Avalonia 4K 笔刷测量排名。复现命令和全部限制见 `experiments/windows/qt/README.md`；入库 `evidence/qt-compositor-{macos,preparation,summary}.json` 与 contact sheet。
 
 Qt 尚缺软笔提交/下一笔/undo 工作流和变换文字/真实 IME；两个方案还都缺 Windows 同机验证与最终部署。W-007、W-008、M1 保持未通过，后续 M2–M7 及全部 PRD/发布目标不缩减。
+
+## 2026-09-21：Qt 4K 软笔、局部提交与历史对照准备
+
+起点 `97892a6`，工作区干净。新增 Qt `--brush`，复用已冻结的两笔 4K 事件（每笔 121 点、直径 800、hardness 0、opacity 0.4）。C++ 实现与 C# 相同的 Gaussian tip、Catmull–Rom、临时笔尾覆盖恢复与整笔透明度上限；未改 native C 或 Mac 产品代码。本轮是 W-007 可逆准备，不推送、不选型。
+
+256×256 QImage 瓦片仅在改变时提交复制，未改瓦片通过 Qt implicit sharing 保留；笔中 coverage/original/pixels 独立拥有。真实 QWidget paintEvent 直接同步绘制瓦片，每笔 121 次、1000×1000 视口 25% 缩放；两笔提交后才执行全幅导出和 4K 预览精确对照。记录应用显式 preview 像素复制为 0，不将 Qt 内部分配算作已测量或不存在。
+
+最终 Release `compositor-qt-brush-02`：
+
+| 检查/观察 | 结果 |
+| --- | --- |
+| 局部 commit | 第一笔 92 tiles / 24,117,248 bytes，第二笔 106 tiles / 27,787,264 bytes；共享 56 个未改 tiles |
+| commit 耗时 | 7.155042 / 8.219416 ms，仅两笔样本 |
+| append + preview P95 | 9.740917 / 10.735667 ms；242 次真实离屏 widget 绘制 |
+| 笔尾 oracle | 两笔均与不生成临时笔尾的 settled replay 像素一致；共享曲线/dab 原语，非独立算法证明 |
+| 历史与状态 | 一笔一次 history、旧 snapshot 不变、undo/redo identity、cancel 保留 redo、分支替换 redo、空提交、重复 flush、active/finished guard 全通过 |
+| 4K 预览/导出与 Qt package 读回 | 首笔/最终像素精确且非空，第二笔确实改变图像；首笔 alpha ≤102 |
+| Qt / Avalonia | `first.png`、`final.png` 的 premultiplied RGBA8 均精确相同；复现公式与 canonical pixel hash 已记录 |
+| Mac CPU 参考 | 第一笔差异 1,122,405 pixels / max 3，最终 1,875,766 / max 4；alpha max 同值，容差未接受 |
+| Mac Metal 参考 | 第一笔差异 1,340,829 pixels / max 7，最终 2,269,671 / max 7；容差未接受 |
+| Release / sanitizer | warnings-as-errors 构建通过；ASan/UBSan 自有 C++/C 插桩通过，Qt 未插桩、leak detection 关闭；9 个 PNG/package 文件与 Release 逐字节相同 |
+| Mac 实际 reader/exporter | Qt 与 Avalonia 两个 gated readback tests：2 passed / 0 failed / 0 skipped，1.138 s；保留原 manifest/尺寸/分辨率/transform/pixels/save/reopen 断言 |
+| 原合成回归 | 20 个样本通过，去除逐样本 timing 后报告与既有证据相同；Release native CTest 1 passed |
+| 固定样本 | 242/242 文件 hash 不变 |
+
+全进程 `time -l` 记录 7.29 s wall、452,689,920 bytes maximum RSS，包含正确性重放、全幅导出、PNG decode/diff 与工程读回。Avalonia 旧值只采样 updates 阶段，不能比较内存高低，也不是 Windows private RAM/VRAM 或 S05。本场景 0.4 opacity / 两笔不满足 S02 的 100% opacity / 30 笔及 blank/existing-layer 要求。模型检查接触图可见柔边差异带、未见明显网格接缝或旧笔尾；不替代 Windows 人工验收。
+
+本机 Release/sanitizer build 目录沿用上轮；最终输出 `/tmp/compositor-qt-brush-02`，日志同名 `.log`，资源记录同名前缀 `-resources.log`。Mac xcodebuild 的日志/xcresult 前缀 `/tmp/compositor-windows-192b-qt-brush`，Qt 输入为 brush-01；已核验其 9 个产物与最终 brush-02/sanitizer 相同。Mac helper 提取复用未降低原断言，未重跑全量 Mac suite。入库 `evidence/qt-brush-{macos,summary,preparation}.json` 与 contact sheet；详细命令见 `experiments/windows/qt/BRUSH.md`。
+
+Qt 仍缺变换文字/共享布局/native IME，对照双方都缺 Windows 同机输入、性能资源与部署验证。W-007/W-008、M0/M1 保持未通过，M2–M7 与全部 PRD/发布要求不缩减。未收到公开推送或 Windows 环境的用户答复，未把自动继续视作授权。
