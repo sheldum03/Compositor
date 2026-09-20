@@ -1,0 +1,237 @@
+[
+  {
+    "path": "F09-complex-mac.png",
+    "bytes": 6811,
+    "sha256": "ff7714acc9406e529d49b17b3e5b5e5123263e23a3c3421100e09ca1896980fd"
+  },
+  {
+    "path": "F09-complex.comp/images/00000000-0000-4000-9000-000000000001.mask.png",
+    "bytes": 202,
+    "sha256": "f81bb6aa89d4da2c7cb3ff4d9e932fd3712f15d2705b725cbdf1503f09f63f2c"
+  },
+  {
+    "path": "F09-complex.comp/images/00000000-0000-4000-9000-000000000005.mask.png",
+    "bytes": 202,
+    "sha256": "f81bb6aa89d4da2c7cb3ff4d9e932fd3712f15d2705b725cbdf1503f09f63f2c"
+  },
+  {
+    "path": "F09-complex.comp/images/00000000-0000-4000-9000-000000000005.png",
+    "bytes": 594,
+    "sha256": "e7e84d44d7917c6f9111fcf319e72f3e0aea31c6c845041cd6715f00d61a5a8d"
+  },
+  {
+    "path": "F09-complex.comp/images/00000000-0000-4000-9000-000000000006.mask.png",
+    "bytes": 202,
+    "sha256": "f81bb6aa89d4da2c7cb3ff4d9e932fd3712f15d2705b725cbdf1503f09f63f2c"
+  },
+  {
+    "path": "F09-complex.comp/images/00000000-0000-4000-9000-000000000006.png",
+    "bytes": 1037,
+    "sha256": "a278a29bcc58fb8fcc2a50920263ce63b5c0e39f46b2cd9aee57721991b00b36"
+  },
+  {
+    "path": "F09-complex.comp/images/00000000-0000-4000-9000-000000000007.png",
+    "bytes": 594,
+    "sha256": "e7e84d44d7917c6f9111fcf319e72f3e0aea31c6c845041cd6715f00d61a5a8d"
+  },
+  {
+    "path": "F09-complex.comp/manifest.json",
+    "bytes": 4498,
+    "sha256": "38750123089e9444211fa3cdfab77b803f1cee5c1fc3108f306be9178847a89e"
+  },
+  {
+    "path": "F11-300-box-center-mac.png",
+    "bytes": 107844,
+    "sha256": "51d37cbf48bcaf3187170c71da40fbc8bb44c08930ebf05a614988492ada2e2d"
+  },
+  {
+    "path": "F11-300-box-center.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 52574,
+    "sha256": "60201c57b2efda9a6c4325259d286d4bbb5177ce36bde45e102efeef0b77c197"
+  },
+  {
+    "path": "F11-300-box-center.comp/manifest.json",
+    "bytes": 1258,
+    "sha256": "a61a0ed8e10a4ec1012642c21acf55a4c2595fbf971be70594dde76aa24508a1"
+  },
+  {
+    "path": "F11-300-box-left-mac.png",
+    "bytes": 108668,
+    "sha256": "799d50d2fb997f8dcb1bfe79658a7825c4636cea6a0101bc4b24f04346a2742b"
+  },
+  {
+    "path": "F11-300-box-left.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 52469,
+    "sha256": "980af0bf8482c9d49faf5e42ca14782cfc4d3953e077fb7e6686f7e8650875e6"
+  },
+  {
+    "path": "F11-300-box-left.comp/manifest.json",
+    "bytes": 1254,
+    "sha256": "6e6247f85941496e4dc2564fcd09e9e0a259a35888841d2d4c800efe64c93c5c"
+  },
+  {
+    "path": "F11-300-box-right-mac.png",
+    "bytes": 108517,
+    "sha256": "b7c9f425d9d83701f0e0c0cafe505cd7e619b23415b330b7b469e2111cbf47cf"
+  },
+  {
+    "path": "F11-300-box-right.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 52543,
+    "sha256": "540efacb518a45fcd36307890a7cae077fa9d1468f08af1ebca8b5a883397b38"
+  },
+  {
+    "path": "F11-300-box-right.comp/manifest.json",
+    "bytes": 1256,
+    "sha256": "bee2667f4db8af6ed61b3d677ef4ffa3d2905c0a1a19494a3198431e57a22d80"
+  },
+  {
+    "path": "F11-300-point-center-mac.png",
+    "bytes": 111396,
+    "sha256": "62eeada74821d193f0622737e9f78cce1db596389d85978f51c9187eb321c1a0"
+  },
+  {
+    "path": "F11-300-point-center.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 45525,
+    "sha256": "6b1bd1def0de3d5aee2b6195589f9826972fc193cb1af36c8bc96de8c57b33cd"
+  },
+  {
+    "path": "F11-300-point-center.comp/manifest.json",
+    "bytes": 1237,
+    "sha256": "980547feaf954a342795e8e8ec12b76cb7003f628b424e69f09dee1b43a33b36"
+  },
+  {
+    "path": "F11-300-point-left-mac.png",
+    "bytes": 110907,
+    "sha256": "c516ad717b8c6438acf09eff05655fb8b5fc1b10c6541d98abf45b18af9084e8"
+  },
+  {
+    "path": "F11-300-point-left.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 45521,
+    "sha256": "c2cf0dc9c1d4eb6bf960ee0c17bd1b7d879852368e5ce1091aa5c9cdbcf057f7"
+  },
+  {
+    "path": "F11-300-point-left.comp/manifest.json",
+    "bytes": 1233,
+    "sha256": "0d597fa7056427f6602b8ddfe1bdd536983803c29ac199327b9bb579c114733b"
+  },
+  {
+    "path": "F11-300-point-right-mac.png",
+    "bytes": 112722,
+    "sha256": "3e5b07fdc58adaef511abc2bd4275b0643aa92fa01eeb6b7b3157c5a6562b863"
+  },
+  {
+    "path": "F11-300-point-right.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 45491,
+    "sha256": "18c28079e470ad718d25710e4398eb17d4dfd2842aade184925dadd4a6272715"
+  },
+  {
+    "path": "F11-300-point-right.comp/manifest.json",
+    "bytes": 1235,
+    "sha256": "5fc903ac18e4062f8e104e1f11a7029c7370dd302a31c14216e96fc878339643"
+  },
+  {
+    "path": "F11-72-box-center-mac.png",
+    "bytes": 20436,
+    "sha256": "ed63d8f1d4d90740c3f4f86e21edd1685ddb40c7fed84257ad24951c48ed361b"
+  },
+  {
+    "path": "F11-72-box-center.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9616,
+    "sha256": "1dcd33ac20a102bd4fbd7df0e59b7f8f9a075f744453b151c7e0ef3e47eccbbc"
+  },
+  {
+    "path": "F11-72-box-center.comp/manifest.json",
+    "bytes": 1252,
+    "sha256": "0a95a77416c156286ecb9fad3ad2d8293c3a9dfacdd3a87baedf3433f582bcf8"
+  },
+  {
+    "path": "F11-72-box-left-mac.png",
+    "bytes": 20388,
+    "sha256": "9a203722b19ca7c2d910087db989b1709f0b6c527f87e7bd058cd3d115338c9e"
+  },
+  {
+    "path": "F11-72-box-left.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9623,
+    "sha256": "970f98dab542fddaa4aa309748d634cf0da02c1acb28914a4f23041bb2d6de1c"
+  },
+  {
+    "path": "F11-72-box-left.comp/manifest.json",
+    "bytes": 1248,
+    "sha256": "41d0485d1e13fc71afaaf5cb9a77292893ac97e61d3a5b9c589065490704f33a"
+  },
+  {
+    "path": "F11-72-box-right-mac.png",
+    "bytes": 20274,
+    "sha256": "ad4484f82285c6cad9a2b89317351db84f36e1c97350377d4d52e789959e426a"
+  },
+  {
+    "path": "F11-72-box-right.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9690,
+    "sha256": "5bfdc86f6f93a831f39a40cc9281ea363040d6099ebd1730c0e7b729c74811ae"
+  },
+  {
+    "path": "F11-72-box-right.comp/manifest.json",
+    "bytes": 1250,
+    "sha256": "ba76d3a82331324a2b8315365095f0f73e9273e4190f1139eaa9d9b9496cf243"
+  },
+  {
+    "path": "F11-72-point-center-mac.png",
+    "bytes": 19778,
+    "sha256": "f7f2ed9a4d259df66b0aa7f0557a09178da0191fcddc79475a6f4fba0f6a9052"
+  },
+  {
+    "path": "F11-72-point-center.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9239,
+    "sha256": "302359bd33a97d9ec614df45764e87fc364d609ab287c3bdf4c84229b033298f"
+  },
+  {
+    "path": "F11-72-point-center.comp/manifest.json",
+    "bytes": 1232,
+    "sha256": "f37c447e02bb9eec9722630e96700af4256a9507ad96a1f33296c2732e977fd0"
+  },
+  {
+    "path": "F11-72-point-left-mac.png",
+    "bytes": 19646,
+    "sha256": "3ac46ef25afbab2177bd765de19fe5172025c8ea6c7264f8b5c5d2192ae9f0eb"
+  },
+  {
+    "path": "F11-72-point-left.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9372,
+    "sha256": "a3dee93b082442b9d7ac6463abf87103924e9dbbe3f2350d7e7033e3326872b9"
+  },
+  {
+    "path": "F11-72-point-left.comp/manifest.json",
+    "bytes": 1228,
+    "sha256": "546077fe6386fe96bd5c7d33d63b98582ee98258aba863d3c8be00ccd9bb7ca3"
+  },
+  {
+    "path": "F11-72-point-right-mac.png",
+    "bytes": 19596,
+    "sha256": "4357f23b43799337484798e6a53452dd2c2e472e51af3a3cfa16b326bbf15981"
+  },
+  {
+    "path": "F11-72-point-right.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9484,
+    "sha256": "8537d868c38172ef846ae2b4dd19d4fdd420b4c8fa1aa10f745c01a0d6eb2b0a"
+  },
+  {
+    "path": "F11-72-point-right.comp/manifest.json",
+    "bytes": 1230,
+    "sha256": "11af19a2a0d939217ed0bd2c52e908d58e70de4bd4e00790e42f496b2feab951"
+  },
+  {
+    "path": "F12-missing-font-mac.png",
+    "bytes": 20388,
+    "sha256": "9a203722b19ca7c2d910087db989b1709f0b6c527f87e7bd058cd3d115338c9e"
+  },
+  {
+    "path": "F12-missing-font.comp/images/00000000-0000-4000-9000-000000000010.png",
+    "bytes": 9623,
+    "sha256": "970f98dab542fddaa4aa309748d634cf0da02c1acb28914a4f23041bb2d6de1c"
+  },
+  {
+    "path": "F12-missing-font.comp/manifest.json",
+    "bytes": 1257,
+    "sha256": "8e798547b4f01b694710fa28e411416c48d69d00e1500e6b8604f98049bf0358"
+  }
+]

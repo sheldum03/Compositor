@@ -16,10 +16,12 @@
 | F06 | 6 | 组蒙版与子层蒙版叠加 |
 | F07 | 7 | 剪贴 HSV 调整层、调整 opacity |
 | F08 | 8 | 中文/英文/Emoji/组合字符的可编辑框文本与 PNG 缓存 |
-| B01–B13 | 3 | 按 LayerBlendMode.allCases 顺序的全部混合；每个有两个半透明彩色层 |
+| B01–B13 | 8 | 按 LayerBlendMode.allCases 顺序的全部混合；每个有两个半透明彩色层。使用当前格式，不宣称后加的四种非分离模式属于历史 v3 |
 
 每个 `*.comp/` 对应 `*-mac.png`。`checksums.json` 固定所有 manifest、PNG 资产和参考导出的 SHA-256/字节数，hash 验证文件身份而非跨平台编码一致性。跨平台应比较解码像素与元数据语义，不能以 PNG 压缩字节不同判失败。
 
 当前 Mac 冻结像素测试要求 exact；Windows 浮点混合/取样容差尚未决定，不能直接放宽统一阈值。小型 64×48 工程用于正确性，不证明 4K 性能。测试临时输出另含 `*-resaved-v8.comp`，入库保留原 schema 样本即可。
 
-剩余：F09 的 shape/独立蒙版/复杂层级，F10 损坏样本持久化，F11 的全样式/DPI、F12 字体冲突/TTC，固定 CPU/Metal 笔划事件流与参考、Windows 修改后 Mac 重开。W-002 未完成；这些样本不能替代 Windows 四路径原型。
+2026-09-21 扩展：[extended](extended/README.md) 新增 F09、12 份 F11 样式/DPI 和 F12 缺字体，共 14 份；[invalid](invalid/README.md) 固定 14 份 F10 拒绝样本；[brush](brush/README.md) 固定同一 4K 事件流的 CPU/Metal 首笔/两笔参考及工程，实测存在 alpha 差异。
+
+剩余：F12 字体冲突/TTC/损坏与重启的可跨平台复现资源；文本缺字/更多组合的行为验证；Windows 修改后 Mac 重开；D-03/D-11 参考语义及逐操作容差冻结。W-002 未完成；这些样本不能替代 Windows 四路径原型。

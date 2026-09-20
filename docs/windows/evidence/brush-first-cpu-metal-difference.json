@@ -1,0 +1,20 @@
+{
+  "stage": "first",
+  "pixels": 16000000,
+  "meanAbsoluteStraightRGBA": [
+    0.2170209375,
+    0.372468875,
+    0.146493375,
+    0.1100701875
+  ],
+  "maxAbsoluteStraightRGBA": [
+    255,
+    128,
+    51,
+    7
+  ],
+  "alphaDifferentPixels": 1006503,
+  "alphaDifferenceOver2": 207573,
+  "alphaDifferenceOver8": 0,
+  "note": "Mac CPU dabs vs Metal density; measured difference, not an accepted Windows tolerance"
+}

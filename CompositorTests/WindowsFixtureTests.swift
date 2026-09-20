@@ -111,7 +111,14 @@ struct WindowsFixtureTests {
         let cases = (1...8).map { ("F0\($0)", $0, LayerBlendMode.multiply) }
             + LayerBlendMode.allCases.enumerated().map { ("B\(String(format: "%02d", $0.offset + 1))", 3, $0.element) }
         for (name, version, mode) in cases {
-            let original = try snapshot(version: version, blend: mode)
+            var original = try snapshot(version: version, blend: mode)
+            // Blend references use a minimal two-layer setup, but declare the current format:
+            // the four nonseparable modes were not in the original v3 documented enum.
+            if name.hasPrefix("B") {
+                var manifest = original.manifest
+                manifest.version = 8
+                original = ProjectSnapshot(manifest: manifest, images: original.images, masks: original.masks)
+            }
             let package = root.appendingPathComponent("\(name).comp")
             try await ProjectStore.shared.save(original, to: package)
             let loaded = try await ProjectStore.shared.load(from: package)

@@ -71,3 +71,49 @@ xcodebuild -project Compositor.xcodeproj -scheme Compositor \
 当前可继续：补齐样本、状态测试、C ABI/stride/allocator 测试准备。Windows 原型的实机运行、同机性能比较和 GUI/IME 必须等待真实环境；不得跳过 W-007/008 的四条路径选择生产路线。
 
 W-005–W-040 尚未验收，M1–M7 未通过。没有外部发布、购买、使用签名身份或发送消息。
+
+## 2026-09-21：W-002 扩展与 D-03 证据
+
+继续前已核对 HEAD `417cde0`、工作区干净、既有规划/执行记录；上轮有产品修复、测试与样本提交，分类为实际进展，不是等待。未取得新的 Windows 设备或用户决策，不改变 M0/M1 门槛。
+
+### 产物与行为
+
+- `WindowsExtendedFixtureTests.swift`：14 份 F09/F11/F12 v8 工程及参考。F09 有嵌套/隐藏组、空层、形状、独立蒙版和禁用蒙版；F11 覆盖 72/300 DPI、点/框文本、三种对齐、tracking/line spacing、旋转/镜像/透明度；F12 保留缺字体的原缓存。保存/重开/再次保存比较全 manifest、资产、合成，并检查 liveText/liveShape 恢复。关联 P-03/05/06/08/11/12/13，V-01/03/06。
+- `WindowsInvalidFixtureTests.swift` 与 `scripts/windows/generate-invalid-fixtures.py`：固定 14 份损坏工程并验证具体失败原因；完整列表见 fixtures/invalid/README.md。关联 P-03/19、V-01。仅证明读取拒绝，不扩大成 UI 保存安全证明。
+- `WindowsBrushFixtureTests.swift`：同一 4K JSON 事件流强制 CPU/Metal 两后端，真实 session mouse-up 提交，验证未提前物化、立即下一笔、一次历史、图像身份/像素 undo/redo、工程重开、各自冻结参考复现。保存两端首笔/最终 PNG 和最终工程。关联 P-08/15/16、V-03/04/05；D-03 参考语义未定。
+- 同输入两笔结果有 1,633,174 个 alpha 不同像素，最大差 7/255；没有据此设容差或宣称两后端等价。`scripts/windows/compare-brush-references.py`（本机 Pillow 11.3.0）可重现分项统计。
+- Debug 每笔 append/mouse-up 原始计时保存在 evidence/timings-{cpu,metal}.json。无显示/输入到展示测量、仅两笔 40% opacity，**不符合 S02 Release/100%/30笔协议，不计性能通过**。
+- 复核旧 B01–B13 发现 13 模式参考不宜都标历史 v3（历史格式说明只列前 9 种）。现统一声明 v8，仍保持最小两图层场景，PNG 未改变；F01–F08 各版本样本不变。这是样本来源准确性修正。
+
+### 命令与结果
+
+以下每条测试均使用前文同一 project/scheme、独立 DerivedData、Debug、en-US、禁止并行、CODE_SIGNING_ALLOWED=NO，stdout/stderr 写同前缀 `.log`。
+
+| 结果前缀（/tmp/compositor-windows-192b-） | only-testing | 结果 |
+| --- | --- | --- |
+| extended-generate | 函数选择器缺 `()` | **0 tests**，不可算通过；已查 xcresult 并修正选择器 |
+| extended-generate2 | `CompositorTests/WindowsExtendedFixtureTests/complexAndTextFixturesPreserveAllMetadataAndPixels()` | 1 test 通过；随后目视发现 300 DPI 框文本超出固定画布，调整样本画布 |
+| extended-generate3 | 同上 | 1 test 通过；画布按旋转后完整边界加留白生成，此版才最终固定 |
+| w002-expanded-final | WindowsFixtureTests、WindowsExtendedFixtureTests、WindowsInvalidFixtureTests、WindowsBrushFixtureTests | 6 tests / 4 suites，参数展开 7 runs，0 skipped；证据 `evidence/w002-expanded-summary.json` |
+| brush-frozen | WindowsBrushFixtureTests | 1 test / 2 backend runs 通过，0 skipped；含实际重放对照冻结 PNG，`evidence/w002-brush-frozen-summary.json` |
+| blend-schema | WindowsFixtureTests | 首次赋值违反 ProjectSnapshot.manifest 不可变约束，编译失败；修成构造新快照 |
+| blend-schema2 | WindowsFixtureTests | B 参考声明为 v8 后 2 tests 通过，0 skipped；`evidence/w002-blend-schema-summary.json` |
+
+例：
+
+```sh
+xcodebuild -project Compositor.xcodeproj -scheme Compositor \
+  -configuration Debug -destination 'platform=macOS' \
+  -derivedDataPath /tmp/compositor-windows-192b-derived \
+  -disableAutomaticPackageResolution -parallel-testing-enabled NO \
+  -testLanguage en -testRegion US \
+  -only-testing:CompositorTests/WindowsBrushFixtureTests \
+  -resultBundlePath /tmp/compositor-windows-192b-brush-frozen.xcresult \
+  CODE_SIGNING_ALLOWED=NO test
+python3 scripts/windows/generate-invalid-fixtures.py /tmp/compositor-invalid-fixtures-rebuilt
+python3 scripts/windows/compare-brush-references.py
+```
+
+没有更改 Mac 生产源码。全部新增/变更测试已专项执行，不把专项执行汇总说成另一次全套回归。所有固定产物分目录记录 SHA-256：原组 91、extended 47、invalid 84、brush 9，共 231 个输入/输出文件均已验证；损坏样本脚本在独立 `/tmp` 重建出的 84 个文件与入库版本完全一致。未覆盖原规划工作区。
+
+W-002 剩余：可分发的 TTC/字体冲突/损坏/重启资源与跨平台验证；更多文字/状态组合；Windows 往返。Mac `/System/Library/Fonts/Helvetica.ttc` 确实存在但不复制系统字体作为 Windows 分发资产。W-001 状态规则与 D-11 决策、W-003 产品确认、W-004 实机仍未完成。下一步继续处理可独立的字体资源/状态验证及 C 桥接实验准备，不能越过 M1 直接选型建生产 UI。
