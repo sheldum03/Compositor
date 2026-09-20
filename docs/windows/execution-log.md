@@ -244,3 +244,31 @@ env -u BRUSH_BENCHMARK -u LEVELS_PREVIEW xcodebuild \
 日志与 xcresult 同前缀，最终摘要 `evidence/m0-freeze-summary.json`。显式清除两个可选开关只作用于该命令，没有修改用户全局环境；没有执行性能或两项人工诊断，没有运行 CompositorUITests。
 
 现不再无上限扩充 Mac 样本。依 technical-design.md“未决项不应阻止样本准备与可逆原型”，后续可做 W-007/W-008 的有限源码准备；选型和完成仍依赖 Windows 四路径实测。公开推送、D 决策及 Windows 环境尚未确认，自动续跑不构成授权，整体目标保持未完成。
+
+## 2026-09-21：W-008 初始 Avalonia 绘制与工程往返准备
+
+起点 `45799d7`。新增 `experiments/windows/avalonia`，未修改 Mac 产品源码或原生 C 算法，也未推送或触发 CI。本轮在已有固定样本上验证一部分实际跨实现数据路径，不扩大成 M1 通过。
+
+- 固定 SDK 10.0.401、Avalonia.Headless/Skia 11.3.22、SkiaSharp 2.88.9 及完整 NuGet lock。官方 feed 还原；`--locked-mode` 重放成功，Release **0 warnings / 0 errors**。第一次编译发现 Skia feature 查询 API 的泛型扩展不可用，改用实际 `TryGetFeature(Type)` 后通过。
+- `FixtureScene` 限定固定工程子集：13 混合、opacity、整数位移/缩放、穿透组及继承可见性；unsupported 字段拒绝。保存只允许复制到新目录，保留 JSON 其余值及 PNG 原字节，旧支持样本写成 v8。没有把它当完整安全 reader 或替换恢复实现。
+- `SceneControl` 通过真实 `ICustomDrawOperation` 获取 Skia canvas，与离屏导出共用绘制函数。关闭 headless 的假绘制后端，断言实际回调发生。**16/16 控件预览与导出逐像素一致**；重命名→C# 重开→导出也全部一致。
+- 两次核对固定基础 corpus 的 91 个 hash；F04–F08 拒绝。显隐继承、重复 ID、失效父节点、资源路径、未来版本、负透明度、未支持变换/未知字段、坏 PNG 和已存在目标保护检查通过。尚未验证完整 F10 拒绝类别或活动文档状态。
+- Mac 参考差异按相同 sRGB 预乘 RGBA8 比较：F01/F02/F03/B02/B05/B08 完全一致；其余 10 个 B 样本最大通道差 **1/255**，最大平均绝对通道差 **0.2496744792/255**（B11）。不自行设定新容差或把这些观测计作兼容通过。
+- 新增有显式环境条件的 `WindowsFixtureTests.avaloniaRenamedCopiesReopenWithOriginalPixels`。真实 Mac ProjectStore/ImageExporter 读回 C# 写出的 16 个包，完整 manifest 仅有预期 rename/version/resolution 改动，PNG 字节及 Mac 合成像素不变。该 suite **3 passed / 0 failed / 0 skipped**，0.753 s；没有重跑完整回归。无输出目录环境变量时，新测试明确 skipped，不改变此前 M0 完整回归记录。
+
+本机命令与运行路径：
+
+```sh
+# cwd: experiments/windows/avalonia
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  NUGET_PACKAGES=/tmp/compositor-nuget-packages \
+  /tmp/compositor-dotnet-10.0.401/dotnet restore --locked-mode
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  NUGET_PACKAGES=/tmp/compositor-nuget-packages \
+  /tmp/compositor-dotnet-10.0.401/dotnet run -c Release --no-restore -- \
+  ../../../docs/windows/fixtures /tmp/compositor-avalonia-probe-01
+```
+
+Mac 读回从仓库根运行 xcodebuild，设置 `AVALONIA_ROUNDTRIP_DIR` 和 `TEST_RUNNER_AVALONIA_ROUNDTRIP_DIR` 均为上述输出目录；其余使用 M0 的 Debug/macOS/en-US/关闭并行/禁签名参数，`-only-testing:CompositorTests/WindowsFixtureTests`。日志 `/tmp/compositor-windows-192b-avalonia-roundtrip.log`，结果包同名前缀 `.xcresult`。
+
+入库证据 `evidence/avalonia-macos.json`、`avalonia-roundtrip-summary.json`（移除设备 ID）、`avalonia-preparation.json`（输入/源码及本机产出摘要 hash）。此次只证明 Mac → C# → Mac 的受限往返和 CPU 控件绘制，不证明 Windows、原生窗口、IME、GPU、全组合渲染、笔刷局部提交/撤销、资源和延迟门槛。W-007 尚待同样本准备；W-008/M1 仍未完成，D-02 未选型。

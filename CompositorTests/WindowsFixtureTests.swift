@@ -87,6 +87,45 @@ struct WindowsFixtureTests {
         return Data(bytes: try #require(context.data), count: context.bytesPerRow * context.height)
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["AVALONIA_ROUNDTRIP_DIR"] != nil,
+                   "Run the Avalonia specimen probe, then set AVALONIA_ROUNDTRIP_DIR to its output."))
+    func avaloniaRenamedCopiesReopenWithOriginalPixels() async throws {
+        let path = try #require(ProcessInfo.processInfo.environment["AVALONIA_ROUNDTRIP_DIR"])
+        let output = URL(fileURLWithPath: path)
+        let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("docs/windows/fixtures")
+        let names = ["F01", "F02", "F03"] + (1...13).map { String(format: "B%02d", $0) }
+        let packages = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "comp" }
+        #expect(Set(packages.map { $0.deletingPathExtension().lastPathComponent }) == Set(names))
+        let encoder = JSONEncoder()
+        for name in names {
+            let source = fixtures.appendingPathComponent(name + ".comp")
+            let saved = output.appendingPathComponent(name + ".comp")
+            let original = try await ProjectStore.shared.load(from: source)
+            let renamed = try await ProjectStore.shared.load(from: saved)
+            var expected = try #require(JSONSerialization.jsonObject(with: encoder.encode(original.manifest)) as? [String: Any])
+            expected["version"] = 8
+            expected["resolution"] = original.manifest.resolution ?? 72
+            var layers = try #require(expected["layers"] as? [[String: Any]])
+            let active = try #require(original.manifest.activeLayerID)
+            let index = try #require(original.manifest.layers.firstIndex { $0.id == active })
+            layers[index]["name"] = "跨平台 renamed " + name
+            expected["layers"] = layers
+            let actual = try JSONSerialization.jsonObject(with: encoder.encode(renamed.manifest))
+            #expect(try JSONSerialization.data(withJSONObject: expected, options: .sortedKeys)
+                == JSONSerialization.data(withJSONObject: actual, options: .sortedKeys), "Manifest: \(name)")
+            for record in original.manifest.layers {
+                guard let file = record.imageFile else { continue }
+                #expect(try Data(contentsOf: source.appendingPathComponent("images/" + file))
+                    == Data(contentsOf: saved.appendingPathComponent("images/" + file)), "PNG: \(name)")
+            }
+            let before = try await ImageExporter.shared.render(original).image
+            let after = try await ImageExporter.shared.render(renamed).image
+            #expect(try pixels(before) == pixels(after), "Mac reopens C# output: \(name)")
+        }
+    }
+
     @Test func frozenProjectsMatchTheirMacReferencePixels() async throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("docs/windows/fixtures")
