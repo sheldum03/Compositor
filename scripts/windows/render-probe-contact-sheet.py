@@ -9,12 +9,16 @@ parser = argparse.ArgumentParser()
 parser.add_argument("fixtures", type=Path)
 parser.add_argument("probe_output", type=Path)
 parser.add_argument("destination", type=Path)
-parser.add_argument("--brush", action="store_true", help="Compare first/final 4K brush stages against the CPU reference")
+mode = parser.add_mutually_exclusive_group()
+mode.add_argument("--brush", action="store_true", help="Compare first/final 4K brush stages against the CPU reference")
+mode.add_argument("--text", action="store_true", help="Compare four F11 text styles at 72/300 dpi")
 args = parser.parse_args()
 if args.destination.exists():
     parser.error("destination must not exist")
 
 names = ["first", "final"] if args.brush else ["F04", "F05", "F06", "F07"]
+if args.text:
+    names = ["F11-72-box-left", "F11-72-point-right", "F11-300-box-center", "F11-300-point-right"]
 height = 512 if args.brush else 384
 sheet = Image.new("RGB", (1664, len(names) * (height + 40)), (24, 26, 31))
 labels = ImageDraw.Draw(sheet)
@@ -26,7 +30,14 @@ for row, name in enumerate(names):
     ]
     for column, (label, path) in enumerate(inputs):
         with Image.open(path) as source:
-            image = source.convert("RGBA").resize((512, height), Image.Resampling.NEAREST)
+            image = source.convert("RGBA")
+            if args.text:
+                image.thumbnail((512, height), Image.Resampling.LANCZOS)
+                frame = Image.new("RGBA", (512, height))
+                frame.alpha_composite(image, ((512 - image.width) // 2, (height - image.height) // 2))
+                image = frame
+            else:
+                image = image.resize((512, height), Image.Resampling.NEAREST)
         background = Image.new("RGBA", image.size, (212, 212, 212, 255))
         checker = ImageDraw.Draw(background)
         for y in range(0, height, 16):

@@ -9,6 +9,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
+    <AvaloniaResource Include="../../../Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf" Link="Fonts/SourceHanSansSC-Regular.otf" />
+    <None Include="../../../Compositor/Resources/Licenses/SourceHanSans-OFL.txt" Link="Licenses/SourceHanSans-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="../dotnet-bridge/Native.cs" Link="Native.cs" />
     <PackageReference Include="Avalonia.Headless" Version="11.3.22" />
     <PackageReference Include="Avalonia.Skia" Version="11.3.22" />

@@ -354,3 +354,43 @@ DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
 Mac 测试使用 `TEST_RUNNER_AVALONIA_BRUSH_DIR=/tmp/compositor-avalonia-brush-01`，结果日志/xcresult 前缀 `/tmp/compositor-windows-192b-avalonia-brush`。probe 原始日志与目录同名加 `.log`。入库 `evidence/avalonia-brush-{macos,summary,preparation}.json`、`avalonia-brush-contact-sheet.png`。通用 contact-sheet 脚本增加 `--brush`；其原 mask 模式重建输出与既有 PNG 字节一致。
 
 本轮完成一条受限 4K CPU 工作流的本机准备，不是 Windows W-008 完成。仍需框文字共享布局/IME、同机 Qt 对照、完整 Windows 性能/资源测量及 D 决策，后续 M2–M7 范围保持不变。
+
+## 2026-09-21：Avalonia 共享文字布局与合成输入准备
+
+起点 `211fb2e`，工作区干净。继续 W-008 的第三条受限路径，没有推送、Windows 执行或生产 GUI 选型。新增 `--text`，读取固定 F11 的 12 种样式；原 Mac 产品代码、工程数据和文字缓存未改。按现有 layer rectangle 放置重新布局结果仅用于实验，不作 D-11 的缩放/缺字重绘策略决定。
+
+核对 Avalonia 11.3.22 pinned source 后，确认默认 TextPresenter 不传附加行距、TextParagraphProperties.LineSpacing 为 internal。小型 `SpacedTextPresenter` 通过公开 TextBlock.LineSpacing 创建独立布局，TextPresenter 接管其生命周期；TextBox 保留输入、选择和撤销逻辑。导出控件绘制编辑器当前 TextLayout 同一实例；不是再次排版。使用项目链接嵌入仓库既有 Source Han Sans SC，并复制既有 OFL 通知；hash 和中文 glyph 显式校验。实际 emoji 回退为本机 Apple Color Emoji，未当作 Windows 字体可用性证据。
+
+新增断言发现并修复两处实验问题：TextBox 默认裁剪而导出未裁剪，导致一个低 alpha 的 emoji 边缘像素不同；按折叠选择位置拆分无样式 runs，导致取消预编辑后整形/像素变化。分别统一裁剪边界、保留完整无样式文本源。编辑/导出和取消恢复仍要求精确像素一致，没有放宽图像误差。
+
+最终 `text-13`：
+
+| 检查 | 结果 |
+| --- | --- |
+| locked restore / Release build | 0 warnings / 0 errors |
+| 共享布局的编辑画面/导出 | 12/12 精确且非空，真实导出 draw 已发生 |
+| 旋转/翻转/缩放后的光标命中 | 2,631 个局部/文档坐标样本一致，无 surrogate/combining cluster 内部位置 |
+| 附加行距与字距 | +3/−3 对第二行的位移精确；1.25 字距改变 advance；修改字距使布局失效 |
+| 合成预编辑/取消/提交/撤销/重做/选择替换 | 12/12 通过；preedit 不写入 committed Text；取消后像素精确恢复 |
+| 输入客户端光标 | preedit 中光标对应同一布局的正确位置，四角通过 visual tree 映射与 layer matrix 一致 |
+| 既有合成回归 | 20 个样本通过；报告与 combination-02 的已存证据完全相同 |
+| 输入文件冻结 | 242/242 固定文件 hash 不变；字体许可已复制到输出 |
+
+逆变换最初 `1e-8` 像素的几何断言过严：6 个 box 样本的逆矩阵 M33 为 `0.9999999999999999`，框架判断为 perspective，走 float 路径；最终记录最大局部坐标误差 `0.00008544921865905053` px。几何阈值明确为 0.001 px，仍要求实际 caret index 精确且落在 grapheme boundary；这不是 Mac 图片容差。
+
+12 份 Mac 参考均不精确：差异 4,760–61,446 像素，最大 premultiplied 通道差 133–166/255；未接受容差。接触图可见行度量/字形位置与 emoji 差异；不能据此认定唯一原因。原工程 PNG 保持不变，不拿重新排版覆盖缓存。原生 Windows IME 候选窗、焦点生命周期、DPI、字体安装/移除、文字 draft 尺寸与事务保存仍未验证。
+
+本轮使用真实框架输入客户端，但输入是 `SetPreeditText` 和 routed TextInput 的合成调用，未创建原生窗口，也未调用系统中文输入法。没有新的 Mac product tests 或全量回归；不替代 M0 的既有回归记录，也不勾选 W-008/M1。
+
+复现命令见 `experiments/windows/avalonia/TEXT.md`。本机最终命令为：
+
+```sh
+# cwd: experiments/windows/avalonia
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  NUGET_PACKAGES=/tmp/compositor-nuget-packages \
+  /tmp/compositor-dotnet-10.0.401/dotnet run -c Release --no-build -- --text \
+  ../../../docs/windows/fixtures/extended /tmp/compositor-avalonia-text-13 \
+  /tmp/compositor-windows-native-release/libcompositor_native.dylib
+```
+
+日志与输出目录同名加 `.log`；build log 为 `/tmp/compositor-avalonia-text-build.log`。最终 60 张 PNG 与已视觉检查的 `text-11` 输出逐字节相同。入库 `evidence/avalonia-text-macos.json`、`avalonia-text-preparation.json`、`avalonia-text-contact-sheet.png`；同一接触图脚本增加 `--text`，旧 mask 模式输出仍与已存图一致。公开推送与 Windows 环境问题尚未收到用户答复，未据自动继续视作授权。

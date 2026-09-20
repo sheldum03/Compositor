@@ -23,6 +23,8 @@
 
 同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。242 次 headless 绘制及两笔的耗时/复制量有记录，不代表 S02 或 Windows 实机通过。详见 `experiments/windows/avalonia/BRUSH.md`。
 
+文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。与 Mac 文字仍有显著差异，未运行真实 Windows 输入法、未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
+
 ## 2. 阶段总览
 
 | 阶段 | 可演示交付物 | 进入条件 | 退出条件 |

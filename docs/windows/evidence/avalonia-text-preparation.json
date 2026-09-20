@@ -1,0 +1,78 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "211fb2e",
+  "scope": "W-008 shared text layout preparation on macOS; not Windows IME or text compatibility acceptance",
+  "sdk": "10.0.401",
+  "lockedRestoreExitCode": 0,
+  "releaseBuild": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "textRun": {
+    "name": "avalonia-text-13",
+    "exitCode": 0,
+    "specimens": 12,
+    "exactEditorExports": 12,
+    "exactPreeditCancellations": 12,
+    "transformedHitSamples": 2631,
+    "maximumInverseErrorPixels": 8.544921865905053e-05,
+    "inversePerspectiveCases": 6,
+    "resolvedFonts": [
+      "Apple Color Emoji",
+      "Source Han Sans SC"
+    ],
+    "spacingChecks": "positive/negative additive line spacing, tracking advance, tracking invalidation passed",
+    "syntheticInputChecks": "preedit not committed; rendered preedit; expected caret; visual transform; cancel; commit; undo; redo; selection replacement",
+    "referenceToleranceAccepted": false
+  },
+  "compositorRegression": {
+    "specimens": 20,
+    "status": "passed",
+    "reportIdenticalToSavedCombinationEvidence": true
+  },
+  "fixedCorpusHashesVerified": 242,
+  "fontLicenseCopiedAndByteVerified": true,
+  "sourceFontDuplicatedInRepository": false,
+  "visualInspection": {
+    "artifact": "avalonia-text-contact-sheet.png",
+    "generator": "scripts/windows/render-probe-contact-sheet.py --text",
+    "pillow": "11.3.0",
+    "result": "Line metrics, glyph placement and emoji differences visible; not human Windows acceptance",
+    "finalSixtyPngsByteIdenticalToInspectedText11": true,
+    "oldMaskContactSheetByteIdentical": true
+  },
+  "outputDigest": {
+    "algorithm": "SHA-256 of UTF-8 compact JSON array of sorted {path,bytes,sha256} entries",
+    "files": 61,
+    "bytes": 2294172,
+    "sha256": "ec43e3da6bce870ad5255ac437f7cc6096f7078d899e98e05b308fce4e983c84"
+  },
+  "sha256": {
+    "experiments/windows/avalonia/Compositor.AvaloniaProbe.csproj": "62e7a8080a9910e86fdfa65b68989fd9542b8160cc7d67f1519b8039f727a209",
+    "experiments/windows/avalonia/Program.cs": "05eff2ef7f840e9fb218b93df697b5c8aab95d0b318773c3b8ec4b0a6cb8733b",
+    "experiments/windows/avalonia/TextProbe.cs": "e01d9fe6e9f099bdf2bd444f50aae2d2c860c4f48baa7bef6b9ddc580934612b",
+    "experiments/windows/avalonia/SpacedTextPresenter.cs": "0447304d593c4ea2afc58d94066ea45e667810aea3c580999d67c0e34a2d0e40",
+    "experiments/windows/avalonia/TEXT.md": "4dd69ae1dbcf256965d7cb57d3e09937bf34457063503e34b507ac799fe29c53",
+    "experiments/windows/avalonia/packages.lock.json": "4c0b7d2a7ecdfad4cb0d5cebadacefb8db5f2a7a14dbd48e42bc9a12783786b8",
+    "scripts/windows/render-probe-contact-sheet.py": "2421f4015bcad5691043c1e33f52235c6d9d3e39a59519626ed9b576dba48c0d",
+    "docs/windows/evidence/avalonia-text-macos.json": "f3a90fca80ca33dff8d2fe245c705a28364c6c5d82f8dbd19c62da45a91d9ffa",
+    "docs/windows/evidence/avalonia-text-contact-sheet.png": "b1c17bc5d119e2794674658a0dafa3d9c99751b91abd8d07a1e0a7c7ba0869fd",
+    "Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "Compositor/Resources/Licenses/SourceHanSans-OFL.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2"
+  },
+  "nativeLibrarySha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3",
+  "windowsExecuted": false,
+  "nativeImeExecuted": false,
+  "macProductionCodeChanged": false,
+  "fullMacRegressionRerun": false,
+  "textPackagesSaved": false,
+  "D11PolicyChanged": false,
+  "M1Passed": false,
+  "remaining": [
+    "Windows 11 x64 and native Pinyin candidate/focus/DPI validation",
+    "Mac text differences and OS emoji fallback",
+    "draft sizing, font management, document text transactions",
+    "Qt comparison and remaining M0/M1 gates"
+  ]
+}

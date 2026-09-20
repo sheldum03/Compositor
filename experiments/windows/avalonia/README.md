@@ -4,6 +4,8 @@ This is an isolated experiment, not a Windows editor or a GUI framework decision
 
 The separate [4K CPU brush probe](BRUSH.md) now covers local tile commits, the next stroke, undo/redo and export/readback on the fixed two-stroke input. It shares the actual custom-control drawing entry point below; its algorithm differences and performance limitations are recorded separately.
 
+The [shared text-layout probe](TEXT.md) covers twelve F11 styles, transformed caret hits and synthetic preedit/commit/undo through the real TextBox input client. Editor/export and preedit cancellation are exact internally; Mac text differences and native Windows IME validation remain open.
+
 ## Reproduce
 
 Use .NET SDK **10.0.401** from `global.json`. First build the C library using [the native experiment instructions](../native/README.md). From this directory:
