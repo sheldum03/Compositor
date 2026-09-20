@@ -1,4 +1,5 @@
 import AppKit
+import CoreText
 import Testing
 @testable import Compositor
 
@@ -13,6 +14,16 @@ struct FontLibraryTests {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("FontLibrary-\(UUID())")
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: false)
         return url
+    }
+    private var fixtures: URL {
+        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("docs/windows/fixtures/fonts")
+    }
+    private func removeImportedFonts(in directory: URL) {
+        for url in (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)) ?? [] {
+            CTFontManagerUnregisterFontsForURL(url as CFURL, .process, nil)
+        }
+        try? FileManager.default.removeItem(at: directory)
     }
 
     @Test func validFontImportsOnceAndRestoresFromApplicationSupport() throws {
@@ -69,12 +80,46 @@ struct FontLibraryTests {
         #expect(try FileManager.default.contentsOfDirectory(atPath: directory.path).isEmpty)
     }
 
-    @Test func ttcExposesEveryFontFaceWhenSystemFixtureExists() throws {
-        let system = URL(fileURLWithPath: "/System/Library/Fonts/Helvetica.ttc")
-        guard FileManager.default.fileExists(atPath: system.path) else { return }
+    @Test func fixedTTCExposesBothFacesWithoutSystemFontDependencies() throws {
         let directory = try folder()
-        defer { try? FileManager.default.removeItem(at: directory) }
-        let faces = try FontLibrary(fontsDirectory: directory, bundledURLs: []).importFont(from: system)
-        #expect(faces.count > 1)
+        defer { removeImportedFonts(in: directory) }
+        let library = FontLibrary(fontsDirectory: directory, bundledURLs: [])
+        let faces = try library.importFont(from: fixtures.appendingPathComponent("two-faces.ttc"))
+        #expect(Set(faces.map(\.postScriptName)) == ["CompositorFixtureCollection-Regular", "CompositorFixtureCollection-Bold"])
+        for face in faces {
+            #expect(library.contains(face.postScriptName))
+            #expect(library.availableFaces.contains { $0.postScriptName == face.postScriptName })
+        }
+        let regular = try #require(NSFont(name: "CompositorFixtureCollection-Regular", size: 100))
+        let bold = try #require(NSFont(name: "CompositorFixtureCollection-Bold", size: 100))
+        #expect(("A" as NSString).size(withAttributes: [.font: regular]).width == 60)
+        #expect(("A" as NSString).size(withAttributes: [.font: bold]).width == 80)
+    }
+
+    @Test func fixedTTFAndOTFDeduplicateAndRejectConflictingOrDamagedInputs() throws {
+        let directory = try folder()
+        defer { removeImportedFonts(in: directory) }
+        let library = FontLibrary(fontsDirectory: directory, bundledURLs: [])
+        for (file, name) in [("fixture.ttf", "CompositorFixtureTTF-Regular"), ("fixture.otf", "CompositorFixtureOTF-Regular")] {
+            let faces = try library.importFont(from: fixtures.appendingPathComponent(file))
+            #expect(faces.map(\.postScriptName) == [name])
+            #expect(library.contains(name))
+        }
+        let before = try FileManager.default.contentsOfDirectory(atPath: directory.path).sorted()
+        _ = try library.importFont(from: fixtures.appendingPathComponent("duplicate.ttf"))
+        #expect(try FileManager.default.contentsOfDirectory(atPath: directory.path).sorted() == before)
+        let invalid: [(String, FontLibraryError)] = [("conflict.ttf", .registration), ("wrong-extension.zip", .unsupported),
+            ("empty.otf", .empty), ("damaged.ttf", .damaged), ("truncated.ttc", .damaged)]
+        for (file, expected) in invalid {
+            do {
+                _ = try library.importFont(from: fixtures.appendingPathComponent(file))
+                Issue.record("Accepted invalid font \(file)")
+            } catch let actual as FontLibraryError {
+                #expect(String(describing: actual) == String(describing: expected))
+            }
+            #expect(try FileManager.default.contentsOfDirectory(atPath: directory.path).sorted() == before)
+        }
+        let font = try #require(NSFont(name: "CompositorFixtureTTF-Regular", size: 100))
+        #expect(("A" as NSString).size(withAttributes: [.font: font]).width == 60)
     }
 }

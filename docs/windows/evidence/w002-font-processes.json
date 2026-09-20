@@ -1,0 +1,72 @@
+{
+  "date": "2026-09-21",
+  "scope": "Mac FontLibrary in two separate processes; not full app restart or Windows validation",
+  "sourceBaseCommit": "0f81ca9",
+  "phases": [
+    {
+      "faces": [
+        {
+          "file": "fixture.ttf",
+          "glyphAAdvanceAt100pt": 60,
+          "postScriptName": "CompositorFixtureTTF-Regular"
+        },
+        {
+          "file": "fixture.otf",
+          "glyphAAdvanceAt100pt": 60,
+          "postScriptName": "CompositorFixtureOTF-Regular"
+        },
+        {
+          "file": "two-faces.ttc",
+          "glyphAAdvanceAt100pt": 60,
+          "postScriptName": "CompositorFixtureCollection-Regular"
+        },
+        {
+          "file": "two-faces.ttc",
+          "glyphAAdvanceAt100pt": 80,
+          "postScriptName": "CompositorFixtureCollection-Bold"
+        }
+      ],
+      "initiallyUnavailable": true,
+      "phase": "import",
+      "pid": 5578,
+      "status": "passed"
+    },
+    {
+      "faces": [
+        {
+          "file": "fixture.ttf",
+          "glyphAAdvanceAt100pt": 60,
+          "postScriptName": "CompositorFixtureTTF-Regular"
+        },
+        {
+          "file": "fixture.otf",
+          "glyphAAdvanceAt100pt": 60,
+          "postScriptName": "CompositorFixtureOTF-Regular"
+        },
+        {
+          "file": "two-faces.ttc",
+          "glyphAAdvanceAt100pt": 60,
+          "postScriptName": "CompositorFixtureCollection-Regular"
+        },
+        {
+          "file": "two-faces.ttc",
+          "glyphAAdvanceAt100pt": 80,
+          "postScriptName": "CompositorFixtureCollection-Bold"
+        }
+      ],
+      "initiallyUnavailable": true,
+      "phase": "restore",
+      "pid": 5291,
+      "status": "passed"
+    }
+  ],
+  "persistedFilesByteIdenticalToSource": true,
+  "reproducibleArtifactsCompared": 11,
+  "fonttools": "4.59.2",
+  "sha256": {
+    "Compositor/Document/FontLibrary.swift": "20db4ae3125ec5684d1ba19fa70c62afc9d1a8a3bc5230c339f9bd44831bbc98",
+    "CompositorTests/FontLibraryTests.swift": "e22dbf6bff5ea8a01d465fbf28d2c4ee9d0612eb1a781bbe915032e3f4f19a4b",
+    "experiments/windows/font-library-probe.swift": "cb0a465445ce9a422aad815aa2e233c1c8523c0369bbe47345e95c3f4f35b87c",
+    "scripts/windows/generate-font-fixtures.py": "55329e003d9aec5034638360ee719c3333b780ab695f0065e2988828dba6d942"
+  }
+}

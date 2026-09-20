@@ -24,4 +24,6 @@
 
 2026-09-21 扩展：[extended](extended/README.md) 新增 F09、12 份 F11 样式/DPI 和 F12 缺字体，共 14 份；[invalid](invalid/README.md) 固定 14 份 F10 拒绝样本；[brush](brush/README.md) 固定同一 4K 事件流的 CPU/Metal 首笔/两笔参考及工程，实测存在 alpha 差异。
 
-剩余：F12 字体冲突/TTC/损坏与重启的可跨平台复现资源；文本缺字/更多组合的行为验证；Windows 修改后 Mac 重开；D-03/D-11 参考语义及逐操作容差冻结。W-002 未完成；这些样本不能替代 Windows 四路径原型。
+2026-09-21 字体补充：[fonts](fonts/README.md) 提供自制 TTF、CFF OTF、双 face TTC、同名不同内容冲突、重复、损坏/空/截断输入；固定文件可跨平台传递。Mac 导入和两个独立进程的库级恢复验证通过。
+
+剩余：完整应用和 Windows 字体恢复验收；文本缺字/更多组合的行为验证；Windows 修改后 Mac 重开；D-03/D-11 参考语义及逐操作容差冻结。W-002 未完成；这些样本不能替代 Windows 四路径原型。

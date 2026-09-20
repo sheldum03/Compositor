@@ -20,7 +20,7 @@
 | 10 | HSV/Levels/Curves/Exposure/Gradient Map/Grain、反相、Gaussian/Motion/Noise/Lens、调整层 | Document/Filters.swift、Levels.swift、HueSaturation.swift、LayerAdjustment.swift | FilterTests、LevelsTests、HueSaturationTests、AdjustmentLayerTests、ImageAdjustmentTests |
 | 11 | 渐变、矩形/圆角/椭圆、形状参数缓存、调色板、吸管 | Document/Gradient.swift、ShapeTool.swift、ColorPalette.swift | GradientTests、ShapeToolTests、ColorPickerTests |
 | 12 | 单样式点/框文本、中文/Emoji、IME marked text、变换输入与共享布局 | Document/TextTool.swift、Rendering/TextEditorOverlay.swift | TextToolTests、TextLayoutTests |
-| 13 | 内置字体、OTF/TTF/TTC 导入、冲突/损坏/缺字体 | Document/FontLibrary.swift | FontLibraryTests；真实 Windows TTC/重启/IME 仍未执行 |
+| 13 | 内置字体、OTF/TTF/TTC 导入、冲突/损坏/缺字体 | Document/FontLibrary.swift | FontLibraryTests 固定 TTF/OTF/双 face TTC、去重/冲突/拒绝；Mac 两个独立进程恢复通过，完整应用重启与真实 Windows/IME 仍未执行 |
 | 14 | Vision raw mask、基础/高级细化、可取消且安装蒙版 | Document/SubjectRemoval.swift、GuidedMatte.swift、Filters.swift | SmartEditTests；Windows 模型替代仍待 M1/M6 |
 | 15 | 嵌套编辑合并事务、undo/redo、保存 revision、取消无历史 | Document/DocumentHistory.swift、EditorSession.swift | HistoryTests 及各工具提交/取消测试 |
 | 16 | 离屏 PNG/JPEG、透明度/背景/质量、DPI | IO/ImageExporter.swift | ExportTests、JPEGExportTests、ImageSizeTests |

@@ -130,3 +130,34 @@ W-002 剩余：可分发的 TTC/字体冲突/损坏/重启资源与跨平台验�
 - 最终 Release CTest **1/1 通过**，ASan+UBSan Debug CTest **1/1 通过**，未报告 sanitizer 错误；没有执行 LeakSanitizer、注入分配失败、100MP 压力或性能验收。原始日志与工具/源码 hash 见 `evidence/native-{release,sanitized}-macos.txt`、`evidence/native-probe-macos.json`。没有把这两次综合测试或 ctypes 计入 Swift 单元测试声明数。
 
 W-006 尚需 Windows 编译/导出/C++/C# 实际运行、框架像素接入、同输入 Mac/Windows 输出差异；本次不满足 W-004/005/006 或 M1 的实机门槛。M0–M7 目标保持进行中。下一步继续未完成的 W-001 状态组合与 W-002 字体样本准备。
+
+## 2026-09-21：W-002 / F12 字体样本与 Mac 进程恢复
+
+开始时核对 HEAD `0f81ca9`、工作区干净；上轮提交 C 桥接实验与实际测试，属于进展。当前仍未取得 Windows 环境或 D 决策答复，继续完成可独立的样本准备。
+
+- `scripts/windows/generate-font-fixtures.py` 用固定 fontTools 4.59.2 从自绘几何轮廓生成 TTF、CFF OTF 和两个不同 advance 的 TTC face；另有字节相同但改文件名的重复输入、相同 PostScript 名但改 advance 的有效冲突字体、空/损坏/截断/不支持扩展名。无复制系统或第三方字体轮廓，随仓库 MIT 许可提供。字体工具仅安装于 `/tmp/compositor-font-fixture-venv`。
+- 固定资产在 `fixtures/fonts`，含 cases.json、许可证和 SHA-256。11 个受 hash 管理文件在独立 `/tmp/compositor-font-fixtures-rebuilt` 重建后逐字节相同。与生产内置思源字体分开，不将几何样本当成中英混排验收字体。
+- `FontLibraryTests` 移除系统 Helvetica TTC 存在才执行的条件，换成必需的固定双 face 样本并验证各 face 字宽；新增固定 TTF/OTF 导入、跨文件名去重、明确错误类别、失败后目录不变和原字体度量未被冲突替换。注销本次测试注册后清理临时目录，不写用户字体库。
+- `experiments/windows/font-library-probe.swift` 直接编译真实 FontLibrary.swift；仅为独立构建提供与 CompositorApp 相同的 localized 表达式。两个独立进程分别 import/restore：每个先验证 4 个名称不可用，再确认注册来源为持久化目录、字宽及选择器中都有对应 face。restore 不重新导入；3 个持久化文件与源字节相同。**这是库级进程恢复，不是完整 GUI 应用重启，更不是 Windows 验收**。
+- 没有修改 Mac 生产源码；没有新增 Windows UI 或越过 M1 选型。
+
+验证命令：
+
+```sh
+xcodebuild -project Compositor.xcodeproj -scheme Compositor \
+  -configuration Debug -destination 'platform=macOS' \
+  -derivedDataPath /tmp/compositor-windows-192b-derived \
+  -disableAutomaticPackageResolution -parallel-testing-enabled NO \
+  -testLanguage en -testRegion US -only-testing:CompositorTests/FontLibraryTests \
+  -resultBundlePath /tmp/compositor-windows-192b-font-fixtures.xcresult \
+  CODE_SIGNING_ALLOWED=NO test
+xcrun swiftc -swift-version 6 -parse-as-library \
+  Compositor/Document/FontLibrary.swift experiments/windows/font-library-probe.swift \
+  -o /tmp/compositor-font-library-probe
+/tmp/compositor-font-library-probe import docs/windows/fixtures/fonts /tmp/compositor-font-library-restart-192b
+/tmp/compositor-font-library-probe restore docs/windows/fixtures/fonts /tmp/compositor-font-library-restart-192b
+```
+
+专项测试 **6 tests / 1 suite 通过，0 skipped，0 failed**（0.519 s）；xcodebuild 日志 `/tmp/compositor-windows-192b-font-fixtures.log`，摘要 `evidence/w002-font-summary.json`。两个探测进程 PID 不同且全部断言通过，原始结果及源码 hash 见 `evidence/w002-font-processes.json`。只执行字体专项，未声称重跑完整回归。
+
+W-002 的字体资源缺口已补充；仍需完整应用/Windows 恢复、跨平台文本/工程往返及 D 决策，不能关闭 M0。下一步推进 W-001 状态组合证据；Windows 实机、输入法、双路线原型和后续发行门槛仍未执行。
