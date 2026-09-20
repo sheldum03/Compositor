@@ -22,7 +22,7 @@
 | 12 | 单样式点/框文本、中文/Emoji、IME marked text、变换输入与共享布局 | Document/TextTool.swift、Rendering/TextEditorOverlay.swift | TextToolTests、TextLayoutTests |
 | 13 | 内置字体、OTF/TTF/TTC 导入、冲突/损坏/缺字体 | Document/FontLibrary.swift | FontLibraryTests 固定 TTF/OTF/双 face TTC、去重/冲突/拒绝；Mac 两个独立进程恢复通过，完整应用重启与真实 Windows/IME 仍未执行 |
 | 14 | Vision raw mask、基础/高级细化、可取消且安装蒙版 | Document/SubjectRemoval.swift、GuidedMatte.swift、Filters.swift | SmartEditTests；Windows 模型替代仍待 M1/M6 |
-| 15 | 嵌套编辑合并事务、undo/redo、保存 revision、取消无历史 | Document/DocumentHistory.swift、EditorSession.swift | HistoryTests 及各工具提交/取消测试 |
+| 15 | 嵌套编辑合并事务、undo/redo、保存 revision、取消无历史 | Document/DocumentHistory.swift、EditorSession.swift | HistoryTests、ProjectOperationStateTests 及各工具提交/取消测试 |
 | 16 | 离屏 PNG/JPEG、透明度/背景/质量、DPI | IO/ImageExporter.swift | ExportTests、JPEGExportTests、ImageSizeTests |
 | 17 | 工具单键/焦点、光标、拖放、多屏/DPI | Rendering/EditorCanvas.swift、UI/ProjectWindowBridge.swift | CursorTests、BlendShortcutTests；Windows 实机矩阵未执行 |
 | 18 | Mac Sparkle；Windows 安装/卸载/更新均待建设 | CompositorApp.swift、scripts/ | Mac 测试不能证明 Windows 安装更新 |
@@ -39,12 +39,30 @@
 | Text draft | commitText 先确认 marked text；空白不建层；失败留草稿；Esc 取消 | 成功提交才切换 | canStartProjectOperation 拒绝 | 当前 Mac 拒绝；不能声称自动提交 | 原生文本编辑器处理焦点，不等同 Canvas 取消 |
 | Crop | Enter 提交；Esc 取消 | 切工具取消 | 检查 canSwitch；保存/加载入口各自处理 | begin 取消 Crop | 清除 cropDrag |
 | Lasso/Shape draft | mouseUp/Enter 提交；Esc 取消 | selectTool 取消草稿 | 各会话保有自身草稿；不可臆定统一处理 | canStartProjectOperation 未普遍覆盖所有草稿 | Shape/非多边形 Lasso 取消；多边形保留 |
-| Gradient | Enter 异步提交；Esc 取消 | resolveGradient | canSwitch 拒绝 | 文件操作 guard 并非与 canSwitch 完全相同，需窗口流程补验 | 清除 gradientDrag，不等同自动提交 |
-| Levels/HSV/Filter/Adjustment | 预览不入历史，提交一次；取消保留原图 | 模态入口 guard | canSwitch 拒绝 | 各入口 guard/等待，不可直接覆盖草稿 | 不因 canvas 失焦自动提交 |
-| Floating/pixel move | 提交合成；取消恢复；无移动保留软边 | 对应工具自行处理 | pixelMove 时拒绝 | 需保留该入口的明确处理，不虚构统一状态机 | pixelMove 取消；selection move 结束 |
+| Gradient | Enter 异步提交；Esc 取消 | resolveGradient | canSwitch 拒绝 | 实测直接保存已提交文档，保留渐变预览且标记 saved；随后提交渐变才变脏 | 清除 gradientDrag，不等同自动提交 |
+| Levels/HSV/Filter/Adjustment | 预览不入历史，提交一次；取消保留原图 | 模态入口 guard | canSwitch 拒绝 | Levels 实测拒绝；HSV/Filter 实测保存原图、保留预览并标记 saved；Adjustment 仍需单独验证 | 不因 canvas 失焦自动提交 |
+| Floating/pixel move | 提交合成；取消恢复；无移动保留软边 | 对应工具自行处理 | pixelMove 时拒绝 | pixelMove 实测保存移动前像素、保留预览并标记 saved；floating transform 仍需单独验证 | pixelMove 取消；selection move 结束 |
 | Project busy/import | 结束/失败释放 busy；异步结果检查原图身份和变换 | 禁止重叠编辑 | 拒绝 | 防重入 | 不取消正在提交的笔划 |
 
 此处明确记录 Mac 入口之间的差异，不宣称已有通用状态机。Windows P-19 要将不一致入口逐项验证，尤其渐变/浮动选区/文本与文件操作，不从类名推导行为。
+
+### 已执行的状态组合
+
+`ProjectOperationStateTests` 在 macOS 26.5.1 arm64 的测试宿主执行真实 ProjectController 保存/ProjectStore 读回，以及未显示窗口的 NSWindow first-responder 切换。7 个测试声明展开 18 个场景通过；证据 `evidence/w001-state-matrix-summary.json`。没有执行真实鼠标输入、菜单点击、原生文件面板或 Windows 窗口，因此不扩大为完整窗口验收。
+
+| 场景 | 验证结果 |
+| --- | --- |
+| Brush/Text/Levels/project busy/importing × 保存/切项目/Undo | 返回拒绝；不创建工程文件；原文档、历史和活跃状态保留 |
+| Transform × 保存 | 先提交一次历史；读回变换已更新；Undo 变脏，Redo 返回 saved revision |
+| Crop × 保存 | 取消裁剪预览；原画布尺寸保存；不新增历史 |
+| Gradient/HSV/Filter/pixelMove × 保存/切项目 | 保存成功但切项目被拒；完整 manifest 和解码资产像素仍等于已提交文档；预览保留，保存 revision 更新 |
+| Gradient 在上述保存后提交，再 Undo | 提交新增一次历史并变脏；Undo 回到原文档与 saved revision |
+| Transform × 切项目 | 提交原项目一次历史；新项目文档/历史不变；切回可 Undo |
+| 合法/超限文本 × 切工具 | 合法提交后切换，一次历史可撤销；超限提交失败后保留 text 工具/草稿，文档/历史不变 |
+| 笔划 × 原生失焦，busy=false/true | false 取消，true 保留；此处 busy 由测试控制，不代表异步提交压力测试 |
+| freehand/polygonal lasso × 原生失焦 | freehand 取消；polygonal 保留；均不新增历史 |
+
+Windows W-011/W-016 必须为“预览中保存”的四类状态规定明确的提交、取消或拒绝处理，并测试保存状态提示与实际文件内容一致。以上观察登记为 Mac 入口差异，不据此决定 Windows 应原样保留。仍缺关闭/退出确认面板、外部文件排队、浮动变换、调整层编辑以及跨窗口真实操作组合。
 
 ## 资产与历史契约
 

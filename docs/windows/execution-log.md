@@ -161,3 +161,28 @@ xcrun swiftc -swift-version 6 -parse-as-library \
 专项测试 **6 tests / 1 suite 通过，0 skipped，0 failed**（0.519 s）；xcodebuild 日志 `/tmp/compositor-windows-192b-font-fixtures.log`，摘要 `evidence/w002-font-summary.json`。两个探测进程 PID 不同且全部断言通过，原始结果及源码 hash 见 `evidence/w002-font-processes.json`。只执行字体专项，未声称重跑完整回归。
 
 W-002 的字体资源缺口已补充；仍需完整应用/Windows 恢复、跨平台文本/工程往返及 D 决策，不能关闭 M0。下一步推进 W-001 状态组合证据；Windows 实机、输入法、双路线原型和后续发行门槛仍未执行。
+
+## 2026-09-21：W-001 状态组合与保存语义证据
+
+起点 `52cd680`，工作区干净；上轮固定字体与进程恢复是实际进展。本轮新增 `ProjectOperationStateTests.swift`，未改产品代码。关联 P-01/03/07/08/10/11/12/15/19、V-01/04/05；只证明覆盖到的 Mac 入口行为。
+
+- 用真实 ProjectController 保存到唯一临时 `.comp` 路径，再用 ProjectStore 读回；比较全 manifest 和每个图像资产的解码像素。覆盖 5 类拒绝状态、transform/crop 保存处置，以及 gradient/HSV/filter/pixelMove 仍待提交时保存。
+- 发现并确认四种预览状态的入口差异：canSwitch 拒绝，但 canStartProjectOperation 允许保存已提交文档并 markSaved，预览继续保留；渐变后来提交会重新变脏，Undo 恢复保存版本。这是待 Windows 状态策略解决的风险，未把它升级为产品期望。
+- 验证变换跨项目提交只影响原项目历史、文本提交成功/超限失败的工具切换、NSWindow first-responder 变化引发的笔划/lasso 取消与保留。
+- 第一轮 `state-matrix` 编译因测试使用不存在的 `.noise` 失败，修成实际 `.addNoise`；`state-matrix2` 6 tests 通过。补齐文本切工具成功/失败后，最终 `state-matrix-final` **7 tests / 1 suite，参数展开 18 场景，0 failed / 0 skipped**（0.114 s）。均为 Mac Debug；没有再次运行全部回归。
+
+最终命令：
+
+```sh
+xcodebuild -project Compositor.xcodeproj -scheme Compositor \
+  -configuration Debug -destination 'platform=macOS' \
+  -derivedDataPath /tmp/compositor-windows-192b-derived \
+  -disableAutomaticPackageResolution -parallel-testing-enabled NO \
+  -testLanguage en -testRegion US -only-testing:CompositorTests/ProjectOperationStateTests \
+  -resultBundlePath /tmp/compositor-windows-192b-state-matrix-final.xcresult \
+  CODE_SIGNING_ALLOWED=NO test
+```
+
+日志 `/tmp/compositor-windows-192b-state-matrix-final.log`；摘要 `evidence/w001-state-matrix-summary.json`。first-responder 测试使用真实但未显示的 NSWindow；busy 分支由测试设标志。未执行菜单/面板、真实输入、应用退出、Windows 焦点/DPI，不能把本轮称作完整窗口验收。
+
+基线矩阵已按实测更新，保留未验证项：关闭/退出确认、外部文件请求排队、floating transform、调整层编辑、跨窗口输入。W-001/M0 尚未关闭；Windows 实机与 D 决策的阻碍仍在，但本轮有新的可移交状态语义证据，目标保持进行中。
