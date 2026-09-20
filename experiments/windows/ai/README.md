@@ -37,6 +37,12 @@ cmake --build <BUILD> --parallel 6
 
 The native program itself takes only a preverified local model, raw tensor and output directory. It depends on the C++ standard library and ONNX Runtime, not Qt, Skia or Python. The Mac SDK links Apple frameworks including CoreML/Metal, but the actual node profile shows CPU execution only; no acceleration provider is appended.
 
+## Native Unicode path regression
+
+The Windows entry point now uses [`wmain`](https://learn.microsoft.com/en-us/cpp/cpp/main-function-command-line-args?view=msvc-170) and passes its wide arguments directly to `std::filesystem::path`, preserving UTF-16 paths for file streams and ONNX Runtime. Previously it interpreted narrow `main` arguments as UTF-8, which is unsafe when Windows supplies a legacy code page. POSIX retains its native `main` arguments. The runtime-returned UTF-8 profile filename still uses `u8path`; it has a different encoding contract from command-line arguments.
+
+The harness additionally copies the verified model/tensor into paths containing Chinese, spaces and non-BMP Emoji, runs inference into a similarly named directory, checks an identical raw prediction and identical CPU provider counts, and refuses an existing output without changing it. Copied model/tensor bytes must remain unchanged. Both Release and ASan/UBSan pass on Mac at `/tmp/compositor-native-unicode-01`; this does **not** execute or prove the Windows `wmain` branch. MSVC and Windows path coverage remain required. Evidence: `docs/windows/evidence/native-unicode-preparation.json`.
+
 ## Tensor, mask and lifecycle contracts
 
 The model is PyTorch 1.9-produced ONNX IR 6 / opset 11, with 1,055 nodes and 13 standard operator types: Add, Cast, Concat, Constant, Conv, Gather, MaxPool, Relu, Resize, Shape, Sigmoid, Slice, Unsqueeze. There are no external weight files, custom domains or local functions in this verified graph. This inspection is not a general untrusted-model validator.

@@ -15,11 +15,15 @@ namespace fs = std::filesystem;
 using Clock = std::chrono::steady_clock;
 void check(bool value, const char *message) { if (!value) throw std::runtime_error(message); }
 double milliseconds(Clock::time_point start) { return std::chrono::duration<double, std::milli>(Clock::now() - start).count(); }
+#ifdef _WIN32
+int wmain(int argc, wchar_t **argv) {
+#else
 int main(int argc, char **argv) {
+#endif
     try {
         check(argc == 4, "Usage: ai_probe <verified-u2netp.onnx> <1x3x320x320-f32le> <new-output-directory>");
         check(std::string(Ort::GetVersionString()) == "1.30.0", "Pinned ONNX Runtime version");
-        const fs::path model = fs::u8path(argv[1]), inputPath = fs::u8path(argv[2]), output = fs::u8path(argv[3]);
+        const fs::path model(argv[1]), inputPath(argv[2]), output(argv[3]);
         uint32_t endian = 1; check(*reinterpret_cast<unsigned char *>(&endian) == 1, "Little-endian float fixture");
         static_assert(sizeof(float) == 4, "Float32 input");
         std::vector<float> input(3 * 320 * 320);

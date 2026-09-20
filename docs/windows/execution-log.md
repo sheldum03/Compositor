@@ -575,3 +575,17 @@ W-009 的 AI/HEIC 都已有真实本机路径，但 Windows clean-machine、发�
 验证：actionlint1.7.12 exit0；全新 Mac build 目录 `/tmp/compositor-qt-ci-preflight-01/build` 配置/Release构建通过，native CTest **1 passed / 0 failed**，三组探针全部 exit0。20合成、242笔刷更新、12文字样本及既有断言实际执行。**205 个** PNG/工程文件与既有最终结果字节相同（124合成、9笔刷、72文字），计时/内存不纳入精确比较。`qt-ci-preparation.json` 保存步骤/文件hash/Windows SDK imports/限制；完整本机日志和SDK在 `/tmp/compositor-qt-ci-preflight-01`、`/tmp/compositor-qt-windows-sdk`。Mac 产品和探针源码不变，未跑 Mac app XCTest/全量套件。
 
 PowerShell、Windows 7-Zip、qtpaths.exe、MSVC及Windows探针仍未执行。本机解压检查与Mac编译不能替代它们；未来Server runner的headless结果也不能代替Windows11参考机/IME/DPI/GPU/干净安装。W-004/W-007、M0/M1及M2–M7发布目标保持未通过。未推送或触发远程CI。
+
+## 2026-09-21：W-009 AI/HEIC 原生 Windows 参数编码修正
+
+起点 `a20bc89`，工作区干净。上一轮 Qt CI/SDK 修正属于实际进展。本轮在准备 AI/HEIC Windows 运行入口时发现窄参数编码假设：两支探针原用 `main(char**)` 后对路径调用 `fs::u8path`，不能保证 Windows 当前代码页给出的 argv 是 UTF-8。这是源码与 Microsoft CRT 文档核对得到的缺陷，不声称已在 Windows 复现。
+
+两支探针在 `_WIN32` 下改为 `wmain(wchar_t**)`，直接构造 native `filesystem::path`，给文件流和 ORT 的 Windows wchar_t API 使用；POSIX 继续 main/native argv。ORT 自身返回的 profile 文件名有 UTF-8 契约，其 u8path 不变。未引入参数转换库、系统 locale 修改或生产公共模块。
+
+AI harness 新增同一次执行中的中文/空格/non-BMP Emoji 模型文件、输入张量、输出目录重放：raw prediction 与普通路径精确相同，CPU profile 实际存在且 kernel provider 计数同为1344；二次运行拒绝旧输出并保持其 mask，复制的模型/张量 hash 不变。HEIC 将原中文输入用例扩展到同类字符的输入与输出目录，显式传入 pixel budget；方向6透明图像素精确，已有输出拒绝/保留、输入 hash 保持。
+
+Release 和 ASan/UBSan 各执行两支完整 harness，**4 builds + 4 runs 全部 exit0**。AI 自有 C++ 插桩，预编译 ORT 未插桩；HEIC 自有 C++ 和此前构建的两库均插桩；leak detection关闭。与此前最终输出比较：AI原9个产物及新增Unicode raw mask精确；HEIC50个raw/PNG精确（旧unicode路径与新路径显式对应）。全部275份固定数据 hash 仍通过。未改图像算法、输入样本、模型或容差。
+
+证据 `evidence/native-unicode-preparation.json`，日志/产物 `/tmp/compositor-native-unicode-01`。本轮使用HEIC build-prefix libs，未替换此前搬迁目录中的旧探针；旧证据作为历史记录保留。未改 Mac 产品，未跑 app XCTest/全量回归。
+
+Windows wmain 分支尚未由 MSVC 编译或执行，不能用本机 UTF-8 成功冒充 Windows 路径验收。此入口修正在 AI/HEIC CI 接入之前完成；这两条 CI 路径仍待接入，未推送或触发远程运行。W-009、M0/M1 与全部 M2–M7/发布门槛保持未通过。

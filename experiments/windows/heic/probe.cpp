@@ -16,7 +16,11 @@ void write(const fs::path &path, const void *bytes, size_t count) {
     std::ofstream file(path, std::ios::binary); file.write(static_cast<const char *>(bytes), std::streamsize(count)); file.close(); need(bool(file), "Write output");
 }
 struct Library { Library() { check(heif_init(nullptr)); } ~Library() { heif_deinit(); } };
+#ifdef _WIN32
+int wmain(int argc, wchar_t **argv) {
+#else
 int main(int argc, char **argv) {
+#endif
     try {
         need(argc == 3 || argc == 4, "Usage: heic_probe <input.heic> <new-output-directory> [pixel-budget]");
         Library library; need(std::string(heif_get_version()) == "1.23.4", "Pinned libheif");
@@ -27,7 +31,7 @@ int main(int argc, char **argv) {
         int encoderCount = heif_get_encoder_descriptors(heif_compression_undefined, nullptr, encoders, 8);
         need(encoderCount == 1 && std::string(heif_encoder_descriptor_get_id_name(encoders[0])) == "mask", "Only internal mask encoder remains");
         need(heif_get_encoder_descriptors(heif_compression_HEVC, nullptr, nullptr, 0) == 0, "No HEVC encoder");
-        fs::path input = fs::u8path(argv[1]), output = fs::u8path(argv[2]);
+        fs::path input(argv[1]), output(argv[2]);
         need(!fs::exists(output), "Output must be new");
         uint64_t budget = argc == 4 ? std::stoull(argv[3]) : 100'000'000;
         need(budget > 0 && budget <= 100'000'000, "Pixel budget range");

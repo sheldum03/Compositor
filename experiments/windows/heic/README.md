@@ -62,6 +62,12 @@ No RGB tolerance is accepted. The color-quadrant diagnostic sheet shows correct 
 
 These generated files report zero raw ICC bytes. Therefore the ICC-copy branch and non-sRGB ICC conversion are **not tested**. HDR, 10/12-bit, NCLX variants, EXIF-only orientation without container transforms, DPI, auxiliary depth/gain maps, multiple primary images, real tiled camera images, large files, fuzz/security coverage and cancellation remain open for W-031/V-07. The default libheif output color handling was retained; it is not a chosen HDR policy.
 
+## Native Unicode path regression
+
+The Windows entry point now takes wide arguments through [`wmain`](https://learn.microsoft.com/en-us/cpp/cpp/main-function-command-line-args?view=msvc-170), passing native paths to `std::filesystem` and file streams. It no longer treats Windows narrow command-line bytes as UTF-8. POSIX keeps its native `main` arguments. No system locale or UTF-8 code-page setting is required by this source path.
+
+The non-ASCII replay now covers Chinese, spaces and non-BMP Emoji in **both** input and output paths, including an explicit pixel-budget argument. Pixels must equal the original orientation-6-alpha decode; a second run must refuse the existing output without changing it, and the copied HEIC must remain intact. Release and ASan/UBSan (including the already instrumented decoder dependencies) passed on Mac at `/tmp/compositor-native-unicode-01`. The Windows entry point, compiler and runtime remain unexecuted. This rerun used the build-prefix libraries and does not refresh the earlier relocated-stage binary. Evidence: `docs/windows/evidence/native-unicode-preparation.json`.
+
 ## Local relocation and distribution candidate
 
 The observed external stage contains `heic_probe` (62,720 bytes), `libheif.1.dylib` (1,910,216 bytes), `libde265.0.dylib` (463,600 bytes), and both upstream COPYING files. On this Mac the executable's prefix RPATH was replaced with `@loader_path`, its local ad-hoc signature refreshed, and the directory moved to `/tmp/compositor-heic-relocated`. Example reproduction:

@@ -87,6 +87,21 @@ for name, model_path, input_path in (("short-input", model, bad), ("nan-input", 
 original = sha(output / "native/mask.f32")
 result = subprocess.run([str(probe), str(model), str(output / "input.f32"), str(output / "native")], capture_output=True)
 assert result.returncode != 0 and sha(output / "native/mask.f32") == original
+# Exercise native path handling through model loading, tensor IO and profiling.
+unicode_root = output / "路径 空格 🧪"; unicode_root.mkdir()
+unicode_model, unicode_input, unicode_output = (unicode_root / name for name in ("模型 🧠.onnx", "输入 张量.f32", "推理 结果 🚀"))
+shutil.copyfile(model, unicode_model); shutil.copyfile(output / "input.f32", unicode_input)
+with (unicode_root / "native.log").open("w") as log:
+    subprocess.run([str(probe), str(unicode_model), str(unicode_input), str(unicode_output)], stdout=log, stderr=subprocess.STDOUT, check=True)
+assert sha(unicode_output / "mask.f32") == original
+unicode_profiles = list(unicode_output.glob("cpu-profile*.json"))
+assert len(unicode_profiles) == 1
+unicode_profile = json.loads(unicode_profiles[0].read_text())
+unicode_providers = Counter(e.get("args", {}).get("provider") for e in unicode_profile if e.get("cat") == "Node" and e.get("args", {}).get("provider"))
+assert unicode_providers == providers
+result = subprocess.run([str(probe), str(unicode_model), str(unicode_input), str(unicode_output)], capture_output=True)
+assert result.returncode != 0 and sha(unicode_output / "mask.f32") == original
+assert sha(unicode_model) == expected["u2netp.onnx"] and sha(unicode_input) == sha(output / "input.f32")
 for name, digest in expected.items():
     assert sha(assets / name) == digest
 sheet = Image.new("RGB", (1568, 554), (24, 26, 31)); draw = ImageDraw.Draw(sheet)
@@ -109,6 +124,8 @@ report = {"status": "local feasibility only; no Windows/quality/distribution acc
                    "fullPixels": int(np.count_nonzero(values == 255)), "intermediatePixels": int(np.count_nonzero((values > 0) & (values < 255))),
                    "sha256": sha(output / "mask.png"), "rawPredictionSha256": original},
           "failureChecks": failures, "existingOutputRefusedAndPreserved": True, "sourceFilesUnchanged": True,
+          "unicodePaths": {"chineseSpacesAndNonBmp": True, "rawPredictionExact": True, "profileKernelProviders": dict(unicode_providers),
+                           "existingOutputRefusedAndPreserved": True},
           "host": platform.platform(), "windowsExecuted": platform.system() == "Windows", "weightsRedistributionApproved": False,
           "activeInferenceCancellationTested": False}
 (output / "screening.json").write_text(json.dumps(report, indent=2) + "\n")

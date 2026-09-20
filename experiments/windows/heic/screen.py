@@ -57,11 +57,15 @@ for case in json.loads((fixtures / "cases.json").read_text()):
     results.append({"case": name, "decode": report, "rgbaSha256": sha(output / name / "rgba.bin"),
                     "comparison": {"differentPixels": int(np.count_nonzero(maximum)), "maximumChannelError": int(error.max()),
                                    "maximumAlphaError": int(error[:, :, 3].max()), "meanAbsoluteChannelError": float(error.mean())}})
-# Re-run one file using a non-ASCII filename; this proves Mac filesystem handling only.
-unicode_input = output / "方向与透明度.heic"
+# Exercise input and output paths including characters outside legacy code pages.
+unicode_root = output / "路径 空格 🧪"; unicode_root.mkdir()
+unicode_input, unicode_output = unicode_root / "方向与透明度 🌈.heic", unicode_root / "解码 结果 🚀"
 shutil.copyfile(fixtures / "orientation-6-alpha.heic", unicode_input)
-subprocess.run([str(probe), str(unicode_input), str(output / "unicode")], check=True)
-assert sha(output / "unicode/rgba.bin") == sha(output / "orientation-6-alpha/rgba.bin")
+subprocess.run([str(probe), str(unicode_input), str(unicode_output), "100000000"], check=True)
+assert sha(unicode_output / "rgba.bin") == sha(output / "orientation-6-alpha/rgba.bin")
+p = subprocess.run([str(probe), str(unicode_input), str(unicode_output)], capture_output=True)
+assert p.returncode != 0 and sha(unicode_output / "rgba.bin") == sha(output / "orientation-6-alpha/rgba.bin")
+assert sha(unicode_input) == sha(fixtures / "orientation-6-alpha.heic")
 truncated = output / "truncated.heic"
 truncated.write_bytes((fixtures / "orientation-1-opaque.heic").read_bytes()[:64])
 failures = []
@@ -95,6 +99,7 @@ sheet.save(output / "contact-sheet.png")
 report = {"status": "local HEIC screening only; not Windows or full IO/distribution acceptance", "host": platform.platform(),
           "windowsExecuted": platform.system() == "Windows", "corpusHashesVerified": 33, "results": results,
           "nonAsciiFilenamePixelsExact": True, "failureChecks": failures, "existingOutputPreserved": True,
+          "unicodePaths": {"chineseSpacesAndNonBmp": True, "inputAndOutput": True, "existingOutputRefusedAndPreserved": True},
           "imageToleranceAccepted": False, "generalIccAndHdrValidated": False}
 (output / "screening.json").write_text(json.dumps(report, indent=2) + "\n")
 print(json.dumps(report, indent=2))
