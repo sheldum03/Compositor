@@ -27,7 +27,9 @@
 
 Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 4K 软笔也已完成两笔局部提交、立即下一笔、undo/redo、导出与 Mac 读回准备；两张结果与 Avalonia premultiplied RGBA8 精确相同。第二笔共享 56 个未改瓦片，两个 commit 分别复制 92/106 个瓦片；尚非 S02 或资源验收。详见 `experiments/windows/qt/BRUSH.md`。Qt 文字现已完成 12 个 F11 样本的同一 QTextDocument 预览/导出、2,631 个变换命中、合成预编辑与取消恢复、6 个框宽重排和 48 次离屏视图光标查询；与 Mac 文字仍有显著差异。详见 `experiments/windows/qt/TEXT.md`。两方案的真实 Windows IME 与同机验证均未完成，W-007/W-008、M1 保持未通过。
 
-W-009 AI 筛查新增独立 C++ ONNX Runtime 1.30.0 / U2NetP CPU 原型：公开 NASA 样图真实推理、三次输出一致、独立 Gray8 蒙版和 Mac 启停/保存读回通过。模型效果仍有背景残留，单个原生进程 RSS 约 635 MiB；权重分发、Windows 与 HEIC 路径未验证。详见 `experiments/windows/ai/README.md`，不能据此勾选 W-009 或 D-08。
+W-009 AI 筛查新增独立 C++ ONNX Runtime 1.30.0 / U2NetP CPU 原型：公开 NASA 样图真实推理、三次输出一致、独立 Gray8 蒙版和 Mac 启停/保存读回通过。模型效果仍有背景残留，单个原生进程 RSS 约 635 MiB；权重分发和 Windows 路径未验证。详见 `experiments/windows/ai/README.md`，不能据此勾选 W-009 或 D-08。
+
+HEIC 筛查已有 libheif1.23.4 + libde2651.1.1 原生路径，16 个自生成样本覆盖 8 种方向与透明度；alpha 精确，RGB 最大差 1/255 未接受容差。搬迁后的独立 Mac 目录与双依赖 sanitizer 通过，新增 33 个冻结数据文件，既有 242 个不变。真实 Windows 干净机、ICC/HDR/相机样本和发行授权仍缺，详见 `experiments/windows/heic/README.md`；W-009/W-031 不勾选。
 
 ## 2. 阶段总览
 

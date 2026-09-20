@@ -1,0 +1,178 @@
+[
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 1,
+    "name" : "orientation-1-opaque",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 1,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 1,
+    "name" : "orientation-1-alpha",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 1,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 2,
+    "name" : "orientation-2-opaque",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 2,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 2,
+    "name" : "orientation-2-alpha",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 2,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 3,
+    "name" : "orientation-3-opaque",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 3,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 3,
+    "name" : "orientation-3-alpha",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 3,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 4,
+    "name" : "orientation-4-opaque",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 4,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 4,
+    "name" : "orientation-4-alpha",
+    "referenceHeight" : 64,
+    "referenceWidth" : 96,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 4,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 5,
+    "name" : "orientation-5-opaque",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 5,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 5,
+    "name" : "orientation-5-alpha",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 5,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 6,
+    "name" : "orientation-6-opaque",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 6,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 6,
+    "name" : "orientation-6-alpha",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 6,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 7,
+    "name" : "orientation-7-opaque",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 7,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 7,
+    "name" : "orientation-7-alpha",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 7,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : false,
+    "macOrientation" : 8,
+    "name" : "orientation-8-opaque",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : false,
+    "requestedOrientation" : 8,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  },
+  {
+    "macHasAlpha" : true,
+    "macOrientation" : 8,
+    "name" : "orientation-8-alpha",
+    "referenceHeight" : 96,
+    "referenceWidth" : 64,
+    "requestedAlpha" : true,
+    "requestedOrientation" : 8,
+    "sourceHeight" : 64,
+    "sourceWidth" : 96
+  }
+]

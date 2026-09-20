@@ -520,3 +520,36 @@ Qt 与 Avalonia 的四条受限路径目前都有本机准备，但 Windows 同�
 最终完整筛查目录 `/tmp/compositor-ai-run-02`，原生资源目录如上，sanitizer `/tmp/compositor-ai-run-sanitized`；各主日志同名前缀 `.log`。最终 Mac test 是 `WindowsFixtureTests/aiMaskPackageRetainsEditableCoverage()`：**1 passed / 0 failed / 0 skipped**，0.090 s，输入为 run-02；日志/xcresult 前缀 `/tmp/compositor-windows-192b-ai-mask-02`。测试先确认 mask 是 512×512 单通道 8-bit，再读取 coverage；未设 AI_SCREENING_DIR 时明确 skipped。未重跑全量 Mac suite。来源、命令与许可边界见 `experiments/windows/ai/README.md` / `assets.json`。入库 `evidence/ai-u2netp-{macos,native-metrics,summary,preparation}.json` 和 source/mask/cutout 接触图。
 
 本轮证明一条本机原生推理与可编辑蒙版数据路径存在，未解决权重授权、HEIC、Windows 实机或最终发行门槛。W-009、M0/M1 保持未通过，后续 M2–M7 和 PRD 范围不变；未推送或启动远程 CI。
+
+## 2026-09-21：W-009 HEIC 原生解码与独立目录搬迁准备
+
+起点 `6531bd5`，工作区干净。上一轮 AI 推理/蒙版提交属于实际进展；本轮完成 HEIC 候选路径的本机准备。官方 libheif1.23.4、libde2651.1.1 源码包下载至 `/tmp/compositor-heic-screening`，SHA-256 均与 GitHub release published digest 独立核对一致。源码未修改；两库从源码编译成 shared library，不安装系统包，不依赖用户额外安装系统 HEVC codec。
+
+新增 `experiments/windows/heic`：C++17 探针、libheif codec cache 配置、Mac-only 样本生成器和 Python 核验脚本。只启用 libde265 HEVC decoder，关闭 runtime plugin loading 和其他外部 encoder/decoder。运行枚举揭示 libheif 必留内部 mask encoder；探针精确断言一个 libde265 decoder、一个 mask encoder、零 HEVC encoder，没有把它记成“无编码器”。未用 x265。上游 heifio 构建发现的 host PNG/TIFF/zlib 等没有进入实际 staged linkage，未分发其静态 helper。
+
+ImageIO 实际编码自有非方形颜色/透明度几何像素，CoreImage 按 ImageIO 报告的方向归一化并生成 sRGB 参考。初始 6 例通过后扩展为所有 EXIF orientation1–8 × opaque/alpha，共 16 例；不是用 PNG 改扩展名。新增冻结数据 33 份（16 HEIC + 16 参考 PNG + cases.json），此前 242 份 hash 全不变，合计 275 份数据。编码结果可能随 OS 变化，固定 hash 不因后续重生成而自动更新。
+
+最终结果：
+
+| 检查/观察 | 结果 |
+| --- | --- |
+| 原生构建 | CMake3.31.6 / AppleClang21；自有探针 warnings-as-errors；两库 Release 和 sanitizer 均成功 |
+| 依赖诊断 | Debug 依赖构建有 4 条上游 sprintf deprecated warning；未屏蔽、未改上游源码 |
+| 实际 HEVC 解码 | 16/16、原方向 96×64/旋转 64×96、镜像/旋转正确、严格模式无 warning、straight RGBA8/stride 已断言 |
+| alpha | 16/16 与 Mac 参考精确；透明/不透明 metadata 一致 |
+| RGB | 每个 opaque 样本 4,608 差异像素、alpha 样本 2,304；premultiplied max 1/255，alpha max0，未接受容差 |
+| 文件名 | 中文路径重放与原旋转透明样本像素一致，仅证明 Mac 路径处理 |
+| 错误路径 | 截断、PNG、缺文件、100-pixel budget 均拒绝且不发布输出目录；旧输出拒绝并保留 |
+| 搬迁 | 独立目录包含探针、libheif、libde265、COPYING；probe RPATH 改 @loader_path、刷新本地 ad-hoc 签名后移动目录；DYLD trace 确认两库从搬迁目录加载，无 Homebrew/旧 prefix；完整 16 例通过 |
+| ASan/UBSan | 自有探针和两库全部源码插桩；完整 harness 通过；system libraries 未插桩，leak detection 关闭 |
+| Release/sanitizer 一致性 | 50 个 raw/PNG 产物字节一致（17 raw decodes、32 result/diff PNG、contact sheet） |
+
+原生单样本资源观察（64×96 透明旋转图）read/decode/copy0.458833 ms、全进程0.06 s wall、maximum RSS3,424,256 bytes；这不代表大图性能、Windows private memory/VRAM 或长期资源行为。contact sheet 实看所有方向、镜像与透明带相符，RGB 为细小均匀差异；模型检查不代替 Windows 人工验收。
+
+16 份样本的 raw ICC bytes 都为0，不能据此宣称 ICC 分支或任意 ICC 转换通过。HDR、10/12bit、NCLX 变体、只有 EXIF 没有 container transform 的方向、多主图、辅助图、相机 tiled HEIC、DPI、大图/恶意输入与取消继续属于 W-031/V-07。未跑 Mac app XCTest/全量回归，生成器的 ImageIO/CI 参考与应用测试明确区分；Mac 产品代码和旧 C 文件未改。
+
+两库库代码头均为 LGPL-3.0-or-later，COPYING hash 与 staged 副本记录在证据。可用动态库+对应源码/构建说明作为分发候选，但最终包依赖/义务、codec 专利与 D-07 决策未完成；“能解码”或“动态链接”不等于发行放行。未提交第三方源码或二进制。
+
+复现见 `experiments/windows/heic/README.md`。Release 目录 `/tmp/compositor-heic-run-02`、sanitizer `/tmp/compositor-heic-run-sanitized`；移动后 stage `/tmp/compositor-heic-relocated`；两源码 builds/logs 使用 `/tmp/compositor-heic-*` 前缀，单样本资源 `/tmp/compositor-heic-metrics-resources.log`。入库 `evidence/heic-{macos,preparation}.json` 与 `heic-contact-sheet.png`。
+
+W-009 的 AI/HEIC 都已有真实本机路径，但 Windows clean-machine、发行选择/授权及 M1 其余门槛仍未满足。W-009/W-031、M0/M1 不勾选，M2–M7 与全部 PRD/发布目标不缩减；未推送或触发远程 CI。
