@@ -553,3 +553,13 @@ ImageIO 实际编码自有非方形颜色/透明度几何像素，CoreImage 按 
 复现见 `experiments/windows/heic/README.md`。Release 目录 `/tmp/compositor-heic-run-02`、sanitizer `/tmp/compositor-heic-run-sanitized`；移动后 stage `/tmp/compositor-heic-relocated`；两源码 builds/logs 使用 `/tmp/compositor-heic-*` 前缀，单样本资源 `/tmp/compositor-heic-metrics-resources.log`。入库 `evidence/heic-{macos,preparation}.json` 与 `heic-contact-sheet.png`。
 
 W-009 的 AI/HEIC 都已有真实本机路径，但 Windows clean-machine、发行选择/授权及 M1 其余门槛仍未满足。W-009/W-031、M0/M1 不勾选，M2–M7 与全部 PRD/发布目标不缩减；未推送或触发远程 CI。
+
+## 2026-09-21：W-005/008 Windows CI 接入已有 Avalonia 三组探针
+
+起点 `8cd2d0b`，工作区干净。上一轮 HEIC 提交属于实际进展。本轮修补已有 `.github/workflows/windows-native-probe.yml` 的执行缺口：此前只运行 C/C++、ctypes 和 C# P/Invoke，未包含后续完成的 Avalonia 原型。没有新增产品入口或作出框架选型。
+
+工作流在 native/PInvoke 检查后执行固定 SDK 的 locked restore 和 Release build，再分步运行 20 个合成/工程往返样本、两笔 4K 笔刷和 12 个文字/合成输入样本，共用该作业生成的 Release DLL。Avalonia build 成功后，各探针使用显式 `!cancelled()` 条件，前一探针失败不阻止后续两组且 job 仍失败；取消时不启动后续检查。路径过滤补齐 Avalonia 源码、固定样本与嵌入字体/许可，30 分钟作业超时；失败时保留全部输出、日志、锁文件与 managed build 目录，沿用 14 天 artifact。构建目录是诊断包，不宣称可分发或可搬迁安装包。
+
+验证：actionlint **1.7.12 exit0**；Mac 上相同 dotnet argv 的 locked restore / Release build / 三组执行均 exit0，build **0 warning / 0 error**，lock hash 未变。20 个合成、242 次笔刷 custom draw 和 12 个文字样本通过。与上次输出逐字节比较：合成 PNG/工程资产 **144** 文件、笔刷 **9** 文件、文字 PNG **60** 文件一致；不比较波动的计时/内存字段。目录 `/tmp/compositor-avalonia-ci-preflight-01` 保存逐步日志和 JSON；入库摘要 `evidence/avalonia-ci-preparation.json` 记录工作流/依赖锁/报告 hash。这是 CLI 预检，PowerShell 管道和 Windows 运行尚未执行；未改 probe 或 Mac 产品源码，未重跑 Mac app XCTest。
+
+复现和 artifact 用法写入 `experiments/windows/avalonia/README.md`。将来 Server runner 的 headless 结果也不能代替 Windows 11 参考机、真实 IME/DPI/GPU 或干净机安装。Qt、AI、HEIC 尚未接入此工作流。本轮未推送、未调远程 CI；W-004/W-008、M0/M1 与发布目标保持未通过。

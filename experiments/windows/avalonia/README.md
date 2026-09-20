@@ -22,6 +22,14 @@ Dependencies are limited to Avalonia.Headless and Avalonia.Skia **11.3.22**, wit
 
 The headless application uses `UseHeadlessDrawing = false` and `UseSkia()`: the default headless drawing backend would not establish real pixel output. `SceneControl` obtains a Skia lease through an `ICustomDrawOperation`; that callback and the offscreen exporter both call `FixtureScene.Paint`. Each specimen asserts that the callback ran and that its rendered PNG matches export exactly at 96 dpi. This proves an actual Avalonia drawing path without proving native-window behavior, display ICC, HiDPI, GPU, input or performance. See [Avalonia headless setup](https://docs.avaloniaui.net/docs/testing/setting-up-the-headless-platform) and the [pinned Skia lease API](https://github.com/AvaloniaUI/Avalonia/blob/627ae9ef921621e27e7aa58df2796fbadb50af88/src/Skia/Avalonia.Skia/ISkiaSharpApiLeaseFeature.cs).
 
+## Prepared Windows CI
+
+[The Windows probe workflow](../../../.github/workflows/windows-native-probe.yml) now restores the locked graph and builds this probe after the native C/C++ and P/Invoke checks. It runs composition/project round trips, the two-stroke 4K brush and shared text/synthetic input as separate steps against the same Release DLL. Once the Avalonia build succeeds, a failing probe does not suppress the other two; failure still fails the job. Cancellation does stop subsequent probes.
+
+The existing `windows-native-<commit>` artifact retains logs, all three output directories and the managed build output (including runtime dependency metadata, native runtime assets and the font notice) for 14 days, even on failure. Generated `.comp` packages can be downloaded for the Mac readback commands in this README and BRUSH.md. The text path has no project round trip. These build outputs are diagnostic artifacts, not a portable release package.
+
+Changes to the probe, fixed fixtures, embedded font/notice or native inputs trigger the workflow on its existing branch filter. The workflow also retains manual dispatch. This change has only passed actionlint and a macOS command preflight; it has **not** been pushed or run remotely. GitHub's Windows Server runner, when executed, can establish MSVC/runtime/headless results; it cannot establish Windows 11 native-window behavior, IME, GPU/DPI performance or clean-machine installation. A green workflow does not close W-004/W-008/M1.
+
 ## Deliberate scope
 
 - Fixed F01–F07 and B01–B13: PNG assets, sRGB, 13 blend modes, opacity, integer origins, scaling, pass-through groups and inherited visibility. F04–F07 add layer masks, contiguous same-parent clipping stacks, group masks and a clipped master saturation adjustment. The 64×48 specimens include a source scaled to 44×32. Native Skia high-quality sampling is a candidate, not presumed equivalent to Core Graphics sampling for arbitrary images.

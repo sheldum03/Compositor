@@ -1,0 +1,89 @@
+{
+  "platform": "macOS arm64; workflow command preflight only",
+  "windowsExecuted": false,
+  "lockSha256": "4c0b7d2a7ecdfad4cb0d5cebadacefb8db5f2a7a14dbd48e42bc9a12783786b8",
+  "nativeLibrarySha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3",
+  "steps": [
+    {
+      "step": "restore",
+      "exitCode": 0,
+      "seconds": 1.123
+    },
+    {
+      "step": "build",
+      "exitCode": 0,
+      "seconds": 2.189
+    },
+    {
+      "step": "composite",
+      "exitCode": 0,
+      "seconds": 1.322
+    },
+    {
+      "step": "brush",
+      "exitCode": 0,
+      "seconds": 21.356
+    },
+    {
+      "step": "text",
+      "exitCode": 0,
+      "seconds": 4.318
+    }
+  ],
+  "date": "2026-09-21",
+  "sourceBaseCommit": "8cd2d0b",
+  "scope": "Windows CI wiring preparation; local macOS commands passed, PowerShell/Windows runner unexecuted",
+  "actionlint": {
+    "version": "1.7.12",
+    "exitCode": 0
+  },
+  "releaseBuildWarnings": 0,
+  "releaseBuildErrors": 0,
+  "comparisons": [
+    {
+      "probe": "composite",
+      "stableFilesByteIdentical": 144,
+      "comparedTo": "/tmp/compositor-avalonia-after-text"
+    },
+    {
+      "probe": "brush",
+      "stableFilesByteIdentical": 9,
+      "comparedTo": "/tmp/compositor-avalonia-brush-02"
+    },
+    {
+      "probe": "text",
+      "stableFilesByteIdentical": 60,
+      "comparedTo": "/tmp/compositor-avalonia-text-13"
+    }
+  ],
+  "checks": {
+    "compositeFixtures": 20,
+    "brushCustomDraws": 242,
+    "textFixtures": 12,
+    "corpusFilesCheckedPerProbe": [
+      91,
+      9,
+      47
+    ]
+  },
+  "remoteWorkflowTriggered": false,
+  "windowsReferenceMachineValidated": false,
+  "macApplicationTestsRun": false,
+  "W008Passed": false,
+  "M1Passed": false,
+  "sha256": {
+    ".github/workflows/windows-native-probe.yml": "8fa6deed1565683f07f0140929354a17990580b623b1ad0cce4853541e56a3a2",
+    "experiments/windows/avalonia/README.md": "2a972d972139daaefc993a21e73876ba696a83a97404fe748c74b3ca52beabbd",
+    "experiments/windows/avalonia/packages.lock.json": "4c0b7d2a7ecdfad4cb0d5cebadacefb8db5f2a7a14dbd48e42bc9a12783786b8"
+  },
+  "localEvidenceSha256": {
+    "brush/brush-report.json": "3623f09e335393a8de17a715a395cd32767ad2fd698a697d2a886aa1c0e930a9",
+    "brush.log": "3623f09e335393a8de17a715a395cd32767ad2fd698a697d2a886aa1c0e930a9",
+    "build.log": "b0661e85baaa23e9d3a260cbc8afff7327c0ffb89afccbf21fe33319a3368a5b",
+    "composite/report.json": "06fce2dbd7e43982aa374a67ce4134b01765254032791e0f64827619067d4650",
+    "composite.log": "06fce2dbd7e43982aa374a67ce4134b01765254032791e0f64827619067d4650",
+    "restore.log": "2557873da46f82ea5072e92355b9944c71c8b43411b170f76df521f26c41d80d",
+    "text/text-report.json": "f3a90fca80ca33dff8d2fe245c705a28364c6c5d82f8dbd19c62da45a91d9ffa",
+    "text.log": "f3a90fca80ca33dff8d2fe245c705a28364c6c5d82f8dbd19c62da45a91d9ffa"
+  }
+}
