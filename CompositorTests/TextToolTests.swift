@@ -185,6 +185,81 @@ struct TextToolTests {
         #expect(export.image.width == 600 && export.image.height == 400)
     }
 
+    @Test func transformPreservesTextCacheUntilRasterSizeChangesAndUndoes() throws {
+        let session = session()
+        let original = try add("Scale 中文", to: session)
+        let image = try #require(original.asset?.image)
+        session.selectTool(.move)
+        session.beginTransform()
+        var moved = original.transform
+        moved.origin.x += 25
+        moved.rotation = 23
+        moved.flipX = true
+        session.previewTransform(moved)
+        session.commitTransform()
+        #expect(session.activeLayer?.asset?.image === image)
+        #expect(session.activeLayer?.liveText?.style == original.liveText?.style)
+
+        let before = session.history.undoCount
+        session.beginTransform()
+        var scaled = moved
+        scaled.size.width *= 2
+        scaled.size.height *= 2
+        session.previewTransform(scaled)
+        session.commitTransform()
+        let redrawn = try #require(session.activeLayer?.asset?.image)
+        #expect(redrawn !== image)
+        #expect(redrawn.width == image.width * 2 && redrawn.height == image.height * 2)
+        #expect(session.activeLayer?.liveText?.style == original.liveText?.style)
+        #expect(session.history.undoCount == before + 1)
+        session.undo()
+        #expect(session.activeLayer?.asset?.image === image)
+        #expect(session.activeLayer?.transform == moved)
+        session.redo()
+        #expect(session.activeLayer?.asset?.image === redrawn)
+    }
+
+    /// Records the Mac baseline's fallback redraw; Windows D-11 must explicitly resolve this difference.
+    @Test func missingFontScaleCurrentlyReplacesTheCachedRaster() throws {
+        let session = session()
+        let original = try add("Missing font cache", to: session)
+        let index = try #require(session.document?.layers.firstIndex(where: { $0.id == original.id }))
+        session.document?.layers[index].text?.style.fontPostScriptName = "Definitely-Missing-Font"
+        let image = try #require(session.activeLayer?.asset?.image)
+        session.selectTool(.move)
+        session.beginTransform()
+        var scaled = original.transform
+        scaled.size.width *= 2
+        session.previewTransform(scaled)
+        session.commitTransform()
+        #expect(session.activeLayer?.asset?.image !== image)
+        #expect(session.activeLayer?.liveText?.style.fontPostScriptName == "Definitely-Missing-Font")
+        session.undo()
+        #expect(session.activeLayer?.asset?.image === image)
+    }
+
+    @Test func imageSizeRasterizesTextButResolutionOnlyChangeAndUndoKeepIt() async throws {
+        let session = session()
+        let original = try add("Resize 中文", to: session)
+        let snapshot = try #require(session.projectSnapshot())
+        let resolutionOnly = try await ImageResizer.shared.resize(snapshot,
+            to: ImageSizeOptions(width: 600, height: 400, resolution: 300))
+        #expect(resolutionOnly.manifest.layers.first(where: { $0.id == original.id })?.text == original.liveText?.style)
+        #expect(resolutionOnly.images[original.id]?.image === original.asset?.image)
+        let resized = try await ImageResizer.shared.resize(snapshot,
+            to: ImageSizeOptions(width: 300, height: 200, resolution: 72))
+        #expect(resized.manifest.layers.first(where: { $0.id == original.id })?.text == nil)
+        let before = session.history.undoCount
+        session.applyImageSize(resized)
+        #expect(session.activeLayer?.liveText == nil)
+        #expect(session.history.undoCount == before + 1)
+        session.undo()
+        #expect(session.activeLayer?.liveText?.style == original.liveText?.style)
+        #expect(session.activeLayer?.asset?.image === original.asset?.image)
+        session.redo()
+        #expect(session.activeLayer?.liveText == nil)
+    }
+
     @Test func editorOverlayUsesNativeFlipCoordinatesForReliableHitTesting() throws {
         let session = session()
         let layer = try add("Flip me", to: session)

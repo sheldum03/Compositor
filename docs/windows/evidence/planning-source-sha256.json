@@ -1,0 +1,11 @@
+{
+  "windows/README.md": "5e19044707193779b87d523304cbccfd3e5817f52b422259febdc83566623cca",
+  "windows/code-coupling-audit.md": "e01362d90aea926bffc08cb93b9de4201c4ecb2dccfcbcddfa5b718436a539fe",
+  "windows/development-plan.md": "f8aa80d36a3ae1c21868c1a4261dcf4aaed69988e50ed2e54553cbcb3ce1bf5d",
+  "windows/product-goals.md": "ca40b4c8dcdfb40a5ce42e612e1eb7cace4eae25e6b8180d4beeb06e9cf28d58",
+  "windows/product-requirements.md": "f29082b75d0b0c761a2321856a2f6465574c847c70ba7862f966cc9a050497e4",
+  "windows/technical-design.md": "7059118ef7fd875f459f583854c297312fcab3594c8929671c906df44ad294d7",
+  "windows/validation-release.md": "9455fb76817b5989595850120c069967a8ba79ca3f28f26651cc6497b483f166",
+  "research/windows-framework-candidates.md": "361d65c3327fd411188b4c8d1dd42481bffc1fc6c0e371e00264ac9659971f26",
+  "research/windows-port-open-source-evaluation.md": "edf5e06f95dbb7737251ff3db70988a934dac9bcaadb795be501f7284fee6117"
+}

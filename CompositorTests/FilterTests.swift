@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct FilterTests {
-    @Test func gaussianBlurSoftensAHardEdgeWithoutFadingTheBordersAsOneUndoStep() async throws {
+    @Test func gaussianBlurSpreadsPastLayerBoundsAsOneUndoStep() async throws {
         let session = EditorSession()
         session.createDocument(width: 40, height: 20)
         // Left half opaque white, right half transparent.
@@ -13,6 +13,7 @@ struct FilterTests {
         context.fill(CGRect(x: 0, y: 0, width: 20, height: 20))
         let image = try #require(context.makeImage())
         session.insert(ImportedImage(image: image, thumbnail: image, name: "Half"))
+        let original = try #require(session.activeLayer)
         session.beginFilter(.gaussianBlur)
         #expect(session.filterEdit != nil && !session.canEditLayers)
         session.updateFilter(FilterSettings(radius: 3), preview: true)
@@ -20,16 +21,26 @@ struct FilterTests {
         await session.commitFilter()
         #expect(session.filterEdit == nil && session.history.undoCount == count + 1)
         #expect(session.filterSettings.radius == 3)
-        let result = try #require(session.activeLayer?.asset?.image)
+        let layer = try #require(session.activeLayer)
+        #expect(layer.transform.origin.x < original.transform.origin.x)
+        #expect(layer.transform.origin.y < original.transform.origin.y)
+        #expect(layer.transform.origin.x + layer.size.width > 20) // extends beyond the opaque half
+        #expect(layer.size.height > original.size.height)
+        let result = try await ImageExporter.shared.render(try #require(session.projectSnapshot())).image
         let pixels = try #require(CGContext(data: nil, width: result.width, height: result.height, bitsPerComponent: 8,
             bytesPerRow: result.width * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue))
         pixels.draw(result, in: CGRect(x: 0, y: 0, width: result.width, height: result.height))
         let bytes = try #require(pixels.data).assumingMemoryBound(to: UInt8.self)
         func alpha(_ x: Int) -> Int { Int(bytes[(10 * result.width + x) * 4 + 3]) }
-        #expect(alpha(0) == 255)                  // the layer's own border doesn't fade
+        #expect(alpha(0) > 100 && alpha(0) < 200) // the blur spreads beyond the old border
+        #expect(alpha(10) > 250)                 // the interior stays opaque
         #expect(alpha(20) > 20 && alpha(20) < 235) // the hard edge is now soft
         #expect(alpha(38) == 0)
+        session.undo()
+        #expect(session.activeLayer == original)
+        session.redo()
+        #expect(session.activeLayer == layer)
     }
 
     @Test func motionBlurStreaksAlongItsAngleCounterclockwiseFromHorizontal() throws {

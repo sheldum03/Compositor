@@ -1,0 +1,31 @@
+{
+  "activeLayerID" : "00000000-0000-4000-8000-000000000001",
+  "colorSpace" : "sRGB",
+  "documentID" : "00000000-0000-4000-8000-000000000101",
+  "format" : "com.compositor.project",
+  "height" : 48,
+  "layers" : [
+    {
+      "id" : "00000000-0000-4000-8000-000000000001",
+      "imageFile" : "00000000-0000-4000-8000-000000000001.png",
+      "isVisible" : true,
+      "name" : "Base",
+      "transform" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          0,
+          0
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          64,
+          48
+        ]
+      }
+    }
+  ],
+  "version" : 1,
+  "width" : 64
+}

@@ -97,9 +97,11 @@ struct BrushTests {
         window.contentView = view
         #expect(window.makeFirstResponder(view))
         func press(_ key: CGKeyCode, shift: Bool) throws {
-            let source = try #require(CGEvent(keyboardEventSource: nil, virtualKey: key, keyDown: true))
-            source.flags = shift ? .maskShift : []
-            view.keyDown(with: try #require(NSEvent(cgEvent: source)))
+            let character = key == 30 ? (shift ? "}" : "]") : (shift ? "{" : "[")
+            view.keyDown(with: try #require(NSEvent.keyEvent(with: .keyDown, location: .zero,
+                modifierFlags: shift ? .shift : [], timestamp: 0, windowNumber: window.windowNumber,
+                context: nil, characters: character, charactersIgnoringModifiers: character,
+                isARepeat: false, keyCode: key)))
         }
         session.brushSettings.hardness = 0.5
         try press(30, shift: true) // Shift-]

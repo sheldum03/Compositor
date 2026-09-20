@@ -101,18 +101,43 @@ struct LayerTests {
         #expect(session.activeLayerID == bottom) // Synchronous delegate, no click timer.
         coordinator.update(table)
         #expect(table.reloadCount == reloads)
-        #expect(coordinator.moveLayer(bottom, to: 0))
+        let drag = LayerDragInfo(source: table, payload: bottom.uuidString)
+        defer { drag.draggingPasteboard.releaseGlobally() }
+        let before = session.document
+        let undoCount = session.history.undoCount
+        #expect(coordinator.tableView(table, validateDrop: drag, proposedRow: 0, proposedDropOperation: .above) == .move)
+        #expect(session.document == before && session.history.undoCount == undoCount)
+        #expect(coordinator.tableView(table, acceptDrop: drag, row: 0, dropOperation: .above))
         coordinator.update(table)
         #expect(table.selectedRow == 0)
         #expect(session.document?.layers.last?.id == bottom)
-        #expect(coordinator.moveLayer(bottom, to: 3))
+        #expect(session.history.undoCount == undoCount + 1)
+        session.undo()
+        #expect(session.document == before)
+        session.redo()
+        coordinator.update(table)
+        #expect(session.document?.layers.last?.id == bottom)
+        #expect(coordinator.tableView(table, validateDrop: drag, proposedRow: 3, proposedDropOperation: .above) == .move)
+        #expect(coordinator.tableView(table, acceptDrop: drag, row: 3, dropOperation: .above))
         coordinator.update(table)
         #expect(table.selectedRow == 2)
         #expect(session.document?.layers.first?.id == bottom)
-        #expect(!coordinator.moveLayer(UUID(), to: 0))
-        #expect(!coordinator.moveLayer(bottom, to: 4))
+        #expect(session.history.undoCount == undoCount + 2)
+        let unchanged = session.document
+        let unchangedHistory = session.history.undoCount
+        for payload in [UUID().uuidString, "not-a-uuid"] {
+            drag.draggingPasteboard.setString(payload, forType: NativeLayerList.Coordinator.layerType)
+            #expect(coordinator.tableView(table, validateDrop: drag, proposedRow: 0, proposedDropOperation: .above).isEmpty)
+            #expect(session.document == unchanged && session.history.undoCount == unchangedHistory)
+        }
+        drag.draggingPasteboard.setString(bottom.uuidString, forType: NativeLayerList.Coordinator.layerType)
+        for row in [-1, 4] {
+            #expect(coordinator.tableView(table, validateDrop: drag, proposedRow: row, proposedDropOperation: .above).isEmpty)
+            #expect(session.document == unchanged && session.history.undoCount == unchangedHistory)
+        }
         session.isImporting = true
-        #expect(!coordinator.moveLayer(bottom, to: 0))
+        #expect(coordinator.tableView(table, validateDrop: drag, proposedRow: 0, proposedDropOperation: .above).isEmpty)
+        #expect(session.document == unchanged && session.history.undoCount == unchangedHistory)
     }
 
     @Test func selectionAndRenameDoNotInvalidateCanvasButPixelChangesDo() throws {
@@ -240,4 +265,34 @@ struct LayerTests {
         let folder = try #require(session.activeLayerID)
         #expect(!session.duplicateLayer(folder, in: nil, atBottom: true), "folders aren't duplicated this way")
     }
+}
+
+/// Supplies AppKit's drag input while exercising the real table delegate validation and commit.
+@MainActor
+private final class LayerDragInfo: NSObject, NSDraggingInfo {
+    let draggingPasteboard = NSPasteboard.withUniqueName()
+    let draggingSource: Any?
+    var draggingSourceOperationMask: NSDragOperation { .move }
+    var draggingDestinationWindow: NSWindow? { nil }
+    var draggingLocation: NSPoint { .zero }
+    var draggedImageLocation: NSPoint { .zero }
+    var draggedImage: NSImage? { nil }
+    var draggingSequenceNumber: Int { 1 }
+    var draggingFormation: NSDraggingFormation = .none
+    var animatesToDestination = false
+    var numberOfValidItemsForDrop = 1
+    var springLoadingHighlight: NSSpringLoadingHighlight { .none }
+
+    init(source: NSTableView, payload: String) {
+        draggingSource = source
+        super.init()
+        draggingPasteboard.setString(payload, forType: NativeLayerList.Coordinator.layerType)
+    }
+
+    func slideDraggedImage(to screenPoint: NSPoint) {}
+    override func namesOfPromisedFilesDropped(atDestination dropDestination: URL) -> [String]? { nil }
+    func resetSpringLoading() {}
+    func enumerateDraggingItems(options enumOpts: NSDraggingItemEnumerationOptions, for view: NSView?,
+                                classes classArray: [AnyClass], searchOptions: [NSPasteboard.ReadingOptionKey: Any],
+                                using block: (NSDraggingItem, Int, UnsafeMutablePointer<ObjCBool>) -> Void) {}
 }

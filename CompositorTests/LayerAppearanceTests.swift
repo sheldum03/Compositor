@@ -81,7 +81,7 @@ struct LayerAppearanceTests {
             #expect(try JSONDecoder().decode(LayerBlendMode.self, from: JSONEncoder().encode(mode)) == mode)
             let raster = try await ImageExporter.shared.render(try #require(session.projectSnapshot()))
             let (value, alpha) = try pixel(raster.image)
-            #expect(abs(value - expected) < 0.02)
+            #expect(abs(value - expected) < 0.02, "\(mode): expected \(expected), got \(value)")
             #expect(alpha == 1)
         }
         session.setLayerBlendMode(.normal)
@@ -123,7 +123,7 @@ struct LayerAppearanceTests {
         defer { try? FileManager.default.removeItem(at: url) }
         try await ProjectStore.shared.save(snapshot, to: url)
         let loaded = try await ProjectStore.shared.load(from: url)
-        #expect(loaded.manifest.version == 7)
+        #expect(loaded.manifest.version == 8)
         let resized = try await ImageResizer.shared.resize(loaded, to: ImageSizeOptions(width: 8, height: 8, resolution: 72))
         let canvas = try await CanvasResizer.shared.resize(resized, to: CanvasSizeOptions(width: 12, height: 12))
         let record = try #require(canvas.manifest.layers.first { $0.id == id })
