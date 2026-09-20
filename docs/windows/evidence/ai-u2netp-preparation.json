@@ -1,0 +1,215 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "5fed5b7",
+  "scope": "W-009 one real model CPU inference and editable-mask feasibility preparation on Mac; not Windows/model-quality/redistribution acceptance",
+  "toolchain": {
+    "onnxruntime": "1.30.0",
+    "cmake": "3.31.6",
+    "compiler": "AppleClang 21",
+    "python": "3.9.6",
+    "onnxInspector": "1.17.0",
+    "numpy": "2.0.2",
+    "Pillow": "11.3.0",
+    "protobuf": "6.33.6",
+    "architecture": "arm64"
+  },
+  "releaseBuild": {
+    "exitCode": 0,
+    "warningsAsErrors": true
+  },
+  "releaseRun": {
+    "exitCode": 0,
+    "output": "compositor-ai-run-02",
+    "graphOperatorTypes": 13,
+    "graphNodes": 1055,
+    "cpuKernelProfileEvents": 1344,
+    "inputShape": [
+      1,
+      3,
+      320,
+      320
+    ],
+    "outputShapes": [
+      [
+        1,
+        1,
+        320,
+        320
+      ],
+      [
+        1,
+        1,
+        320,
+        320
+      ],
+      [
+        1,
+        1,
+        320,
+        320
+      ],
+      [
+        1,
+        1,
+        320,
+        320
+      ],
+      [
+        1,
+        1,
+        320,
+        320
+      ],
+      [
+        1,
+        1,
+        320,
+        320
+      ],
+      [
+        1,
+        1,
+        320,
+        320
+      ]
+    ],
+    "repeatedPredictionBitwiseExact": true,
+    "preTerminationAndRecoveryPassed": true,
+    "invalidCasesRejected": 4,
+    "existingOutputRefusedAndPreserved": true,
+    "telemetryExplicitlyDisabled": true
+  },
+  "sanitizers": {
+    "asan": true,
+    "ubsan": true,
+    "instrumented": "own C++ only; prebuilt ONNX Runtime uninstrumented",
+    "leakDetection": false,
+    "fullHarnessExitCode": 0,
+    "stableArtifactCount": 9
+  },
+  "macReadback": {
+    "suite": "WindowsFixtureTests",
+    "test": "aiMaskPackageRetainsEditableCoverage",
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "testExecutionSeconds": 0.09,
+    "input": "compositor-ai-run-02",
+    "finalArtifactsByteEqualToTestInput": true,
+    "checks": [
+      "Gray8 mask independent from source",
+      "render alpha exactly equals inferred mask",
+      "disable mask restores original pixels",
+      "save/reopen retains rendered pixels and original image"
+    ],
+    "fullMacSuiteRerun": false
+  },
+  "nativeResourceObservation": {
+    "output": "compositor-ai-native-metrics",
+    "rawPredictionEqualToScreening": true,
+    "source": "/usr/bin/time -l",
+    "wallSeconds": 0.66,
+    "maximumResidentSetSizeBytes": 665567232,
+    "scope": "native process including session, profiling, four successful runs and pre-termination; excludes Python pipeline/GUI/Mac test; not Windows private memory or VRAM"
+  },
+  "distribution": {
+    "assetMetadata": "experiments/windows/ai/assets.json",
+    "runtimeAndWeightsCommitted": false,
+    "convertedWeightAuthorizationVerified": false,
+    "windowsSdkDownloadedOrExecuted": false,
+    "finalPackageInventoryComplete": false
+  },
+  "fixedCorpusHashesVerified": {
+    "base": 91,
+    "brush": 9,
+    "extended": 47,
+    "fonts": 11,
+    "invalid": 84
+  },
+  "visualInspection": {
+    "artifact": "ai-u2netp-contact-sheet.png",
+    "attribution": "NASA photograph, public domain; scikit-image v0.25.2 source documented in assets.json",
+    "result": "Subject and helmet retained; visible flag/background residue at left boundary and imperfect fine edges; no ground-truth quality acceptance"
+  },
+  "stableArtifacts": [
+    {
+      "path": "contact-sheet.png",
+      "bytes": 593285,
+      "sha256": "c3eadf7220e9cc743de353bcadf3250ef7b77af9045b043ee866e16fa484cc7b"
+    },
+    {
+      "path": "cutout.png",
+      "bytes": 523977,
+      "sha256": "cae8612daf7ed60c65b87d1f3a69c7c3a963f7a757389efb1b82daeee7e3ae44"
+    },
+    {
+      "path": "input.f32",
+      "bytes": 1228800,
+      "sha256": "d085f68b79a2a856160a0ea207180658a3d58da7d77feaca7b1fffcca4136951"
+    },
+    {
+      "path": "mask.png",
+      "bytes": 18294,
+      "sha256": "e357796da5eb9713ef02ef4393fc37a42f619f6f6d2c2c57a8d721f93e1ac463"
+    },
+    {
+      "path": "native/mask.f32",
+      "bytes": 409600,
+      "sha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+    },
+    {
+      "path": "source.png",
+      "bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5"
+    },
+    {
+      "path": "subject.comp/images/00000000-0000-4000-9000-000000000020.mask.png",
+      "bytes": 18294,
+      "sha256": "e357796da5eb9713ef02ef4393fc37a42f619f6f6d2c2c57a8d721f93e1ac463"
+    },
+    {
+      "path": "subject.comp/images/00000000-0000-4000-9000-000000000020.png",
+      "bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5"
+    },
+    {
+      "path": "subject.comp/manifest.json",
+      "bytes": 815,
+      "sha256": "ca31147bcae29edcf9b5f3f3735b1a9aeb614f4c504b77a3c1c7e164c0880256"
+    }
+  ],
+  "stableArtifactDigest": "e585d2ca0daeed34f0de14672faf277e0ab50aa1a678beb30d08f89c3735fbf7",
+  "nativeExecutableLinkage": [
+    "\t@rpath/libonnxruntime.1.dylib (compatibility version 1.0.0, current version 1.30.0)",
+    "\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)",
+    "\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)"
+  ],
+  "sha256": {
+    "CompositorTests/WindowsFixtureTests.swift": "b1f46ea404817ffb7a5d0828f8aa4f34d8ae5f59a78266f86d651727ee28410c",
+    "docs/windows/evidence/ai-u2netp-contact-sheet.png": "c3eadf7220e9cc743de353bcadf3250ef7b77af9045b043ee866e16fa484cc7b",
+    "docs/windows/evidence/ai-u2netp-macos.json": "fbc768259234cd82a87dc391e6e8038b2f0d7f0b8d78cf87c7573c4b1d0fc6cd",
+    "docs/windows/evidence/ai-u2netp-native-metrics.json": "673d8e5e00e12ae616c5a1537393eacf58c96d721e01ccf31d8b52572598a622",
+    "docs/windows/evidence/ai-u2netp-summary.json": "ee6427ac33cd03fddac93f1d9e82c9b8da6f88570f99a52369187c12bae275ca",
+    "experiments/windows/ai/.gitignore": "181314065df2f2fdaf920b1a8b5311daa216a2d6489a06ada5b49cc514d89417",
+    "experiments/windows/ai/CMakeLists.txt": "9a4289abc5fd18d482633f1cfa4a37f1cfcad002a6b1b92f796b2e225eb5b4c4",
+    "experiments/windows/ai/README.md": "e004c36924f828e2b837109af636deb68ab39497f4bb7c5a6b451f36682f1495",
+    "experiments/windows/ai/assets.json": "b33316c7650fb6bc9df18b7dc07003007e671c8d89fe14cea322a08419feb635",
+    "experiments/windows/ai/licenses/rembg-MIT.txt": "90a3215072968fd304669c5389f04f1274a587abdd0507d99dead0f5511f8999",
+    "experiments/windows/ai/probe.cpp": "823d1e0b713d803c8f488f29e90c5601f158165f05c981696564a87f4f1b9fbf",
+    "experiments/windows/ai/requirements.txt": "c279d6ca6270085399fe9bbeb3b6b4c06469c199b2207382e8cd6eacb09864a7",
+    "experiments/windows/ai/screen.py": "b28bf480e154c77bf3513651ff25e6734b9d9aad8c44de4568626d8cbb34255e"
+  },
+  "windowsExecuted": false,
+  "macProductionCodeChanged": false,
+  "nativeLegacyCChanged": false,
+  "W009Passed": false,
+  "M1Passed": false,
+  "remaining": [
+    "Windows runtime and clean-machine deployment",
+    "Exact weight acquisition/redistribution decision",
+    "HEIC decoding/distribution screening",
+    "Diverse labeled segmentation quality and alternative models",
+    "Active cancellation, postprocessing, existing masks and editor transactions",
+    "M0 decisions and M2-M7 PRD/release gates"
+  ]
+}

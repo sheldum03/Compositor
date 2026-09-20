@@ -101,6 +101,40 @@ struct WindowsFixtureTests {
         try await renamedCopiesReopenWithOriginalPixels(path: path)
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["AI_SCREENING_DIR"] != nil,
+                   "Run the native AI screening and set AI_SCREENING_DIR to its output."))
+    func aiMaskPackageRetainsEditableCoverage() async throws {
+        let root = URL(fileURLWithPath: try #require(ProcessInfo.processInfo.environment["AI_SCREENING_DIR"]))
+        let snapshot = try await ProjectStore.shared.load(from: root.appendingPathComponent("subject.comp"))
+        #expect(snapshot.manifest.version == 8 && snapshot.manifest.width == 512 && snapshot.manifest.height == 512)
+        #expect(snapshot.manifest.resolution == 72 && snapshot.manifest.layers.count == 1)
+        let layer = try #require(snapshot.manifest.layers.first)
+        let image = try #require(snapshot.images[layer.id]?.image)
+        let mask = try #require(snapshot.masks[layer.id]?.image)
+        #expect(layer.maskEnabled == true && layer.maskFile != nil)
+        #expect(mask.width == 512 && mask.height == 512 && mask.colorSpace?.model == .monochrome)
+        let coverage = try #require(NSBitmapImageRep(data: Data(contentsOf: root.appendingPathComponent("mask.png"))))
+        try #require(coverage.pixelsWide == 512 && coverage.pixelsHigh == 512 && coverage.bitsPerSample == 8 && coverage.samplesPerPixel == 1)
+        let coverageBytes = try #require(coverage.bitmapData)
+        let rendered = try await ImageExporter.shared.render(snapshot).image
+        let data = try pixels(rendered)
+        let actualAlpha = stride(from: 3, to: data.count, by: 4).map { data[$0] }
+        let expectedAlpha = (0..<512).flatMap { y in (0..<512).map { x in coverageBytes[y * coverage.bytesPerRow + x] } }
+        #expect(actualAlpha == expectedAlpha, "Mac export alpha equals the inferred Gray8 coverage")
+        #expect(actualAlpha.contains(0) && actualAlpha.contains(255) && actualAlpha.contains { $0 > 0 && $0 < 255 })
+        var unmasked = snapshot.manifest
+        unmasked.layers[0].maskEnabled = false
+        let restored = ProjectSnapshot(manifest: unmasked, images: snapshot.images, masks: snapshot.masks)
+        #expect(try pixels(await ImageExporter.shared.render(restored).image) == pixels(image), "Disabling mask restores source pixels")
+        let resaved = FileManager.default.temporaryDirectory.appendingPathComponent("Compositor-AI-Mask-\(UUID()).comp")
+        defer { try? FileManager.default.removeItem(at: resaved) }
+        try await ProjectStore.shared.save(snapshot, to: resaved)
+        let reopened = try await ProjectStore.shared.load(from: resaved)
+        #expect(reopened.manifest.layers[0].maskEnabled == true && reopened.masks.count == 1)
+        #expect(try pixels(await ImageExporter.shared.render(reopened).image) == data, "Saving/reopening preserves masked pixels")
+        #expect(try pixels(#require(reopened.images[layer.id]?.image)) == pixels(image), "Original image survives separately")
+    }
+
     private func renamedCopiesReopenWithOriginalPixels(path: String) async throws {
         let output = URL(fileURLWithPath: path)
         let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()

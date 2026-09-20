@@ -1,0 +1,5 @@
+# Inspection/preprocessing tools only; the native probe has no Python dependency.
+onnx==1.17.0
+numpy==2.0.2
+Pillow==11.3.0
+protobuf==6.33.6

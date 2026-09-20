@@ -489,3 +489,34 @@ Qt 仍缺变换文字/共享布局/native IME，对照双方都缺 Windows 同�
 详细命令与 pinned 官方源码链接见 `experiments/windows/qt/TEXT.md`。日志 `/tmp/compositor-qt-text-08.log`、`-resources.log`；sanitizer 前缀 `/tmp/compositor-qt-text-sanitized`。72 张 PNG 与已检查 Release 07 和 sanitizer 相同，入库 `evidence/qt-text-{macos,preparation}.json`、contact sheet。Mac 产品代码未改，无新增 XCTest/全量 suite 运行；不能更新旧全量通过数。
 
 Qt 与 Avalonia 的四条受限路径目前都有本机准备，但 Windows 同机执行、真实 IME、性能/资源、部署和产品决策仍缺。W-007/W-008、M0/M1 保持未通过；M2–M7、全部 PRD/发布目标不缩减。未收到公开推送授权或 Windows 访问答复，未推送或触发远程 CI。
+
+## 2026-09-21：W-009 原生 AI 推理与可编辑蒙版筛查
+
+起点 `5fed5b7`，工作区干净。上轮 Qt 文字提交属于实际进展；本轮推进 W-009 的真实模型路径。新增 `experiments/windows/ai` 独立 C++17 / ONNX Runtime 1.30.0 CPU 原型，不依赖 Qt/Avalonia，不选 GUI 方向。Mac arm64 SDK 放在 `/tmp/compositor-ai-screening`，archive SHA-256 与 GitHub 官方 release digest 一致；native library、SDK source commit、MIT/第三方 notices/Privacy 文件 hash 均记录。Windows x64 SDK 的官方 URL/大小/digest 仅作候选元数据，未下载或运行。
+
+模型为 rembg 官方 release 提供的 4,574,861-byte U2NetP ONNX；SHA-256 已冻结，MD5 与 pinned adapter 一致。图为 PyTorch1.9 / IR6 / opset11、1,055 nodes、13 类标准算子，没有 external data/custom domain/local function。原架构仓库 Apache-2.0、rembg MIT 不自动解决该转换权重的单独分发许可；尚未核实，不提交 SDK 或权重，不替用户作 D-08 决策。预处理参考代码的 MIT notice 已保留。
+
+使用 scikit-image v0.25.2 的 NASA 公有领域 astronaut 样图（512×512），记录来源/原图 hash。Python 仅作模型检查、RGB Lanczos/归一化/NCHW float32 准备、PNG/工程诊断输出；真正推理通过 C++ API，关闭 telemetry，没有图片上传或自动模型下载。模型输出第一张 saliency 经 rembg 同样 min/max + Gray8 + Lanczos 还原为原尺寸，原图和蒙版分别存入真实 v8 `.comp`。
+
+最终结果：
+
+| 检查/观察 | 结果 |
+| --- | --- |
+| 原生 Release 构建 | CMake3.31.6 / AppleClang21 / warnings-as-errors 通过 |
+| 实际 CPU 推理 | 一个 `[1,3,320,320]` float32 输入、七个实际 `[1,1,320,320]` float32 输出；全部 finite 且在 `[0,1]` |
+| 稳定性/执行后端 | 三次预测 bitwise 相同；恢复运行同值；profile 中 1,344 kernel events 均为 CPUExecutionProvider |
+| 取消范围 | 预先 SetTerminate 的 Run 被拒绝，UnsetTerminate 后 session 恢复；没有声称测过正在执行中的中断 |
+| 拒绝路径 | 短 tensor、NaN、缺模型、损坏模型均无最终 mask；已有输出拒绝且保留 |
+| 蒙版 | Gray8 512×512：108,712 零覆盖、395 满覆盖、153,037 中间值 |
+| Mac 可编辑性 | 实际 ProjectStore/ImageExporter 的 gated test 验证 alpha 与 mask 一致、关闭 mask 恢复原图、保存重开保持独立图与 mask |
+| ASan/UBSan | 自有 C++ 插桩、完整 harness 通过；预编译 ORT 未插桩，leak detection 关闭 |
+| 稳定产物 | 初始/最终 Release 与 sanitizer 的 9 个 tensor/raw-mask/PNG/package 产物字节相同；资源运行 raw mask 同值 |
+| 既有样本 | 242/242 固定文件 hash 不变；Mac 产品与原 native C 未改 |
+
+独立原生资源运行 `/tmp/compositor-ai-native-metrics`：session load 45.439125 ms，三次推理 160.088750 / 163.463125 / 102.949459 ms，全进程 0.66 s wall、maximum RSS 665,567,232 bytes（约 635 MiB）。它包含 profiling、四次成功推理和 pre-termination，排除 Python 图像处理、GUI 与 Mac test，不是 Windows private RAM/VRAM 或长期压力指标。模型文件约 4.4 MiB 不代表推理内存很小。
+
+接触图实看主体/头盔被保留，左边旗帜/背景仍残留，发丝和边缘不够精确。没有标注真值/多图质量集，不能选定模型或宣称与 Apple Vision 等价。Basic/Advanced 后处理、已有蒙版组合、活跃取消、事务/历史与 Windows 部署继续保留在 M6。
+
+最终完整筛查目录 `/tmp/compositor-ai-run-02`，原生资源目录如上，sanitizer `/tmp/compositor-ai-run-sanitized`；各主日志同名前缀 `.log`。最终 Mac test 是 `WindowsFixtureTests/aiMaskPackageRetainsEditableCoverage()`：**1 passed / 0 failed / 0 skipped**，0.090 s，输入为 run-02；日志/xcresult 前缀 `/tmp/compositor-windows-192b-ai-mask-02`。测试先确认 mask 是 512×512 单通道 8-bit，再读取 coverage；未设 AI_SCREENING_DIR 时明确 skipped。未重跑全量 Mac suite。来源、命令与许可边界见 `experiments/windows/ai/README.md` / `assets.json`。入库 `evidence/ai-u2netp-{macos,native-metrics,summary,preparation}.json` 和 source/mask/cutout 接触图。
+
+本轮证明一条本机原生推理与可编辑蒙版数据路径存在，未解决权重授权、HEIC、Windows 实机或最终发行门槛。W-009、M0/M1 保持未通过，后续 M2–M7 和 PRD 范围不变；未推送或启动远程 CI。
