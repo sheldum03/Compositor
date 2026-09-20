@@ -457,3 +457,35 @@ Qt 尚缺软笔提交/下一笔/undo 工作流和变换文字/真实 IME；两�
 本机 Release/sanitizer build 目录沿用上轮；最终输出 `/tmp/compositor-qt-brush-02`，日志同名 `.log`，资源记录同名前缀 `-resources.log`。Mac xcodebuild 的日志/xcresult 前缀 `/tmp/compositor-windows-192b-qt-brush`，Qt 输入为 brush-01；已核验其 9 个产物与最终 brush-02/sanitizer 相同。Mac helper 提取复用未降低原断言，未重跑全量 Mac suite。入库 `evidence/qt-brush-{macos,summary,preparation}.json` 与 contact sheet；详细命令见 `experiments/windows/qt/BRUSH.md`。
 
 Qt 仍缺变换文字/共享布局/native IME，对照双方都缺 Windows 同机输入、性能资源与部署验证。W-007/W-008、M0/M1 保持未通过，M2–M7 与全部 PRD/发布要求不缩减。未收到公开推送或 Windows 环境的用户答复，未把自动继续视作授权。
+
+## 2026-09-21：Qt 变换文字、共享布局与合成输入准备
+
+起点 `a5168f4`，工作区干净。上一轮 Qt 软笔提交属于实际进展，本轮继续 W-007 文字路径。新增 `--text`，使用可编辑 QGraphicsTextItem 内部的 QTextDocument；Scene paint 与 export.drawContents 使用同一布局，不重复排版。CMake 引用嵌入既有 Source Han Sans SC，复制原 OFL 通知；不安装字体，不改 Mac 产品、native C、工程 manifest 或文本 PNG 缓存。D-11 编辑/缩放策略未决。
+
+12 个 F11 样式覆盖 72/300 dpi、点/框文字、三种对齐、中文/英文/emoji/combining accent、附加行距/字距、13° 旋转与水平翻转。自然布局按已有 layer rectangle 适配仅是实验放置约定。Qt 原有编辑控件处理合成鼠标 press/release 和 QInputMethodEvent；不自建输入引擎。
+
+本轮断言发现并解决三个实验问题：默认长度读取 document-backed QTextLayout 的 glyphRuns 得到空列表，改传显式 block text length；未激活视图返回空输入光标查询，改走 offscreen view.show/activate/focus + event processing；300 dpi 左对齐框的 preedit 导出漏裁剪，造成 4 个边缘像素不同，给 drawContents 传入与 item 一样的 boundingRect 后精确通过。未加图片容差、未动 framework 私有 API。
+
+最终 Release `/tmp/compositor-qt-text-08`：
+
+| 检查 | 结果 |
+| --- | --- |
+| 构建 | Qt 6.11.2 / AppleClang21 / warnings-as-errors 通过；resource font hash/OFL 副本已核验 |
+| 共享画面/导出 | 基线与 preedit 各 12/12 精确，实际 item paint 已执行，输出非空 |
+| 变换鼠标命中 | 2,631 个合成事件样本；actual editor caret 与 document hit 相同，无 grapheme split；逆映射 max 2.97e−13 px（阈值 0.001 px） |
+| 框宽变化 | 6/6 缩窄后增加换行、画面/导出仍精确，恢复宽度后原像素恢复 |
+| 合成输入 | 12/12 preedit 不进入 committed text/undo；cancel 像素恢复；commit/undo/redo/selection replacement 通过 |
+| 视图光标查询 | 激活的离屏 QGraphicsView 在 0.75×/1×/1.5×/2× 共 48 次，preedit query 包含图层变换、视图缩放与滚动偏移 |
+| 实际字体 | Source Han Sans SC + .Apple Color Emoji UI；后者是本机回退，不视为 Windows 字体可用 |
+| Mac 参考 | 全部非精确，差异 4,720–51,784 pixels，最大通道差 133–166/255；未接受容差 |
+| ASan/UBSan | 自有 C++/C 插桩通过，预编译 Qt 未插桩、leak detection 关闭；72 PNG 与 Release 逐字节一致 |
+| 已有路径回归 | 20-case 合成通过，去掉 timing 后报告与已存证据相同；brush 9 个 PNG/package 文件字节不变；native CTest 1 passed |
+| 样本身份 | 242/242 文件 hash 不变 |
+
+视图缩放不是操作系统 monitor DPI，offscreen activation 不是 Windows 激活/输入法候选窗验收。本次没有原生鼠标/键盘/中文输入法、剪贴板或多显示器。共享导出只含文字/preedit 内容，光标和选择装饰不属于导出；事务保存、缺字/缺字体缓存、字体冲突与导入仍在后续范围。
+
+`time -l` 全进程观察 1.50 s wall、127,680,512 bytes maximum RSS，包含字体、所有案例、PNG/diff、合成输入与离屏视图激活；非 Windows private RAM/VRAM 或长期资源测试。Qt 在初始化 generic Sans Serif 别名时有诊断日志，实际 glyph run 字体已单独记录。接触图可见行度量、字形位置与 emoji 差异，不能以视觉相近代替像素验收。
+
+详细命令与 pinned 官方源码链接见 `experiments/windows/qt/TEXT.md`。日志 `/tmp/compositor-qt-text-08.log`、`-resources.log`；sanitizer 前缀 `/tmp/compositor-qt-text-sanitized`。72 张 PNG 与已检查 Release 07 和 sanitizer 相同，入库 `evidence/qt-text-{macos,preparation}.json`、contact sheet。Mac 产品代码未改，无新增 XCTest/全量 suite 运行；不能更新旧全量通过数。
+
+Qt 与 Avalonia 的四条受限路径目前都有本机准备，但 Windows 同机执行、真实 IME、性能/资源、部署和产品决策仍缺。W-007/W-008、M0/M1 保持未通过；M2–M7、全部 PRD/发布目标不缩减。未收到公开推送授权或 Windows 访问答复，未推送或触发远程 CI。

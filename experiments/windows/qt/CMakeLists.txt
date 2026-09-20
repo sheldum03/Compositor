@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.11.2 EXACT REQUIRED COMPONENTS Widgets)
 add_subdirectory(../native native)
-add_executable(qt_probe probe.cpp scene.cpp composite.cpp brush.cpp brush_probe.cpp)
+add_executable(qt_probe probe.cpp scene.cpp composite.cpp brush.cpp brush_probe.cpp text_probe.cpp)
 target_link_libraries(qt_probe PRIVATE Qt6::Widgets compositor_native)
 if(MSVC)
     target_compile_options(qt_probe PRIVATE /W4 /WX /utf-8)
@@ -12,3 +12,9 @@ else()
     target_compile_options(qt_probe PRIVATE -Wall -Wextra -Werror)
 endif()
 enable_testing()
+
+qt_add_resources(qt_probe "text_fonts" PREFIX "/fonts"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}/../../../Compositor/Resources/Fonts"
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/../../../Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf")
+configure_file("../../../Compositor/Resources/Licenses/SourceHanSans-OFL.txt"
+    "Licenses/SourceHanSans-OFL.txt" COPYONLY)

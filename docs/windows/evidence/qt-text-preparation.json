@@ -1,0 +1,123 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "a5168f4",
+  "scope": "W-007 transformed shared text and synthetic input preparation on Mac; not Windows IME or M1 acceptance",
+  "toolchain": {
+    "qt": "6.11.2",
+    "compiler": "AppleClang 21",
+    "cmake": "3.31.6",
+    "architecture": "arm64",
+    "configuration": "Release",
+    "qtPlatformPlugin": "offscreen"
+  },
+  "releaseBuild": {
+    "exitCode": 0,
+    "cppWarningsAsErrors": true,
+    "nativeContractTestsPassed": 1
+  },
+  "releaseRun": {
+    "exitCode": 0,
+    "output": "compositor-qt-text-08",
+    "fixtures": 12,
+    "initialPreviewExportExact": 12,
+    "preeditPreviewExportExact": 12,
+    "cancelPixelsExact": 12,
+    "transformedSyntheticMouseHits": 2631,
+    "maximumInverseErrorPixels": 2.9673135796061134e-13,
+    "geometryTolerancePixels": 0.001,
+    "graphemeViolations": 0,
+    "boxResizeRewrapAndRestore": 6,
+    "focusedViewCursorQueries": 48,
+    "viewZooms": [
+      0.75,
+      1,
+      1.5,
+      2
+    ],
+    "osMonitorDpiTested": false,
+    "nativeImeExecuted": false,
+    "offscreenViewActivated": true,
+    "textCommitUndoRedoSelectionPassed": 12
+  },
+  "font": {
+    "resourceEmbedded": true,
+    "fontFamily": "Source Han Sans SC",
+    "sha256": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "resolvedFonts": [
+      ".Apple Color Emoji UI",
+      "Source Han Sans SC"
+    ],
+    "osInstalled": false,
+    "licenseCopiedAndByteVerified": true,
+    "emojiFallbackPortable": false,
+    "diagnostic": "Initial generic Sans Serif alias lookup reported by Qt; actual shaped font families explicitly observed"
+  },
+  "macReference": {
+    "exactCases": 0,
+    "differentPixelsMin": 4720,
+    "differentPixelsMax": 51784,
+    "maxChannelErrorMin": 133,
+    "maxChannelErrorMax": 166,
+    "toleranceAccepted": false
+  },
+  "sanitizers": {
+    "asan": true,
+    "ubsan": true,
+    "instrumented": "own C++ and native C; prebuilt Qt uninstrumented",
+    "leakDetection": false,
+    "runExitCode": 0,
+    "pngFilesByteEqualToRelease": 72
+  },
+  "regression": {
+    "compositorCasesPassed": 20,
+    "compositorReportEqualToFrozenEvidenceExceptTimings": true,
+    "brushPassed": true,
+    "brushPngAndPackageFilesByteEqualToPriorEvidence": 9,
+    "fullMacSuiteRerun": false,
+    "newMacTests": 0
+  },
+  "wholeProcessMacResourceObservation": {
+    "source": "/usr/bin/time -l",
+    "wallSeconds": 1.5,
+    "maximumResidentSetSizeBytes": 127680512,
+    "scope": "font loading, twelve text cases, PNG/diff generation, synthetic input and offscreen view activation; not Windows private RAM/VRAM or long-running measurement"
+  },
+  "fixedCorpusHashesVerified": {
+    "base": 91,
+    "brush": 9,
+    "extended": 47,
+    "fonts": 11,
+    "invalid": 84
+  },
+  "visualInspection": {
+    "artifact": "qt-text-contact-sheet.png",
+    "result": "Differences in line metrics, glyph placement and emoji; model inspection only"
+  },
+  "outputDigest": {
+    "algorithm": "SHA-256 of UTF-8 compact JSON array of sorted {path,bytes,sha256} entries",
+    "files": 73,
+    "bytes": 3001588,
+    "sha256": "47238b9196c59a29e8da8222906efbd8b4004ff6290229a13ce03d0ddaed1b85"
+  },
+  "sha256": {
+    "experiments/windows/qt/CMakeLists.txt": "0b8b58fd467de0ece4abb582af42c1d50298de4b96b1f7409a2762420f184342",
+    "experiments/windows/qt/README.md": "c89a113e8b02663b9b22026d2085b57c07ebb934e0c6de4933c74c9e1613c643",
+    "experiments/windows/qt/TEXT.md": "fb68553847c48ee9fd6965fe3a5a1e17a9ea9fde42ecc1d941dd321b05d433fd",
+    "experiments/windows/qt/text_probe.cpp": "1b3f87288d3cab2fc1fa35d646c3950b4f4337d3116d368b3583992c3b28c3de",
+    "experiments/windows/qt/probe.cpp": "66699e21c557e629376493cb6e4a227fbb16a5e0e68f72fc96f922f9b14c9b68",
+    "Compositor/Resources/Licenses/SourceHanSans-OFL.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
+    "Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "docs/windows/evidence/qt-text-macos.json": "0cc6003007fd4d25971d295404d08076c94651074bdf944d4acd1e927eabfa6c",
+    "docs/windows/evidence/qt-text-contact-sheet.png": "b7dbf1a8f5bf02d5aef6fd4180e68593f9852f5e2de9823f0d9c82fe6c5fa9f9"
+  },
+  "windowsExecuted": false,
+  "macProductionCodeChanged": false,
+  "nativeCChanged": false,
+  "M1Passed": false,
+  "remaining": [
+    "Native Windows Pinyin/candidate/focus and monitor DPI tests",
+    "Production draft geometry/text transactions/font/cache policy",
+    "Matched Windows performance/resources/deployment and M1 decision",
+    "Remaining M0 decisions and M2-M7 PRD/release gates"
+  ]
+}

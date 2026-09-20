@@ -25,7 +25,7 @@
 
 文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。与 Mac 文字仍有显著差异，未运行真实 Windows 输入法、未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
 
-Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 4K 软笔也已完成两笔局部提交、立即下一笔、undo/redo、导出与 Mac 读回准备；两张结果与 Avalonia premultiplied RGBA8 精确相同。第二笔共享 56 个未改瓦片，两个 commit 分别复制 92/106 个瓦片；尚非 S02 或资源验收。详见 `experiments/windows/qt/BRUSH.md`。Qt 文字/IME 与 Windows 同机验证仍未完成，W-007 保持未通过。
+Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 4K 软笔也已完成两笔局部提交、立即下一笔、undo/redo、导出与 Mac 读回准备；两张结果与 Avalonia premultiplied RGBA8 精确相同。第二笔共享 56 个未改瓦片，两个 commit 分别复制 92/106 个瓦片；尚非 S02 或资源验收。详见 `experiments/windows/qt/BRUSH.md`。Qt 文字现已完成 12 个 F11 样本的同一 QTextDocument 预览/导出、2,631 个变换命中、合成预编辑与取消恢复、6 个框宽重排和 48 次离屏视图光标查询；与 Mac 文字仍有显著差异。详见 `experiments/windows/qt/TEXT.md`。两方案的真实 Windows IME 与同机验证均未完成，W-007/W-008、M1 保持未通过。
 
 ## 2. 阶段总览
 
