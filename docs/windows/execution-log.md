@@ -186,3 +186,29 @@ xcodebuild -project Compositor.xcodeproj -scheme Compositor \
 日志 `/tmp/compositor-windows-192b-state-matrix-final.log`；摘要 `evidence/w001-state-matrix-summary.json`。first-responder 测试使用真实但未显示的 NSWindow；busy 分支由测试设标志。未执行菜单/面板、真实输入、应用退出、Windows 焦点/DPI，不能把本轮称作完整窗口验收。
 
 基线矩阵已按实测更新，保留未验证项：关闭/退出确认、外部文件请求排队、floating transform、调整层编辑、跨窗口输入。W-001/M0 尚未关闭；Windows 实机与 D 决策的阻碍仍在，但本轮有新的可移交状态语义证据，目标保持进行中。
+
+## 2026-09-21：W-005/006 C# 桥接与 Windows CI 准备
+
+起点 `d55ec9e`，工作区干净。前轮状态测试是实际进展。本轮重新核查平台条件：PATH 无 prlctl/qemu/VBoxManage/vmrun/dotnet/pwsh，未发现已安装的本地虚拟机应用；尚无用户提供的 Windows 设备连接。没有从远程控制应用的存在推定有可用设备。
+
+新的可行路径：`gh repo view` 确认 origin 为公开仓库 `sheldum03/Compositor`、当前身份权限 ADMIN；Actions API 确认 enabled=true，现无工作流，远端无 `codex/windows-implementation` 分支。可通过标准 Windows Server 2025 x64 runner 验证原生桥接；它不满足 Windows 11 实机 GUI/IME/性能或无 SDK 干净安装机门槛。尚未推送、触发工作流、改主分支或创建 PR。
+
+- `experiments/windows/dotnet-bridge`：固定 SDK 10.0.401，无 NuGet 包依赖，Cdecl 参数、size_t/nuint、固定 64 位输出、RGBA/Gray stride 与 packed coverage、托管数组固定及分配方释放；实际调用 8 个 C 文件的 17 个 FFI 入口。
+- 官方 .NET release metadata 列出的 2026-09-08 SDK，归档 SHA-512 校验后解压至 `/tmp/compositor-dotnet-10.0.401`，不装系统 pkg。原生库复用此前 Release 构建，8 个 C 文件与 bridge 的内容未改。
+- Mac Release `dotnet build` **0 warnings / 0 errors**；`dotnet run --no-build` 探测 **passed**，.NET 10.0.12、arm64，轮廓分配/库内释放 1,000 次。证据 `evidence/pinvoke-macos.json`，版本/命令/hash 与验证范围 `evidence/pinvoke-preparation.json`。
+- `.github/workflows/windows-native-probe.yml`：限定隔离分支上相关路径的 push；固定 actions SHA、SDK、CMake；MSVC x64 构建、C++ CTest、DLL 导出表、ctypes、C# PInvoke；失败仍保留日志与已有产物，14 天留存，20 分钟任务时限，contents:read。另有 workflow_dispatch 声明，但首次不依赖尚未注册到默认分支的手动 dispatch。
+- 下载并核对 actionlint 1.7.12 发布校验值后运行工作流检查，**退出 0，无诊断**。这只验证工作流静态结构，不代表 PowerShell/MSVC/Windows 步骤已经执行。
+
+本机执行命令（工作目录 `experiments/windows/dotnet-bridge`）：
+
+```sh
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 /tmp/compositor-dotnet-10.0.401/dotnet build -c Release
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  /tmp/compositor-dotnet-10.0.401/dotnet run -c Release --no-build -- \
+  /tmp/compositor-windows-native-release/libcompositor_native.dylib
+```
+
+完整构建日志在 `/tmp/compositor-pinvoke-build.log`。没有运行 Mac 全套测试，因为本轮只增加隔离 C# 实验和工作流，未修改 Mac 产品源码。
+
+下一步具体外部动作是推送当前隔离分支（包括既有未公开实施提交）并触发 Windows CI；仓库及上传的测试日志/二进制将公开。先完成本机验证和可审查提交，再请求此次公开推送/运行的确认。CI 若成功，只登记相应 Windows Server 桥接证据；W-004/W-006 全范围、双框架原型和 M1/M7 门槛仍逐项验证，不能扩大成 Windows 1.0 完成。

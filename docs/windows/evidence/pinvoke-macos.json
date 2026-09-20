@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "boundary": "C# P/Invoke",
+  "platform": "macOS 26.5.1",
+  "architecture": "Arm64",
+  "runtime": ".NET 10.0.12",
+  "pointerBytes": 8,
+  "sizeTBytes": 8,
+  "fixedSignedOutputBytes": 8,
+  "sourceAlgorithmsCalled": 8,
+  "nativeEntryPointsCalled": 17,
+  "traceAllocationReleaseCycles": 1000
+}
