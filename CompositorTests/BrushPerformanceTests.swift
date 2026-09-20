@@ -5,8 +5,9 @@ import Testing
 @MainActor
 struct BrushPerformanceTests {
     /// Run separately from the functional suite to avoid competing main-actor work.
-    @Test func fourKInteractiveStroke() async throws {
-        guard ProcessInfo.processInfo.environment["BRUSH_BENCHMARK"] == "1" else { return }
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["BRUSH_BENCHMARK"] == "1",
+                   "Set BRUSH_BENCHMARK=1 and run this performance suite separately."))
+    func fourKInteractiveStroke() async throws {
         #expect(MetalBrushCoverage.shared != nil)
         for diameter: CGFloat in [40, 800] {
           for opaque in [false, true] {

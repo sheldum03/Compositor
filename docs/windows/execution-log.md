@@ -212,3 +212,35 @@ DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
 完整构建日志在 `/tmp/compositor-pinvoke-build.log`。没有运行 Mac 全套测试，因为本轮只增加隔离 C# 实验和工作流，未修改 Mac 产品源码。
 
 下一步具体外部动作是推送当前隔离分支（包括既有未公开实施提交）并触发 Windows CI；仓库及上传的测试日志/二进制将公开。先完成本机验证和可审查提交，再请求此次公开推送/运行的确认。CI 若成功，只登记相应 Windows Server 桥接证据；W-004/W-006 全范围、双框架原型和 M1/M7 门槛仍逐项验证，不能扩大成 Windows 1.0 完成。
+
+## 2026-09-21：M0 准备边界复核与可信回归统计
+
+起点 `4a12ca0`，工作区干净。前轮 C# 探测通过并提交工作流，属于实际进展。公开推送确认未收到，本轮无远端写入。
+
+按原 development-plan.md 的 W-001/W-002 退出条件复核后，确认此前把后续完整窗口/Windows 验收也持续计入了“Mac 准备未完成”。现纠正任务状态：W-001 基线盘点/回归/规则与 D-11 事实证据就绪，W-002 固定样本就绪；W-003/W-004 仍未满足，M0 继续未通过。没有删减任何 PRD/V 门槛，逐项依据在 [m0-readiness.md](m0-readiness.md)。
+
+本次整合检查所有新增 fixture/font/state 测试，另核验五组固定文件共 **242 个 / 11,008,078 字节** 的 hash 和已声明大小，均一致。文件身份核验不等于 Windows 像素兼容，结果见 `evidence/m0-fixture-integrity.json`。
+
+整合回归还纠正了测试报告的问题：三个手动诊断入口在未启用时直接 return，曾被计 passed。除之前已说明的 BrushPerformanceTests 外，还有 BrushIntersectionTests.exportCrossingExample、LevelsTests.panelPreview；此前只标明第一项不完整。三者现改为 `.enabled(if: …)` 条件，未启用时真正报告 skipped；功能测试和诊断主体未改。此行为依据 Swift Testing [ConditionTrait](https://developer.apple.com/documentation/testing/conditiontrait)，本机 xcresult 也已验证。
+
+| 运行（/tmp/compositor-windows-192b-） | 范围与结果 |
+| --- | --- |
+| m0-integrated | 修改条件前完整 CompositorTests：框架 330 passed / 0 failed / 0 skipped；其中 3 个诊断提前返回，不计实际执行 |
+| benchmark-disabled | 首个条件修正专项：0 passed / 0 failed / 1 skipped，确认工具不再假报性能执行 |
+| m0-freeze | 三个条件全部修正后完整 CompositorTests：**327 passed / 0 failed / 3 skipped**；56 suites、330 声明；参数展开 361 passed / 3 skipped；52.532 s |
+
+最终命令：
+
+```sh
+env -u BRUSH_BENCHMARK -u LEVELS_PREVIEW xcodebuild \
+  -project Compositor.xcodeproj -scheme Compositor -configuration Debug \
+  -destination 'platform=macOS' -derivedDataPath /tmp/compositor-windows-192b-derived \
+  -disableAutomaticPackageResolution -parallel-testing-enabled NO \
+  -testLanguage en -testRegion US -only-testing:CompositorTests \
+  -resultBundlePath /tmp/compositor-windows-192b-m0-freeze.xcresult \
+  CODE_SIGNING_ALLOWED=NO test
+```
+
+日志与 xcresult 同前缀，最终摘要 `evidence/m0-freeze-summary.json`。显式清除两个可选开关只作用于该命令，没有修改用户全局环境；没有执行性能或两项人工诊断，没有运行 CompositorUITests。
+
+现不再无上限扩充 Mac 样本。依 technical-design.md“未决项不应阻止样本准备与可逆原型”，后续可做 W-007/W-008 的有限源码准备；选型和完成仍依赖 Windows 四路径实测。公开推送、D 决策及 Windows 环境尚未确认，自动续跑不构成授权，整体目标保持未完成。

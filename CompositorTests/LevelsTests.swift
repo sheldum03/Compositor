@@ -182,8 +182,9 @@ struct LevelsTests {
         #expect(edit.settings == first)
         session.cancelLevels()
     }
-    @Test func panelPreview() async throws {
-        guard ProcessInfo.processInfo.environment["LEVELS_PREVIEW"] == "1" else { return }
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["LEVELS_PREVIEW"] == "1",
+                   "Set LEVELS_PREVIEW=1 to capture this diagnostic panel."))
+    func panelPreview() async throws {
         let session = try session(); session.beginLevels()
         await session.levels?.histogramTask?.value
         let view = NSHostingView(rootView: LevelsSheet(session: session))

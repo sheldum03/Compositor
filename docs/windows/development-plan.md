@@ -1,6 +1,6 @@
 # Windows 版详细开发计划
 
-状态：M0 实施中；已根据[代码耦合审计](code-coupling-audit.md)修订。Mac 测试基线已修复且完整单元回归通过，第一批版本样本已固定；M0 其余退出条件未满足。最新证据见[实施记录](execution-log.md)。产品范围见 [PRD](product-requirements.md)，架构和决策见 [技术设计](technical-design.md)，测试编号见 [验证与发布](validation-release.md)。
+状态：M0 实施中；W-001 基线准备、W-002 样本准备已就绪，W-003 产品决策与 W-004 Windows 环境仍未满足。2026-09-21 整合回归 327 passed / 0 failed / 3 个未启用诊断 skipped；242 个固定文件身份核验通过。退出条件复核见 [M0 准备审计](m0-readiness.md)，最新证据见[实施记录](execution-log.md)。产品范围见 [PRD](product-requirements.md)，架构和决策见 [技术设计](technical-design.md)，测试编号见 [验证与发布](validation-release.md)。
 
 ## 1. 当前进度
 
@@ -17,7 +17,7 @@
 - [ ] M6：完成完整兼容、IO 与抠图，交付 Beta。
 - [ ] M7：完成安装更新与发布验收，交付 1.0。
 
-以上勾选仅指准备和审计；W-001 已恢复回归并建立行为清单，W-002 已生成首批样本，均仍有剩余项，不能关闭 M0。创建文档不是完成其中的研发任务。
+以上勾选仅指准备和审计。W-001/W-002 的本阶段产出已通过对应检查；P-01–19 和 V-01–12 的 Windows 验收仍按后续阶段执行。W-003/W-004 未满足，M0 保持未通过；创建文档不是完成产品研发。
 
 ## 2. 阶段总览
 
