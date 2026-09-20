@@ -94,7 +94,7 @@ struct WindowsFixtureTests {
         let output = URL(fileURLWithPath: path)
         let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("docs/windows/fixtures")
-        let names = ["F01", "F02", "F03"] + (1...13).map { String(format: "B%02d", $0) }
+        let names = (1...7).map { String(format: "F%02d", $0) } + (1...13).map { String(format: "B%02d", $0) }
         let packages = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "comp" }
         #expect(Set(packages.map { $0.deletingPathExtension().lastPathComponent }) == Set(names))
@@ -116,9 +116,10 @@ struct WindowsFixtureTests {
             #expect(try JSONSerialization.data(withJSONObject: expected, options: .sortedKeys)
                 == JSONSerialization.data(withJSONObject: actual, options: .sortedKeys), "Manifest: \(name)")
             for record in original.manifest.layers {
-                guard let file = record.imageFile else { continue }
-                #expect(try Data(contentsOf: source.appendingPathComponent("images/" + file))
-                    == Data(contentsOf: saved.appendingPathComponent("images/" + file)), "PNG: \(name)")
+                for file in [record.imageFile, record.maskFile].compactMap({ $0 }) {
+                    #expect(try Data(contentsOf: source.appendingPathComponent("images/" + file))
+                        == Data(contentsOf: saved.appendingPathComponent("images/" + file)), "PNG/mask: \(name)")
+                }
             }
             let before = try await ImageExporter.shared.render(original).image
             let after = try await ImageExporter.shared.render(renamed).image

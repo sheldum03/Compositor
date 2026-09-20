@@ -19,7 +19,7 @@
 
 以上勾选仅指准备和审计。W-001/W-002 的本阶段产出已通过对应检查；P-01–19 和 V-01–12 的 Windows 验收仍按后续阶段执行。W-003/W-004 未满足，M0 保持未通过；创建文档不是完成产品研发。
 
-可逆原型准备：`experiments/windows/avalonia` 已在 Mac 完成 F01–F03/B01–B13 的真实 Skia 控件/离屏一致性、最小重命名另存和 Mac reader 读回；十个混合样本仍有最大 1/255 的通道差异。此为 W-008 的部分源码与证据准备，Windows 四路径未运行、未选型，详见实验 README 与实施记录。
+可逆原型准备：`experiments/windows/avalonia` 已在 Mac 完成 F01–F07/B01–B13 的真实 Skia 控件/离屏一致性、最小重命名另存和 Mac reader 读回；含灰度蒙版、同父连续剪贴与 clipped desaturation。20 个样本中 8 个与 Mac 完全一致，其余最大通道差 1/255；尚未接受容差。此为 W-008 的部分源码与证据准备，Windows 四路径未运行、未选型，详见实验 README 与实施记录。
 
 ## 2. 阶段总览
 

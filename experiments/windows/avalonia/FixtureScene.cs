@@ -6,9 +6,10 @@ using SkiaSharp;
 internal sealed class FixtureScene : IDisposable
 {
     private readonly JsonObject manifest;
-    private readonly List<Raster> rasters = [];
-    private sealed record Raster(string File, byte[] Png, SKBitmap Bitmap, SKRect Destination,
-        SKFilterQuality Sampling, float Opacity, SKBlendMode Blend, bool Visible);
+    private readonly List<Asset> assets = [];
+    private readonly List<SceneLayer> layers = [];
+    private sealed record Asset(string File, byte[] Png, SKBitmap Bitmap);
+    private sealed record Group(bool Visible, MaskPlacement[] Masks);
     public int Width { get; }
     public int Height { get; }
     public string ActiveID => manifest["activeLayerID"]!.GetValue<string>();
@@ -42,25 +43,30 @@ internal sealed class FixtureScene : IDisposable
         {
             Require(scene.Width is >= 1 and <= 30000 && scene.Height is >= 1 and <= 30000 &&
                 (long)scene.Width * scene.Height <= 100_000_000, "Canvas exceeds pixel budget");
-            var layers = root["layers"]!.AsArray();
-            Require(layers.Count is >= 1 and <= 10000, "Invalid layer count");
+            var records = root["layers"]!.AsArray();
+            Require(records.Count is >= 1 and <= 10000, "Invalid layer count");
             // Parents must precede their children in this restricted bottom-to-top corpus.
-            var groups = new Dictionary<string, bool>();
+            var groups = new Dictionary<string, Group>();
             var ids = new HashSet<string>();
             long sourcePixels = 0;
-            foreach (var node in layers)
+            long maskPixels = 0;
+            foreach (var node in records)
             {
                 var layer = node!.AsObject();
-                Fields(layer, "id name isVisible isGroup parentID imageFile transform opacity blendMode");
+                Fields(layer, "id name isVisible isGroup parentID imageFile transform opacity blendMode maskFile maskEnabled maskSourceID adjustment");
                 string id = layer["id"]!.GetValue<string>();
                 Require(Guid.TryParse(id, out _) && ids.Add(id), "Invalid or duplicate layer ID");
                 _ = layer["name"]!.GetValue<string>();
                 bool visible = layer["isVisible"]!.GetValue<bool>();
+                MaskPlacement[] folderMasks = [];
+                string? parentID = layer["parentID"]?.GetValue<string>();
                 if (layer["parentID"] is { } parent)
                 {
                     Require(version >= 2 && groups.TryGetValue(parent.GetValue<string>(), out _),
                         "Parent must be an earlier group");
-                    visible &= groups[parent.GetValue<string>()];
+                    var group = groups[parent.GetValue<string>()];
+                    visible &= group.Visible;
+                    folderMasks = group.Masks;
                 }
                 double opacity = Number(layer, "opacity", 1);
                 Require(opacity is >= 0 and <= 1, "Invalid opacity");
@@ -80,60 +86,105 @@ internal sealed class FixtureScene : IDisposable
                     throw new NotSupportedException("Rotation, flips and fractional origins are not implemented");
                 Require(transform["sampling"]?.GetValue<string>() is "Nearest" or "Smooth" or "High quality",
                     "Unknown sampling mode");
-                if (layer["isGroup"]?.GetValue<bool>() ?? false)
-                {
-                    Require(version >= 2 && layer["imageFile"] is null && opacity == 1 &&
-                        blend == SKBlendMode.SrcOver && origin == SKPoint.Empty &&
-                        size == new SKPoint(scene.Width, scene.Height), "Only pass-through groups supported");
-                    groups.Add(id, visible);
-                    continue;
-                }
-                string file = layer["imageFile"]!.GetValue<string>();
-                Require(file == id + ".png", "Expected layer-ID PNG asset");
-                var path = Path.Combine(directory, "images", file);
-                CheckPlainPath(path);
-                Require(new FileInfo(path).Length <= 512L * 1024 * 1024, "Asset exceeds 512 MiB");
-                byte[] png = File.ReadAllBytes(path);
-                using var stream = new SKMemoryStream(png);
-                using var codec = SKCodec.Create(stream) ?? throw new InvalidDataException("Invalid PNG");
-                Require(codec.EncodedFormat == SKEncodedImageFormat.Png, "Expected PNG encoding");
-                sourcePixels += (long)codec.Info.Width * codec.Info.Height;
-                Require(sourcePixels <= 100_000_000, "Sources exceed pixel budget");
-                using var srgb = SKColorSpace.CreateSrgb();
-                var bitmap = new SKBitmap(new SKImageInfo(codec.Info.Width, codec.Info.Height,
-                    SKColorType.Rgba8888, SKAlphaType.Premul, srgb));
-                if (codec.GetPixels(bitmap.Info, bitmap.GetPixels()) != SKCodecResult.Success)
-                {
-                    bitmap.Dispose();
-                    throw new InvalidDataException("Incomplete PNG decode");
-                }
                 var sampling = transform["sampling"]!.GetValue<string>() switch
                 {
                     "Nearest" => SKFilterQuality.None, "Smooth" => SKFilterQuality.Low,
                     _ => SKFilterQuality.High
                 };
-                scene.rasters.Add(new Raster(file, png, bitmap,
-                    SKRect.Create(origin.X, origin.Y, size.X, size.Y), sampling, (float)opacity, blend, visible));
+                var destination = SKRect.Create(origin.X, origin.Y, size.X, size.Y);
+                SKBitmap? mask = null;
+                if (layer["maskFile"] is { } maskFile)
+                {
+                    Require(version >= 4, "Masks require version 4");
+                    var asset = scene.ReadAsset(directory, maskFile.GetValue<string>(), id + ".mask.png", true, ref maskPixels);
+                    if (layer["maskEnabled"]?.GetValue<bool>() ?? true) mask = asset.Bitmap;
+                }
+                string? clipSource = layer["maskSourceID"]?.GetValue<string>();
+                Require(clipSource is null || version >= 5, "Clipping requires version 5");
+                if (layer["isGroup"]?.GetValue<bool>() ?? false)
+                {
+                    Require(version >= 2 && layer["imageFile"] is null && opacity == 1 &&
+                        blend == SKBlendMode.SrcOver && origin == SKPoint.Empty &&
+                        size == new SKPoint(scene.Width, scene.Height) && clipSource is null &&
+                        layer["adjustment"] is null, "Only pass-through groups supported");
+                    Require(layer["maskFile"] is null || version >= 6, "Group masks require version 6");
+                    if (mask is not null) folderMasks = [.. folderMasks, new MaskPlacement(mask, destination, sampling)];
+                    groups.Add(id, new Group(visible, folderMasks));
+                    continue;
+                }
+                double? saturation = null;
+                SKBitmap? image = null;
+                if (layer["adjustment"] is { } adjustment)
+                {
+                    Require(version >= 7 && layer["imageFile"] is null, "Invalid adjustment record");
+                    var settings = adjustment.AsObject();
+                    Fields(settings, "kind hue saturation lightness colorize levels curves");
+                    saturation = Number(settings, "saturation", 0);
+                    if (settings["kind"]?.GetValue<string>() != "Hue/Saturation" ||
+                        Number(settings, "hue", 0) != 0 || Number(settings, "lightness", 0) != 0 ||
+                        (settings["colorize"]?.GetValue<bool>() ?? false) || saturation is < -100 or > 0 ||
+                        clipSource is null || blend != SKBlendMode.SrcOver || layer["maskFile"] is not null)
+                        throw new NotSupportedException("Only normal, clipped master desaturation is implemented");
+                }
+                else
+                {
+                    image = scene.ReadAsset(directory, layer["imageFile"]!.GetValue<string>(),
+                        id + ".png", false, ref sourcePixels).Bitmap;
+                }
+                scene.layers.Add(new SceneLayer(id, parentID, image,
+                    mask is null ? null : new MaskPlacement(mask, destination, sampling), destination,
+                    sampling, (float)opacity, blend, visible, clipSource, saturation, folderMasks));
             }
             Require(ids.Contains(scene.ActiveID), "Missing active layer");
+            SceneLayer? stackBase = null;
+            foreach (var layer in scene.layers)
+            {
+                if (layer.ClipSource is null) { stackBase = layer; continue; }
+                if (stackBase is null || stackBase.Id != layer.ClipSource || stackBase.Parent != layer.Parent ||
+                    stackBase.Image is null || (layer.Visible && !stackBase.Visible))
+                    throw new NotSupportedException("Only contiguous, same-parent clipping stacks with visible bases are implemented");
+            }
             return scene;
         }
         catch { scene.Dispose(); throw; }
     }
 
-    public void Paint(SKCanvas canvas)
+    private unsafe Asset ReadAsset(string directory, string file, string expected, bool mask, ref long pixels)
     {
-        foreach (var raster in rasters.Where(r => r.Visible))
+        Require(file == expected, "Expected layer-ID PNG asset");
+        var path = Path.Combine(directory, "images", file);
+        CheckPlainPath(path);
+        Require(new FileInfo(path).Length <= 512L * 1024 * 1024, "Asset exceeds 512 MiB");
+        byte[] png = File.ReadAllBytes(path);
+        using var stream = new SKMemoryStream(png);
+        using var codec = SKCodec.Create(stream) ?? throw new InvalidDataException("Invalid PNG");
+        Require(codec.EncodedFormat == SKEncodedImageFormat.Png, "Expected PNG encoding");
+        pixels += (long)codec.Info.Width * codec.Info.Height;
+        Require(pixels <= 100_000_000, "Sources or masks exceed pixel budget");
+        Require(!mask || (png.Length >= 26 && png[24] == 8 && png[25] == 0 &&
+            codec.Info.ColorType == SKColorType.Gray8 && codec.Info.AlphaType == SKAlphaType.Opaque),
+            "Mask must be 8-bit grayscale without alpha");
+        using var srgb = SKColorSpace.CreateSrgb();
+        // Coverage bypasses color conversion. Convert raw Gray8 bytes into alpha for Skia masking.
+        using var decoded = new SKBitmap(new SKImageInfo(codec.Info.Width, codec.Info.Height,
+            mask ? SKColorType.Gray8 : SKColorType.Rgba8888,
+            mask ? SKAlphaType.Opaque : SKAlphaType.Premul, mask ? null : srgb));
+        Require(codec.GetPixels(decoded.Info, decoded.GetPixels()) == SKCodecResult.Success, "Incomplete PNG decode");
+        SKBitmap bitmap;
+        if (mask)
         {
-            using var paint = new SKPaint
-            {
-                Color = SKColors.White.WithAlpha((byte)Math.Round(raster.Opacity * 255)),
-                BlendMode = raster.Blend,
-                FilterQuality = raster.Sampling
-            };
-            canvas.DrawBitmap(raster.Bitmap, raster.Destination, paint);
+            bitmap = new SKBitmap(decoded.Width, decoded.Height, SKColorType.Alpha8, SKAlphaType.Premul);
+            for (int y = 0; y < decoded.Height; y++)
+                new ReadOnlySpan<byte>((byte*)decoded.GetPixels() + y * decoded.RowBytes, decoded.Width)
+                    .CopyTo(new Span<byte>((byte*)bitmap.GetPixels() + y * bitmap.RowBytes, bitmap.Width));
         }
+        else bitmap = decoded.Copy();
+        var asset = new Asset(file, png, bitmap);
+        assets.Add(asset);
+        return asset;
     }
+
+    public void Paint(SKCanvas canvas) => Composite.Paint(layers, Width, Height, canvas);
 
     public void Export(string path)
     {
@@ -161,8 +212,8 @@ internal sealed class FixtureScene : IDisposable
         Directory.CreateDirectory(Path.Combine(temporary, "images"));
         try
         {
-            foreach (var raster in rasters)
-                File.WriteAllBytes(Path.Combine(temporary, "images", raster.File), raster.Png);
+            foreach (var asset in assets)
+                File.WriteAllBytes(Path.Combine(temporary, "images", asset.File), asset.Png);
             File.WriteAllText(Path.Combine(temporary, "manifest.json"),
                 copy.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
             using var verified = Read(temporary);
@@ -171,7 +222,7 @@ internal sealed class FixtureScene : IDisposable
         finally { if (Directory.Exists(temporary)) Directory.Delete(temporary, recursive: true); }
     }
 
-    public void Dispose() { foreach (var raster in rasters) raster.Bitmap.Dispose(); }
+    public void Dispose() { foreach (var asset in assets) asset.Bitmap.Dispose(); }
 
     private static SKBlendMode Blend(string value) => value switch
     {

@@ -272,3 +272,44 @@ DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
 Mac 读回从仓库根运行 xcodebuild，设置 `AVALONIA_ROUNDTRIP_DIR` 和 `TEST_RUNNER_AVALONIA_ROUNDTRIP_DIR` 均为上述输出目录；其余使用 M0 的 Debug/macOS/en-US/关闭并行/禁签名参数，`-only-testing:CompositorTests/WindowsFixtureTests`。日志 `/tmp/compositor-windows-192b-avalonia-roundtrip.log`，结果包同名前缀 `.xcresult`。
 
 入库证据 `evidence/avalonia-macos.json`、`avalonia-roundtrip-summary.json`（移除设备 ID）、`avalonia-preparation.json`（输入/源码及本机产出摘要 hash）。此次只证明 Mac → C# → Mac 的受限往返和 CPU 控件绘制，不证明 Windows、原生窗口、IME、GPU、全组合渲染、笔刷局部提交/撤销、资源和延迟门槛。W-007 尚待同样本准备；W-008/M1 仍未完成，D-02 未选型。
+
+## 2026-09-21：W-008 蒙版、剪贴栈与调整组合
+
+起点 `3b916cd`，工作区干净。上轮有已提交原型及可复现结果，属于实际进展。本轮继续原定受限路径，未推送、未运行 Windows、未进入生产目录。
+
+核对 `ImageExporter`、`LiveMaskRenderer`、`FolderMaskClip`、`HueSaturationFilter` 和 `PixelAdjust` 后，增加 F04–F07：8-bit Gray 蒙版按 coverage 解码而非色彩转换；同父连续剪贴栈先保存 base alpha、不透明化后合成子层、恢复一次 alpha；组蒙版在栈外应用。C# 直接复用已有 `Native.cs`，调用原 `BrushPixels.c` 的 extract/unpremultiply/restore 三函数。借用 Skia 自有 RGBA 内存，managed alpha 数组使用 fixed；没有修改 C 源码或 ABI。
+
+当前调整子集仅为 Normal、clipped、legacy master desaturation（hue/lightness=0、colorize=false、saturation −100…0，无调整层自有蒙版），用 33³ HSL cube 的八角插值和 opacity 混合。其余调整、非连续链接、隐藏 base 上的可见剪贴层、独立 maskPlacement、文本/形状继续拒绝，不能据 F07 宣称全调整实现。
+
+首次 `combination-01` 控件/导出与保护检查通过，但 F06/F07 的 Mac 最大通道差为 2/255。逐通道追踪发现 Skia `DstIn` 的整数量化与基准不一致：`73×97/255` 得 27，rounded /255 应得 28。原输出有 **1,041 像素**不满足精确的组 alpha 乘法公式。改为 `(value * coverage + 127) / 255`，将此前允许一个量化单位的组 alpha 测试收紧为精确比较；没有放宽 Mac 容差。
+
+最终 `combination-02` 的结果：
+
+| 验证 | 结果 |
+| --- | --- |
+| locked NuGet restore / Release build | 成功；0 warnings / 0 errors |
+| 真实 Avalonia control → 离屏 export | **20/20** 逐像素一致；每个 specimen 实际回调 1 次 |
+| rename → 新目录 → C# 重读 | 20/20 完整 manifest 仅预期修改，所有 image/mask PNG 原字节与渲染不变 |
+| 新增 11 个组合断言 | 禁用层/组蒙版、alpha 不变、组 mask 精确只乘一次、identity/零 opacity/全去饱和、拒绝自环/不支持调整/RGBA mask 均通过 |
+| Mac 像素参考 | F01/F02/F03/F05/F06/B02/B05/B08 精确；其余 12 个最大差 1/255，无像素超过 1 |
+| F04/F07 剩余误差 | 14/256 个像素，平均绝对通道误差 0.0011393229 / 0.0403645833；F04–F07 alpha 全部精确 |
+| Mac reader/exporter 重开 | WindowsFixtureTests **3 passed / 0 failed / 0 skipped**，0.800 s，涵盖 20 个返回工程 |
+
+Mac 测试输入是 `combination-01`；整数合成修正只影响临时渲染，不改保存数据。已逐字节核对 `combination-01` 与最终 `combination-02` 的 **64 个 package 文件完全一致**，因此读回证据适用于最终保存输出。没有重复全量 Mac 回归；新完整测试结果不替代既有 M0 整合记录。
+
+命令沿用实验 README，第三参数现必须提供 native library：
+
+```sh
+# cwd: experiments/windows/avalonia
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  NUGET_PACKAGES=/tmp/compositor-nuget-packages \
+  /tmp/compositor-dotnet-10.0.401/dotnet run -c Release --no-restore -- \
+  ../../../docs/windows/fixtures /tmp/compositor-avalonia-combination-02 \
+  /tmp/compositor-windows-native-release/libcompositor_native.dylib
+```
+
+Mac 测试从仓库根运行 M0 的 xcodebuild 参数，`TEST_RUNNER_AVALONIA_ROUNDTRIP_DIR=/tmp/compositor-avalonia-combination-01`，限定 `WindowsFixtureTests`；日志/xcresult 前缀 `/tmp/compositor-windows-192b-avalonia-combination`。原始 probe 日志与目录同名加 `.log`。输入 corpus 91 个 hash 在运行前后均一致。
+
+证据 `evidence/avalonia-combination-{macos,summary,preparation}.json`；新增每张参考的 RGB/alpha 差分 PNG。`scripts/windows/render-probe-contact-sheet.py`（Pillow 11.3.0）生成并实看 F04–F07 三列对照：Mac / Avalonia / 32 倍误差，RGB 红色、alpha 蓝色；入库 `avalonia-combination-contact-sheet.png`。未见新的透明边接缝，F05/F06 差分为空，F04/F07 仅稀疏 RGB 差异。这是模型的诊断检查，不是用户或 Windows 实机视觉验收。
+
+本轮推进了小型蒙版/剪贴/调整组合及工程往返的源码准备。仍无同机 Qt 比较、真实 Windows GUI/IME、笔刷瓦片提交/下一笔/撤销、GC/内存/延迟记录；全画布 scratch 分配不满足后续笔刷性能约束。未确定新的兼容容差、未选型；W-008/M1 与完整 Windows 1.0 目标保持未完成。

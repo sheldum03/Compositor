@@ -5,9 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../dotnet-bridge/Native.cs" Link="Native.cs" />
     <PackageReference Include="Avalonia.Headless" Version="11.3.22" />
     <PackageReference Include="Avalonia.Skia" Version="11.3.22" />
   </ItemGroup>
