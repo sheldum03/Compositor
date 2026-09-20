@@ -22,7 +22,7 @@ QT_QPA_PLATFORM=offscreen QT_SCALE_FACTOR=1 <TEMP_BUILD_DIRECTORY>/qt_probe \
   docs/windows/fixtures <NEW_OUTPUT_DIRECTORY>
 ```
 
-The output directory must not exist. Windows will require its own Qt `win64_msvc2022_64` package, Visual Studio 2022 x64 environment and runtime DLL paths (Qt's `bin` and the build's `native/Release`). These Windows steps have **not been executed**. The Mac universal archive does not provide Windows binaries.
+The output directory must not exist. Windows uses its own Qt `win64_msvc2022_64` package, Visual Studio 2022 x64 environment and runtime DLL paths (Qt's `bin` and the build's `native/Release`). The Windows SDK and CI preparation are described below; Windows compilation/execution remains **unexecuted**. The Mac universal archive does not provide Windows binaries.
 
 The qtbase archive is 31,039,494 bytes. Its official SHA-1 sidecar was checked independently of aqt; SHA-256 was also recorded:
 
@@ -32,6 +32,20 @@ SHA-256 9592f84f7e26d532c5c56824d1da7c9214a766cb0a17beb5af71022bcfbcd271
 ```
 
 [Official release](https://www.qt.io/blog/qt-6.11.2-released), [exact Mac archive](https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_6112/qt6_6112/qt.qt6.6112.clang_64/6.11.2-0-202608131016qtbase-MacOS-MacOS_15-Clang-MacOS-MacOS_15-X86_64-ARM64.7z). Qt's installed SBOM identifies Core, Gui, Widgets and the offscreen plugin as offering commercial/LGPL-3.0/GPL license alternatives. This is recorded metadata, not a completed redistribution review or D-07 choice. No Qt binaries are committed or distributed. The stock host Python 3.9.6 emitted an urllib3/LibreSSL compatibility warning during installation; download and independent hash verification succeeded.
+
+## Prepared Windows SDK and CI
+
+The existing aqtinstall **3.3.0** command cannot resolve this Windows SDK: both architecture listing and `install-qt windows desktop 6.11.2 win64_msvc2022_64 --archives qtbase --dry-run` failed against a nonexistent unqualified repository. The [official Windows repository](https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6112/) separates the MSVC package into `qt6_6112_msvc2022_64`. The Mac installer setup above is unchanged.
+
+`windows-sdk.json` pins the exact official qtbase archive URL, size **39,618,573 bytes**, SHA-1 and SHA-256. The archive was downloaded and independently matched to its official SHA-1 sidecar, then extracted locally for inspection. It contains the Core/Gui/Widgets DLLs, `rcc.exe`, `qtpaths.exe`, offscreen platform plugin, CMake imports and SBOM. All six inspected executables/DLLs are x86-64 PE files. Inspection is not Windows execution. Qt's CMake imports compute paths relative to their installed location; the prepared Windows setup also writes `bin/qt.conf` with `[Paths]` and `Prefix=..`, then requires `qtpaths --query QT_INSTALL_PREFIX` to match the extracted directory.
+
+[The shared Windows workflow](../../../.github/workflows/windows-native-probe.yml) downloads this exact archive and rejects a size/SHA-256 mismatch before extracting with the runner's 7-Zip. It builds Release with MSVC and runs the native CTest plus composition/round trips, brush and text checks. Qt and Avalonia run sequentially in the **same job**, with identical fixture inputs and existing native source, but separately built native DLLs. A Qt build-success condition lets each Qt check run even if another probe fails; failures still fail the job. An Avalonia failure does not suppress Qt SDK/build preparation after the initial native build succeeds.
+
+Runtime configuration is explicit: SDK `bin` and Qt build `native/Release` on PATH, SDK `plugins` as `QT_PLUGIN_PATH`, `QT_QPA_PLATFORM=offscreen`, `QT_SCALE_FACTOR=1`. QtCore imports Windows ICU and the MSVC runtime; Gui/Widgets also import Windows graphics libraries. Microsoft's [ICU documentation](https://learn.microsoft.com/en-us/windows/win32/intl/international-components-for-unicode--icu-) describes the system ICU DLLs. The actual runner/clean-machine resolution of these dependencies is still unverified; the archive inspection does not establish a complete runtime or redistribution package.
+
+The existing `windows-native-<commit>` artifact retains all Qt outputs, logs, native CTest XML, executable/native bridge, CMake cache, font notice, SDK manifest, core runtime file hashes and upstream SBOM for 14 days, including failures. It does **not** bundle the Qt SDK DLLs or claim to be a standalone application. Downloaded `.comp` results remain inputs for the Mac readback commands below and in BRUSH.md. Text has no project round trip.
+
+Validation of this wiring: actionlint 1.7.12 passed; a fresh Mac Release build, native CTest and all three probe commands passed. Stable PNG/package output matches the previous local runs. The Windows download/extraction was inspected on Mac; the workflow's PowerShell, `qtpaths.exe`, MSVC build and Windows probes have **not** run. No push/remote dispatch occurred. A future Windows Server headless result still cannot close Windows 11 reference-machine, native IME/DPI/GPU, clean installation or M1 selection gates. Evidence: `docs/windows/evidence/qt-ci-preparation.json`.
 
 ## Rendering and ownership
 

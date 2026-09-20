@@ -563,3 +563,15 @@ W-009 的 AI/HEIC 都已有真实本机路径，但 Windows clean-machine、发�
 验证：actionlint **1.7.12 exit0**；Mac 上相同 dotnet argv 的 locked restore / Release build / 三组执行均 exit0，build **0 warning / 0 error**，lock hash 未变。20 个合成、242 次笔刷 custom draw 和 12 个文字样本通过。与上次输出逐字节比较：合成 PNG/工程资产 **144** 文件、笔刷 **9** 文件、文字 PNG **60** 文件一致；不比较波动的计时/内存字段。目录 `/tmp/compositor-avalonia-ci-preflight-01` 保存逐步日志和 JSON；入库摘要 `evidence/avalonia-ci-preparation.json` 记录工作流/依赖锁/报告 hash。这是 CLI 预检，PowerShell 管道和 Windows 运行尚未执行；未改 probe 或 Mac 产品源码，未重跑 Mac app XCTest。
 
 复现和 artifact 用法写入 `experiments/windows/avalonia/README.md`。将来 Server runner 的 headless 结果也不能代替 Windows 11 参考机、真实 IME/DPI/GPU 或干净机安装。Qt、AI、HEIC 尚未接入此工作流。本轮未推送、未调远程 CI；W-004/W-008、M0/M1 与发布目标保持未通过。
+
+## 2026-09-21：W-005/007 Qt Windows SDK 阻断修正与 CI 接入
+
+起点 `b00bc1f`，工作区干净。上一轮 Avalonia CI 接入是实际进展。本轮核对 Qt Windows 路径时发现真实问题：aqtinstall3.3.0 的架构列表与指定 MSVC dry-run 都请求不存在的 `qt6_6112/qt6_6112/Updates.xml`，返回404。官方6.11.2 Windows仓库已按 MSVC/MinGW 分目录；未升级/修改第三方安装器或降低 Qt 版本，改由新增 `experiments/windows/qt/windows-sdk.json` 固定官方 MSVC qtbase URL/大小/hash。
+
+实际下载 **39,618,573 bytes** 官方 archive，SHA-1 与官方 sidecar 独立匹配，SHA-256 为 `fd984b7264361b4dd3fd2a417702ca1258e4086268f2ee6a69b9a393d9c3f6bb`。在 Mac 用已有 py7zr1.0.0 解压检查4731个 archive entries；Core/Gui/Widgets、qtpaths/rcc、qoffscreen 的 PE 头与 import table 实查为 x86-64，记录各自 hash。确认 CMake imports 使用相对安装前缀；Windows ICU/MSVC/系统图形依赖列入证据，尚未实际加载 Windows DLL。该 SDK 没有提交到仓库或作为发行包发布。
+
+共享 Windows workflow 新增同一 job 内的 Qt SDK 校验/解压/qt.conf、qtpaths 前缀自检、MSVC Release build、native CTest 和合成/工程往返、4K笔刷、共享文字三组检查。Qt bin/native Release PATH、插件目录、offscreen/scale1 显式设置。Qt build 通过后，各检查不因前一探针失败而被跳过，失败仍使 job 失败；Avalonia 失败不压掉 Qt 的后续准备。作业上限40分钟，artifact新增 Qt PNG/工程、日志、CTest XML、exe/native DLL、字体notice、CMakeCache、SDK manifest/文件hash和官方SBOM；不包含 Qt SDK DLL，不宣称便携安装包。未引入另一个 GPU 后端或作出框架选型。
+
+验证：actionlint1.7.12 exit0；全新 Mac build 目录 `/tmp/compositor-qt-ci-preflight-01/build` 配置/Release构建通过，native CTest **1 passed / 0 failed**，三组探针全部 exit0。20合成、242笔刷更新、12文字样本及既有断言实际执行。**205 个** PNG/工程文件与既有最终结果字节相同（124合成、9笔刷、72文字），计时/内存不纳入精确比较。`qt-ci-preparation.json` 保存步骤/文件hash/Windows SDK imports/限制；完整本机日志和SDK在 `/tmp/compositor-qt-ci-preflight-01`、`/tmp/compositor-qt-windows-sdk`。Mac 产品和探针源码不变，未跑 Mac app XCTest/全量套件。
+
+PowerShell、Windows 7-Zip、qtpaths.exe、MSVC及Windows探针仍未执行。本机解压检查与Mac编译不能替代它们；未来Server runner的headless结果也不能代替Windows11参考机/IME/DPI/GPU/干净安装。W-004/W-007、M0/M1及M2–M7发布目标保持未通过。未推送或触发远程CI。

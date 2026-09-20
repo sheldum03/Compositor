@@ -1,0 +1,257 @@
+{
+  "platform": "macOS arm64; not Windows/MSVC/PowerShell execution",
+  "steps": [
+    {
+      "name": "configure",
+      "exitCode": 0,
+      "seconds": 4.617
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "seconds": 14.544
+    },
+    {
+      "name": "native",
+      "exitCode": 0,
+      "seconds": 0.195
+    },
+    {
+      "name": "composite",
+      "exitCode": 0,
+      "seconds": 0.248
+    },
+    {
+      "name": "brush",
+      "exitCode": 0,
+      "seconds": 7.889
+    },
+    {
+      "name": "text",
+      "exitCode": 0,
+      "seconds": 1.734
+    }
+  ],
+  "date": "2026-09-21",
+  "sourceBaseCommit": "b00bc1f",
+  "scope": "Qt SDK inspection and Windows CI wiring preparation; not Windows execution",
+  "actionlint": {
+    "version": "1.7.12",
+    "exitCode": 0
+  },
+  "windowsArchive": {
+    "version": "6.11.2",
+    "architecture": "win64_msvc2022_64",
+    "module": "qtbase",
+    "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6112/qt6_6112_msvc2022_64/qt.qt6.6112.win64_msvc2022_64/6.11.2-0-202608131017qtbase-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z",
+    "name": "6.11.2-0-202608131017qtbase-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z",
+    "bytes": 39618573,
+    "sha1": "1fca9483183d426c1a3a984f1382382fa51f48de",
+    "sha256": "fd984b7264361b4dd3fd2a417702ca1258e4086268f2ee6a69b9a393d9c3f6bb",
+    "officialSha1Url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6112/qt6_6112_msvc2022_64/qt.qt6.6112.win64_msvc2022_64/6.11.2-0-202608131017qtbase-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z.sha1",
+    "metadataUrl": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6112/qt6_6112_msvc2022_64/Updates.xml"
+  },
+  "officialSha1SidecarMatched": true,
+  "extractionHost": "macOS arm64 using py7zr 1.0.0; not workflow Windows 7-Zip",
+  "aqt330WindowsListAndDryRun": "both failed against unqualified qt6_6112/qt6_6112/Updates.xml; workflow uses pinned official MSVC archive instead",
+  "windowsSdkFiles": [
+    {
+      "path": "bin/Qt6Core.dll",
+      "bytes": 10363704,
+      "sha256": "22c113a5644b875b2c85482723cd5d2e6a3a4029169778fcc78adde08ef3b6aa",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "MPR.dll",
+        "USERENV.dll",
+        "ADVAPI32.dll",
+        "AUTHZ.dll",
+        "KERNEL32.dll",
+        "NETAPI32.dll",
+        "ntdll.dll",
+        "ole32.dll",
+        "SHELL32.dll",
+        "USER32.dll",
+        "VERSION.dll",
+        "WINMM.dll",
+        "WS2_32.dll",
+        "icuuc.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-error-l1-1-1.dll",
+        "OLEAUT32.dll"
+      ]
+    },
+    {
+      "path": "bin/Qt6Gui.dll",
+      "bytes": 9546552,
+      "sha256": "19265a4e76efc12ef5f5bcf59be6c6a5b9b59ec4c89660797738bd2da7f719cc",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "d3d11.dll",
+        "dxgi.dll",
+        "d3d12.dll",
+        "GDI32.dll",
+        "ole32.dll",
+        "SHELL32.dll",
+        "USER32.dll",
+        "UxTheme.dll",
+        "DWrite.dll",
+        "Qt6Core.dll",
+        "KERNEL32.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "MSVCP140_2.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll"
+      ]
+    },
+    {
+      "path": "bin/Qt6Widgets.dll",
+      "bytes": 6497080,
+      "sha256": "e6d0b7e2e697de6ad985b97f9ed8b381c1c2172fcae87b6ab08455b3b7330f32",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "dwmapi.dll",
+        "UxTheme.dll",
+        "Qt6Gui.dll",
+        "Qt6Core.dll",
+        "KERNEL32.dll",
+        "USER32.dll",
+        "GDI32.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll"
+      ]
+    },
+    {
+      "path": "bin/qtpaths.exe",
+      "bytes": 89912,
+      "sha256": "a501a6b7e18dc3bed8c91dc6eb3956199e7a5cbb02bec187f964b33212fe011f",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "Qt6Core.dll",
+        "MSVCP140.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "KERNEL32.dll"
+      ]
+    },
+    {
+      "path": "bin/rcc.exe",
+      "bytes": 138552,
+      "sha256": "d9f6886ce77187a5bcd60b88b0133bef73172af9a2f49e20451377bff8761842",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "Qt6Core.dll",
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "KERNEL32.dll"
+      ]
+    },
+    {
+      "path": "plugins/platforms/qoffscreen.dll",
+      "bytes": 110904,
+      "sha256": "95391476bba1d0b50cc822b93d7509341024cc7c18cd615f82e471a3e3a61caa",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "Qt6Gui.dll",
+        "Qt6Core.dll",
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "KERNEL32.dll"
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "probe": "composite",
+      "stableFilesByteIdentical": 124,
+      "comparedTo": "/tmp/compositor-qt-after-text"
+    },
+    {
+      "probe": "brush",
+      "stableFilesByteIdentical": 9,
+      "comparedTo": "/tmp/compositor-qt-brush-after-text"
+    },
+    {
+      "probe": "text",
+      "stableFilesByteIdentical": 72,
+      "comparedTo": "/tmp/compositor-qt-text-08"
+    }
+  ],
+  "windowsExecuted": false,
+  "remoteWorkflowTriggered": false,
+  "macApplicationTestsRun": false,
+  "W007Passed": false,
+  "M1Passed": false,
+  "sha256": {
+    ".github/workflows/windows-native-probe.yml": "07e92d85559810f9dadb8b45c3f04ffd3640c39746399d65673ba0ff8f423622",
+    "experiments/windows/qt/README.md": "7483347c73c531cef3352cda347405d813987b4c8a5379858639cf8a1a5e531b",
+    "experiments/windows/qt/windows-sdk.json": "18b1b328ee7f892e5f577a70da64e0ef3d42d0cbc0ec3716163c7c5b120513a9"
+  },
+  "upstreamMetadataSha256": {
+    "/tmp/compositor-qt-windows-updates.xml": "47a07e2a22f453cb89028c3a0524f64467f1114cbf57936158784ebda2d7bdcc",
+    "/tmp/compositor-qt-windows-sdk/sbom/qtbase-6.11.2.spdx.json": "a5c6018dd0b4096e66f697ce98b83f0ac3f8c9424720e090a1d5b00125179a24"
+  },
+  "localEvidenceSha256": {
+    "brush/qt-brush-report.json": "de3ee11ba213d268ccc87253466e59b72eea4bcf050beac6248cd6ac45ce2010",
+    "brush.log": "de3ee11ba213d268ccc87253466e59b72eea4bcf050beac6248cd6ac45ce2010",
+    "build.log": "4dbffbcaaeb4a7d77f7f5624dcc06567c764070bc98248cd8783227cb4dfb53c",
+    "composite/qt-report.json": "76aee4559edd4433acd6e3996d22fdd0b1dbad0740f4600ee51a43d809f3045d",
+    "composite.log": "fc2dd773cee3b8d93d543c0c10d1e392510505b321de2cd5662734647ade588f",
+    "configure.log": "e9c3fa9b4d09db9d7f9a25744dd2c18f0c161cbbe674a787d03b131d2132d982",
+    "native-tests.xml": "a964c6ce62c61acbd6b52b3dfd212b4958509011c8437688a8f5714c911c166c",
+    "native.log": "1af9878693a18d56af5e4fbfedbbabc17e769f7f7fd5ea7322324e119d009add",
+    "text/text-report.json": "1a3fa3fd43e62241e7e9106c8e8ba12434d5a2824034fadf10e52666c2e398d2",
+    "text.log": "4bb446d31e1f7d98950daacbd7deb5a909263ed4cbcc0dbf6d9dc86909c9cfdd",
+    "aqtinstall.log": "e332fc9d0ca0f98a1cfb6965340fcc5a178e828810023a065e84e1d975a57e5d"
+  },
+  "nativeCTest": {
+    "passed": 1,
+    "failed": 0
+  },
+  "checks": {
+    "compositeFixtures": 20,
+    "brushWidgetUpdates": 242,
+    "textFixtures": 12
+  }
+}
