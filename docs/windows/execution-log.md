@@ -117,3 +117,16 @@ python3 scripts/windows/compare-brush-references.py
 没有更改 Mac 生产源码。全部新增/变更测试已专项执行，不把专项执行汇总说成另一次全套回归。所有固定产物分目录记录 SHA-256：原组 91、extended 47、invalid 84、brush 9，共 231 个输入/输出文件均已验证；损坏样本脚本在独立 `/tmp` 重建出的 84 个文件与入库版本完全一致。未覆盖原规划工作区。
 
 W-002 剩余：可分发的 TTC/字体冲突/损坏/重启资源与跨平台验证；更多文字/状态组合；Windows 往返。Mac `/System/Library/Fonts/Helvetica.ttc` 确实存在但不复制系统字体作为 Windows 分发资产。W-001 状态规则与 D-11 决策、W-003 产品确认、W-004 实机仍未完成。下一步继续处理可独立的字体资源/状态验证及 C 桥接实验准备，不能越过 M1 直接选型建生产 UI。
+
+## 2026-09-21：W-006 本机 C 桥接准备（未验收）
+
+从干净的 `19b3932` 开始，在 `experiments/windows/native` 新增独立 CMake 实验，直接链接 8 个现有 Rendering C 文件，未改 Mac 生产源码或 Xcode 工程，未选择 UI 框架。当前仍无 Windows 实机/干净 VM 或新产品决策；这是在外部门槛之前可独立验证的准备工作。
+
+- 3 个适配函数将两个 legacy `long` 输出转换成 `int64_t` 并提供同库 `compositor_free`；统一 C++ `extern "C"` 声明。Mac dylib 导出检查确认 16 个原函数 + 3 个适配函数。Windows export-all/MSVC math 配置仅待验证，不算 DLL 导出检查完成。
+- `contract_tests.cpp` 一个综合 C++ 测试实际跨共享库调用全部 8 个算法，检查 RGBA/Gray 不同 padding、packed coverage、预乘 alpha、Levels LUT/直方图、grain 整图/子块一致、noise 确定性、lens 边缘插值、fill 成功/无源、三种 heal 模式、wand 三个对角相接轮廓/空轮廓及分配方释放。Release 检查不会被 NDEBUG 关闭。
+- `ffi_smoke.py` 使用 ctypes 显式参数/返回类型，验证 `int64_t[4]` 全宽写入、选择计数、轮廓计数和 1,000 次分配方释放。此项不是 C# P/Invoke 验证。
+- CMake 3.31.6 仅安装到 `/tmp/compositor-windows-cmake-venv`；AppleClang 21.0.0，macOS arm64。命令和 Windows 待执行模板见 [实验 README](../../experiments/windows/native/README.md)。
+- 首轮测试失败两处，均为测试假设错误：负畸变角点仍有部分采样覆盖；Create Texture 估计颗粒并非平色修复。根据现有算法语义修正断言，未放宽为只检查不崩溃、未修改算法。补充魔棒两行 stride 与空轮廓后重新执行最终测试。
+- 最终 Release CTest **1/1 通过**，ASan+UBSan Debug CTest **1/1 通过**，未报告 sanitizer 错误；没有执行 LeakSanitizer、注入分配失败、100MP 压力或性能验收。原始日志与工具/源码 hash 见 `evidence/native-{release,sanitized}-macos.txt`、`evidence/native-probe-macos.json`。没有把这两次综合测试或 ctypes 计入 Swift 单元测试声明数。
+
+W-006 尚需 Windows 编译/导出/C++/C# 实际运行、框架像素接入、同输入 Mac/Windows 输出差异；本次不满足 W-004/005/006 或 M1 的实机门槛。M0–M7 目标保持进行中。下一步继续未完成的 W-001 状态组合与 W-002 字体样本准备。

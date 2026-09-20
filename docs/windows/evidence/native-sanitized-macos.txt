@@ -1,0 +1,19 @@
+Start testing: Sep 21 00:26 CST
+----------------------------------------------------------
+1/1 Testing: native_contract
+1/1 Test: native_contract
+Command: "/tmp/compositor-windows-native-sanitized/native_contract_tests"
+Directory: /tmp/compositor-windows-native-sanitized
+"native_contract" start time: Sep 21 00:26 CST
+Output:
+----------------------------------------------------------
+PASS: 8 C algorithms through shared-library C++ linkage; pointer=8 size_t=8 long=8
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"native_contract" end time: Sep 21 00:26 CST
+"native_contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 21 00:26 CST
