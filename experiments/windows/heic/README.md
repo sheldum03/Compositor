@@ -62,6 +62,14 @@ No RGB tolerance is accepted. The color-quadrant diagnostic sheet shows correct 
 
 These generated files report zero raw ICC bytes. Therefore the ICC-copy branch and non-sRGB ICC conversion are **not tested**. HDR, 10/12-bit, NCLX variants, EXIF-only orientation without container transforms, DPI, auxiliary depth/gain maps, multiple primary images, real tiled camera images, large files, fuzz/security coverage and cancellation remain open for W-031/V-07. The default libheif output color handling was retained; it is not a chosen HDR policy.
 
+## Prepared Windows feasibility CI
+
+[The feasibility workflow](../../../.github/workflows/windows-feasibility-probes.yml) runs an independent HEIC matrix job alongside AI, with fail-fast disabled. `assets.json` pins the two already verified official source archives. CI rechecks their sizes and SHA-256 before extraction, builds/installs private shared libraries using MSVC Release and the existing codec settings, then links the native probe against that prefix. It explicitly adds the prefix's `bin` directory to PATH and keeps runtime plugin search disabled. libheif's dependency finder can use the installed headers/library directly; pkg-config is optional.
+
+Pinned Python 3.11.9 x64 / NumPy 2.0.2 / Pillow 11.3.0 run the same 16-case, Unicode, failure and existing-output harness, and the report must identify Windows execution. The job records DLL hashes/imports, source COPYING notices, configure/build/install logs and CMake caches. The `windows-heic-feasibility-<commit>` artifact retains those plus PNG/JSON/raw pixel/log outputs for 14 days, including failure diagnostics. Downloaded sources/runtime binaries are not in the artifact. It is not a portable decoder distribution or license clearance.
+
+The workflow is preparation only: source archives were independently hash-verified and the dependency configuration exercised on Mac, while Windows/MSVC/runtime execution remains absent. The CI runner is a developer-equipped Windows Server image, not the Windows 11 reference machine or clean deployment VM. No push/remote dispatch occurred; W-009/W-031/M1 stay open. See `docs/windows/evidence/feasibility-ci-preparation.json`.
+
 ## Native Unicode path regression
 
 The Windows entry point now takes wide arguments through [`wmain`](https://learn.microsoft.com/en-us/cpp/cpp/main-function-command-line-args?view=msvc-170), passing native paths to `std::filesystem` and file streams. It no longer treats Windows narrow command-line bytes as UTF-8. POSIX keeps its native `main` arguments. No system locale or UTF-8 code-page setting is required by this source path.

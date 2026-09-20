@@ -589,3 +589,17 @@ Release 和 ASan/UBSan 各执行两支完整 harness，**4 builds + 4 runs 全�
 证据 `evidence/native-unicode-preparation.json`，日志/产物 `/tmp/compositor-native-unicode-01`。本轮使用HEIC build-prefix libs，未替换此前搬迁目录中的旧探针；旧证据作为历史记录保留。未改 Mac 产品，未跑 app XCTest/全量回归。
 
 Windows wmain 分支尚未由 MSVC 编译或执行，不能用本机 UTF-8 成功冒充 Windows 路径验收。此入口修正在 AI/HEIC CI 接入之前完成；这两条 CI 路径仍待接入，未推送或触发远程运行。W-009、M0/M1 与全部 M2–M7/发布门槛保持未通过。
+
+## 2026-09-21：W-005/009 AI/HEIC Windows 可行性 CI 接入
+
+起点 `47b5d7d`，工作区干净。上一轮 Unicode 入口修正属于实际进展。本轮新增 `.github/workflows/windows-feasibility-probes.yml`，AI/HEIC 使用独立 Windows Server matrix job，fail-fast关闭、25分钟超时；固定 Python3.11.9 x64、CMake3.31.6 与已有检查依赖。仅同分支相关路径 push/manual dispatch 触发，未实际推送或调度。
+
+AI setup 按既有 assets.json 核对 runtime/model/photo 三者的大小/SHA-256，再解压并构建 MSVC Release。实际 Windows ORT zip **82,645,522 bytes** 已在本机下载，SHA-256与既有官方published digest一致；头文件/import lib/notices/两支x64 PE DLL存在且已检查imports，**未运行Windows二进制**。assets.json 将原“未下载或执行”拆成“已下载并核验/未执行”，没有把下载记成Windows通过。Windows ONNX/NumPy/Pillow/Protobuf及CMake共5个兼容CPython3.11/x64 wheel实际下载成功，未安装到Windows。setup-python v5 SHA从官方Git ref核对并固定。
+
+HEIC新增只含两份既有源码身份的assets.json，重新核验本地archive匹配。CI按同一codec cache从源码构建/安装libde2651.1.1与libheif1.23.4共享库到私有prefix，再构建probe；installed headers/library可直接由上游find模块定位，pkg-config可选。设置DLL搜索路径、禁用plugin目录；两项都执行既有完整harness及Unicode重放，并要求最终JSON的windowsExecuted为true。记录DLL hash/dumpbin imports、OS/runner/Python/PowerShell/依赖、configure/build/install与screen日志。
+
+上传使用明确正向文件类型白名单：输出PNG/JSON/f32/bin/log，以及evidence和CMakeCache。模型`.onnx`（包括Unicode目录中复制的完整模型）、SDK二进制和下载源码不入artifact；AI生成的subject.comp manifest/PNG仍可下载供Mac读回。14天失败证据保留；这不是运行时安装包或模型/codec授权放行，hosted upload尚未执行。
+
+验证：actionlint1.7.12对两条Windows工作流exit0；官方PowerShell7.6.0 Mac arm64 archive按release digest核验后在临时目录运行，实际解析两条工作流共**22段**shell脚本，无语法错误、未执行Windows命令。另实际验证PSNativeCommandUseErrorActionPreference+Stop+Tee-Object：原生exit0时PSexit0并进入后续步骤；原生exit7时PSexit1且后续标记未写，避免日志管道吞掉错误。各下载、wheel、runtime notices/imports与检查hash见 `evidence/feasibility-ci-preparation.json`，本机诊断目录 `/tmp/compositor-feasibility-ci-preflight-01`。未改原生算法/输入harness，沿用上一轮完整Release/sanitizer结果；未重复Mac app XCTest/全量套件。
+
+Windows/MSVC构建、宽字符入口、实际DLL加载、数值结果与模型质量/资源门槛都仍未验证。Developer-equipped Server CI不能充当Windows11参考机或干净VM；M0产品决策/设备、M1选型以及M2–M7和全部发布目标仍待原定验收。AI/HEIC两条CI入口至此已备好，W-005/009/W-031不勾选。

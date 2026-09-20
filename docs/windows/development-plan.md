@@ -31,6 +31,8 @@ W-009 AI 筛查新增独立 C++ ONNX Runtime 1.30.0 / U2NetP CPU 原型：公开
 
 HEIC 筛查已有 libheif1.23.4 + libde2651.1.1 原生路径，16 个自生成样本覆盖 8 种方向与透明度；alpha 精确，RGB 最大差 1/255 未接受容差。搬迁后的独立 Mac 目录与双依赖 sanitizer 通过，新增 33 个冻结数据文件，既有 242 个不变。真实 Windows 干净机、ICC/HDR/相机样本和发行授权仍缺，详见 `experiments/windows/heic/README.md`；W-009/W-031 不勾选。
 
+Windows CI 源码准备现包含两条入口：`windows-native-probe.yml` 运行原生桥接及 Qt/Avalonia 的已有三组探针，`windows-feasibility-probes.yml` 独立运行 AI/HEIC 的固定输入筛查。下载身份、失败传播和诊断产物保留已配置，actionlint/本机 PowerShell 语法检查通过；尚未推送或远程执行。这不完成 W-004–009，也不替代实机 IME、性能、干净机或发布验收。
+
 ## 2. 阶段总览
 
 | 阶段 | 可演示交付物 | 进入条件 | 退出条件 |
