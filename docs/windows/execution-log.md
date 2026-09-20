@@ -313,3 +313,44 @@ Mac 测试从仓库根运行 M0 的 xcodebuild 参数，`TEST_RUNNER_AVALONIA_RO
 证据 `evidence/avalonia-combination-{macos,summary,preparation}.json`；新增每张参考的 RGB/alpha 差分 PNG。`scripts/windows/render-probe-contact-sheet.py`（Pillow 11.3.0）生成并实看 F04–F07 三列对照：Mac / Avalonia / 32 倍误差，RGB 红色、alpha 蓝色；入库 `avalonia-combination-contact-sheet.png`。未见新的透明边接缝，F05/F06 差分为空，F04/F07 仅稀疏 RGB 差异。这是模型的诊断检查，不是用户或 Windows 实机视觉验收。
 
 本轮推进了小型蒙版/剪贴/调整组合及工程往返的源码准备。仍无同机 Qt 比较、真实 Windows GUI/IME、笔刷瓦片提交/下一笔/撤销、GC/内存/延迟记录；全画布 scratch 分配不满足后续笔刷性能约束。未确定新的兼容容差、未选型；W-008/M1 与完整 Windows 1.0 目标保持未完成。
+
+## 2026-09-21：W-008 4K CPU 笔刷、局部提交与历史
+
+起点 `6e992b8`，工作区干净。上轮组合渲染有实际提交与证据，本轮继续原计划第二条原型路径。没有推送或运行 Windows，也没有把未确认的 D-03 当作选择 CPU 算法。
+
+新增 `SoftBrushStroke` / `TiledRaster` / `BrushProbe`：使用冻结的两笔各 121 点、800 px、0 硬度、40% opacity 输入，移植 Mac CPU 的 Catmull–Rom、2.5% spacing、24-stop Gaussian、临时 tail 恢复与整笔 opacity 上限。只支持本阶段未变换、无选区的彩色软笔；未扩展到全部画笔工具。每次更新复合脏区，每次提交只克隆改动瓦片，未触及瓦片共享。没有在 pointer update、mouse-up 或立即下一笔时调用全幅导出/物化。
+
+`SceneControl` 现在接收实际绘制委托，合成和笔刷两条现有调用共用 Skia lease 入口；每个固定 pointer update 真正绘制一张 1000×1000 CPU frame，最终另做 4000×4000 preview/export 精确比较。Mutable managed tiles 通过 native image copy 保证绘制生命周期，不借出会继续写入的指针。副作用是复制量和 GC 成本显著，不能宣传零拷贝或生产就绪。
+
+| 最终 `avalonia-brush-02` | 第一笔 | 第二笔 |
+| --- | ---: | ---: |
+| touched tiles / commit copy bytes | 92 / 24,117,248 | 106 / 27,787,264 |
+| commit（含最终曲线 flush） | 10.0766 ms | 8.6196 ms |
+| append + CPU preview P95 | 12.9989 ms | 12.9547 ms |
+| vs Mac CPU 最大 RGBA / alpha 差 | 3 / 3 | 4 / 4 |
+| vs CPU 差值 >1 的像素 | 28,962 | 47,834 |
+
+共 **242 个实际 control draw**；第二笔共享 56 个旧瓦片。提交前 full-raster export 计数均为零。整笔 40% alpha cap、历史身份/字节不变、undo/redo、取消保留 redo、新编辑替换 redo、空笔不记历史、重复 flush、已提交对象拒绝写入均通过。额外用相同曲线/dab 原语直接重放完整路径，完全不画 provisional tail；两笔结果都与交互路径逐像素一致，验证 tail 恢复/发布状态。该对照不证明共同原语本身与 Core Graphics 等价。
+
+两笔 preview 累计向 native images 复制 **6,442,713,088 bytes**；gen-2 GC 分别 36 / 11 次。更新/预览期间采样 working-set 高水位 **240,910,336 bytes**，不包括之后的独立正确性重放与全幅导出/解码，也不是 peak private RAM 或 VRAM。所有原始 append/preview 样本、copy/GC 计数保留在报告。两笔、40% opacity、headless CPU framebuffer 不是 S02：尚无 100% opacity/空层与已有层/30 笔/真实 Windows 输入到显示测量；不得用 Mac Release 数字对既有 Mac Debug 样本做选型排名。
+
+与 Mac CPU 的 3–4/255、与 Metal 的最大 7/255 差异仍未接受容差。独立 `macos-tip-diagnostic.swift` 重建 private tip 的 Core Graphics 构造，两次 640,000-byte 输出一致；对比纯径向像素中心采样，143,468 个 tip 值差 1；CG tip 本身有 150,388 个水平镜像样本不相等、最大差 2。观察与 backend quantization/dithering 一致，但没有证明这是所有最终笔刷差异的唯一原因。C# 未使用任何 Mac 生成笔尖作为输入。差分图集中于软边衰减带，模型检查未见明显 tile 网格接缝或旧直尾；不算人类 Windows 视觉验收。
+
+`WindowsBrushFixtureTests.avaloniaBrushPackageReopensWithExportedPixels()` 新增显式环境条件，用实际 Mac reader/exporter 读取 C# `brush.comp`、检查导出像素，再保存重开；**1 passed / 0 failed / 0 skipped，0.551 s**。未设置变量时明确 skipped。测试输入 `brush-01`，已证明最终 `brush-02` 的 manifest/asset/first/final PNG 共 4 文件逐字节一致。现阶段 package 使用全画布稀疏网格的 PNG，未实现收紧栅格边框。
+
+共享绘制入口变动后重跑原 20 个 compositor 样本，结果报告与 `combination-02` 语义完全相同。最终 locked restore / Release build 0 warnings / 0 errors。没有重跑整个 Mac 测试套件，Mac 产品源码和原 8 个 C 文件未改。
+
+复现命令见 `experiments/windows/avalonia/BRUSH.md`。本机运行路径：
+
+```sh
+# cwd: experiments/windows/avalonia
+DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+  NUGET_PACKAGES=/tmp/compositor-nuget-packages \
+  /tmp/compositor-dotnet-10.0.401/dotnet run -c Release --no-restore -- --brush \
+  ../../../docs/windows/fixtures/brush /tmp/compositor-avalonia-brush-02 \
+  /tmp/compositor-windows-native-release/libcompositor_native.dylib
+```
+
+Mac 测试使用 `TEST_RUNNER_AVALONIA_BRUSH_DIR=/tmp/compositor-avalonia-brush-01`，结果日志/xcresult 前缀 `/tmp/compositor-windows-192b-avalonia-brush`。probe 原始日志与目录同名加 `.log`。入库 `evidence/avalonia-brush-{macos,summary,preparation}.json`、`avalonia-brush-contact-sheet.png`。通用 contact-sheet 脚本增加 `--brush`；其原 mask 模式重建输出与既有 PNG 字节一致。
+
+本轮完成一条受限 4K CPU 工作流的本机准备，不是 Windows W-008 完成。仍需框文字共享布局/IME、同机 Qt 对照、完整 Windows 性能/资源测量及 D 决策，后续 M2–M7 范围保持不变。

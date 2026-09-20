@@ -19,6 +19,26 @@ struct WindowsBrushFixtureTests {
         return Data(bytes: try #require(context.data), count: context.bytesPerRow * context.height)
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["AVALONIA_BRUSH_DIR"] != nil,
+                   "Run the Avalonia brush probe and set AVALONIA_BRUSH_DIR to its output."))
+    func avaloniaBrushPackageReopensWithExportedPixels() async throws {
+        let path = try #require(ProcessInfo.processInfo.environment["AVALONIA_BRUSH_DIR"])
+        let root = URL(fileURLWithPath: path)
+        let snapshot = try await ProjectStore.shared.load(from: root.appendingPathComponent("brush.comp"))
+        #expect(snapshot.manifest.version == 8 && snapshot.manifest.width == 4000 && snapshot.manifest.height == 4000)
+        #expect(snapshot.manifest.resolution == 72 && snapshot.manifest.layers.count == 1)
+        let layer = try #require(snapshot.manifest.layers.first)
+        #expect(layer.transform.origin == .zero && layer.transform.size == CGSize(width: 4000, height: 4000))
+        let reference = try #require(NSBitmapImageRep(data: Data(contentsOf: root.appendingPathComponent("final.png")))?.cgImage)
+        let rendered = try await ImageExporter.shared.render(snapshot).image
+        #expect(try pixels(rendered) == pixels(reference), "Mac reads the C# brush output without changing pixels")
+        let resaved = FileManager.default.temporaryDirectory.appendingPathComponent("Compositor-Avalonia-Brush-\(UUID()).comp")
+        defer { try? FileManager.default.removeItem(at: resaved) }
+        try await ProjectStore.shared.save(snapshot, to: resaved)
+        let reopened = try await ProjectStore.shared.load(from: resaved)
+        #expect(try pixels(await ImageExporter.shared.render(reopened).image) == pixels(reference))
+    }
+
     @Test(arguments: [false, true])
     func fixedSoftStrokeSequenceCommitsLocallyAndPreservesHistory(useGPU: Bool) async throws {
         if useGPU { _ = try #require(MetalBrushCoverage.shared, "Metal reference requires actual Metal availability") }

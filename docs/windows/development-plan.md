@@ -21,6 +21,8 @@
 
 可逆原型准备：`experiments/windows/avalonia` 已在 Mac 完成 F01–F07/B01–B13 的真实 Skia 控件/离屏一致性、最小重命名另存和 Mac reader 读回；含灰度蒙版、同父连续剪贴与 clipped desaturation。20 个样本中 8 个与 Mac 完全一致，其余最大通道差 1/255；尚未接受容差。此为 W-008 的部分源码与证据准备，Windows 四路径未运行、未选型，详见实验 README 与实施记录。
 
+同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。242 次 headless 绘制及两笔的耗时/复制量有记录，不代表 S02 或 Windows 实机通过。详见 `experiments/windows/avalonia/BRUSH.md`。
+
 ## 2. 阶段总览
 
 | 阶段 | 可演示交付物 | 进入条件 | 退出条件 |

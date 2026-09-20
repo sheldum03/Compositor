@@ -11,6 +11,8 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
+        bool brush = args.Length == 4 && args[0] == "--brush";
+        if (brush) args = args[1..];
         Check(args.Length == 3, "Usage: probe <fixed-fixtures-directory> <new-output-directory> <native-library-path>");
         string fixtures = Path.GetFullPath(args[0]), output = Path.GetFullPath(args[1]);
         string nativePath = Path.GetFullPath(args[2]);
@@ -18,11 +20,12 @@ internal static class Program
         NativeLibrary.SetDllImportResolver(typeof(Native).Assembly,
             (name, _, _) => name == "compositor_native" ? library : 0);
         Check(!Path.Exists(output), "Output directory must not exist");
-        VerifyCorpus(fixtures);
+        if (!brush) VerifyCorpus(fixtures);
         Directory.CreateDirectory(output);
         AppBuilder.Configure<Application>().UseSkia()
             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
             .SetupWithoutStarting();
+        if (brush) { BrushProbe.Run(fixtures, output); return; }
         var results = new List<object>();
         var names = Enumerable.Range(1, 7).Select(i => $"F{i:00}")
             .Concat(Enumerable.Range(1, 13).Select(i => $"B{i:00}"));
@@ -160,7 +163,7 @@ internal static class Program
         Directory.Delete(scratch, recursive: true);
     }
 
-    private sealed record Difference(int DifferentPixels, int MaximumChannelError, double MeanAbsoluteChannelError,
+    internal sealed record Difference(int DifferentPixels, int MaximumChannelError, double MeanAbsoluteChannelError,
         int MaximumAlphaError, int PixelsWithErrorAbove1);
 
     private static void CombinationChecks(string fixtures, string output)
@@ -225,7 +228,7 @@ internal static class Program
                 Path.Combine(output, "combination.comp/images/00000000-0000-4000-8000-000000000001.mask.png"), overwrite: true)));
     }
 
-    private static Difference Compare(string first, string second, string? heatmap = null)
+    internal static Difference Compare(string first, string second, string? heatmap = null)
     {
         using var firstCodec = SKCodec.Create(first);
         using var secondCodec = SKCodec.Create(second);
@@ -263,7 +266,7 @@ internal static class Program
         }
         return new Difference(different, maximum, sum / (double)a.Length, alphaMaximum, above1);
     }
-    private static byte[] Pixels(string path)
+    internal static byte[] Pixels(string path)
     {
         using var codec = SKCodec.Create(path);
         using var srgb = SKColorSpace.CreateSrgb();

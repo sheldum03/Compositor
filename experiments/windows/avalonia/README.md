@@ -2,6 +2,8 @@
 
 This is an isolated experiment, not a Windows editor or a GUI framework decision. It exercises the first portion of the compositor/round-trip paths in `docs/windows/technical-design.md`. Windows execution and all four complete M1 paths remain required.
 
+The separate [4K CPU brush probe](BRUSH.md) now covers local tile commits, the next stroke, undo/redo and export/readback on the fixed two-stroke input. It shares the actual custom-control drawing entry point below; its algorithm differences and performance limitations are recorded separately.
+
 ## Reproduce
 
 Use .NET SDK **10.0.401** from `global.json`. First build the C library using [the native experiment instructions](../native/README.md). From this directory:
@@ -66,6 +68,6 @@ Latest evidence: `docs/windows/evidence/avalonia-combination-macos.json`, `avalo
 python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures <PROBE_OUTPUT_DIRECTORY> <NEW_CONTACT_SHEET.png>
 ```
 
-No Windows run, native UI, clipboard, IME, brush commit/undo, general clipping/adjustment implementation, memory/latency measurement, packaging or release acceptance has occurred. W-008 and M1 remain incomplete.
+No Windows run, native UI, clipboard, IME, general clipping/adjustment implementation, packaging or release acceptance has occurred. The brush probe has limited Mac timing/resource observations, not Windows performance acceptance. W-008 and M1 remain incomplete.
 
 Avalonia and SkiaSharp NuGet metadata declare MIT; native packages also include third-party notices. A production distribution must inventory its actual native artifacts and notices under D-07/V-12, which this source experiment does not close.
