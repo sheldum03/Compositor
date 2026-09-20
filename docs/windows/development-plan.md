@@ -25,6 +25,8 @@
 
 文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。与 Mac 文字仍有显著差异，未运行真实 Windows 输入法、未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
 
+Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 笔刷、文字/IME 与 Windows 同机验证仍未完成，W-007 保持未通过。
+
 ## 2. 阶段总览
 
 | 阶段 | 可演示交付物 | 进入条件 | 退出条件 |

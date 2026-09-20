@@ -91,6 +91,17 @@ struct WindowsFixtureTests {
                    "Run the Avalonia specimen probe, then set AVALONIA_ROUNDTRIP_DIR to its output."))
     func avaloniaRenamedCopiesReopenWithOriginalPixels() async throws {
         let path = try #require(ProcessInfo.processInfo.environment["AVALONIA_ROUNDTRIP_DIR"])
+        try await renamedCopiesReopenWithOriginalPixels(path: path)
+    }
+
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["QT_ROUNDTRIP_DIR"] != nil,
+                   "Run the Qt specimen probe, then set QT_ROUNDTRIP_DIR to its output."))
+    func qtRenamedCopiesReopenWithOriginalPixels() async throws {
+        let path = try #require(ProcessInfo.processInfo.environment["QT_ROUNDTRIP_DIR"])
+        try await renamedCopiesReopenWithOriginalPixels(path: path)
+    }
+
+    private func renamedCopiesReopenWithOriginalPixels(path: String) async throws {
         let output = URL(fileURLWithPath: path)
         let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("docs/windows/fixtures")
@@ -123,7 +134,7 @@ struct WindowsFixtureTests {
             }
             let before = try await ImageExporter.shared.render(original).image
             let after = try await ImageExporter.shared.render(renamed).image
-            #expect(try pixels(before) == pixels(after), "Mac reopens C# output: \(name)")
+            #expect(try pixels(before) == pixels(after), "Mac reopens cross-platform output: \(name)")
         }
     }
 

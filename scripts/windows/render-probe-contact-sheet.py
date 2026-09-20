@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("fixtures", type=Path)
 parser.add_argument("probe_output", type=Path)
 parser.add_argument("destination", type=Path)
+parser.add_argument("--candidate-label", default="Avalonia CPU", help="Label for the measured renderer")
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument("--brush", action="store_true", help="Compare first/final 4K brush stages against the CPU reference")
 mode.add_argument("--text", action="store_true", help="Compare four F11 text styles at 72/300 dpi")
@@ -25,7 +26,7 @@ labels = ImageDraw.Draw(sheet)
 for row, name in enumerate(names):
     inputs = [
         ("Mac CPU reference" if args.brush else "Mac reference", args.fixtures / f"{name}-{'cpu' if args.brush else 'mac'}.png"),
-        ("Avalonia CPU", args.probe_output / f"{name}{'' if args.brush else '-export'}.png"),
+        (args.candidate_label, args.probe_output / f"{name}{'' if args.brush else '-export'}.png"),
         ("Difference x32 (RGB red, alpha blue)", args.probe_output / f"{name}{'-cpu' if args.brush else ''}-diff.png"),
     ]
     for column, (label, path) in enumerate(inputs):

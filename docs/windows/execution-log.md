@@ -394,3 +394,36 @@ DOTNET_CLI_HOME=/tmp/compositor-dotnet-cli DOTNET_CLI_TELEMETRY_OPTOUT=1 \
 ```
 
 日志与输出目录同名加 `.log`；build log 为 `/tmp/compositor-avalonia-text-build.log`。最终 60 张 PNG 与已视觉检查的 `text-11` 输出逐字节相同。入库 `evidence/avalonia-text-macos.json`、`avalonia-text-preparation.json`、`avalonia-text-contact-sheet.png`；同一接触图脚本增加 `--text`，旧 mask 模式输出仍与已存图一致。公开推送与 Windows 环境问题尚未收到用户答复，未据自动继续视作授权。
+
+## 2026-09-21：Qt 合成与工程往返对照准备
+
+起点 `bafbcce`，工作区干净。上一轮提交和文字证据属于实际进展，本轮推进 W-007 对照，不改变 M0/M1 门槛，不推送。官方 Qt 6.11.2 的 qtbase-only Mac universal SDK 已通过 aqtinstall 3.3.0 安装在 `/tmp/compositor-qt-6.11.2`；未改系统 Qt 或 Homebrew。官方 archive SHA-1 已独立核验，另记录 SHA-256；工具依赖、SDK/SBOM 和实际链接清单见 preparation 证据。D-07 仍未作发行选择。
+
+新增 `experiments/windows/qt`，C++17/Qt Widgets/CMake3.31.6，链接既有 native 子目录的原 8 个 C 文件与 bridge。每次导出与 QWidget paintEvent 都重新执行 CPU 合成，然后绘制新 QImage；不是读取导出 PNG 当预览。QPainter 实现 9 个分离混合；缺少的 Hue/Saturation/Color/Luminosity 用 W3C 方程补齐，包含 opaque red/green、neutral、transparent source/backdrop 的解析断言。
+
+F04–F07 的 Gray mask、同父连续剪贴、组覆盖与有限 clipped desaturation 采用与 Avalonia 同样的规则；alpha extract/unpremultiply/restore 实际调用 C。所有 QPainter 在原始像素修改前结束；QImage 写时分离有保留图像断言。Smooth 与 High quality 暂都映射 QPainter 平滑采样，尚无三个独立采样实现。原型全幅临时缓冲仅用于 64×48 样本，不宣称完成局部瓦片或 4K 路径。
+
+最终结果：
+
+| 检查 | 结果 |
+| --- | --- |
+| Release 构建 | AppleClang21，`-Wall -Wextra -Werror`，通过 |
+| 实际 QWidget 画面/离屏导出 | 20/20 精确、每份 paintEvent 1 次、输出非空 |
+| PNG encode/decode | 20/20 premultiplied RGBA8 原值不变 |
+| 最小重命名另存与 Qt 重读 | 20/20；完整 manifest 仅预期字段变动；64 个 package 文件包含的素材字节均保留；拒绝覆盖原目的地 |
+| Mac 参考 | F01/F02/F04/F05/F06 精确；其余 15 最大通道差 1/255；全部 alpha 精确，未接受容差 |
+| 11 个拒绝检查 | 未知版本/字段、重复 ID、路径越界、缺父节点、非法 opacity、rotation、text/F08、截断 PNG、RGBA mask 均拒绝 |
+| 组合与算法断言 | 蒙版启停、剪贴 alpha、组覆盖精确只应用一次、调整 alpha/identity/零 opacity、隐藏层、copy-on-write、四个非分离混合的解析样例均通过 |
+| native contract CTest | Release 与 sanitizer 各 1 test passed；不是重复计数两个相同 test |
+| ASan/UBSan | 原型 C++ 和原 C 均插桩，全部场景通过；Qt 预编译库未插桩、leak detection 关闭，不能证明无泄漏 |
+| 实际 Mac ProjectStore/ImageExporter | WindowsFixtureTests **4 passed / 0 failed / 0 skipped**，1.112 s；含 Qt 与 Avalonia 各 20 个返回工程 |
+
+非分离 B10/B11/B12/B13 分别有 1,149/1,408/1,156/1,408 个差异像素，最大 1/255；并未将观察转成通过阈值。接触图中 F04–F06 完全相同、F07 少量 RGB 差异条带，无 alpha 差异；模型查看不替代人类 Windows 验收。
+
+Mac 测试将原 Avalonia readback 函数提取为共享 helper，并增加 `QT_ROUNDTRIP_DIR` gated test；原 manifest/assets/pixels 断言保持。两个环境变量均实际设置，本次没有用 skipped 充数。生产 Mac 代码和 native C 未改，没有重跑完整 Mac suite。
+
+本机 Release 目录 `/tmp/compositor-qt-probe-release`，ASan/UBSan 为 `/tmp/compositor-qt-probe-sanitized`。最终输出 `/tmp/compositor-qt-compositor-03`，日志同名 `.log`，整体资源日志为 `-resources.log`；Mac readback 的日志/xcresult 前缀 `/tmp/compositor-windows-192b-qt-roundtrip`。Mac 测试输入 `qt-compositor-02`；已核对最终 03、02 和 sanitizer 的 **124 个 PNG/package 文件逐字节一致**。Qt 报告中的 timing 不要求跨运行相同。
+
+最后一次整进程 Mac `time -l` 记录 0.24 s wall、最大 RSS 20,791,296 bytes；包括所有微型样本和 guards，不是 Windows private RAM/VRAM 或 S04/S05。不得拿它与 Avalonia 4K 笔刷测量排名。复现命令和全部限制见 `experiments/windows/qt/README.md`；入库 `evidence/qt-compositor-{macos,preparation,summary}.json` 与 contact sheet。
+
+Qt 尚缺软笔提交/下一笔/undo 工作流和变换文字/真实 IME；两个方案还都缺 Windows 同机验证与最终部署。W-007、W-008、M1 保持未通过，后续 M2–M7 及全部 PRD/发布目标不缩减。
