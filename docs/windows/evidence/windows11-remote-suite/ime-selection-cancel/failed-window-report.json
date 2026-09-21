@@ -1,0 +1,360 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 12,
+  "textInputEvents": 1,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1.5,
+  "events": [
+    {
+      "utc": "2026-09-21T12:05:21.1709076Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T12:05:21.6235205Z",
+      "name": "native-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1.5
+      }
+    },
+    {
+      "utc": "2026-09-21T12:05:21.639508Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T12:07:13.9568202Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T12:07:13.9656935Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T12:07:14.0788525Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T14:26:37.7540883Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T14:26:39.4356878Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T14:26:39.4979272Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T14:26:42.4080581Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T14:26:44.3246625Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T14:26:46.1431786Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T14:27:54.5285678Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T14:27:54.5322499Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T14:27:54.5371244Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T14:40:34.6258203Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T14:40:35.3491452Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T14:40:36.2888219Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T14:40:41.8949689Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T14:40:48.2489665Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T14:41:08.3409373Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:08.5569335Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:09.7028437Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:09.8553552Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:10.0476394Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:11.384283Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:13.2108904Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T14:41:15.4552335Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T14:41:31.350418Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T14:41:32.4061937Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T14:41:35.6596556Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:35.8949266Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:36.0918458Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:36.2086974Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:37.2516711Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T14:41:38.0510769Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T14:42:29.0086903Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T14:42:29.0668276Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    }
+  ]
+}

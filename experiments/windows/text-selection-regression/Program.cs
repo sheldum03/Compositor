@@ -15,6 +15,7 @@ AppBuilder.Configure<Application>().UseSkia().UseHeadless(new AvaloniaHeadlessPl
 Application.Current!.Styles.Add(new SimpleTheme());
 var assembly=Assembly.Load("Compositor.AvaloniaProbe");
 var factory=assembly.GetType("TextProbe")!.GetMethod("Editor",BindingFlags.NonPublic|BindingFlags.Static)!;
+if (args[0] == "--ime-cancel") return ImeCancelRegression.Run(assembly, factory);
 string output=Path.GetFullPath(args[0]);
 Directory.CreateDirectory(output);
 int failed=0;

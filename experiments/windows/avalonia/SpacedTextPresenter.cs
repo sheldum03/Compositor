@@ -9,13 +9,17 @@ using Avalonia.Media.TextFormatting;
 // supplies paragraph spacing which the default TextPresenter does not forward.
 internal sealed class SpacedTextPresenter(double? boxWidth, double lineSpacing) : TextPresenter
 {
+    internal int PreeditSelectionLength { get; set; }
+
     protected override TextLayout CreateTextLayout()
     {
         string preedit = PreeditText ?? "";
         string text = Text ?? "";
         // TextBox can request layout between the text and selection/caret updates.
         int caret = Math.Clamp(CaretIndex, 0, text.Length);
-        string combined = text.Insert(caret, preedit);
+        string combined = preedit.Length > 0
+            ? text.Remove(caret, Math.Min(PreeditSelectionLength, text.Length - caret)).Insert(caret, preedit)
+            : text;
         var builder = new LayoutBuilder
         {
             FontFamily = FontFamily, FontSize = FontSize, FontStyle = FontStyle,

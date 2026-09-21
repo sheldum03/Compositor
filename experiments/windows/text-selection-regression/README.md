@@ -1,5 +1,13 @@
 # 文字拖选回归
 
+选区内输入法取消回归：
+
+```sh
+dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- --ime-cancel
+```
+
+40 项使用真实 TextBox 输入法客户端，覆盖全选、局部/反向选区、无选区、首次/重新挂载，以及 null/空串取消、失焦、提交先于/晚于清除预输入。检查预输入不改正文、取消恢复选区、提交精确替换和撤销重做。修复前“全选→ceshi→取消”正文变成空串；单纯延后 ApplyTemplate 在重新挂载后仍失败。SelectionPreservingImeClient 将原选区保留到 TextInput 提交，由 presenter 临时显示替换后的预输入；取消不修改正文，也不创建恢复用的撤销记录。该回归不替代 Windows 原生微软拼音复测。
+
 ```sh
 dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- /tmp/text-selection-results
 ```

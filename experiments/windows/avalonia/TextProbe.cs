@@ -145,6 +145,7 @@ internal static class TextProbe
                 return presenter;
             })
         };
+        SelectionPreservingImeClient.Attach(box, presenter);
         box.ApplyTemplate();
         return box;
     }

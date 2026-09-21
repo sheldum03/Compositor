@@ -1,0 +1,22 @@
+{
+  "sha256": "df35b7612e512dab60917109af78126f0b9999e336f1e7f77edb76429a5d1ec2",
+  "bytes": 13864095,
+  "files": [
+    {
+      "path": "Compositor.AvaloniaProbe.dll",
+      "sha256": "c1a6c0ddb80d2b2d11abae335a95332cd0ffc796e8568de1e436d9070e4ee880"
+    },
+    {
+      "path": "Compositor.AvaloniaProbe.pdb",
+      "sha256": "2321f76a4bb5d74055e814855f2d7bd42e64fabffe7adfe6201aac98abcb6510"
+    },
+    {
+      "path": "Regression.dll",
+      "sha256": "9a21e7eb496a9ae626696913dbaeefd855641a95ad415dc162e26fb1ab8ab425"
+    },
+    {
+      "path": "Regression.pdb",
+      "sha256": "aaf20023cd372b170ed024d4e2d2785ec278c8246e280156e7a7b0a3c78b3d86"
+    }
+  ]
+}

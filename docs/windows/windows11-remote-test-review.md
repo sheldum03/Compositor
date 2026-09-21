@@ -2,6 +2,18 @@
 
 状态：已完成当前原型的大部分自动化测试，完整测试及 Windows 1.0 **未完成**。用户解锁后已继续：Qt 同机对照及 Mac 读回已完成；原生窗口的人工拖选、真实拼音及三页保存已有新证据；CUA 自动拖动和按键仍不稳定，无遮挡 S02 更新延迟未达目标。依据为原始归档和独立复核，不以脚本 exit 0 代替产品验收。
 
+最新阻塞：真实微软拼音“全选正文→输入 ceshi→Esc 取消”使正文全部消失，用户明确确认，取消后导出亦为空。已完成本地针对性修复及回归，Windows 原生复测仍待完成；此前无选区取消通过不覆盖此路径。
+
+## 选区内输入法取消丢失正文
+
+失败归档 `window-flip-20260921-200520-ime-results.zip` 为 38,897 字节，远端与本地 SHA-256 均为 `dd96c2618d845bde24e602d7db0a5cb0674d8a41362071716038a5cadf22289f`，5 项 CRC 全部通过。失败时文字为 150% / 0° / 不翻转，Windows 显示缩放 150%。基线导出 11,657 个非透明像素，取消后为 **0**；两次预览/导出各自仍然相同，说明“导出并校验完成”不能证明内容没有丢失。
+
+最小回归通过真实 TextBox 输入法客户端全选→SetPreeditText→清除预输入，旧代码正文为空并 exit 1。Avalonia 11.3.22 的 TextBox 在预输入变化时调用 DeleteSelection；模板提前 ApplyTemplate 使该订阅在首次挂载即生效。延后模板只能暂时避开，标准 TextBox 重新挂载后也复现，因此没有采用这一绕过办法。来源：[固定版本 TextBox](https://github.com/AvaloniaUI/Avalonia/blob/11.3.22/src/Avalonia.Controls/TextBox.cs)。
+
+修复将被替换的选区保留在正文中，预输入仅改变 presenter 的临时显示；取消恢复选区，真实 TextInput 再按原选区提交，由 TextBox 保持撤销/重做。40 项本地 IME 回归、48 项拖选回归通过；12 个既有文字样本的 60 张 PNG 逐字节不变。Release 构建无警告/错误。这些结果不代替原生 TSF、微软拼音候选位置、实际 Esc 和切页后的实机复测。
+
+证据：[复核摘要](evidence/windows11-remote-suite/ime-selection-cancel/review.json)、[原生事件](evidence/windows11-remote-suite/ime-selection-cancel/failed-window-report.json)、[取消前](evidence/windows11-remote-suite/ime-selection-cancel/before.png)、[取消后](evidence/windows11-remote-suite/ime-selection-cancel/after.png)、[40 项本地回归](evidence/windows11-remote-suite/ime-selection-cancel/local-ime-regression.jsonl)。
+
 ## 环境与修复
 
 实体机 PEIXU7-GY，Windows 11 Pro 10.0.26200 x64，i9-13900、64 GB、4090D；本轮报告记录 .NET 10.0.12、PowerShell 5.1.26100.9444。显示缩放 150%，Avalonia 使用软件渲染。通过 UU 自带文件传输和远程终端执行；终端与 Explorer 均为 Session 1。
