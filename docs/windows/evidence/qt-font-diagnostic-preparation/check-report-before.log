@@ -1,0 +1,16 @@
+[
+  {
+    "caughtError": false,
+    "case": "normal",
+    "completedDespiteCaughtError": true,
+    "fonts": [
+      "Source Han Sans SC"
+    ]
+  },
+  {
+    "caughtError": true,
+    "case": "missing-font-field",
+    "completedDespiteCaughtError": true,
+    "fonts": []
+  }
+]

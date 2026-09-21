@@ -1,0 +1,46 @@
+{
+  "scope": "PowerShell 7.6 extracted report handling; not Windows/full wrapper execution",
+  "runnerSha256": "3155032ef094d0d0e5b08ad23341c97f5e8426a21c8921a07d13fd18a5e5c168",
+  "results": [
+    {
+      "variant": "before",
+      "exitCode": 0,
+      "cases": [
+        {
+          "caughtError": false,
+          "case": "normal",
+          "completedDespiteCaughtError": true,
+          "fonts": [
+            "Source Han Sans SC"
+          ]
+        },
+        {
+          "caughtError": true,
+          "case": "missing-font-field",
+          "completedDespiteCaughtError": true,
+          "fonts": []
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "exitCode": 0,
+      "cases": [
+        {
+          "caughtError": false,
+          "fonts": [
+            "Source Han Sans SC"
+          ],
+          "completedDespiteCaughtError": true,
+          "case": "normal"
+        },
+        {
+          "caughtError": true,
+          "fonts": [],
+          "completedDespiteCaughtError": false,
+          "case": "missing-font-field"
+        }
+      ]
+    }
+  ]
+}

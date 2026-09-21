@@ -816,3 +816,10 @@ Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至r
 权威源码Mac Release build0警告0错误，独立--s02-check退出0，4笔484回调/120更新逐序号复核通过，最终2PNG与父任务修正版逐字节一致。原--brush13会话和9PNG/工程字节回归通过。源码3文件与reviewed-v2一致，Windows publish34身份复核通过；未执行Windows或GUI，未覆盖用户当前IME包。证据evidence/s02-window-preparation及experiments/windows/avalonia/PERFORMANCE.md记录性能终点/内存采样边界。
 
 待前台可用先验证真实窗口成功、尺寸拒绝与中途关闭，再构建独立完整包到Windows11做两组30笔；当前S02/D03/W030/M1均不记通过。本轮保持无CUA，用户本机Esc反馈仍未到。
+
+
+## 2026-09-21：Qt 字体目录对照脚本审查与假成功修正
+
+审查父任务双进程offscreen字体目录对照脚本，发现reportComplete先置true、resolvedFonts读取异常后catch不清除完成状态。本任务在Mac PowerShell7.6以原Server报告及缺字段负例的提取段实际复现；父任务仅在catch加complete=false，原始正常/负例红绿日志吻合。本任务核对两版测试脚本精确差异、最终runner SHA、日志与摘要后纳入experiments/windows/qt/run-font-diagnostic.ps1及evidence/qt-font-diagnostic-preparation。未重复已通过测试，未更改原已上传cbc28f5包。
+
+Windows两轮字体A/B、qwindows/真实IME仍未执行，Server原Emoji失败保持。当前停止在外部依赖：Windows11本机Esc对照无回复；父任务Chrome可用时机未获回复，AI本地模型Server后续命令结果尚未读回；S02真实窗口生命周期及参考机30笔待前台可用。没有CUA操作、推送或新增生产框架。
