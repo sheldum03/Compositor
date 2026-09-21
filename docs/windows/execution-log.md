@@ -619,3 +619,14 @@ Windows/MSVC构建、宽字符入口、实际DLL加载、数值结果与模型�
 另在本地用既有 SDK10.0.401 将原 C# 探针构建为 `UseAppHost=false` 的托管程序集，0 warning/error；同一程序集在Mac的.NET10.0.12/原Release动态库上通过17入口与1,000次释放检查。已下载并匹配官方SHA-512的.NET10.0.12 Windows x64 runtime zip为36,960,258 bytes，尚未上传/在Windows执行。托管包 `/tmp/compositor-pinvoke-managed-003ff71.zip`（9,006 bytes）和runtime均仅作后续准备，不是新的Windows运行证据。
 
 W-004 获得部分环境资源，W-006 仍待实际编译/运行。等待浏览器可继续操作后先读回续传状态，再完成工具链准备与已有测试；不将下载、源码校验或脚本解析计入实机测试通过。M0/M1、W-007/008/009及全部M2–M7/PRD/发布门槛保持原范围，目标尚未完成。
+
+
+## 2026-09-21：用户回传 Windows 11 原生 C++/ctypes 探针通过结果
+
+用户提供 Windows 11 Pro x64 实机：Build26200 / 10.0.26200、i9-13900、64 GiB、4090D、驱动32.0.15.9186。按本任务逐步指导，在桌面 CompositorTest 目录解压测试源码及便携 LLVM-MinGW；系统已发现 Python313 和 dotnet 路径。实际编译器版本输出尚未回传，不把官方包标识当作已测工具版本。
+
+用户运行 `run-mingw.ps1` 后贴出完整结果 JSON：UTC `2026-09-21T03:19:50.1402809Z`、status passed、windowsExecuted true、19个导出、8个C算法通过既有C++合约；pointer/size_t均8字节、long4字节。ctypes确认Windows/AMD64，1,000次轮廓分配/释放检查通过。DLL SHA-256 `046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f`。证据见 `evidence/native-probe-windows11.json`，明确来源为用户回传；尚未独立取得原始result.json、编译日志、导出表或DLL。
+
+没有修改原算法、桥接或测试断言。此为首份Windows11原生运行结果，不是MSVC/CMake、C# P/Invoke、完整固定样本跨平台比较、GUI/IME/DPI/GPU或性能验收；W-006仍部分完成。硬件配置也不等于S01–S05已测，干净虚拟机和集显参考设备仍待补充。
+
+为下一步准备私有C#测试包CompositorPInvoke.zip（35,794,869 bytes，SHA-256 `edf335aa56e4cfed4249bd2d4a1e6053429a92abda6c1a918f53d79bcd8eef35`）。包含此前SDK10.0.401/Release/UseAppHost=false构建并已在Mac验证的原托管程序集、原测试源码身份、官方.NET10.0.12 win-x64完整runtime及LICENSE/ThirdPartyNotices。runtime原archive SHA-512再次匹配官方元数据，包内文件CRC与逐文件SHA-256检查通过；不包含Windows native DLL，将按明确路径加载用户刚生成的DLL。该包仅在本地交付目录准备，不入Git、不公开推送、不安装系统运行时。Windows C#执行仍待用户操作，不提前记为通过。

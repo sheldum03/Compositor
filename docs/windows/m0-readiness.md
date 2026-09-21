@@ -36,8 +36,8 @@ Windows 往返、跨平台浮点/字形容差、完整应用字体重启仍未�
 ## 尚未满足的门槛
 
 - W-003：D-01 首发 OS/架构、D-04 工程容器、D-11 文本缩放/缺字体策略仍待用户决定。现有建议与行为证据齐备，不把建议当确认。
-- W-004：已获用户授权使用一台 Windows Server 2022 x64 轻量服务器，4 核/4 GB，已通过 Chrome Computer Use 执行环境检查（见 `evidence/windows-server-environment.json`）。这是部分资源进展；仍无 Windows 11 x64 参考机和干净虚拟机，未确认 GPU 加速，S01–S05 不能据此判定通过。
-- W-005/006：CMake/C++/C#/ctypes 的 Mac 实验已执行；Windows CI 已准备，但公开推送仍待确认，Windows 运行未执行。
+- W-004：已有 Windows Server 2022 x64 轻量服务器环境检查，并新增用户操作的 Windows 11 Pro x64 实机（Build26200、i9-13900、64 GiB、4090D，驱动32.0.15.9186）。见 `evidence/windows-server-environment.json` 与 `evidence/native-probe-windows11.json`。干净虚拟机、集显参考设备及 S01–S05/实际 GPU 路径尚待验证，W-004 保持部分完成。
+- W-005/006：用户已在上述 Windows 11 实机运行 LLVM-MinGW C++/ctypes 探针，通过8个C算法的既有合约、19个DLL导出和1,000次分配/释放检查，输出记录于 `evidence/native-probe-windows11.json`；尚未独立收集完整日志。C# P/Invoke、MSVC/CMake、框架像素接入与固定样本跨平台比较仍未完成。Windows CI 已准备，公开推送仍待确认。
 - W-007/008 可继续做受限且可逆的原型源码准备；只有实机四路径证据才能完成任务及供 W-009 选型。不能预选路线、进入大规模生产 UI 或把 Mac 原型当 Windows 验收。
 
 公开推送问题已提交用户，不重复询问、不将自动目标续跑视为确认。M0 通过仍需其原定退出条件，1.0 完成仍需全部发布门槛。

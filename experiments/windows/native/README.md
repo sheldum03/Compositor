@@ -1,6 +1,6 @@
 # 公共 C 算法桥接实验
 
-W-006 的本机准备，**不是 Windows 验收结果，也不选择 Qt/Avalonia 路线**。直接编译现有 8 个 C 文件，Mac 产品源码和 Xcode 工程不变。
+W-006 的桥接实验，直接编译现有 8 个 C 文件，Mac 产品源码和 Xcode 工程不变。Mac 检查已执行；用户现已回传 Windows 11 LLVM-MinGW C++/ctypes 通过结果，见 [Windows 11 证据](../../../docs/windows/evidence/native-probe-windows11.json)。这只覆盖部分原生接口检查，不代表 W-006 完整验收，也不选择 Qt/Avalonia 路线。
 
 ## 构建与验证
 
@@ -68,7 +68,7 @@ RGBA 为每像素 4 字节、预乘 sRGB 通道、行从上到下，stride 单�
 
 测试使用已知输入的行为断言，Release 不依赖会被 NDEBUG 关闭的 assert。首次运行修正了两个测试假设：轻度负畸变的角点部分覆盖应有 alpha；Create Texture 会从缺陷周边估计颗粒，不能要求与平色填充逐像素相同。没有因此修改算法。
 
-仍缺：Windows 编译/运行、实际 DLL 导出表、C# P/Invoke pinned buffer/释放、两框架到 C 的 BGRA/RGBA 接入、固定 Mac 参考的 Windows 差异分析、真实分配失败/压力与性能。ctypes 是另一种 FFI 的冒烟检查，不能记为 P/Invoke 完成。W-006、M0/M1 保持未验收。
+仍缺：Windows MSVC/CMake 构建、完整 DLL 导出日志收集、C# P/Invoke pinned buffer/释放、两框架到 C 的 BGRA/RGBA 接入、固定 Mac 参考的 Windows 差异分析、真实分配失败/压力与性能。用户回传的 LLVM-MinGW 运行结果已通过 C++/ctypes 与19个导出计数检查；ctypes 不能记为 P/Invoke 完成。W-006、M0/M1 保持未验收。
 
 ## 低资源 Windows Server 诊断准备
 
@@ -90,4 +90,4 @@ RGBA 为每像素 4 字节、预乘 sRGB 通道、行从上到下，stride 单�
   -OutputDirectory C:/CompositorValidation/003ff71/native-run-01
 ```
 
-当前只通过 PowerShell 7.6.0 的语法检查和非 Windows 拒绝路径检查；PowerShell 5.1 执行、编译器驱动/链接、19 个导出与测试结果均待实机运行，不能标记 W-006 完成。
+上述 Server 准备记录之后，用户在 Windows 11 Pro x64 Build26200 实机执行了本脚本，回传 `windowsExecuted=true`、19个导出、8个C算法的C++合约及ctypes的1,000次分配/释放检查通过。实际 pointer/size_t 为8字节、long为4字节；DLL SHA-256 为 `046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f`。完整原始日志尚未独立收集，实际编译器版本输出未回传；见 [Windows 11 证据](../../../docs/windows/evidence/native-probe-windows11.json)。不能标记 W-006 完成。

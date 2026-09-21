@@ -1,6 +1,6 @@
 # Windows 验证与发布计划
 
-状态：拟定验收方案，所有 Windows 测试尚未执行。本文数值是待 M1 冻结的目标，不是 benchmark 结果。任务关联见 [开发计划](development-plan.md)。Mac 参考最新状态见[实施记录](execution-log.md)：测试接口漂移已修复、完整单元回归通过，部分固定样本已生成。原[审计实测](code-coupling-audit.md)保留修复前的失败证据。
+状态：拟定验收方案；用户已回传 Windows 11 LLVM-MinGW 原生 C++/ctypes 探针通过结果，见 [部分实机证据](evidence/native-probe-windows11.json)，完整 Windows 验收仍未完成。本文数值是待 M1 冻结的目标，不是 benchmark 结果。任务关联见 [开发计划](development-plan.md)。Mac 参考最新状态见[实施记录](execution-log.md)：测试接口漂移已修复、完整单元回归通过，部分固定样本已生成。原[审计实测](code-coupling-audit.md)保留修复前的失败证据。
 
 ## 1. 验证层次与编号
 

@@ -1,0 +1,41 @@
+{
+  "evidenceSource": "User pasted actual Windows test output in this task; raw result.json and complete logs have not yet been collected independently",
+  "sourceCommit": "81ab2da",
+  "environment": {
+    "reportedOs": "Windows 11 Pro",
+    "reportedOsVersion": "10.0.26200",
+    "reportedBuild": "26200",
+    "systemType": "x64 physical PC",
+    "cpu": "13th Gen Intel Core i9-13900",
+    "memoryGiB": 64,
+    "gpu": "4090D",
+    "gpuDriver": "32.0.15.9186"
+  },
+  "runDirectory": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947",
+  "result": {
+    "status": "passed",
+    "windowsExecuted": true,
+    "toolchain": "LLVM-MinGW (not MSVC)",
+    "utc": "2026-09-21T03:19:50.1402809Z",
+    "exports": 19,
+    "dllSha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+    "contract": "PASS: 8 C algorithms through shared-library C++ linkage; pointer=8 size_t=8 long=4",
+    "ctypes": {
+      "status": "passed",
+      "boundary": "ctypes (not P/Invoke)",
+      "system": "Windows",
+      "machine": "AMD64",
+      "pointerBytes": 8,
+      "sizeTBytes": 8,
+      "longBytes": 4,
+      "traceAllocationReleaseCycles": 1000
+    }
+  },
+  "limitations": [
+    "C# P/Invoke has not yet run on this Windows 11 machine",
+    "No MSVC or CMake Windows build evidence",
+    "No Windows UI, real IME, DPI, GPU or performance acceptance",
+    "No complete Windows/Mac fixed-fixture pixel comparison",
+    "W-006 and M0/M1 are not complete"
+  ]
+}
