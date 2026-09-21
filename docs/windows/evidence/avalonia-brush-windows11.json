@@ -1,5 +1,5 @@
 {
-  "evidenceSource": "User pasted the PowerShell summary and two timing rows; full report, PNGs, saved project and logs have not yet been collected independently",
+  "evidenceSource": "Initially user-pasted summary; subsequently checked against the uploaded original archive. See artifactReview for independent PNG checks and Mac readback.",
   "environmentEvidence": "native-probe-windows11.json",
   "testPackageSha256": "d3dac08a54f8f34ae54019ea99a40d1b13faf8b5e70fdff734db75591edafef1",
   "outputDirectory": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\brush-run-20260921-114232",
@@ -12,15 +12,22 @@
     "SessionChecks": 13
   },
   "timingsMilliseconds": [
-    {"stroke": 0, "updateAndPreviewP95": 27.5388, "commitMilliseconds": 25.5688},
-    {"stroke": 1, "updateAndPreviewP95": 29.166, "commitMilliseconds": 24.0438}
+    {
+      "stroke": 0,
+      "updateAndPreviewP95": 27.5388,
+      "commitMilliseconds": 25.5688
+    },
+    {
+      "stroke": 1,
+      "updateAndPreviewP95": 29.166,
+      "commitMilliseconds": 24.0438
+    }
   ],
   "scope": "Existing 4000x4000 two-stroke CPU brush probe: 800px soft tip, 40% opacity, synchronous headless custom-control previews and session checks",
   "limitations": [
-    "Full reference differences, raw timings, memory observations and artifacts not yet received",
     "P95 observations exceed the planned 16.7ms target; this two-stroke headless input is not the S02 acceptance workload",
     "No real mouse/pen, native window, GPU presentation or formal performance acceptance",
-    "Windows-produced brush project has not yet been read back on macOS",
     "W-008 and M1 remain incomplete"
-  ]
+  ],
+  "artifactReview": "windows11-artifact-review/review-summary.json"
 }

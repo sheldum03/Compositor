@@ -664,3 +664,14 @@ W-004 获得部分环境资源，W-006 仍待实际编译/运行。等待浏览�
 用户回传 text-report.json 的 PowerShell 摘要：WindowsExecuted True、NativeImeExecuted False、SampleCount12、PreviewExportMismatches0、SyntheticInputPassed12、CancelPixelMismatches0。输出目录 `text-run-20260921-114831`；见 `evidence/avalonia-text-windows11.json`。status保留原文 local preparation only; synthetic input is not Windows IME acceptance，未将模拟输入通过扩大为微软拼音验收。
 
 目前只收到摘要；完整Mac参考差异、字体回退、光标诊断、PNG和日志尚未独立收集。此次只更新证据和文档并检查差异，未修改算法或容差。下一步指导用户汇总既有原生、合成、笔刷和文字运行目录与日志，再检查原始报告、图像及Windows工程在Mac端的读回结果。真实窗口/IME/DPI/GPU、正式性能、完整文字工程事务与W-008/M1仍未通过。
+
+
+## 2026-09-21：收到原始 Windows 结果，Mac 读回通过，发现文字视觉失败
+
+用户上传 Windows11-TestResults-20260921-133437.zip，7,291,136 bytes / 247 files，SHA-256 b059e2b04fd7cfbd0f516468ca78d850608db83d6c65207a7252ed4b59f2e4c4，CRC通过。独立核对DLL hash与19个PE导出，compiler.txt确认clang23.1.1。完整结果、receipt manifest、独立像素核算、Mac读回日志与接触图见 evidence/windows11-artifact-review；分析见 windows11-results-review.md。C# P/Invoke独立结果文件未包含，仍保留用户回传来源限制。
+
+Pillow11.3.0/NumPy独立核算全部36组参考差分，与原报告完全一致；32组预览导出及12组取消恢复的完整RGBA精确相同。合成只有F01/F02/B08对Mac参考精确，其余17组最大通道差2/255。两张笔刷图与此前Mac Avalonia输出RGBA一致；更新P95约24ms，预览P95约3.7/5.3ms，working-set采样高水位213,577,728bytes，不充当正式性能/内存验收。
+
+使用原有两个gated Mac测试，设置用户实际输出目录并运行xcodebuild；2 passed / 0 skipped，覆盖20个合成工程的manifest/资产/渲染保持及1个brush.comp的打开/再保存/重开像素保持。没有修改测试或产品。
+
+视觉检查纠正先前文字“通过”的范围：四个代表样本可见中英文笔画严重缺失、碎点，emoji仍可见；12组参考最大误差均255。shared preview/export equality和any-nonzero断言可在画面错误时通过。文字视觉验收明确失败；根因未确定，下一步需定位普通字形绘制并补独立覆盖检查，再发修订探针复测。未改算法、依赖或容差，不要求用户重复现有测试，不选择框架；W-008/M1保持未通过。

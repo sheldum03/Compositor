@@ -1,0 +1,40 @@
+{
+  "archiveSha256": "b059e2b04fd7cfbd0f516468ca78d850608db83d6c65207a7252ed4b59f2e4c4",
+  "archiveBytes": 7291136,
+  "archiveEntries": 247,
+  "zipCrc": "passed",
+  "extraction": "Windows backslash entry separators normalized; path traversal rejected; original archive preserved",
+  "source": "User-uploaded Windows artifacts; reviewed locally on macOS, Windows programs not re-executed",
+  "native": {
+    "dllSha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+    "hashMatchesPriorReport": true,
+    "independentlyInspectedPEExports": 19,
+    "compiler": "clang 23.1.1",
+    "target": "x86_64-w64-windows-gnu",
+    "pinvokeRawResultIncluded": false
+  },
+  "pixels": {
+    "independentReferenceMetricComparisons": 36,
+    "metricMismatches": 0,
+    "compositionAndTextPreviewExportExact": 32,
+    "textCancellationExact": 12,
+    "brushWindowsEqualsMacAvaloniaRGBA": true
+  },
+  "macReadback": {
+    "testsPassed": 2,
+    "testsSkipped": 0,
+    "compositionProjects": 20,
+    "brushProject": 1,
+    "brushResaveReopenExact": true,
+    "log": "mac-readback.log",
+    "xcresultLocalPath": "/tmp/compositor-windows11-received-20260921/mac-readback.xcresult"
+  },
+  "acceptance": {
+    "composition": "Internal equality and package round trips passed; reference differences up to 2/255 remain unaccepted",
+    "brush": "Session and package round trips passed; P95 27.5388/29.166 ms; not formal S02 workload",
+    "text": "Visual correctness failed: Chinese/Latin glyphs mostly missing or fragmented while emoji remains; synthetic input and shared preview/export checks passed",
+    "textCause": "Undetermined. Existing nonempty-pixels assertion does not require readable/complete glyph coverage. Do not attribute to emoji fallback alone.",
+    "frameworkSelection": "Pending; W-008/M1 not complete"
+  },
+  "durableLocalArtifacts": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-results-review"
+}

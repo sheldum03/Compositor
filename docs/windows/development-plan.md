@@ -2,6 +2,8 @@
 
 状态：M0 实施中；W-001 基线准备、W-002 样本准备已就绪，W-003 产品决策与 W-004 Windows 环境仍未满足。2026-09-21 整合回归 327 passed / 0 failed / 3 个未启用诊断 skipped；242 个固定文件身份核验通过。退出条件复核见 [M0 准备审计](m0-readiness.md)，最新证据见[实施记录](execution-log.md)。产品范围见 [PRD](product-requirements.md)，架构和决策见 [技术设计](technical-design.md)，测试编号见 [验证与发布](validation-release.md)。
 
+2026-09-21 实机证据更新：Windows 上传结果已完成原始报告/图像核验，20 个合成工程及 1 个笔刷工程在 Mac 实际读回通过；文字输出存在明显字形缺失，视觉检查失败。此前自动准备检查通过不代表文字正确。详见 [Windows 结果复核](windows11-results-review.md)，W-008/M1 仍不放行。
+
 ## 1. 当前进度
 
 - [x] 从 `d562565e5f1c53a7ece4dd2d1f6c0ef3547a3c28` 创建并切换到 `windows-part`。

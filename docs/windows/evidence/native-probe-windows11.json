@@ -1,5 +1,5 @@
 {
-  "evidenceSource": "User pasted actual Windows test output in this task; raw result.json and complete logs have not yet been collected independently",
+  "evidenceSource": "Initially user-pasted summary; subsequently checked against the uploaded original archive. See artifactReview for independent PNG checks and Mac readback.",
   "sourceCommit": "81ab2da",
   "environment": {
     "reportedOs": "Windows 11 Pro",
@@ -37,5 +37,6 @@
     "No Windows UI, real IME, DPI, GPU or performance acceptance",
     "No complete Windows/Mac fixed-fixture pixel comparison",
     "W-006 and M0/M1 are not complete"
-  ]
+  ],
+  "artifactReview": "windows11-artifact-review/review-summary.json"
 }
