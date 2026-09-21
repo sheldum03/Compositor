@@ -1,6 +1,6 @@
 # Avalonia specimen prototype — W-008 preparation
 
-This is an isolated experiment, not a Windows editor or a GUI framework decision. It exercises the first portion of the compositor/round-trip paths in `docs/windows/technical-design.md`. Windows execution and all four complete M1 paths remain required.
+This is an isolated experiment, not a Windows editor or a GUI framework decision. It exercises the first portion of the compositor/round-trip paths in `docs/windows/technical-design.md`. The user has now reported a successful 20-specimen Windows 11 composition run; full artifact review and all four complete M1 paths remain required.
 
 The separate [4K CPU brush probe](BRUSH.md) now covers local tile commits, the next stroke, undo/redo and export/readback on the fixed two-stroke input. It shares the actual custom-control drawing entry point below; its algorithm differences and performance limitations are recorded separately.
 
@@ -78,6 +78,6 @@ Latest evidence: `docs/windows/evidence/avalonia-combination-macos.json`, `avalo
 python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures <PROBE_OUTPUT_DIRECTORY> <NEW_CONTACT_SHEET.png>
 ```
 
-No Windows run, native UI, clipboard, IME, general clipping/adjustment implementation, packaging or release acceptance has occurred. The brush probe has limited Mac timing/resource observations, not Windows performance acceptance. W-008 and M1 remain incomplete.
+The user subsequently ran the fixed composition package on Windows 11 Pro x64 Build26200 and reported WindowsExecuted=true, 20 specimens, zero preview/export mismatches and 20 successful saved-project checks. See [Windows 11 composition evidence](../../../docs/windows/evidence/avalonia-composition-windows11.json). The full report, generated images and saved packages have not yet been independently collected; Windows-to-Mac readback and per-sample Mac differences remain pending. This is a headless CPU run, not native UI, clipboard, IME, general clipping/adjustment implementation, packaging or release acceptance. Windows brush/text runs and performance acceptance remain pending. W-008 and M1 remain incomplete.
 
 Avalonia and SkiaSharp NuGet metadata declare MIT; native packages also include third-party notices. A production distribution must inventory its actual native artifacts and notices under D-07/V-12, which this source experiment does not close.

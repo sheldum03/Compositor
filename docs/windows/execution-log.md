@@ -641,3 +641,12 @@ W-004 获得部分环境资源，W-006 仍待实际编译/运行。等待浏览�
 包包含原托管输出、保留原runtimes/win-x64/native路径的SkiaSharp2.88.9及HarfBuzzSharp8.3.1.1 DLL、base/brush/extended固定样本、源码身份及字体/框架/原生依赖的license/notices/NuGet元数据。Windows两支DLL逐字节匹配对应NuGet archive成员，并记录PE imports（Skia：ole32/FONTSUB/USER32/KERNEL32，HarfBuzz：KERNEL32）。16份NuGet cache archive的实际SHA512匹配各自sidecar，cache metadata contentHash匹配locked graph；二者是分别记录的身份值，不将其当作同一个hash。包内CRC与逐文件SHA256检查通过，复用用户已有便携.NET10.0.12和已验证native DLL，不安装新系统组件。
 
 该原型当前是headless CPU自动渲染入口，没有可手动操作的编辑器窗口。下一轮先执行20组PNG与最小重命名保存/重开检查，Windows结果仍待回传；真实窗口、IME、DPI、GPU、S01–S05、Qt对照和完整跨平台比较仍待原定验收。W-006的两类FFI探针已有用户回传实机证据，但不据此关闭完整W-006、M1或发布目标。二进制包留在本地交付目录，不入Git、不公开推送。
+
+
+## 2026-09-21：用户回传 Windows 11 的20组合成与保存/重开检查通过
+
+用户运行私有CompositorRenderTest包的既有headless CPU合成入口，回传PowerShell从report.json提取的摘要：WindowsExecuted True、SampleCount20、PreviewExportMismatches0、SavedProjects20，status仍明确Mac差异仅为观察、未验收。输出目录为桌面CompositorTest下 `render-run-20260921-113945`，见 `evidence/avalonia-composition-windows11.json`。
+
+这是Windows11上真实图像输出路径的用户回传结果，不能扩大为原生窗口或GPU测试通过。完整逐样本report、PNG、保存工程与日志尚未独立收集；Mac差分数值未收到，Windows保存工程尚未在Mac端读回。原型算法、输入和容差未改；未因自动测试成功选择生产框架。
+
+下一步复用同一包运行既有4K两笔软笔测试，无需重新下载。其固定输入是4000×4000、800px、0硬度、40%不透明度、每笔121个事件，验证连续下一笔、历史不变性、撤销/重做、预览/导出与保存重开。此输入不是S02的100%不透明度/至少30笔实机性能验收，W-008/M1仍未通过。
