@@ -1,0 +1,18 @@
+{
+  "node": "tencent-cpu-01",
+  "invocation": "inv-k8wrtp0v31",
+  "startLocal": "2026-09-21 14:32:14",
+  "endLocal": "2026-09-21 14:32:15",
+  "exitCode": 0,
+  "source": "Tencent TAT UI; later local bytes/hash/CRC independently verified",
+  "archive": "C:\\CompositorValidation\\qt-server-results-cbc28f5-20260921.zip",
+  "bytes": 9499306,
+  "sha256": "4d3eda09a42df5a7edc636c3e667ecdcd2cbdd552278ceea9228e9a7c2df7d1b",
+  "steps": [
+    "native:0",
+    "composite:0",
+    "brush:0",
+    "text:0"
+  ],
+  "method": "ZipFile.CreateFromDirectory into a new archive; no test rerun"
+}

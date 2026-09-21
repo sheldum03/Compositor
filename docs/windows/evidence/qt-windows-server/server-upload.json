@@ -1,0 +1,14 @@
+{
+  "node": "tencent-cpu-01",
+  "source": "Chrome Tencent file manager UI readback",
+  "remoteDirectory": "C:\\CompositorValidation",
+  "file": "CompositorQtProbe-cross-build.zip",
+  "displayedSize": "47.4MB",
+  "uploadResult": "completed 1/1",
+  "displayedUploadDuration": "1min4s",
+  "displayedModified": "2026-09-21 14:28:02",
+  "localSHA256": "9505207b2611da0dac226136a8b613f3b8b7551a7d567fbb8bf464352cba88c0",
+  "remoteHashVerification": "run command submitted; result pending",
+  "commandTimeoutSeconds": 240,
+  "windowsTestResult": "pending"
+}

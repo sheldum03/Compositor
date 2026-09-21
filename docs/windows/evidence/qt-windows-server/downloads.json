@@ -1,0 +1,23 @@
+[
+  {
+    "file": "qtbase.7z",
+    "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6112/qt6_6112_llvm_mingw/qt.qt6.6112.win64_llvm_mingw/6.11.2-0-202608131017qtbase-Windows-Windows_11_24H2-Clang-Windows-Windows_11_24H2-X86_64.7z",
+    "bytes": 19874439,
+    "sha256": "2b9777d1e669c56f7c898d3b76e1db95aac2c84bc8fd0b8f4da0e482bf66689f",
+    "sha1": "2a52151a825f8711ddaca0d9f264755544d9406e"
+  },
+  {
+    "file": "qtbase.7z.sha1",
+    "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6112/qt6_6112_llvm_mingw/qt.qt6.6112.win64_llvm_mingw/6.11.2-0-202608131017qtbase-Windows-Windows_11_24H2-Clang-Windows-Windows_11_24H2-X86_64.7z.sha1",
+    "bytes": 40,
+    "sha256": "468f6316b80f825149d9099715d685f02496f935f9e70c96ecd8b3e9da738bd9",
+    "sha1": "adc5e32d0a0b570918b2dc696bc4d4be4c3c49cd"
+  },
+  {
+    "file": "llvm-mingw-20260908-ucrt-macos-universal.tar.xz",
+    "url": "https://github.com/mstorsjo/llvm-mingw/releases/download/20260908/llvm-mingw-20260908-ucrt-macos-universal.tar.xz",
+    "bytes": 124244100,
+    "sha256": "d1dc5d1ecf3a3ced5ed5544c72f1acd0c8e84eb3024d520ecc6b143eec62a149",
+    "sha1": "3dbd7290f1c6b5823d9ee34a54c5d9fd0a07f692"
+  }
+]

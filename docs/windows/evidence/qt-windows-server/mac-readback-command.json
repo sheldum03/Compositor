@@ -1,0 +1,32 @@
+{
+  "command": [
+    "xcodebuild",
+    "-project",
+    "Compositor.xcodeproj",
+    "-scheme",
+    "Compositor",
+    "-configuration",
+    "Debug",
+    "-destination",
+    "platform=macOS",
+    "-derivedDataPath",
+    "/tmp/compositor-windows-192b-derived",
+    "-disableAutomaticPackageResolution",
+    "-parallel-testing-enabled",
+    "NO",
+    "-testLanguage",
+    "en",
+    "-testRegion",
+    "US",
+    "-only-testing:CompositorTests/WindowsFixtureTests/qtRenamedCopiesReopenWithOriginalPixels()",
+    "-only-testing:CompositorTests/WindowsBrushFixtureTests/qtBrushPackageReopensWithExportedPixels()",
+    "-resultBundlePath",
+    "/Users/admin/.codex/visualizations/2026/09/20/01a0beb1-da38-7b00-9183-d65bff121d78/qt-windows-cross-build/mac-server-readback.xcresult",
+    "CODE_SIGNING_ALLOWED=NO",
+    "test"
+  ],
+  "environment": {
+    "TEST_RUNNER_QT_ROUNDTRIP_DIR": "/Users/admin/.codex/visualizations/2026/09/20/01a0beb1-da38-7b00-9183-d65bff121d78/qt-windows-cross-build/server-results/composite",
+    "TEST_RUNNER_QT_BRUSH_DIR": "/Users/admin/.codex/visualizations/2026/09/20/01a0beb1-da38-7b00-9183-d65bff121d78/qt-windows-cross-build/server-results/brush"
+  }
+}

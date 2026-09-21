@@ -739,3 +739,12 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 完整私有CompositorWindowTest.zip已准备，46859313bytes，SHA25663d489a89a1899a59cf238ae8bb6f90cd4f492c6d4023f30846ccb379137b163；402个清单文件身份及CRC逐项通过，包含完整新依赖、win-x64资产、固定样本、自有源码/字体及依赖许可；复用用户既有便携.NET和验证过的native DLL，不覆盖旧app。Windows原生资产PE机型均AMD64。PowerShell7.6语法通过，精确打包wrapper在Mac加载Windows DLL故意失败时native134、wrapper1，日志/ZIP均保留；Windows PowerShell5.1及GUI仍待实际运行。
 
 先等待用户完整12样本文字修复ZIP，再安排Windows原生窗口/微软拼音测试，避免并行要求操作。开发计划已纠正Windows headless已执行和W-003决定已确认的过时段落；M0/M1及完整M0–M7范围不变。未公开推送。
+
+
+## 2026-09-21：整合 Qt Windows Server 实跑及 Emoji 视觉失败证据
+
+父任务以冻结cbc28f5、Qt6.11.2 LLVM-MinGW SDK、clang23.1.1与CMake3.31.6完成交叉构建，并在既已授权的tencent-cpu-01 Windows Server2022/PowerShell5.1实际执行native、20合成、两笔4K笔刷、12文字四项，进程退出均0。首次wrapper因Compress-Archive文件映射占用退出1，原数据保留，仅以新文件名重新归档，没有重跑测试；不声称归档根因已修。
+
+父任务下载结果9499306bytes、SHA2564d3eda09a42df5a7edc636c3e667ecdcd2cbdd552278ceea9228e9a7c2df7d1b。本任务重新核对SHA/CRC/213项文件身份，并查看接触图确认Emoji缺字方框。父任务的36组独立像素核算、32组预览导出/12取消精确、两项Mac读回2passed/0failed/0skipped及原始报告/运行日志整合到evidence/qt-windows-server；评审qt-windows-server-review.md保留父任务执行来源，原始PNG和xcresult在其artifact目录。
+
+文字12样本普通蓝字墨量0.892–0.949不能掩盖Emoji视觉失败；offscreen字体库未发现系统fallback为待验证假设，fontdir/qwindows对照未执行。笔刷对Mac Qt预乘RGBA相同但PNG字节不同，对原CPU/Metal参考仍存在未接受差异。Server P95 53.6642/61.5534ms、commit58.8498/69.4234ms不是S02或Win11同机比较。已纠正Qt文档中所有Windows未执行与D-11决定未定的过时表述，MSVC/CI未执行状态保留；不选框架、不关闭M1。

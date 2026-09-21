@@ -1,6 +1,6 @@
 # Qt compositor and project round-trip — W-007 preparation
 
-This isolated C++17 / Qt Widgets experiment renders the same F01–F07 and B01–B13 fixed specimens as the Avalonia compositor probe. It covers a portion of the composition and JSON/PNG round-trip paths. The companion [soft-brush probe](BRUSH.md) adds a fixed 4K tile/history path. The [shared text probe](TEXT.md) adds transformed editing and synthetic input checks. Native Windows IME, Windows execution and framework selection remain open. No Windows product directory, installer or second GPU backend is introduced.
+This isolated C++17 / Qt Widgets experiment renders the same F01–F07 and B01–B13 fixed specimens as the Avalonia compositor probe. It covers a portion of the composition and JSON/PNG round-trip paths. The companion [soft-brush probe](BRUSH.md) adds a fixed 4K tile/history path. The [shared text probe](TEXT.md) adds transformed editing and synthetic input checks. The LLVM-MinGW build has now executed four preparation probes on Windows Server 2022; text Emoji visual checks fail. Native Windows IME, Windows 11 same-device acceptance and framework selection remain open. See the [Server review](../../../docs/windows/qt-windows-server-review.md). No Windows product directory, installer or second GPU backend is introduced.
 
 ## Pinned build
 
@@ -22,7 +22,7 @@ QT_QPA_PLATFORM=offscreen QT_SCALE_FACTOR=1 <TEMP_BUILD_DIRECTORY>/qt_probe \
   docs/windows/fixtures <NEW_OUTPUT_DIRECTORY>
 ```
 
-The output directory must not exist. Windows uses its own Qt `win64_msvc2022_64` package, Visual Studio 2022 x64 environment and runtime DLL paths (Qt's `bin` and the build's `native/Release`). The Windows SDK and CI preparation are described below; Windows compilation/execution remains **unexecuted**. The Mac universal archive does not provide Windows binaries.
+The output directory must not exist. Windows uses its own Qt `win64_msvc2022_64` package, Visual Studio 2022 x64 environment and runtime DLL paths (Qt's `bin` and the build's `native/Release`). This MSVC route and CI preparation remain **unexecuted**. A separate fixed-source LLVM-MinGW build has executed on Windows Server 2022, as recorded in the Server review. The Mac universal archive does not provide Windows binaries.
 
 The qtbase archive is 31,039,494 bytes. Its official SHA-1 sidecar was checked independently of aqt; SHA-256 was also recorded:
 
@@ -45,7 +45,7 @@ Runtime configuration is explicit: SDK `bin` and Qt build `native/Release` on PA
 
 The existing `windows-native-<commit>` artifact retains all Qt outputs, logs, native CTest XML, executable/native bridge, CMake cache, font notice, SDK manifest, core runtime file hashes and upstream SBOM for 14 days, including failures. It does **not** bundle the Qt SDK DLLs or claim to be a standalone application. Downloaded `.comp` results remain inputs for the Mac readback commands below and in BRUSH.md. Text has no project round trip.
 
-Validation of this wiring: actionlint 1.7.12 passed; a fresh Mac Release build, native CTest and all three probe commands passed. Stable PNG/package output matches the previous local runs. The Windows download/extraction was inspected on Mac; the workflow's PowerShell, `qtpaths.exe`, MSVC build and Windows probes have **not** run. No push/remote dispatch occurred. A future Windows Server headless result still cannot close Windows 11 reference-machine, native IME/DPI/GPU, clean installation or M1 selection gates. Evidence: `docs/windows/evidence/qt-ci-preparation.json`.
+Validation of this wiring: actionlint 1.7.12 passed; a fresh Mac Release build, native CTest and all three probe commands passed. Stable PNG/package output matches the previous local runs. The Windows download/extraction was inspected on Mac; the workflow's PowerShell, `qtpaths.exe`, MSVC build and Windows probes have **not** run. No push/remote dispatch occurred. The separate completed Windows Server headless result cannot close Windows 11 reference-machine, native IME/DPI/GPU, clean installation or M1 selection gates. Evidence: `docs/windows/evidence/qt-ci-preparation.json`.
 
 ## Rendering and ownership
 
@@ -101,4 +101,4 @@ python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures \
   <QT_OUTPUT_DIRECTORY> <NEW_CONTACT_SHEET.png> --candidate-label 'Qt CPU'
 ```
 
-The fixed soft-brush transaction/next-stroke/undo path now has [separate preparation evidence](BRUSH.md). The [text probe](TEXT.md) also covers shared layout, transformed caret hits and synthetic IME. Remaining W-007 work: native Windows IME, Windows deployment/execution, matched performance/resource measurements and resulting integration gaps. M0/M1 remain unpassed; this does not authorize production framework selection.
+The fixed soft-brush transaction/next-stroke/undo path now has [separate preparation evidence](BRUSH.md). The [text probe](TEXT.md) also covers shared layout, transformed caret hits and synthetic IME. Remaining W-007 work: diagnose the Server offscreen Emoji failure, native Windows IME, Windows 11 same-device deployment/execution, matched performance/resource measurements and resulting integration gaps. M0/M1 remain unpassed; this does not authorize production framework selection.

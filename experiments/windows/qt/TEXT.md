@@ -1,6 +1,6 @@
 # Qt shared text document — W-007 preparation
 
-This fixed-corpus Qt Widgets experiment uses an editable `QGraphicsTextItem` and its own `QTextDocument`. Preview, export, caret hits and preedit use that same document layout. It exercises twelve F11 styles on macOS, not native Windows IME or production text transactions. The original manifest and cached PNG are never written; D-11's editing/scale/missing-font policy remains open.
+This fixed-corpus Qt Widgets experiment uses an editable `QGraphicsTextItem` and its own `QTextDocument`. Preview, export, caret hits and preedit use that same document layout. It exercises twelve F11 styles on macOS, not native Windows IME or production text transactions. The original manifest and cached PNG are never written; D-11's original-font rerasterization and missing-font preservation policy is confirmed; its implementation and acceptance remain open.
 
 ## Reproduce
 
@@ -65,3 +65,5 @@ python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures/exte
 Still required: native Windows Pinyin/candidate geometry at multiple monitor DPIs, focus/activation/composition interruption, real keyboard/pointer/clipboard, text transaction/save/reopen, draft sizing policy, missing-font/cache behavior, font import/removal/conflicts, complex bidi/emoji coverage and matched resource/latency measurements. Both framework prototypes remain preparation only; W-007/W-008 and M1 are unpassed.
 
 Public API references: [editable graphics text item](https://doc.qt.io/qt-6/qgraphicstextitem.html), [input method events](https://doc.qt.io/qt-6/qinputmethodevent.html), [additive line height](https://doc.qt.io/qt-6/qtextblockformat.html). The pinned 6.11.2 sources were checked for [document glyph-run retrieval](https://github.com/qt/qtbase/blob/v6.11.2/src/gui/text/qtextlayout.cpp), [scene input query](https://github.com/qt/qtbase/blob/v6.11.2/src/widgets/graphicsview/qgraphicsscene.cpp), [view query mapping](https://github.com/qt/qtbase/blob/v6.11.2/src/widgets/graphicsview/qgraphicsview.cpp) and [item painting](https://github.com/qt/qtbase/blob/v6.11.2/src/widgets/graphicsview/qgraphicsitem.cpp).
+
+2026-09-21 Windows Server 2022 update: all 12 synthetic text checks executed, but Emoji are missing from the actual PNGs; visual acceptance fails. Ordinary blue-text ink checks passing do not cover Emoji. The offscreen font-directory hypothesis and unexecuted qwindows/fontdir comparisons are documented in the [Server review](../../../docs/windows/qt-windows-server-review.md). Native Microsoft Pinyin and Windows 11 same-device tests remain unexecuted.

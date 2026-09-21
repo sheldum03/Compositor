@@ -1,0 +1,24 @@
+[  4%] Building C object native/CMakeFiles/compositor_native.dir/bridge.c.obj
+[  9%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/ContentFill.c.obj
+[ 14%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/BrushPixels.c.obj
+[ 19%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/AdjustPixels.c.obj
+[ 23%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/HealPixels.c.obj
+[ 28%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/LensPixels.c.obj
+[ 33%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/LevelsPixels.c.obj
+[ 38%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/NoisePixels.c.obj
+[ 42%] Building C object native/CMakeFiles/compositor_native.dir/tmp/compositor-parent-qt-windows/source/Compositor/Rendering/WandPixels.c.obj
+[ 47%] Linking C shared library libcompositor_native.dll
+[ 47%] Built target compositor_native
+[ 52%] Running rcc for resource text_fonts
+[ 57%] Building CXX object native/CMakeFiles/native_contract_tests.dir/contract_tests.cpp.obj
+[ 61%] Linking CXX executable native_contract_tests.exe
+[ 66%] Building CXX object CMakeFiles/qt_probe.dir/probe.cpp.obj
+[ 71%] Building CXX object CMakeFiles/qt_probe.dir/scene.cpp.obj
+[ 76%] Building CXX object CMakeFiles/qt_probe.dir/composite.cpp.obj
+[ 76%] Built target native_contract_tests
+[ 80%] Building CXX object CMakeFiles/qt_probe.dir/brush.cpp.obj
+[ 85%] Building CXX object CMakeFiles/qt_probe.dir/brush_probe.cpp.obj
+[ 90%] Building CXX object CMakeFiles/qt_probe.dir/text_probe.cpp.obj
+[ 95%] Building CXX object CMakeFiles/qt_probe.dir/.qt/rcc/qrc_text_fonts.cpp.obj
+[100%] Linking CXX executable qt_probe.exe
+[100%] Built target qt_probe

@@ -1,0 +1,22 @@
+{
+  "node": "tencent-cpu-01",
+  "source": "Chrome/Tencent TAT UI readback",
+  "runInvocation": "inv-g8wrqu0t6d",
+  "startLocal": "2026-09-21 14:29:13",
+  "endLocal": "2026-09-21 14:30:01",
+  "exitCode": 1,
+  "failureStage": "Compress-Archive on run-qt.ps1 line 70",
+  "error": "Exception calling Dispose: The requested operation cannot be performed on a file with a user-mapped section open.",
+  "readbackInvocation": "inv-j8wrst0dxx",
+  "readbackLocal": "2026-09-21 14:31:19",
+  "runDirectory": "C:\\CompositorValidation\\qt-cbc28f5\\CompositorQtProbe\\qt-run-20260921-142922-6e78dfcd",
+  "observedSummary": {
+    "WindowsExecuted": true,
+    "PreparationChecksPassed": true,
+    "NativeImeExecuted": false,
+    "ProductAcceptance": false,
+    "OS": "Microsoft Windows NT 10.0.20348.0",
+    "PowerShell": "5.1.20348.3932"
+  },
+  "limitation": "UI readback only so far; raw reports/images and independently checked result archive still pending. No tests rerun."
+}

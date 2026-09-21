@@ -1,0 +1,950 @@
+{
+    "architecture": "x86_64",
+    "corpusHashesVerified": 47,
+    "fontSha256": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "nativeImeExecuted": false,
+    "os": "Windows Server 2022 Version 21H2",
+    "placement": "shared document fitted to existing layer rectangle; no text cache/scale-policy change",
+    "qt": "6.11.2",
+    "results": [
+        {
+            "boxResizeChecked": true,
+            "exportNanoseconds": 6897500,
+            "fixture": "F11-300-box-center",
+            "fontSizePixels": 75,
+            "letterSpacingPixels": 5.208333333333334,
+            "lineSpacingPixels": 12.5,
+            "lines": 7,
+            "macReference": {
+                "DifferentPixels": 49980,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 3.3582322241056293,
+                "PixelsWithErrorAbove1": 40425
+            },
+            "naturalHeight": 850.5,
+            "naturalWidth": 360,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 8603900,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -1,
+            "scaleY": 0.9864785420340976,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 109,
+                    "width": 1,
+                    "x": 139.890625,
+                    "y": 121.5
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 78.74641769523282,
+                        "viewScale": 0.75,
+                        "width": 18.87187002724923,
+                        "x": 441.6078965879633,
+                        "y": -4.3316541021532515
+                    },
+                    {
+                        "height": 104.99522359364376,
+                        "viewScale": 1,
+                        "width": 25.16249336966564,
+                        "x": 439.8105287839511,
+                        "y": -136.77553880287098
+                    },
+                    {
+                        "height": 157.49283539046564,
+                        "viewScale": 1.5,
+                        "width": 37.74374005449846,
+                        "x": 449.21579317592665,
+                        "y": -378.66330820430653
+                    },
+                    {
+                        "height": 209.99044718728751,
+                        "viewScale": 2,
+                        "width": 50.32498673933128,
+                        "x": 450.6210575679022,
+                        "y": -621.551077605742
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 2.31335954426011e-13,
+                "samples": 357
+            }
+        },
+        {
+            "boxResizeChecked": true,
+            "exportNanoseconds": 7175900,
+            "fixture": "F11-300-box-left",
+            "fontSizePixels": 75,
+            "letterSpacingPixels": 5.208333333333334,
+            "lineSpacingPixels": 12.5,
+            "lines": 7,
+            "macReference": {
+                "DifferentPixels": 49528,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 3.2729112766526898,
+                "PixelsWithErrorAbove1": 39595
+            },
+            "naturalHeight": 850.5,
+            "naturalWidth": 360,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 6463900,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -1,
+            "scaleY": 0.9864785420340976,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 109,
+                    "width": 1,
+                    "x": 0,
+                    "y": 121.5
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 78.74641769523281,
+                        "viewScale": 0.75,
+                        "width": 18.87187002724923,
+                        "x": 455.92656918062767,
+                        "y": -1.0259280613656614
+                    },
+                    {
+                        "height": 104.99522359364374,
+                        "viewScale": 1,
+                        "width": 25.16249336966564,
+                        "x": 458.90209224083685,
+                        "y": -132.36790408182088
+                    },
+                    {
+                        "height": 157.49283539046561,
+                        "viewScale": 1.5,
+                        "width": 37.74374005449846,
+                        "x": 477.8531383612553,
+                        "y": -372.05185612273135
+                    },
+                    {
+                        "height": 209.9904471872875,
+                        "viewScale": 2,
+                        "width": 50.32498673933128,
+                        "x": 488.8041844816737,
+                        "y": -612.7358081636418
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 2.31335954426011e-13,
+                "samples": 357
+            }
+        },
+        {
+            "boxResizeChecked": true,
+            "exportNanoseconds": 7552500,
+            "fixture": "F11-300-box-right",
+            "fontSizePixels": 75,
+            "letterSpacingPixels": 5.208333333333334,
+            "lineSpacingPixels": 12.5,
+            "lines": 7,
+            "macReference": {
+                "DifferentPixels": 50283,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 3.395292101585036,
+                "PixelsWithErrorAbove1": 40813
+            },
+            "naturalHeight": 850.5,
+            "naturalWidth": 360,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 7715300,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -1,
+            "scaleY": 0.9864785420340976,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 109,
+                    "width": 1,
+                    "x": 279.796875,
+                    "y": 121.5
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 78.74641769523282,
+                        "viewScale": 0.75,
+                        "width": 18.871870027249273,
+                        "x": 427.28922399529904,
+                        "y": -7.6373801429408275
+                    },
+                    {
+                        "height": 104.99522359364376,
+                        "viewScale": 1,
+                        "width": 25.162493369665697,
+                        "x": 420.7189653270654,
+                        "y": -141.18317352392108
+                    },
+                    {
+                        "height": 157.49283539046564,
+                        "viewScale": 1.5,
+                        "width": 37.743740054498545,
+                        "x": 420.5784479905981,
+                        "y": -385.27476028588165
+                    },
+                    {
+                        "height": 209.99044718728751,
+                        "viewScale": 2,
+                        "width": 50.32498673933139,
+                        "x": 412.4379306541308,
+                        "y": -630.3663470478422
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 2.31335954426011e-13,
+                "samples": 357
+            }
+        },
+        {
+            "boxResizeChecked": false,
+            "exportNanoseconds": 6748100,
+            "fixture": "F11-300-point-center",
+            "fontSizePixels": 75,
+            "letterSpacingPixels": 5.208333333333334,
+            "lineSpacingPixels": 12.5,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 50978,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 3.064243267265023,
+                "PixelsWithErrorAbove1": 43562
+            },
+            "naturalHeight": 243,
+            "naturalWidth": 1193.28125,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 6813500,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -0.9930601021343459,
+            "scaleY": 0.9547325102880658,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 109,
+                    "width": 1,
+                    "x": 474.21875,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 76.21652453123613,
+                        "viewScale": 0.75,
+                        "width": 18.282996959902306,
+                        "x": 625.9866437852916,
+                        "y": 304.4607733992908
+                    },
+                    {
+                        "height": 101.62203270831483,
+                        "viewScale": 1,
+                        "width": 24.37732927986974,
+                        "x": 685.982191713722,
+                        "y": 289.2810311990545
+                    },
+                    {
+                        "height": 152.43304906247226,
+                        "viewScale": 1.5,
+                        "width": 36.56599391980461,
+                        "x": 803.9732875705831,
+                        "y": 253.9215467985817
+                    },
+                    {
+                        "height": 203.24406541662967,
+                        "viewScale": 2,
+                        "width": 48.75465855973948,
+                        "x": 921.9643834274441,
+                        "y": 223.56206239810894
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 2.8563464471519893e-13,
+                "samples": 336
+            }
+        },
+        {
+            "boxResizeChecked": false,
+            "exportNanoseconds": 6558300,
+            "fixture": "F11-300-point-left",
+            "fontSizePixels": 75,
+            "letterSpacingPixels": 5.208333333333334,
+            "lineSpacingPixels": 12.5,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 51182,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 3.096324793994967,
+                "PixelsWithErrorAbove1": 43843
+            },
+            "naturalHeight": 243,
+            "naturalWidth": 1193.28125,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 7107600,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -0.9930601021343459,
+            "scaleY": 0.9547325102880658,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 109,
+                    "width": 1,
+                    "x": 320.8125,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 76.2165245312361,
+                        "viewScale": 0.75,
+                        "width": 18.282996959902306,
+                        "x": 708.2182079741716,
+                        "y": 323.44542587700323
+                    },
+                    {
+                        "height": 101.6220327083148,
+                        "viewScale": 1,
+                        "width": 24.37732927986974,
+                        "x": 795.6242772988954,
+                        "y": 314.59390116933764
+                    },
+                    {
+                        "height": 152.4330490624722,
+                        "viewScale": 1.5,
+                        "width": 36.56599391980461,
+                        "x": 968.4364159483432,
+                        "y": 291.89085175400646
+                    },
+                    {
+                        "height": 203.2440654166296,
+                        "viewScale": 2,
+                        "width": 48.75465855973948,
+                        "x": 1141.2485545977909,
+                        "y": 274.1878023386753
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 2.8563464471519893e-13,
+                "samples": 336
+            }
+        },
+        {
+            "boxResizeChecked": false,
+            "exportNanoseconds": 6496400,
+            "fixture": "F11-300-point-right",
+            "fontSizePixels": 75,
+            "letterSpacingPixels": 5.208333333333334,
+            "lineSpacingPixels": 12.5,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 51243,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 3.1214003670780417,
+                "PixelsWithErrorAbove1": 44145
+            },
+            "naturalHeight": 243,
+            "naturalWidth": 1193.28125,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 6998800,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -0.9930601021343459,
+            "scaleY": 0.9547325102880658,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 109,
+                    "width": 1,
+                    "x": 627.640625,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 76.21652453123615,
+                        "viewScale": 0.75,
+                        "width": 18.282996959902306,
+                        "x": 543.7550795964115,
+                        "y": 285.47612092157846
+                    },
+                    {
+                        "height": 101.62203270831486,
+                        "viewScale": 1,
+                        "width": 24.37732927986974,
+                        "x": 576.3401061285487,
+                        "y": 263.9681612287713
+                    },
+                    {
+                        "height": 152.4330490624723,
+                        "viewScale": 1.5,
+                        "width": 36.56599391980461,
+                        "x": 639.510159192823,
+                        "y": 215.9522418431569
+                    },
+                    {
+                        "height": 203.24406541662972,
+                        "viewScale": 2,
+                        "width": 48.75465855973948,
+                        "x": 702.6802122570973,
+                        "y": 172.9363224575426
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 2.8563464471519893e-13,
+                "samples": 336
+            }
+        },
+        {
+            "boxResizeChecked": true,
+            "exportNanoseconds": 972800,
+            "fixture": "F11-72-box-center",
+            "fontSizePixels": 18,
+            "letterSpacingPixels": 1.25,
+            "lineSpacingPixels": 3,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 4942,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 1.503655899282889,
+                "PixelsWithErrorAbove1": 4779
+            },
+            "naturalHeight": 58,
+            "naturalWidth": 360,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 1665500,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -1,
+            "scaleY": 0.9827586206896551,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 26,
+                    "width": 1,
+                    "x": 150.875,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 18.841339618495635,
+                        "viewScale": 0.75,
+                        "width": 5.041693012437335,
+                        "x": 490.5000211249274,
+                        "y": 336.98504990962203
+                    },
+                    {
+                        "height": 25.12178615799418,
+                        "viewScale": 1,
+                        "width": 6.722257349916447,
+                        "x": 505.00002816656985,
+                        "y": 333.313399879496
+                    },
+                    {
+                        "height": 37.68267923699127,
+                        "viewScale": 1.5,
+                        "width": 10.08338602487467,
+                        "x": 533.0000422498548,
+                        "y": 325.970099819244
+                    },
+                    {
+                        "height": 50.24357231598836,
+                        "viewScale": 2,
+                        "width": 13.444514699832894,
+                        "x": 561.0000563331397,
+                        "y": 318.626799758992
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 1.2454782551400075e-13,
+                "samples": 102
+            }
+        },
+        {
+            "boxResizeChecked": true,
+            "exportNanoseconds": 866800,
+            "fixture": "F11-72-box-left",
+            "fontSizePixels": 18,
+            "letterSpacingPixels": 1.25,
+            "lineSpacingPixels": 3,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 4828,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 1.383069508312699,
+                "PixelsWithErrorAbove1": 4614
+            },
+            "naturalHeight": 58,
+            "naturalWidth": 360,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 1208200,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -1,
+            "scaleY": 0.9827586206896551,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 26,
+                    "width": 1,
+                    "x": 77,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 18.841339618495645,
+                        "viewScale": 0.75,
+                        "width": 5.0416930124372925,
+                        "x": 537.452478621766,
+                        "y": 347.824878840817
+                    },
+                    {
+                        "height": 25.121786157994194,
+                        "viewScale": 1,
+                        "width": 6.72225734991639,
+                        "x": 567.6033048290212,
+                        "y": 347.7665051210893
+                    },
+                    {
+                        "height": 37.68267923699129,
+                        "viewScale": 1.5,
+                        "width": 10.083386024874585,
+                        "x": 626.9049572435318,
+                        "y": 347.649757681634
+                    },
+                    {
+                        "height": 50.24357231598839,
+                        "viewScale": 2,
+                        "width": 13.44451469983278,
+                        "x": 686.2066096580425,
+                        "y": 347.53301024217865
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 1.2454782551400075e-13,
+                "samples": 102
+            }
+        },
+        {
+            "boxResizeChecked": true,
+            "exportNanoseconds": 937300,
+            "fixture": "F11-72-box-right",
+            "fontSizePixels": 18,
+            "letterSpacingPixels": 1.25,
+            "lineSpacingPixels": 3,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 4895,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 1.4736148181496607,
+                "PixelsWithErrorAbove1": 4706
+            },
+            "naturalHeight": 58,
+            "naturalWidth": 360,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 1106600,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -1,
+            "scaleY": 0.9827586206896551,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 26,
+                    "width": 1,
+                    "x": 224.75,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 18.841339618495624,
+                        "viewScale": 0.75,
+                        "width": 5.041693012437314,
+                        "x": 443.5475636280888,
+                        "y": 326.145220978427
+                    },
+                    {
+                        "height": 25.121786157994165,
+                        "viewScale": 1,
+                        "width": 6.722257349916418,
+                        "x": 442.39675150411847,
+                        "y": 318.8602946379027
+                    },
+                    {
+                        "height": 37.68267923699125,
+                        "viewScale": 1.5,
+                        "width": 10.083386024874628,
+                        "x": 439.0951272561777,
+                        "y": 304.290441956854
+                    },
+                    {
+                        "height": 50.24357231598833,
+                        "viewScale": 2,
+                        "width": 13.444514699832837,
+                        "x": 435.79350300823694,
+                        "y": 289.72058927580537
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 1.2454782551400075e-13,
+                "samples": 102
+            }
+        },
+        {
+            "boxResizeChecked": false,
+            "exportNanoseconds": 945300,
+            "fixture": "F11-72-point-center",
+            "fontSizePixels": 18,
+            "letterSpacingPixels": 1.25,
+            "lineSpacingPixels": 3,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 4942,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 1.9281883617193836,
+                "PixelsWithErrorAbove1": 4765
+            },
+            "naturalHeight": 58,
+            "naturalWidth": 286.5,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 1557300,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -0.9947643979057592,
+            "scaleY": 0.9827586206896551,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 26,
+                    "width": 1,
+                    "x": 114.125,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 18.840456302837225,
+                        "viewScale": 0.75,
+                        "width": 5.03786695197347,
+                        "x": 489.8777776064052,
+                        "y": 337.60795251367097
+                    },
+                    {
+                        "height": 25.120608403782967,
+                        "viewScale": 1,
+                        "width": 6.717155935964627,
+                        "x": 504.17037014187355,
+                        "y": 333.81060335156127
+                    },
+                    {
+                        "height": 37.68091260567445,
+                        "viewScale": 1.5,
+                        "width": 10.07573390394694,
+                        "x": 531.7555552128103,
+                        "y": 326.21590502734193
+                    },
+                    {
+                        "height": 50.241216807565934,
+                        "viewScale": 2,
+                        "width": 13.434311871929253,
+                        "x": 560.3407402837471,
+                        "y": 318.62120670312254
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 9.947598300641403e-14,
+                "samples": 82
+            }
+        },
+        {
+            "boxResizeChecked": false,
+            "exportNanoseconds": 984700,
+            "fixture": "F11-72-point-left",
+            "fontSizePixels": 18,
+            "letterSpacingPixels": 1.25,
+            "lineSpacingPixels": 3,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 4704,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 1.5958586780210868,
+                "PixelsWithErrorAbove1": 4458
+            },
+            "naturalHeight": 58,
+            "naturalWidth": 286.5,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 921800,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -0.9947643979057592,
+            "scaleY": 0.9827586206896551,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 26,
+                    "width": 1,
+                    "x": 77,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 18.840456302837215,
+                        "viewScale": 0.75,
+                        "width": 5.037866951973513,
+                        "x": 509.86894352984564,
+                        "y": 342.22327682890665
+                    },
+                    {
+                        "height": 25.120608403782953,
+                        "viewScale": 1,
+                        "width": 6.7171559359646835,
+                        "x": 530.8252580397942,
+                        "y": 339.9643691052089
+                    },
+                    {
+                        "height": 37.68091260567443,
+                        "viewScale": 1.5,
+                        "width": 10.075733903947025,
+                        "x": 571.7378870596913,
+                        "y": 335.4465536578133
+                    },
+                    {
+                        "height": 50.241216807565905,
+                        "viewScale": 2,
+                        "width": 13.434311871929367,
+                        "x": 613.6505160795884,
+                        "y": 330.9287382104178
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 9.947598300641403e-14,
+                "samples": 82
+            }
+        },
+        {
+            "boxResizeChecked": false,
+            "exportNanoseconds": 1015700,
+            "fixture": "F11-72-point-right",
+            "fontSizePixels": 18,
+            "letterSpacingPixels": 1.25,
+            "lineSpacingPixels": 3,
+            "lines": 2,
+            "macReference": {
+                "DifferentPixels": 4937,
+                "MaximumAlphaError": 166,
+                "MaximumChannelError": 166,
+                "MeanAbsoluteChannelError": 1.8422470600162206,
+                "PixelsWithErrorAbove1": 4740
+            },
+            "naturalHeight": 58,
+            "naturalWidth": 286.5,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 1060300,
+            "resolvedFonts": [
+                "Source Han Sans SC"
+            ],
+            "scaleX": -0.9947643979057592,
+            "scaleY": 0.9827586206896551,
+            "syntheticInput": {
+                "cancelledPixelsExact": true,
+                "cursor": {
+                    "height": 26,
+                    "width": 1,
+                    "x": 151.25,
+                    "y": 0
+                },
+                "preeditCancelCommitUndoRedoSelection": "passed",
+                "preeditPixelsExact": true,
+                "viewCursorQueries": [
+                    {
+                        "height": 18.840456302837225,
+                        "viewScale": 0.75,
+                        "width": 5.037866951973491,
+                        "x": 469.8866116829646,
+                        "y": 332.9926281984352
+                    },
+                    {
+                        "height": 25.120608403782967,
+                        "viewScale": 1,
+                        "width": 6.717155935964655,
+                        "x": 477.5154822439528,
+                        "y": 327.65683759791364
+                    },
+                    {
+                        "height": 37.68091260567445,
+                        "viewScale": 1.5,
+                        "width": 10.075733903946983,
+                        "x": 491.7732233659292,
+                        "y": 316.98525639687045
+                    },
+                    {
+                        "height": 50.241216807565934,
+                        "viewScale": 2,
+                        "width": 13.43431187192931,
+                        "x": 507.03096448790563,
+                        "y": 306.3136751958273
+                    }
+                ]
+            },
+            "transformedHits": {
+                "clusterBoundaryViolations": 0,
+                "inverseTolerancePixels": 0.001,
+                "maximumInverseError": 9.947598300641403e-14,
+                "samples": 82
+            }
+        }
+    ],
+    "spacingChecks": "positive/negative additive spacing; absolute tracking and relayout passed",
+    "status": "local preparation; synthetic events are not Windows IME acceptance",
+    "windowsExecuted": true
+}
