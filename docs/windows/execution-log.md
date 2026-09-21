@@ -823,3 +823,11 @@ Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至r
 审查父任务双进程offscreen字体目录对照脚本，发现reportComplete先置true、resolvedFonts读取异常后catch不清除完成状态。本任务在Mac PowerShell7.6以原Server报告及缺字段负例的提取段实际复现；父任务仅在catch加complete=false，原始正常/负例红绿日志吻合。本任务核对两版测试脚本精确差异、最终runner SHA、日志与摘要后纳入experiments/windows/qt/run-font-diagnostic.ps1及evidence/qt-font-diagnostic-preparation。未重复已通过测试，未更改原已上传cbc28f5包。
 
 Windows两轮字体A/B、qwindows/真实IME仍未执行，Server原Emoji失败保持。当前停止在外部依赖：Windows11本机Esc对照无回复；父任务Chrome可用时机未获回复，AI本地模型Server后续命令结果尚未读回；S02真实窗口生命周期及参考机30笔待前台可用。没有CUA操作、推送或新增生产框架。
+
+## 2026-09-21：Windows 11 UU 终端复测与锁屏中断
+
+用户明确要求通过 UU 完成所有测试。取回旧原生窗口完整归档后发现短替换崩溃（CaretIndex45 > Text.Length42），保留原始负退出码和栈；90a09b1解决命中/高亮，24bc505修正布局快照caret越界。真实TextBox末尾替换旧版exit134，修复后48组合含撤销重做本地及Windows均通过，旧60文字PNG逐字节不变。
+
+CUA→UU桌面点击/键盘不响应，鼠标模式对照及重连未恢复；UU自带终端可执行命令，终端与Explorer同Session1。517文件独立包实际完成selection/composition/text/brush/s02-check/heic，全部exit0；ai-download在20.10秒连接超时/curl28/0字节，随后本地模型8调用exit0。结果ZIP SHA为1837f1cbc9c054d2bb380f347a66fc370b1367a4fa10403d735f2d9e7066bc73；CRC及原始图像、AI profile、HEIC raw独立复核通过。20合成和笔刷工程在Mac实际读回2passed/0failed/0skipped；首次0测试误筛选不计通过。
+
+S02真实窗口完成62笔；首轮UU终端遮挡部分画布，仅作诊断，随后也有文件传输。更新P95为27.0772/32.5546ms，commit P95为14.3882/13.6883ms，采样专用内存452321280字节，不放行性能。Qt391文件独立对照已启动，最终归档尚未取回。工具随后明确返回Mac锁屏且无法自动解锁，已请用户手动解锁，未尝试绕过。第二轮完整可见S02、修复版窗口原生输入/三页保存、Qt归档及远端hash仍待继续。详见windows11-remote-test-review.md和evidence/windows11-remote-suite；未推送、未覆盖旧包、未选生产框架。
