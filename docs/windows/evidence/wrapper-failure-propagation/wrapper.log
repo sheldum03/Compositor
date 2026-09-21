@@ -1,0 +1,12 @@
+
+ExitCode                : 134
+WindowsExecuted         : 
+NativeImeExecuted       : 
+SampleCount             : 
+OrdinaryInkStatus       : 
+OrdinaryInkPassed       : 
+PreviewExportMismatches : 
+Scope                   : Grayscale text coverage fix; visual review and native
+                           IME acceptance remain separate
+
+Send this archive: /tmp/compositor-parent-wrapper-negative/root/text-fix-20260921-140801.zip

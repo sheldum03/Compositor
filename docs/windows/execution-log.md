@@ -719,3 +719,10 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 父任务通过独立Chrome/TAT操作tencent-cpu-01，06:02:53.3038204Z下载官方.NET10.0.12 win-x64 runtime完成，curlExit0、36,960,258bytes、SHA512精确匹配微软元数据；06:05:11.5903914Z在C:\CompositorValidation\tools\dotnet-10.0.12运行--list-runtimes，exit0，剩余9.6GiB。证据 windows-server-runtime.json 来源为父任务界面读回转录，非原始日志下载。本任务未操作服务器，无系统安装/全局PATH/防火墙/密码/重启/RDP改动。
 
 此前LLVM续传实际curlExit28，只获得21,395,506/190,677,197bytes，TAT包装退出0不能当下载完成。runtime成功只证明Server环境可执行，不是Windows11、产品、GUI/IME/GPU或性能验收；旧文字诊断包未上传，避免与新Win11回传重复。W-004仍部分完成。
+
+
+## 2026-09-21：包装脚本失败传播的独立完整负例证据
+
+父任务在macOS/PowerShell7.6.0隔离目录实际运行冻结的run-text-fix.ps1，以加载真实Windows DLL故意使探针exit134：旧wrapper返回0；加入完整性/退出码守卫的副本对同一故障返回1，两轮zip、summary和text-run.log均保留。归档 evidence/wrapper-failure-propagation 含两份冻结脚本及其hash、日志和摘要。此证据属于父任务执行的副本，不宣称当前v2包在Windows已测；本任务当前脚本的6种实际尾部guard检查另见 text-grayscale-fix/wrapper-exit-checks.json。
+
+不要求用户为第一版wrapper单独重跑；其完整产物仍按native ExitCode、样本完整性、墨量断言及图片核验。Windows PowerShell5.1和完整修复后文字样本仍待实际回传，既定产品决定持续有效，M0–M7范围不变。
