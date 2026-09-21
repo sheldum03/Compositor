@@ -23,7 +23,8 @@
       "replace selected two characters with 1",
       "Ctrl+Z restores original"
     ],
-    "result": "awaiting user feedback"
+    "result": "passed by user report",
+    "userReply": "全部正常"
   },
   "observation": "CUA screenshot when resuming showed larger unflipped text; the 100% flipped result is attributed to the explicit user reply, not claimed as independently captured. Agent then set and visually confirmed small mirrored text for the 50% test. UU displayed a high network latency warning."
 }
