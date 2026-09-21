@@ -77,4 +77,10 @@ python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures/brus
   <PROBE_OUTPUT_DIRECTORY> <NEW_CONTACT_SHEET.png> --brush
 ```
 
-Not implemented/verified: Windows execution, actual mouse/pen events, GPU uploads/presentation, transformed or selected strokes, hard tips, erasing/other brush tools, clipped/masked brush composition, cancellation under background work, bounded production history, S02/S04/S05 stress, global memory budget or process leak checks. No M1 selection or Windows 1.0 acceptance is claimed.
+Not implemented/verified: actual mouse/pen events, GPU uploads/presentation, transformed or selected strokes, hard tips, erasing/other brush tools, clipped/masked brush composition, cancellation under background work, bounded production history, S02/S04/S05 stress, global memory budget or process leak checks. No M1 selection or Windows 1.0 acceptance is claimed.
+
+## User-reported Windows 11 run
+
+On Windows 11 Pro x64 Build26200, the user reported preparation checks passed, 121 samples per stroke, 242 custom-control updates, 56 shared tiles and 13 session checks. Update plus preview P95 was 27.5388 / 29.166 ms; commit was 25.5688 / 24.0438 ms. These P95 observations exceed the planned 16.7 ms target, but this two-stroke, 40%-opacity headless workload is not the S02 acceptance workload. The configured RTX 4090D does not imply GPU rendering was tested.
+
+See [Windows 11 brush evidence](../../../docs/windows/evidence/avalonia-brush-windows11.json). Only the pasted summary and timing rows have been received; full reference differences, raw timings, memory observations, images and the saved project remain uncollected. Windows-produced project readback on macOS is still pending. Functional preparation passed; performance and reference equivalence are not accepted.
