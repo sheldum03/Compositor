@@ -59,6 +59,8 @@ Mac 读回使用 Swift Testing 精确函数选择（含 `()`），最终 **2 pas
 
 见 [复测复核](evidence/windows11-remote-suite/s02-visible-review.json)、[二进制身份](evidence/windows11-remote-suite/s02-visible-execution.json)、[开始画面](evidence/windows11-remote-suite/s02-visible-190545.png) 与 [后半程画面](evidence/windows11-remote-suite/s02-visible-midrun-190545.png)。性能终点仍是 canvas lease 释放，非物理呈现或真实输入延迟；4090D 机器上的软件渲染结果不能代替集显/干净机矩阵。
 
+对既有逐帧数据进一步复算：空层/已有层 append P95 为 12.2344/12.2656 ms，paint P95 为 6.2553/8.3527 ms；逐帧两段之和的 P95 为 17.8912/19.9529 ms（不能将两个 P95 直接相加）。总耗时扣除两段后的残余平均为 10.9362/8.6070 ms，尚不能解释为纯等待；GC 次数也不能证明暂停因果。后续可增加阶段时间戳区分排队、canvas lease 和绘制成本。见[既有记录分段分析](evidence/windows11-remote-suite/s02-latency-analysis/README.md)，未因此重跑实机或改动原型。
+
 ## 当前待办和阻断
 
 1. Mac 已解锁，UU 终端、文件传输和画面读取正常。桌面坐标点击曾连续返回 `noWindowsAvailable`，重置会话/置前/主控端鼠标对照后仍未恢复有效输入（已恢复智能鼠标）；后续点击返回成功但页签未切换，Tab 也无可见响应。已请求用户手动物理点击对照，尚无回答。
