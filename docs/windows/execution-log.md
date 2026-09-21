@@ -675,3 +675,21 @@ Pillow11.3.0/NumPy独立核算全部36组参考差分，与原报告完全一致
 使用原有两个gated Mac测试，设置用户实际输出目录并运行xcodebuild；2 passed / 0 skipped，覆盖20个合成工程的manifest/资产/渲染保持及1个brush.comp的打开/再保存/重开像素保持。没有修改测试或产品。
 
 视觉检查纠正先前文字“通过”的范围：四个代表样本可见中英文笔画严重缺失、碎点，emoji仍可见；12组参考最大误差均255。shared preview/export equality和any-nonzero断言可在画面错误时通过。文字视觉验收明确失败；根因未确定，下一步需定位普通字形绘制并补独立覆盖检查，再发修订探针复测。未改算法、依赖或容差，不要求用户重复现有测试，不选择框架；W-008/M1保持未通过。
+
+
+## 2026-09-21：收到 D-01/D-04/D-11 明确产品决定
+
+父任务 01a0beb1-da38-7b00-9183-d65bff121d78 转达真实用户答复：对“首版 Windows11 x64、.comp 文件夹工程；原字体可用缩放重绘，缺字体保留原画面并提示选择，禁止静默替换”的明确问题回答“按建议实施”。据此关闭 D-01、D-04、D-11 待决定状态；首版容器为 v8。同步 technical-design、product-requirements、product-goals、m0-readiness、development-plan。
+
+此决定不授权静默回退、丢失文字元数据、自动栅格化或单文件容器；不等于相关行为已经实现/验收。真实字体缺失及缩放行为测试仍需补齐。公开推送、签名、参考容差及性能门槛变更仍未获授权，M0/M1 不因三项产品决定自动通过。
+
+
+## 2026-09-21：文字缺失回归检测与一次性 Windows 光栅诊断包
+
+依据 diagnosing-bugs 流程，先用捕获的实际输出构造可重复反馈：F11-72-point-right 的普通蓝色文字 alpha 墨量为参考0.251，Mac Avalonia为0.877，50%严重缺失检查分别红/绿；emoji颜色被排除。随后将同一行为检查接入TextInkChecks：独立读取上传Windows的12张输出全部拒绝；原完整Mac文字流程12张全部通过（ratio0.877–0.980），取消/模拟输入仍通过。此阈值仅捕获严重字形丢失，不是跨平台像素容差，不能证明每个字形都正确。
+
+新增 --verify-text-output 只读重验旧输出；--text-diagnostics 在原文字流程前加入14个无emoji变体，分别经过Avalonia TextBlock和直接Skia，在同字体下对抗锯齿、hinting、subpixel位置、翻转、旋转、透明度和outline绘制做对照。固定Avalonia上游源码确认antialias字形仍使用Full hinting/subpixel位置；这只是候选边界，未确定Windows根因。没有替换字体、依赖或正式渲染实现，没有凭灰度/outline对照宣称修复。
+
+Release build 0warning/error，Mac完整文字/诊断与20组合成回归均成功；新guard的Windows捕获失败保留实际exit134日志。PowerShell7.6.0仅语法检查通过，未冒充Windows执行。证据 evidence/text-ink-diagnostic。
+
+私有CompositorTextDiagnostic.zip为13,819,215bytes，SHA256 ee658c6f7db590f2918b557f257ecf9ab370d777f4c557a59d7782780af30722，CRC/patch文件hash核对。仅含新托管探针、源码、OFL和脚本，复用用户既有runtime/依赖；脚本复制新运行目录、不修改旧app/旧结果，检查同一DLL和patch身份，保留失败日志、14组图、原12样本与ordinary-ink.json并自动打包。已向用户交付一次运行命令；等待真实Windows诊断结果，不提前记为修复。父任务并行在独立/tmp副本诊断笔刷；本工作区不重复该工作、不操作服务器、不公开推送。
