@@ -1,0 +1,7 @@
+{
+  "bytes": 1379,
+  "completed": false,
+  "sha256": "bb45221ead8ff7770ec80e412317f05a2347ff8f40ad4b46151c7a2baa07d91e",
+  "result": "/tmp/compositor-parent-heic-windows/runner-negativecheck/heic-run-20260921-151115-f2f9b4ad.zip",
+  "error": "Alpha mismatch: orientation-1-opaque"
+}

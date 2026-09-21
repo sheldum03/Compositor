@@ -759,3 +759,12 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 最终权威源码的Windows LLVM-MinGW交叉配置/构建均退出0，3个自有PE机型AMD64；EXE尚未在Windows运行，未修改此前Server Emoji结论。一次过早发起构建因配置尚未完成返回could not load cache，随后在配置完成后正确构建；一次覆盖旧Mac测试bundle的启动exit137，换新私有bundle正常启动/退出，原因未确定。全部原始证据与明确限制见evidence/qt-native-window-macos，完整图片/工程/二进制在本任务qt-native-window-integrated artifact。
 
 用户仍优先回传完整12文字修复ZIP，未要求同时测试Qt/Avalonia新窗口。无Chrome/服务器操作；D11文字工程/字体缺失、Windows IME/DPI及M1/选型保持未完成。
+
+
+## 2026-09-21：整合 HEIC MinGW Unicode 入口修正及交叉包证据
+
+父任务在冻结605a610独立副本构建原libde2651.1.1/libheif1.23.4共享库；probe首次链接实际WinMain未定义，已有wmain分支无需改动，只对MINGW追加-municode后同目录链接成功。本任务核对probe.cpp与冻结提交逐字节一致，审查并应用该4行CMake修正；原生路径编码与解码逻辑未变。
+
+父任务5个x64 PE/9条依赖边静态命名导入核对通过，不当作运行时证明。Windows私有包4466298bytes、SHA2563350ac1b5f29157e4d4d11a2b8aef464328b4cb7982c49873f5c1000088d9d45，本任务重新核对完整包SHA/CRC和75文件hash。原始构建日志/失败和修正退出码、源码身份、依赖汇总、wrapper适配正负例摘要保留evidence/heic-windows-cross-build；大PE表、源码包、raw及完整产物在父任务artifact。
+
+脚本正例仅在独立Mac副本替换平台guard/exe后执行：16decode、23invoke、指标/raw与原独立Python一致，exit0；参考alpha翻转负例native0/wrapper1，日志和ZIP保留。原Windows包不变，WindowsPowerShell5.1未执行。父任务因用户在Chrome切标签停止上传，服务器没有上传/执行；本任务未操作CUA/服务器。W009/W031/D07/M1均保持未完成，用户仍优先回传12文字修复结果。

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "--build",
+    "/tmp/compositor-parent-heic-windows/build-probe",
+    "--parallel",
+    "4"
+  ],
+  "exitCode": 0
+}

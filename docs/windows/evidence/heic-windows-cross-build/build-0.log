@@ -1,0 +1,43 @@
+-- The C compiler identification is Clang 23.1.1
+-- The CXX compiler identification is Clang 23.1.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /tmp/compositor-parent-qt-windows/llvm-mingw-20260908-ucrt-macos-universal/bin/x86_64-w64-mingw32-clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /tmp/compositor-parent-qt-windows/llvm-mingw-20260908-ucrt-macos-universal/bin/x86_64-w64-mingw32-clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for malloc.h
+-- Looking for malloc.h - found
+-- Looking for posix_memalign
+-- Looking for posix_memalign - not found
+-- Performing Test HAVE_X86
+-- Performing Test HAVE_X86 - Success
+-- Performing Test SUPPORTS_SSE2
+-- Performing Test SUPPORTS_SSE2 - Success
+-- Performing Test SUPPORTS_SSSE3
+-- Performing Test SUPPORTS_SSSE3 - Success
+-- Performing Test SUPPORTS_SSE4_1
+-- Performing Test SUPPORTS_SSE4_1 - Success
+-- Performing Test SUPPORTS_AVX2
+-- Performing Test SUPPORTS_AVX2 - Success
+-- Performing Test SUPPORTS_AVX512
+-- Performing Test SUPPORTS_AVX512 - Success
+-- Performing Test HAVE_ARM32
+-- Performing Test HAVE_ARM32 - Failed
+-- Performing Test HAVE_ARM64
+-- Performing Test HAVE_ARM64 - Failed
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Check if compiler accepts -pthread
+-- Check if compiler accepts -pthread - yes
+-- Found Threads: TRUE
+-- Looking for _LIBCPP_VERSION
+-- Looking for _LIBCPP_VERSION - found
+-- Reduced symbol visibility enabled (only LIBDE265_API symbols exported)
+-- Configuring done (32.0s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/compositor-parent-heic-windows/build-de265

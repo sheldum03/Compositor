@@ -1,0 +1,19 @@
+{
+  "macAdaptation": "Only platform guard changed to permit Unix; exe replaced by existing Mac probe; manifests regenerated. Original Windows script retained unmodified in kit.",
+  "positive": {
+    "exitCode": 0,
+    "summary": "/tmp/compositor-parent-heic-windows/runner-maccheck/heic-run-20260921-151014-be31e4f6/summary.json",
+    "decodes": 16,
+    "invocations": 23,
+    "independentPythonMetricsEqual": true,
+    "rawPixelsEqualMacBaseline": true
+  },
+  "negative": {
+    "exitCode": 1,
+    "summary": "/tmp/compositor-parent-heic-windows/runner-negativecheck/heic-run-20260921-151115-f2f9b4ad/summary.json",
+    "error": "Alpha mismatch: orientation-1-opaque",
+    "mutation": "one reference alpha byte XOR1; manifest updated to test pixel check, not hash check",
+    "archivePreserved": true
+  },
+  "windowsExecuted": false
+}

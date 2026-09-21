@@ -10,3 +10,7 @@ if(MSVC)
 else()
     target_compile_options(heic_probe PRIVATE -Wall -Wextra -Werror)
 endif()
+
+if(MINGW)
+    target_link_options(heic_probe PRIVATE -municode)
+endif()
