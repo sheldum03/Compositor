@@ -56,13 +56,18 @@ internal sealed class TiledRaster(int width, int height)
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
     }
 
-    public long Paint(SKCanvas canvas, IReadOnlyDictionary<int, byte[]>? replacements = null)
+    public long Paint(SKCanvas canvas, IReadOnlyDictionary<int, byte[]>? replacements = null,
+        TileImageCache? images = null, IReadOnlyDictionary<int, long>? versions = null)
     {
         long copied = 0;
+        using var paint = new SKPaint { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
+        long Draw(int key, byte[] pixels, long version) => images is null
+            ? DrawTile(canvas, Bounds(key), pixels)
+            : images.Draw(canvas, Bounds(key), key, pixels, version, paint);
         foreach (var pair in tiles)
-            if (replacements?.ContainsKey(pair.Key) != true) copied += DrawTile(canvas, Bounds(pair.Key), pair.Value);
+            if (replacements?.ContainsKey(pair.Key) != true) copied += Draw(pair.Key, pair.Value, 0);
         if (replacements is not null)
-            foreach (var pair in replacements) copied += DrawTile(canvas, Bounds(pair.Key), pair.Value);
+            foreach (var pair in replacements) copied += Draw(pair.Key, pair.Value, versions?[pair.Key] ?? 0);
         return copied;
     }
     private static long DrawTile(SKCanvas canvas, SKRectI bounds, byte[] rgba)

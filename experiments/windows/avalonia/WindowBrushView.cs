@@ -10,6 +10,7 @@ using Avalonia.Threading;
 internal sealed class WindowBrushView(Action<string, object?> record) : Decorator
 {
     private readonly object gate = new();
+    private readonly TileImageCache images = new();
     private readonly BrushSession session = new(new TiledRaster(4000, 4000));
     private readonly SoftBrushSettings settings = new(800, 0.4, [1, 0.3, 0.1]);
     private SceneControl? drawing;
@@ -30,8 +31,8 @@ internal sealed class WindowBrushView(Action<string, object?> record) : Decorato
                 // Src tile replacement must stay inside a transparent layer,
                 // otherwise transparent pixels erase the native window background.
                 canvas.SaveLayer(); canvas.Scale(0.175f);
-                if (session.Active is { } active) active.Paint(canvas);
-                else session.Current.Paint(canvas);
+                if (session.Active is { } active) active.Paint(canvas, images);
+                else session.Current.Paint(canvas, images: images);
                 canvas.Restore();
             }
         }) { Width = 700, Height = 700 };
@@ -110,6 +111,6 @@ internal sealed class WindowBrushView(Action<string, object?> record) : Decorato
     internal void Close()
     {
         Cancel();
-        lock (gate) closed = true;
+        lock (gate) { closed = true; images.Dispose(); }
     }
 }

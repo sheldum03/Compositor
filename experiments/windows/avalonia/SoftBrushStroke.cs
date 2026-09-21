@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using SkiaSharp;
 
 internal readonly record struct BrushPoint(double X, double Y);
@@ -13,6 +14,8 @@ internal sealed class SoftBrushStroke
     private readonly Dictionary<int, byte[]> coverage = [];
     private readonly Dictionary<int, byte[]> original = [];
     private readonly Dictionary<int, byte[]> pixels = [];
+    private readonly Dictionary<int, long> versions = [];
+    private long version;
     private readonly Dictionary<int, SKRectI> dirty = [];
     private readonly Dictionary<int, byte[]?> tail = [];
     private readonly List<BrushPoint> samples = [];
@@ -93,7 +96,7 @@ internal sealed class SoftBrushStroke
         return result;
     }
     public void Cancel() { EnsureActive(); finished = true; }
-    public long Paint(SKCanvas canvas) => source.Paint(canvas, pixels);
+    public long Paint(SKCanvas canvas, TileImageCache? images = null) => source.Paint(canvas, pixels, images, versions);
     // Test oracle for provisional-tail replacement: render the known complete path without any tails.
     internal static TiledRaster ReplaySettled(TiledRaster source, SoftBrushSettings settings, BrushPoint[] points)
     {
@@ -215,10 +218,19 @@ internal sealed class SoftBrushStroke
         {
             var tile = source.Bounds(pair.Key);
             byte[] mask = coverage[pair.Key], baseline = original[pair.Key], result = pixels[pair.Key];
+            var baselinePixels = MemoryMarshal.Cast<byte, uint>(baseline);
+            var resultPixels = MemoryMarshal.Cast<byte, uint>(result.AsSpan());
+            var colors = MemoryMarshal.Cast<byte, uint>(coverageColors);
             for (int y = pair.Value.Top; y < pair.Value.Bottom; y++)
             for (int x = pair.Value.Left; x < pair.Value.Right; x++)
             {
                 int offset = (y - tile.Top) * tile.Width + x - tile.Left;
+                // An untouched transparent pixel has no destination contribution.
+                if (baselinePixels[offset] == 0)
+                {
+                    resultPixels[offset] = colors[mask[offset]];
+                    continue;
+                }
                 int colorOffset = mask[offset] * 4;
                 int alpha = coverageColors[colorOffset + 3];
                 for (int c = 0; c < 3; c++)
@@ -226,6 +238,7 @@ internal sealed class SoftBrushStroke
                         (baseline[offset * 4 + c] * (255 - alpha) + 127) / 255);
                 result[offset * 4 + 3] = (byte)(alpha + (baseline[offset * 4 + 3] * (255 - alpha) + 127) / 255);
             }
+            versions[pair.Key] = ++version;
             PublishedPixelBytes += (long)pair.Value.Width * pair.Value.Height * 4;
         }
         dirty.Clear();

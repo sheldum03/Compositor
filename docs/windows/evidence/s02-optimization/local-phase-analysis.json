@@ -1,0 +1,23 @@
+{
+  "scope": "temporary macOS headless instrumentation; not Windows acceptance",
+  "frames": 484,
+  "sourceSha256": "671e1a149954b7393de2b1ec854bb86665e8bf4ff4e8a1e36bd0d4b925efcac0",
+  "stages": {
+    "restore": {
+      "mean": 0.03311797520661157,
+      "p95": 0.0601
+    },
+    "curve": {
+      "mean": 1.4694450413223141,
+      "p95": 2.3555
+    },
+    "tail": {
+      "mean": 1.5774938016528925,
+      "p95": 2.6223
+    },
+    "publish": {
+      "mean": 5.051907438016529,
+      "p95": 7.325
+    }
+  }
+}

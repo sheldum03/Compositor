@@ -17,3 +17,9 @@
 权威源码Mac Release构建0警告0错误，headless自检4笔/484回调通过，最终图片与reviewed-v2精确。既有两笔13项会话检查和9个PNG/工程字节回归通过。第484回调完成后取消的独立红绿负例由父任务执行，原版假成功、修正版明确失败；headless异常退出不是Windows GUI退出码。
 
 原生窗口成功、视口不足拒绝、中途关闭尚未执行；Windows x64 publish身份验证只证明构建产物，不证明DLL加载或性能。当前Windows用户IME包保持冻结。证据见[整合与负例记录](../../../docs/windows/evidence/s02-window-preparation/README.md)。
+
+## 2026-09-22 性能诊断与候选
+
+Windows 已完成原无遮挡基线及两轮优化对照，仍未达到 16.7 ms；最新结果见[优化记录](../../../docs/windows/evidence/s02-optimization/README.md)。新增逐帧请求至绘制入口、canvas 获取及释放耗时；`review-s02.py <report.json>` 独立复算拟定门槛，旧基线明确返回 exit 1。软件事件终点仍非物理呈现。
+
+当前瓦片缓存候选的本地 484 回调及 264 张像素回归通过；Windows x64 包已准备，实测待 Mac 解锁。早期“原生窗口未执行”的段落是当时准备状态，不作为当前结论。

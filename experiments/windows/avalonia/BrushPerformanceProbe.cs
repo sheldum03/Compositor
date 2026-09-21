@@ -53,33 +53,38 @@ internal static class BrushPerformanceProbe
         private readonly string fixtures, output;
         private readonly bool nativeWindow;
         private readonly object gate = new();
+        private readonly TileImageCache images = new();
+        private bool closed;
         private readonly List<object> trials = [];
         private readonly SoftBrushSettings settings = new(800, 1, [1, 0.3, 0.1]);
         private BrushSession session = new(new TiledRaster(4000, 4000));
         private TaskCompletionSource<Frame>? pending;
-        private long started, paintedAt, copied;
+        private long started, requestedAt, renderEnteredAt, paintedAt, paintEndedAt, copied;
         private double appendMs, paintMs;
         private int sequence, paintedSequence, renderThread;
         public SceneControl View { get; }
         public CancellationTokenSource Stop { get; } = new();
         public bool Passed { get; private set; }
         private sealed record Frame(int Sequence, double AppendMilliseconds, double PaintMilliseconds,
-            double UpdateToCanvasLeaseReleasedMilliseconds, long NativePixelCopyBytes, int RenderThread);
+            double UpdateToCanvasLeaseReleasedMilliseconds, long NativePixelCopyBytes, int RenderThread,
+            double RequestToRenderMilliseconds, double CanvasAcquireMilliseconds, double CanvasReleaseMilliseconds);
 
         internal Run(string fixtures, string output, bool nativeWindow)
         {
             this.fixtures = fixtures; this.output = output; this.nativeWindow = nativeWindow;
-            View = new SceneControl(1000, 1000, Paint, Painted) { Width = 1000, Height = 1000 };
+            View = new SceneControl(1000, 1000, Paint, Painted, () => { lock (gate) renderEnteredAt = Stopwatch.GetTimestamp(); }) { Width = 1000, Height = 1000 };
         }
         private void Paint(SKCanvas canvas)
         {
             lock (gate)
             {
+                if (closed) return;
                 long t = Stopwatch.GetTimestamp();
                 canvas.SaveLayer(); canvas.Scale(0.25f);
-                copied = session.Active is { } stroke ? stroke.Paint(canvas) : session.Current.Paint(canvas);
+                copied = session.Active is { } stroke ? stroke.Paint(canvas, images) : session.Current.Paint(canvas, images: images);
                 canvas.Restore();
-                paintMs = Stopwatch.GetElapsedTime(t).TotalMilliseconds;
+                paintEndedAt = Stopwatch.GetTimestamp();
+                paintMs = Stopwatch.GetElapsedTime(t, paintEndedAt).TotalMilliseconds;
                 paintedSequence = sequence; paintedAt = t; renderThread = Environment.CurrentManagedThreadId;
             }
         }
@@ -88,7 +93,10 @@ internal static class BrushPerformanceProbe
             lock (gate)
             {
                 if (pending is not { } completion || paintedSequence != sequence || paintedAt < started) return;
-                var frame = new Frame(sequence, appendMs, paintMs, Stopwatch.GetElapsedTime(started).TotalMilliseconds, copied, renderThread);
+                var frame = new Frame(sequence, appendMs, paintMs, Stopwatch.GetElapsedTime(started).TotalMilliseconds, copied, renderThread,
+                    Stopwatch.GetElapsedTime(requestedAt, renderEnteredAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(renderEnteredAt, paintedAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(paintEndedAt).TotalMilliseconds);
                 pending = null; completion.SetResult(frame);
             }
         }
@@ -104,6 +112,7 @@ internal static class BrushPerformanceProbe
                 appendMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
                 sequence++;
                 pending = new(TaskCreationOptions.RunContinuationsAsynchronously); frame = pending.Task;
+                requestedAt = Stopwatch.GetTimestamp();
             }
             render();
             return await frame.WaitAsync(TimeSpan.FromSeconds(10), Stop.Token);
@@ -141,7 +150,7 @@ internal static class BrushPerformanceProbe
                     Stop.Token.ThrowIfCancellationRequested();
                     var source = scenario == 0 ? empty : existing;
                     string sourceDigest = source.Digest();
-                    lock (gate) { session = new BrushSession(source); session.Begin(settings); }
+                    lock (gate) { images.Clear(); session = new BrushSession(source); session.Begin(settings); }
                     var frames = new List<Frame>(); var privateBytes = new List<long?>();
                     var gcBefore = Enumerable.Range(0, 3).Select(GC.CollectionCount).ToArray();
                     process.Refresh(); var cpuBefore = process.TotalProcessorTime;
@@ -182,7 +191,11 @@ internal static class BrushPerformanceProbe
                 Passed = true;
             }
             catch (Exception e) { error = e.ToString(); }
-            finally { Save(error, sampledPrivatePeak, measuredCount); }
+            finally
+            {
+                lock (gate) { closed = true; images.Dispose(); }
+                Save(error, sampledPrivatePeak, measuredCount);
+            }
         }
         private void Save(string? error, long? sampledPrivatePeak, int measuredCount) => File.WriteAllText(Path.Combine(output, "report.json"),
             JsonSerializer.Serialize(new { completed = Passed, error, nativeWindow, windowsExecuted = OperatingSystem.IsWindows(),

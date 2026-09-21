@@ -1,0 +1,91 @@
+{
+  "scope": "local headless observations only; Windows cache candidate not executed because Mac locked",
+  "runs": [
+    {
+      "name": "baseline",
+      "completed": true,
+      "error": null,
+      "frames": 484,
+      "scenarios": [
+        {
+          "name": "empty",
+          "AppendMillisecondsP95": 14.3181,
+          "PaintMillisecondsP95": 1.554,
+          "UpdateToCanvasLeaseReleasedMillisecondsP95": 15.7569,
+          "meanCopyMiB": 15.85
+        },
+        {
+          "name": "existing",
+          "AppendMillisecondsP95": 10.8986,
+          "PaintMillisecondsP95": 2.2848,
+          "UpdateToCanvasLeaseReleasedMillisecondsP95": 12.6425,
+          "meanCopyMiB": 36.975
+        }
+      ],
+      "pngSha256": {
+        "existing-final.png": "60fa42c6b9bc43de570f86b726b73d0877a147c1b80a1bb3b08c6df6a448d7fd",
+        "empty-final.png": "d03b4830e585c136c190a5591f62198233c31eb17ad53cf8f0f83a5dc88cc6a5"
+      }
+    },
+    {
+      "name": "transparent",
+      "completed": true,
+      "error": null,
+      "frames": 484,
+      "scenarios": [
+        {
+          "name": "empty",
+          "AppendMillisecondsP95": 5.2437,
+          "PaintMillisecondsP95": 1.4487,
+          "UpdateToCanvasLeaseReleasedMillisecondsP95": 6.5143,
+          "meanCopyMiB": 15.85
+        },
+        {
+          "name": "existing",
+          "AppendMillisecondsP95": 7.2854,
+          "PaintMillisecondsP95": 2.1196,
+          "UpdateToCanvasLeaseReleasedMillisecondsP95": 9.1578,
+          "meanCopyMiB": 36.975
+        }
+      ],
+      "pngSha256": {
+        "existing-final.png": "60fa42c6b9bc43de570f86b726b73d0877a147c1b80a1bb3b08c6df6a448d7fd",
+        "empty-final.png": "d03b4830e585c136c190a5591f62198233c31eb17ad53cf8f0f83a5dc88cc6a5"
+      }
+    },
+    {
+      "name": "cache",
+      "completed": true,
+      "error": null,
+      "frames": 484,
+      "scenarios": [
+        {
+          "name": "empty",
+          "AppendMillisecondsP95": 4.7177,
+          "PaintMillisecondsP95": 1.441,
+          "UpdateToCanvasLeaseReleasedMillisecondsP95": 6.0096,
+          "meanCopyMiB": 4.6
+        },
+        {
+          "name": "existing",
+          "AppendMillisecondsP95": 7.7287,
+          "PaintMillisecondsP95": 2.1417,
+          "UpdateToCanvasLeaseReleasedMillisecondsP95": 9.9071,
+          "meanCopyMiB": 4.6
+        }
+      ],
+      "pngSha256": {
+        "existing-final.png": "60fa42c6b9bc43de570f86b726b73d0877a147c1b80a1bb3b08c6df6a448d7fd",
+        "empty-final.png": "d03b4830e585c136c190a5591f62198233c31eb17ad53cf8f0f83a5dc88cc6a5"
+      }
+    }
+  ],
+  "pixelRegression": {
+    "frozenRasters": 264,
+    "passed": true,
+    "staleVersionNegativeExit": 134,
+    "repeatedFrameCopies": 0,
+    "clearRebuildPassed": true,
+    "undoRedoCancelPassed": true
+  }
+}

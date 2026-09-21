@@ -63,6 +63,10 @@ Mac 读回使用 Swift Testing 精确函数选择（含 `()`），最终 **2 pas
 
 见 [Qt 独立核验](evidence/windows11-remote-suite/qt-independent-review.json)、[字体对照原始摘要](evidence/windows11-remote-suite/qt/font-summary.json)、[原生插件合成事件记录](evidence/windows11-remote-suite/qt/window-report.json) 与 [Mac 读回](evidence/windows11-remote-suite/qt-mac-readback-summary.json)。
 
+## 2026-09-22 S02 优化进展
+
+第二版归档完成后，透明像素快速路径在 Windows 完成 62 笔：更新 P95 26.6946/26.9585 ms，最终像素与原基线精确，仍未达标。定时器精度对照终端显示约 27 ms，没有收益，代码已撤回；其原始包尚待取回。当前瓦片缓存候选通过本地像素回归与 S02 自检，Windows 包已准备，但 Mac 锁屏阻止部署与继续实测。详见[诊断、证据和恢复步骤](evidence/s02-optimization/README.md)。S02 及完整 Windows 1.0 仍未通过。
+
 ## S02 首轮诊断
 
 两组各 1 笔预热 + 30 笔测量，1000×1000 逻辑视口、4000×4000 文档、800 px / 0 硬度 / 100% 不透明度。真实 Windows 窗口完成 62 笔，无正确性异常；专用内存采样高水位 452,321,280 字节。
