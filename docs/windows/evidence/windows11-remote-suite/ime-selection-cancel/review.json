@@ -1,5 +1,5 @@
 {
-  "status": "native selection-cancel and commit/undo/redo retests passed by user report; native tab-return cancel retest pending",
+  "status": "native tab-return cancel failed on fixed build; diagnosis ongoing",
   "failureArchive": {
     "name": "window-flip-20260921-200520-ime-results.zip",
     "bytes": 38897,
@@ -52,7 +52,18 @@
       ],
       "independentlyReplayed": false
     },
-    "postFixNativeTabReturnCancel": "pending",
+    "postFixNativeTabReturnCancel": {
+      "status": "failed",
+      "feedback": "原文全部消失",
+      "screenshot": "native-tab-cancel-failed.png",
+      "steps": [
+        "switch to brush tab",
+        "return to text tab",
+        "select all",
+        "Microsoft Pinyin ceshi",
+        "Esc without choosing candidate"
+      ]
+    },
     "cancelPixelsCompared": false
   }
 }

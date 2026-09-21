@@ -2,7 +2,7 @@
 
 状态：已完成当前原型的大部分自动化测试，完整测试及 Windows 1.0 **未完成**。用户解锁后已继续：Qt 同机对照及 Mac 读回已完成；原生窗口的人工拖选、真实拼音及三页保存已有新证据；CUA 自动拖动和按键仍不稳定，无遮挡 S02 更新延迟未达目标。依据为原始归档和独立复核，不以脚本 exit 0 代替产品验收。
 
-最新进展：真实微软拼音“全选正文→输入 ceshi→Esc 取消”丢失正文的缺陷已针对性修复并部署。用户在新窗口复测后明确反馈“原文全部保留”，现场截图也能看到原文；该取消步骤按用户实机反馈通过。随后用户按“全选→选词替换为测试→撤销→重做→再撤销恢复原文”复测，反馈“全部正常”；选词提交和撤销/重做记为用户实机反馈通过。切页后的取消仍待复测，完整 Windows 1.0 未完成。
+最新进展：真实微软拼音“全选正文→输入 ceshi→Esc 取消”丢失正文的缺陷已针对性修复并部署。用户在新窗口复测后明确反馈“原文全部保留”，现场截图也能看到原文；该取消步骤按用户实机反馈通过。随后用户按“全选→选词替换为测试→撤销→重做→再撤销恢复原文”复测，反馈“全部正常”；选词提交和撤销/重做记为用户实机反馈通过。**切页后的取消复测失败**：用户反馈“原文全部消失”，修复版现场亦为空白。输入法取消缺陷仍未闭环，完整 Windows 1.0 未完成。
 
 ## 选区内输入法取消丢失正文
 
@@ -12,9 +12,15 @@
 
 修复将被替换的选区保留在正文中，预输入仅改变 presenter 的临时显示；取消恢复选区，真实 TextInput 再按原选区提交，由 TextBox 保持撤销/重做。40 项本地 IME 回归、48 项拖选回归通过；12 个既有文字样本的 60 张 PNG 逐字节不变。Release 构建无警告/错误。这些结果不代替原生 TSF、微软拼音候选位置、实际 Esc 和切页后的实机复测。
 
-修复提交 `ed54800` 已部署。UU 常规文件传输反复停顿，改由其远程终端传送 132,134 字节增量包；远端 SHA-256 核对成功，重建主 DLL 的 SHA-256 与完整发布版 `c1a6c0ddb80d2b2d11abae335a95332cd0ffc796e8568de1e436d9070e4ee880` 相同。旧应用目录未改动，新目录为 `ime-selection-fixed-app`。Windows 本机再次完成 40 项 IME 回归和 48 项拖选，均 exit 0；原始日志保存在 `ime-fixed-20260921-230957`，尚未取回。已打开新原生窗口、导出基线。用户实际拼音取消复测反馈“原文全部保留”，[取消后现场](evidence/windows11-remote-suite/ime-selection-cancel/native-cancel-user-confirmed.png)显示正文仍在；该步骤记为用户实机反馈通过。截图没有选区高亮，不能据此声称选区恢复亦经目视验证；取消前后 PNG 尚未独立比较。用户随后确认全选后选词替换、Ctrl+Z、Ctrl+Y、再次 Ctrl+Z 全部正常，已单独记录为用户实机反馈通过；切页取消仍待复测。见 [Windows 回归终端记录](evidence/windows11-remote-suite/ime-selection-cancel/ime-fixed-windows-regression.png) 和 [新窗口](evidence/windows11-remote-suite/ime-selection-cancel/ime-fixed-window-ready.png)。
+修复提交 `ed54800` 已部署。UU 常规文件传输反复停顿，改由其远程终端传送 132,134 字节增量包；远端 SHA-256 核对成功，重建主 DLL 的 SHA-256 与完整发布版 `c1a6c0ddb80d2b2d11abae335a95332cd0ffc796e8568de1e436d9070e4ee880` 相同。旧应用目录未改动，新目录为 `ime-selection-fixed-app`。Windows 本机再次完成 40 项 IME 回归和 48 项拖选，均 exit 0；原始日志保存在 `ime-fixed-20260921-230957`，尚未取回。已打开新原生窗口、导出基线。用户实际拼音取消复测反馈“原文全部保留”，[取消后现场](evidence/windows11-remote-suite/ime-selection-cancel/native-cancel-user-confirmed.png)显示正文仍在；该步骤记为用户实机反馈通过。截图没有选区高亮，不能据此声称选区恢复亦经目视验证；取消前后 PNG 尚未独立比较。用户随后确认全选后选词替换、Ctrl+Z、Ctrl+Y、再次 Ctrl+Z 全部正常，已单独记录为用户实机反馈通过；随后切到笔刷页再返回文字页，全选后拼音取消仍丢失正文，用户反馈及 [现场截图](evidence/windows11-remote-suite/ime-selection-cancel/native-tab-cancel-failed.png)确认失败，正在继续诊断。见 [Windows 回归终端记录](evidence/windows11-remote-suite/ime-selection-cancel/ime-fixed-windows-regression.png) 和 [新窗口](evidence/windows11-remote-suite/ime-selection-cancel/ime-fixed-window-ready.png)。
 
 证据：[复核摘要](evidence/windows11-remote-suite/ime-selection-cancel/review.json)、[原生事件](evidence/windows11-remote-suite/ime-selection-cancel/failed-window-report.json)、[取消前](evidence/windows11-remote-suite/ime-selection-cancel/before.png)、[取消后](evidence/windows11-remote-suite/ime-selection-cancel/after.png)、[40 项本地回归](evidence/windows11-remote-suite/ime-selection-cancel/local-ime-regression.jsonl)。
+
+### 切页失败后的第二次修正
+
+第一版的 40 项客户端测试漏掉了 Windows 后端的组合输入启动步骤。对固定版本实际 DLL 的检查及 [IMM32 源码](https://github.com/AvaloniaUI/Avalonia/blob/11.3.22/src/Windows/Avalonia.Win32/Input/Imm32InputMethod.cs#L273)确认：HandleCompositionStart 先清空预输入，再对公开的非空选区合成 Delete，此时包装客户端尚未收到新的预输入。框架自动取得客户端、真实 TabControl 切页及这一启动序列组成的新回归，在第一版重现正文空串、exit 1；仅直接调用客户端即使切页也会误判通过。
+
+第二版保留原选区保护，同时将包装客户端 SupportsSurroundingText 改为 false，避免 IMM32 在预输入前代为删除选区。SupportsPreedit 与光标矩形仍保留；环绕文本编辑/重新转换能力不作验收通过声明。新增 24 项首次/切页启动序列重放、40 项客户端及 48 项拖选在本地通过，60 张既有文字 PNG 不变。第二版原生复测仍待完成。见 [第二版复核](evidence/windows11-remote-suite/ime-selection-cancel/v2/review.json)。
 
 ## 环境与修复
 

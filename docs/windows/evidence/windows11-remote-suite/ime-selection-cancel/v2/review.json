@@ -1,0 +1,21 @@
+{
+  "status": "local regression passed; Windows v2 deployment in progress; native acceptance pending",
+  "previousNativeTabCancel": "failed; user confirmed original text disappeared",
+  "reproductionBeforeFix": {
+    "command": "dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- --ime-tabs",
+    "exitCode": 1,
+    "preserved": false,
+    "actual": ""
+  },
+  "cause": "IMM32 HandleCompositionStart clears preedit then synthesizes Delete for a nonempty exposed selection, before the adapter sees preedit",
+  "backend": "Avalonia.Win32 11.3.22 Imm32InputMethod",
+  "backendDllSha256": "60849b34f83b36679f77b431af056306f20ba4d82aecfe2a2fae50a4798b9487",
+  "source": "https://github.com/AvaloniaUI/Avalonia/blob/11.3.22/src/Windows/Avalonia.Win32/Input/Imm32InputMethod.cs#L273",
+  "capabilityChange": "SelectionPreservingImeClient.SupportsSurroundingText false; preedit and cursor reporting retained; surrounding-text editing/reconversion not accepted",
+  "localImm32ReplayCases": 24,
+  "localImeCases": 40,
+  "localSelectionCases": 48,
+  "existingPngsCompared": 60,
+  "changedPngs": 0,
+  "nativeRetest": "pending"
+}

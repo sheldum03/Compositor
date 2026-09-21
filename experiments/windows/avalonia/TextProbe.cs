@@ -93,7 +93,7 @@ internal static class TextProbe
             var request = new TextInputMethodClientRequestedEventArgs { RoutedEvent = InputElement.TextInputMethodClientRequestedEvent };
             box.RaiseEvent(request);
             var client = request.Client ?? throw new InvalidDataException("TextBox did not provide its IME client");
-            Check(client.SupportsPreedit && client.SupportsSurroundingText && ReferenceEquals(client.TextViewVisual, presenter), "Real TextBox input client");
+            Check(client.SupportsPreedit && !client.SupportsSurroundingText && ReferenceEquals(client.TextViewVisual, presenter), "TextBox preedit client owns selection replacement");
             var ime = CheckInput(box, presenter, client, root, map, output, name);
             results.Add(new
             {

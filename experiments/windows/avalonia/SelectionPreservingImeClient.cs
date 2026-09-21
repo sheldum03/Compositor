@@ -48,7 +48,9 @@ internal sealed class SelectionPreservingImeClient : TextInputMethodClient
 
     public override Visual TextViewVisual => inner.TextViewVisual;
     public override bool SupportsPreedit => inner.SupportsPreedit;
-    public override bool SupportsSurroundingText => inner.SupportsSurroundingText;
+    // IMM32 otherwise sends Delete for the exposed selection BEFORE SetPreeditText.
+    // This adapter owns pending selection replacement; the backend must not edit it.
+    public override bool SupportsSurroundingText => false;
     public override string SurroundingText => inner.SurroundingText;
     public override Rect CursorRectangle => inner.CursorRectangle;
     public override TextSelection Selection { get => inner.Selection; set => inner.Selection = value; }

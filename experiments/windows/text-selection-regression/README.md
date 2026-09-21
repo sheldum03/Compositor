@@ -8,6 +8,14 @@ dotnet run --project experiments/windows/text-selection-regression/Regression.cs
 
 40 项使用真实 TextBox 输入法客户端，覆盖全选、局部/反向选区、无选区、首次/重新挂载，以及 null/空串取消、失焦、提交先于/晚于清除预输入。检查预输入不改正文、取消恢复选区、提交精确替换和撤销重做。修复前“全选→ceshi→取消”正文变成空串；单纯延后 ApplyTemplate 在重新挂载后仍失败。SelectionPreservingImeClient 将原选区保留到 TextInput 提交，由 presenter 临时显示替换后的预输入；取消不修改正文，也不创建恢复用的撤销记录。该回归不替代 Windows 原生微软拼音复测。
 
+第二轮实际切页取消仍失败，补充 Windows 后端启动序列回归：
+
+```sh
+dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- --ime-tabs
+```
+
+通过真实 TabControl 和框架输入法管理器取得客户端，测试中的 DispatchProxy 只接收平台接口调用。随后重放固定 Avalonia.Win32 11.3.22 IMM32 启动流程：清空预输入，若 SupportsSurroundingText 且有选区则发送 Delete，再开始预输入。此前直接调用 SetPreeditText 漏掉了这次提前删除。旧修复在此路径正文变空、exit 1；包装客户端不再开放后端环绕文本编辑后，24 项首次/切页、全选/局部/反向/无选区、取消/两种提交次序均通过，含提交后的撤销重做。该能力收缩不阻止普通 Delete 按键；不声称环绕文本编辑或重新转换已验收，仍须真实微软拼音复测。
+
 ```sh
 dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- /tmp/text-selection-results
 ```
