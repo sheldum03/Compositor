@@ -1,0 +1,48 @@
+﻿{
+    "mode":  "Batch",
+    "windowsExecuted":  true,
+    "nativeLibrarySha256":  "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+    "cases":  [
+                  {
+                      "name":  "selection",
+                      "exitCode":  0,
+                      "seconds":  4.6892936999999995
+                  },
+                  {
+                      "name":  "composition",
+                      "exitCode":  0,
+                      "seconds":  0.8274093
+                  },
+                  {
+                      "name":  "text",
+                      "exitCode":  0,
+                      "seconds":  6.9857182999999994
+                  },
+                  {
+                      "name":  "brush",
+                      "exitCode":  0,
+                      "seconds":  39.6712632
+                  },
+                  {
+                      "name":  "s02-check",
+                      "exitCode":  0,
+                      "seconds":  13.478103899999999
+                  },
+                  {
+                      "name":  "heic",
+                      "exitCode":  0,
+                      "seconds":  2.6922371
+                  },
+                  {
+                      "name":  "ai-download",
+                      "exitCode":  1,
+                      "seconds":  20.5409535
+                  },
+                  {
+                      "name":  "ai-local-model",
+                      "exitCode":  0,
+                      "seconds":  4.7903763
+                  }
+              ],
+    "scope":  "Execution evidence only; native IME, visual and performance acceptance require separate review"
+}

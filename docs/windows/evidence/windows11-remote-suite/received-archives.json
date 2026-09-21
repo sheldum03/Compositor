@@ -1,0 +1,16 @@
+[
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/remote-s02-20260921-183729.zip",
+    "bytes": 3056991,
+    "sha256": "0f54006d64af74c1637217125437cf4be6b67b46bae3590a9e11b8f5f98e4d6d",
+    "crcVerified": true,
+    "remoteHashReadbackPending": true
+  },
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/remote-batch-20260921-183510.zip",
+    "bytes": 12359126,
+    "sha256": "1837f1cbc9c054d2bb380f347a66fc370b1367a4fa10403d735f2d9e7066bc73",
+    "crcVerified": true,
+    "remoteHashReadbackPending": true
+  }
+]
