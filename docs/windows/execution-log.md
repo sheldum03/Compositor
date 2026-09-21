@@ -658,3 +658,9 @@ W-004 获得部分环境资源，W-006 仍待实际编译/运行。等待浏览�
 两笔更新加预览P95分别27.5388/29.166 ms，提交25.5688/24.0438 ms。P95高于计划16.7 ms目标，需后续定位；此为4000×4000、800px软笔、40%不透明度的两笔同步headless CPU测试，不是S02要求的100%不透明度/至少30笔性能验收，不能推定4090D已参与渲染。完整差分与内存数据未收到，Windows保存的brush.comp尚未在Mac读回。
 
 未改算法、容差或性能实现；仅记录证据并检查文档差异。下一步复用同一包执行12组文字布局与合成输入检查；nativeImeExecuted=false为此探针的明确范围，真实Windows输入法仍需后续窗口测试。W-008/M1及正式性能门槛保持未通过。
+
+## 2026-09-21：用户回传 Windows 11 的12组文字与模拟输入检查通过
+
+用户回传 text-report.json 的 PowerShell 摘要：WindowsExecuted True、NativeImeExecuted False、SampleCount12、PreviewExportMismatches0、SyntheticInputPassed12、CancelPixelMismatches0。输出目录 `text-run-20260921-114831`；见 `evidence/avalonia-text-windows11.json`。status保留原文 local preparation only; synthetic input is not Windows IME acceptance，未将模拟输入通过扩大为微软拼音验收。
+
+目前只收到摘要；完整Mac参考差异、字体回退、光标诊断、PNG和日志尚未独立收集。此次只更新证据和文档并检查差异，未修改算法或容差。下一步指导用户汇总既有原生、合成、笔刷和文字运行目录与日志，再检查原始报告、图像及Windows工程在Mac端的读回结果。真实窗口/IME/DPI/GPU、正式性能、完整文字工程事务与W-008/M1仍未通过。
