@@ -1,0 +1,27 @@
+{
+  "evidenceSource": "User pasted test stdout in this task; original pinvoke-result.json not yet collected independently",
+  "environmentEvidence": "native-probe-windows11.json",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativeIdentityNote": "The supplied execution command checks this hash before loading; the user reported success",
+  "result": {
+    "status": "passed",
+    "boundary": "C# P/Invoke",
+    "platform": "Microsoft Windows 10.0.26200",
+    "architecture": "X64",
+    "runtime": ".NET 10.0.12",
+    "pointerBytes": 8,
+    "sizeTBytes": 8,
+    "fixedSignedOutputBytes": 8,
+    "sourceAlgorithmsCalled": 8,
+    "nativeEntryPointsCalled": 17,
+    "traceAllocationReleaseCycles": 1000
+  },
+  "managedAssemblySha256": "96bebb790c1a4127a95ff4adea7d3ed2584783a00d4ca59ab23697a165395e33",
+  "testPackageSha256": "edf335aa56e4cfed4249bd2d4a1e6053429a92abda6c1a918f53d79bcd8eef35",
+  "limitations": [
+    "Native library was built with LLVM-MinGW, not MSVC",
+    "Framework pixel integration and Windows/Mac fixture comparison remain pending",
+    "No native GUI, IME, DPI, GPU or performance acceptance",
+    "W-006 and M1 remain incomplete"
+  ]
+}

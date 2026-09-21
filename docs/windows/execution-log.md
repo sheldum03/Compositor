@@ -630,3 +630,14 @@ W-004 获得部分环境资源，W-006 仍待实际编译/运行。等待浏览�
 没有修改原算法、桥接或测试断言。此为首份Windows11原生运行结果，不是MSVC/CMake、C# P/Invoke、完整固定样本跨平台比较、GUI/IME/DPI/GPU或性能验收；W-006仍部分完成。硬件配置也不等于S01–S05已测，干净虚拟机和集显参考设备仍待补充。
 
 为下一步准备私有C#测试包CompositorPInvoke.zip（35,794,869 bytes，SHA-256 `edf335aa56e4cfed4249bd2d4a1e6053429a92abda6c1a918f53d79bcd8eef35`）。包含此前SDK10.0.401/Release/UseAppHost=false构建并已在Mac验证的原托管程序集、原测试源码身份、官方.NET10.0.12 win-x64完整runtime及LICENSE/ThirdPartyNotices。runtime原archive SHA-512再次匹配官方元数据，包内文件CRC与逐文件SHA-256检查通过；不包含Windows native DLL，将按明确路径加载用户刚生成的DLL。该包仅在本地交付目录准备，不入Git、不公开推送、不安装系统运行时。Windows C#执行仍待用户操作，不提前记为通过。
+
+
+## 2026-09-21：用户回传 Windows 11 C# P/Invoke 通过；准备自动渲染包
+
+用户继续运行上一轮私有测试包，回传 C# P/Invoke status passed：Microsoft Windows 10.0.26200 / X64 / .NET10.0.12，pointerBytes8、sizeTBytes8、fixedSignedOutputBytes8，8个源算法、17个入口与1,000次分配/释放检查通过。该平台版本与此前Windows11 Pro Build26200环境一致。执行命令在加载前校验同一原生DLL SHA-256；证据 `evidence/pinvoke-windows11.json` 保留原输出及来源限制，尚未独立取得原始结果文件。
+
+为下一轮实机图像输出准备 CompositorRenderTest.zip：30,048,765 bytes、SHA-256 `d3dac08a54f8f34ae54019ea99a40d1b13faf8b5e70fdff734db75591edafef1`。既有Avalonia11.3.22原型以SDK10.0.401、locked restore、Release、UseAppHost=false重建，0 warning/error；在Mac运行同一程序集的20组合成预检，全部自定义控件预览/导出精确一致。未改原型算法、样本或断言；本机预检不是Windows结果。
+
+包包含原托管输出、保留原runtimes/win-x64/native路径的SkiaSharp2.88.9及HarfBuzzSharp8.3.1.1 DLL、base/brush/extended固定样本、源码身份及字体/框架/原生依赖的license/notices/NuGet元数据。Windows两支DLL逐字节匹配对应NuGet archive成员，并记录PE imports（Skia：ole32/FONTSUB/USER32/KERNEL32，HarfBuzz：KERNEL32）。16份NuGet cache archive的实际SHA512匹配各自sidecar，cache metadata contentHash匹配locked graph；二者是分别记录的身份值，不将其当作同一个hash。包内CRC与逐文件SHA256检查通过，复用用户已有便携.NET10.0.12和已验证native DLL，不安装新系统组件。
+
+该原型当前是headless CPU自动渲染入口，没有可手动操作的编辑器窗口。下一轮先执行20组PNG与最小重命名保存/重开检查，Windows结果仍待回传；真实窗口、IME、DPI、GPU、S01–S05、Qt对照和完整跨平台比较仍待原定验收。W-006的两类FFI探针已有用户回传实机证据，但不据此关闭完整W-006、M1或发布目标。二进制包留在本地交付目录，不入Git、不公开推送。

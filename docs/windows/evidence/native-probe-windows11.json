@@ -32,7 +32,7 @@
     }
   },
   "limitations": [
-    "C# P/Invoke has not yet run on this Windows 11 machine",
+    "Subsequent C# P/Invoke success is recorded separately in pinvoke-windows11.json",
     "No MSVC or CMake Windows build evidence",
     "No Windows UI, real IME, DPI, GPU or performance acceptance",
     "No complete Windows/Mac fixed-fixture pixel comparison",

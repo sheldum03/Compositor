@@ -1,0 +1,92 @@
+{
+  "bytes": 30048765,
+  "sha256": "d3dac08a54f8f34ae54019ea99a40d1b13faf8b5e70fdff734db75591edafef1",
+  "entries": 235,
+  "expandedBytes": 45307748,
+  "macCompositionPreflight": "20 samples passed",
+  "windowsExecuted": false,
+  "preflightEvidence": "Mac Release build, locked restore, 0 warnings/errors; 20 existing composition samples passed",
+  "packageIdentities": {
+    "Avalonia.Headless": {
+      "version": "11.3.22",
+      "nugetContentHash": "yb0+VpNVTDW2ok6SBiICk4/iOoPoH6fudqqCV8BPuW5mHqpxC2wko+9AiYs0ak0OiXYcvhmrywWenPgmaDKoPQ==",
+      "archiveSha512Base64": "6dFd+CCGzo0DwiBcW0avS1PAoRlcupIYkFF0uugliYBQzTgdnEt1j9Q3FfTQ/Gcrtk51501siyTO4uFnypRwzg=="
+    },
+    "Avalonia.Skia": {
+      "version": "11.3.22",
+      "nugetContentHash": "ZbnfFCr2f1l3RD1E/Tn5tJDRFIDm9ICY/PzG4lhuShd6mDg+0y5wRCytCYOSM79KhlboU/f0O7J1Mw7s83Sy3A==",
+      "archiveSha512Base64": "Ha9OKyuG/zV5bypAo0YcEpg9+VGQ3Mag9kJ750ywF1vLQSgZa3tivn7IJ7D5NaFkRu6Yj+gzk4tGEDSjDgqQFg=="
+    },
+    "Avalonia": {
+      "version": "11.3.22",
+      "nugetContentHash": "61kKbPq/2W/S8PkjRYnDCSvH2fAvhC3eTrYFtwMUZVShP5M2xXII76kIQo8bcezxwFkHc/yoRP3xzae2tFZRsQ==",
+      "archiveSha512Base64": "1JON93cVJlJ++vdmK6ULm/zZMPpzVEZgoIYiwGLSf1B0blYVWdHxvzZcOaX3B6eaf9YDDQpCpviLEPCjCuPgnA=="
+    },
+    "Avalonia.BuildServices": {
+      "version": "11.3.2",
+      "nugetContentHash": "qHDToxto1e3hci5YqbG9n0Ty8mlp3zBUN5wT66wKqaDVzXyQ0do3EnRILd4Ke9jpvsktaPpgE0YjEk7hornryQ==",
+      "archiveSha512Base64": "Iz+GjnSrkeVoGABK0Kp9C7bpeARN3PAGHjc62gahhGsXqC6Ux3erkHukhMGHPSIStH01OdJpTomkFfGvBHwwRQ=="
+    },
+    "Avalonia.Remote.Protocol": {
+      "version": "11.3.22",
+      "nugetContentHash": "Ll5YswLkNW0WZm7RkvGS+8B9vH4/x77IsnCqlBvmXOgiQd0J5bpJQFYo1NDVyRLadp4e8Yqg1WP2xEc6IK94HQ==",
+      "archiveSha512Base64": "JyG152KbxRefmUSaYxTW5pBG/hzyFPF1UAGH47jHyOFmOYjjBhNPZ9bQrZww/iQlBQ1Z296KCk5fvk/ZntaXlQ=="
+    },
+    "HarfBuzzSharp": {
+      "version": "8.3.1.1",
+      "nugetContentHash": "tLZN66oe/uiRPTZfrCU4i8ScVGwqHNh5MHrXj0yVf4l7Mz0FhTGnQ71RGySROTmdognAs0JtluHkL41pIabWuQ==",
+      "archiveSha512Base64": "7R2URHlW+llcSGf+PutKe2fJfgDg2lpydiNiISy/JeYr5ZNuWWF8lKHL1Oa70KyQKFTQ02hmvZIO1qha5mOsjA=="
+    },
+    "HarfBuzzSharp.NativeAssets.Linux": {
+      "version": "8.3.1.1",
+      "nugetContentHash": "3EZ1mpIiKWRLL5hUYA82ZHteeDIVaEA/Z0rA/wU6tjx6crcAkJnBPwDXZugBSfo8+J3EznvRJf49uMsqYfKrHg==",
+      "archiveSha512Base64": "Tb/+tdB8N3tfbX1UpljG4nL6eGhpxOam/b+Lv4X4nQGmBt3+JAWS823dN4B0cPBUa7x96abrBQjaFekdFKlWFw=="
+    },
+    "HarfBuzzSharp.NativeAssets.macOS": {
+      "version": "8.3.1.1",
+      "nugetContentHash": "jbtCsgftcaFLCA13tVKo5iWdElJScrulLTKJre36O4YQTIlwDtPPqhRZNk+Y0vv4D1gxbscasGRucUDfS44ofQ==",
+      "archiveSha512Base64": "BjFVhiqZnQfAHk3zst8tI6oyDCXuYlCbC95lfsh5fgxv6V/ksp6fay6aASDcdt9DHFR/e6+fqhmTbFqet42i5g=="
+    },
+    "HarfBuzzSharp.NativeAssets.WebAssembly": {
+      "version": "8.3.1.1",
+      "nugetContentHash": "loJweK2u/mH/3C2zBa0ggJlITIszOkK64HLAZB7FUT670dTg965whLFYHDQo69NmC4+d9UN0icLC9VHidXaVCA==",
+      "archiveSha512Base64": "dG1Svxgg2JchGYK0ZtJ0R33C5pipeCfLbcUwOyNVrZ7HkpkC1IS+IFKCvsLrqtKCSVLXCWrjsDxKm+Xug4TZ2w=="
+    },
+    "HarfBuzzSharp.NativeAssets.Win32": {
+      "version": "8.3.1.1",
+      "nugetContentHash": "UsJtQsfAJoFDZrXc4hCUfRPMqccfKZ0iumJ/upcUjz/cmsTgVFGNEL5yaJWmkqsuFYdMWbj/En5/kS4PFl9hBA==",
+      "archiveSha512Base64": "W/ZQTDT5BARF1viNl1iWsonLYitN4Ql2HnIcuD6NMwFobu3Wpnqd1eR0L+um1e0dEGkyNy9DFZkmcSrW8eAq8w=="
+    },
+    "MicroCom.Runtime": {
+      "version": "0.11.0",
+      "nugetContentHash": "MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA==",
+      "archiveSha512Base64": "wAcxF2406nuTatWKOGOYQ8eQsCe3FO1dPqgouF6pSxSlAt7VLKf2C7EMCsDnRL1uYv3M4BCOuq+XMcQI7s4DHg=="
+    },
+    "SkiaSharp": {
+      "version": "2.88.9",
+      "nugetContentHash": "3MD5VHjXXieSHCleRLuaTXmL2pD0mB7CcOB1x2kA1I4bhptf4e3R27iM93264ZYuAq6mkUyX5XbcxnZvMJYc1Q==",
+      "archiveSha512Base64": "Oi/6XgX0XNuA5nNe6UfpHgj/FF/FDHiC511Etq4MLNczQg0VtqQnShhrOnnUY6EnPif/f9eaUdCTclHrtu92HQ=="
+    },
+    "SkiaSharp.NativeAssets.Linux": {
+      "version": "2.88.9",
+      "nugetContentHash": "cWSaJKVPWAaT/WIn9c8T5uT/l4ETwHxNJTkEOtNKjphNo8AW6TF9O32aRkxqw3l8GUdUo66Bu7EiqtFh/XG0Zg==",
+      "archiveSha512Base64": "XGo+k6GOcOatzVSL0vdvoxERQ0bOTYEuUg8lDTM0LVrY0F6ihUM70Vyxm7xI2bvy730fFyXdcXBazO+ro/Rokg=="
+    },
+    "SkiaSharp.NativeAssets.macOS": {
+      "version": "2.88.9",
+      "nugetContentHash": "Nv5spmKc4505Ep7oUoJ5vp3KweFpeNqxpyGDWyeEPTX2uR6S6syXIm3gj75dM0YJz7NPvcix48mR5laqs8dPuA==",
+      "archiveSha512Base64": "dM+4ZXRvKRGTUpC/uSRpszHlBBXVq+2odZjr20BJxSr4Sl2u2kHrywu67Gp967Qtg83GyfYc6lXUPHIKeMPrzg=="
+    },
+    "SkiaSharp.NativeAssets.WebAssembly": {
+      "version": "2.88.9",
+      "nugetContentHash": "kt06RccBHSnAs2wDYdBSfsjIDbY3EpsOVqnlDgKdgvyuRA8ZFDaHRdWNx1VHjGgYzmnFCGiTJBnXFl5BqGwGnA==",
+      "archiveSha512Base64": "wYFdhpBMJeG8PkOyLMSy2w7JMcE91NlQWitssModJDKfclvOZQrxsNwSvHDYNSzBnyrEUqq0YuevR4fUYB4OCg=="
+    },
+    "SkiaSharp.NativeAssets.Win32": {
+      "version": "2.88.9",
+      "nugetContentHash": "wb2kYgU7iy84nQLYZwMeJXixvK++GoIuECjU4ECaUKNuflyRlJKyiRhN1MAHswvlvzuvkrjRWlK0Za6+kYQK7w==",
+      "archiveSha512Base64": "0YvYGUBBx/+3kwLU8b5YTowCToixLLRmmnOMrlUdo9PjkkCHuwqkLTSpADz7NQN9c2N4lOZ9AiI9EAobQhXu7A=="
+    }
+  },
+  "lockSha256": "4c0b7d2a7ecdfad4cb0d5cebadacefb8db5f2a7a14dbd48e42bc9a12783786b8"
+}

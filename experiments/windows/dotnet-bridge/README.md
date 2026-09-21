@@ -39,4 +39,4 @@ C++ contract_tests 覆盖补色/修复的非空输入、grain 分块等更详细
 
 该 runner 是服务器 CI 环境，不能关闭 W-004 Windows 11 参考机/干净 VM、GUI/IME、多屏 DPI、基础笔输入或性能门槛。即使 CI 通过，也不能单凭本探测关闭 W-006 的完整框架像素接入与固定样本比较，更不能关闭 M1 或发布门槛。
 
-2026-09-21 本机 Mac arm64 Release 构建零警告/零错误；实际 P/Invoke 探测通过，运行时 .NET 10.0.12，17 个入口、1,000 次分配方释放。结果见 [pinvoke-macos.json](../../../docs/windows/evidence/pinvoke-macos.json)。当前未执行 Windows；公开仓库推送和首次 CI 运行尚待确认。
+2026-09-21 本机 Mac arm64 Release 构建零警告/零错误；实际 P/Invoke 探测通过，运行时 .NET 10.0.12，17 个入口、1,000 次分配方释放。结果见 [pinvoke-macos.json](../../../docs/windows/evidence/pinvoke-macos.json)。同日用户在 Windows 11 Pro x64 Build26200 上运行同一托管程序集与便携.NET10.0.12，回传17个入口、1,000次分配方释放检查通过。原生DLL使用LLVM-MinGW构建，见 [pinvoke-windows11.json](../../../docs/windows/evidence/pinvoke-windows11.json)。证据来源为用户贴出的stdout，原始日志尚未独立收集；不是MSVC、框架像素接入或完整W-006验收。公开仓库推送和首次CI运行仍待确认。

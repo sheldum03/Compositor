@@ -68,7 +68,7 @@ RGBA 为每像素 4 字节、预乘 sRGB 通道、行从上到下，stride 单�
 
 测试使用已知输入的行为断言，Release 不依赖会被 NDEBUG 关闭的 assert。首次运行修正了两个测试假设：轻度负畸变的角点部分覆盖应有 alpha；Create Texture 会从缺陷周边估计颗粒，不能要求与平色填充逐像素相同。没有因此修改算法。
 
-仍缺：Windows MSVC/CMake 构建、完整 DLL 导出日志收集、C# P/Invoke pinned buffer/释放、两框架到 C 的 BGRA/RGBA 接入、固定 Mac 参考的 Windows 差异分析、真实分配失败/压力与性能。用户回传的 LLVM-MinGW 运行结果已通过 C++/ctypes 与19个导出计数检查；ctypes 不能记为 P/Invoke 完成。W-006、M0/M1 保持未验收。
+仍缺：Windows MSVC/CMake 构建、完整 DLL 导出日志收集、两框架到 C 的 BGRA/RGBA 接入、固定 Mac 参考的 Windows 差异分析、真实分配失败/压力与性能。用户回传的 LLVM-MinGW 运行结果已通过 C++/ctypes 与19个导出计数检查；后续独立C#探针也通过17入口与1,000次释放检查，见 [P/Invoke Windows 11 证据](../../../docs/windows/evidence/pinvoke-windows11.json)。这些有限用例不能代替完整GC压力或所有算法边界，W-006、M0/M1 保持未验收。
 
 ## 低资源 Windows Server 诊断准备
 
