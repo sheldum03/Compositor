@@ -1,5 +1,5 @@
 {
-  "status": "v2 deployed; local and Windows related regressions passed; native tab-cancel retest pending",
+  "status": "v2 local and Windows related regressions passed; native tab-cancel retest passed by user report",
   "previousNativeTabCancel": "failed; user confirmed original text disappeared",
   "reproductionBeforeFix": {
     "command": "dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- --ime-tabs",
@@ -17,7 +17,18 @@
   "localSelectionCases": 48,
   "existingPngsCompared": 60,
   "changedPngs": 0,
-  "nativeRetest": "pending",
+  "nativeRetest": "passed by user report",
+  "nativeRetestEvidence": {
+    "feedback": "测试没问题，通过这部分测试；列出详细的后续任务",
+    "steps": [
+      "on v2 switch to brush tab then return to text tab",
+      "select all text; Microsoft Pinyin ceshi; candidate panel appears",
+      "Esc without choosing candidate; original text remains"
+    ],
+    "independentlyReplayed": false,
+    "postCancelPixelsCompared": false,
+    "scope": "this tab-return cancellation sequence only; not full IME or Windows 1.0 acceptance"
+  },
   "fixCommit": "c570953",
   "windows": {
     "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ime-v2-20260921-234137",
