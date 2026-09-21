@@ -807,3 +807,12 @@ Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至r
 父任务旧WindowsServer首轮TAT240秒下载超时，只有4058944/4574861字节part，后续诊断无剩余相关进程、无原生调用。为使失败在任务时限内归档，runner改用系统curl -q/连接20秒/总传输120秒，无重试；原模型身份、推理与-ModelPath不变。本任务核验7718022字节修正版ZIP SHA/CRC/27manifest，只有runner/README/manifest改变，零权重文件；将逐字节一致的runner源纳入experiments/windows/ai/run-ai.ps1。
 
 在新Mac适配副本独立完整复跑正常/慢下载/错hash三项：正常wrapper0、8原生调用；慢服务发1024字节后阻塞，2秒测试时限实际curl28/2.092秒，wrapper1/2.919秒，失败ZIP保留；错hash在原生前拒绝。证据evidence/ai-download-timeout-fix保留适配脚本、原始ZIP、summary/log和包身份。本任务未操作CUA/服务器，修正版Windows分支尚未执行；旧包用本地模型的Server后续命令已由父任务提交但尚未读回，不提前记成功。
+
+
+## 2026-09-21：S02 独立重放入口审查及离线整合
+
+审查父任务83ccc60基线补丁发现末帧Task完成后取消仍可能Passed=true，以及GC计数包含oracle/导出两处问题。reviewed-v2在commit前及最终Passed前检查取消、commit后冻结GC。父任务同一第484回调先SetResult再Cancel红绿：旧版exit0/completedtrue/4trial，新版headless异常-6/completedfalse/3trial。我们核对精确注入源码和原始报告一致后应用修正版，未引入故障注入代码。
+
+权威源码Mac Release build0警告0错误，独立--s02-check退出0，4笔484回调/120更新逐序号复核通过，最终2PNG与父任务修正版逐字节一致。原--brush13会话和9PNG/工程字节回归通过。源码3文件与reviewed-v2一致，Windows publish34身份复核通过；未执行Windows或GUI，未覆盖用户当前IME包。证据evidence/s02-window-preparation及experiments/windows/avalonia/PERFORMANCE.md记录性能终点/内存采样边界。
+
+待前台可用先验证真实窗口成功、尺寸拒绝与中途关闭，再构建独立完整包到Windows11做两组30笔；当前S02/D03/W030/M1均不记通过。本轮保持无CUA，用户本机Esc反馈仍未到。

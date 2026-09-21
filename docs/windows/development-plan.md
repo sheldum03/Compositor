@@ -23,7 +23,7 @@
 
 可逆原型准备：`experiments/windows/avalonia` 已在 Mac 完成 F01–F07/B01–B13 的真实 Skia 控件/离屏一致性、最小重命名另存和 Mac reader 读回；含灰度蒙版、同父连续剪贴与 clipped desaturation。20 个样本中 8 个与 Mac 完全一致，其余最大通道差 1/255；尚未接受容差。Windows 11 的 20 个合成样本也已实际离屏运行并保存，预览/导出零差异；其中 17 个对 Mac 参考最大差 2/255，未接受容差。Mac 原生窗口已实际操作，Windows GUI/IME 路径尚未运行，未选型；详见实验 WINDOW.md 与实施记录。
 
-同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。Windows 11 已实际完成 242 次 headless 更新及 13 项会话检查，更新加预览 P95 为 27.5388/29.166 ms；不代表 S02 或原生窗口/性能验收通过。详见 `experiments/windows/avalonia/BRUSH.md`。
+同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。Windows 11 已实际完成 242 次 headless 更新及 13 项会话检查，更新加预览 P95 为 27.5388/29.166 ms；不代表 S02 或原生窗口/性能验收通过。独立S02窗口重放入口已整合并通过Mac headless 484回调及原笔刷字节回归，修正末帧取消假成功与GC采集边界；真实窗口生命周期及Windows11两组30笔仍未执行。详见 `experiments/windows/avalonia/BRUSH.md` 与 `PERFORMANCE.md`。
 
 文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。Windows 原始输出发现中英文严重缺失；实际 14 变体诊断中显式灰度抗锯齿恢复字形，已修正，用户回传的完整 12 样本已独立核验普通字形恢复，12/12 预览导出及取消恢复精确，墨量与参考差分指标复算吻合；跨平台像素差异仍未接受。Mac 原生窗口已记录预编辑事件和变换输入；Windows 11 原生窗口也已启动并完成首次导出，出现拼音候选后远程输入无明显响应，等待本机 Esc 对照，整轮未完成。未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
 

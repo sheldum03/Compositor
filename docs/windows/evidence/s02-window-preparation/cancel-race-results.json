@@ -1,0 +1,20 @@
+[
+  {
+    "variant": "before",
+    "buildExit": 0,
+    "runExit": 0,
+    "completed": true,
+    "trials": 4,
+    "error": null,
+    "root": "/private/tmp/compositor-parent-s02-cancel-before"
+  },
+  {
+    "variant": "after",
+    "buildExit": 0,
+    "runExit": -6,
+    "completed": false,
+    "trials": 3,
+    "error": "System.OperationCanceledException: The operation was canceled.\n   at System.Threading.CancellationToken.ThrowOperationCanceledException()\n   at System.Threading.CancellationToken.ThrowIfCancellationRequested()\n   at BrushPerformanceProbe.Run.Execute(Int32 measuredCount, Action render) in /private/tmp/compositor-parent-s02-cancel-after/experiments/windows/avalonia/BrushPerformanceProbe.cs:line 157",
+    "root": "/private/tmp/compositor-parent-s02-cancel-after"
+  }
+]

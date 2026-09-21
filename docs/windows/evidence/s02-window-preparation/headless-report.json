@@ -1,0 +1,4451 @@
+{
+  "completed": true,
+  "error": null,
+  "nativeWindow": false,
+  "windowsExecuted": false,
+  "platform": "Unix 26.5.1",
+  "processorCount": 15,
+  "runtime": "10.0.12",
+  "renderScaling": null,
+  "clientWidth": null,
+  "clientHeight": null,
+  "viewport": "1000x1000 logical; 4000x4000 document; scale .25",
+  "opacity": 1,
+  "diameter": 800,
+  "hardness": 0,
+  "measuredCountPerScenario": 1,
+  "sampledPrivatePeak": null,
+  "memoryNotes": "PrivateMemorySize64 sampled after each frame and commit; null if unavailable; not a continuous peak measurement. Fresh one-stroke history per trial; S05 is separate.",
+  "timingNotes": "Synthetic sequential updates wait for native canvas lease release; includes scheduling and append, not physical presentation, input-device latency, GPU timing, or VRAM. No S02 acceptance inferred automatically.",
+  "performanceAccepted": false,
+  "trials": [
+    {
+      "scenario": "empty",
+      "trial": 0,
+      "warmup": true,
+      "pointerDown": {
+        "Sequence": 1,
+        "AppendMilliseconds": 16.58,
+        "PaintMilliseconds": 5.6066,
+        "UpdateToCanvasLeaseReleasedMilliseconds": 54.5783,
+        "NativePixelCopyBytes": 6553600,
+        "RenderThread": 1
+      },
+      "updates": [
+        {
+          "Sequence": 2,
+          "AppendMilliseconds": 10.7237,
+          "PaintMilliseconds": 1.224,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.4016,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 3,
+          "AppendMilliseconds": 22.6162,
+          "PaintMilliseconds": 1.0143,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.897,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 4,
+          "AppendMilliseconds": 17.1303,
+          "PaintMilliseconds": 0.9679,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.3486,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 5,
+          "AppendMilliseconds": 15.379,
+          "PaintMilliseconds": 0.8134,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4225,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 6,
+          "AppendMilliseconds": 14.7272,
+          "PaintMilliseconds": 0.9957,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.9543,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 7,
+          "AppendMilliseconds": 16.058,
+          "PaintMilliseconds": 1.074,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.3972,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 8,
+          "AppendMilliseconds": 24.6032,
+          "PaintMilliseconds": 12.1357,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 37.271,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 9,
+          "AppendMilliseconds": 38.2635,
+          "PaintMilliseconds": 1.0219,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 39.5463,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 10,
+          "AppendMilliseconds": 23.5251,
+          "PaintMilliseconds": 1.1987,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.054,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 11,
+          "AppendMilliseconds": 19.059,
+          "PaintMilliseconds": 1.2216,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.133,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 12,
+          "AppendMilliseconds": 14.1827,
+          "PaintMilliseconds": 0.9622,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.3989,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 13,
+          "AppendMilliseconds": 13.4633,
+          "PaintMilliseconds": 0.9484,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.6377,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 14,
+          "AppendMilliseconds": 14.6135,
+          "PaintMilliseconds": 0.9782,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.8196,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 15,
+          "AppendMilliseconds": 20.7275,
+          "PaintMilliseconds": 1.0746,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.0158,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 16,
+          "AppendMilliseconds": 20.327,
+          "PaintMilliseconds": 1.0622,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.6322,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 17,
+          "AppendMilliseconds": 16.7047,
+          "PaintMilliseconds": 1.0435,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.9833,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 18,
+          "AppendMilliseconds": 17.5782,
+          "PaintMilliseconds": 1.1198,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9687,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 19,
+          "AppendMilliseconds": 17.8159,
+          "PaintMilliseconds": 1.1577,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.2091,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 20,
+          "AppendMilliseconds": 16.2914,
+          "PaintMilliseconds": 1.386,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.9934,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 21,
+          "AppendMilliseconds": 20.5526,
+          "PaintMilliseconds": 1.2121,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.0055,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 22,
+          "AppendMilliseconds": 21.3612,
+          "PaintMilliseconds": 1.3943,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.1542,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 23,
+          "AppendMilliseconds": 18.609,
+          "PaintMilliseconds": 1.1617,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.0448,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 24,
+          "AppendMilliseconds": 17.7562,
+          "PaintMilliseconds": 1.1169,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.1321,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 25,
+          "AppendMilliseconds": 15.8412,
+          "PaintMilliseconds": 1.2544,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.3392,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 26,
+          "AppendMilliseconds": 17.3161,
+          "PaintMilliseconds": 1.1285,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.7015,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 27,
+          "AppendMilliseconds": 18.7024,
+          "PaintMilliseconds": 1.562,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.5817,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 28,
+          "AppendMilliseconds": 23.6277,
+          "PaintMilliseconds": 1.5251,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.4248,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 29,
+          "AppendMilliseconds": 22.4736,
+          "PaintMilliseconds": 1.0904,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.7745,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 30,
+          "AppendMilliseconds": 15.0563,
+          "PaintMilliseconds": 0.9985,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2665,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 31,
+          "AppendMilliseconds": 15.2285,
+          "PaintMilliseconds": 1.1046,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.5212,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 32,
+          "AppendMilliseconds": 12.6049,
+          "PaintMilliseconds": 1.0405,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.8475,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 33,
+          "AppendMilliseconds": 15.3612,
+          "PaintMilliseconds": 0.9497,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4925,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 34,
+          "AppendMilliseconds": 16.0774,
+          "PaintMilliseconds": 1.3495,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.7149,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 35,
+          "AppendMilliseconds": 16.3954,
+          "PaintMilliseconds": 1.0867,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.704,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 36,
+          "AppendMilliseconds": 17.6684,
+          "PaintMilliseconds": 1.0661,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9485,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 37,
+          "AppendMilliseconds": 15.9573,
+          "PaintMilliseconds": 1.1014,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.2786,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 38,
+          "AppendMilliseconds": 64.1475,
+          "PaintMilliseconds": 7.0931,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 71.6513,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 39,
+          "AppendMilliseconds": 46.6114,
+          "PaintMilliseconds": 1.8994,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 48.7254,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 40,
+          "AppendMilliseconds": 32.1974,
+          "PaintMilliseconds": 1.928,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 34.3883,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 41,
+          "AppendMilliseconds": 38.9126,
+          "PaintMilliseconds": 1.3573,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 40.5478,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 42,
+          "AppendMilliseconds": 25.017,
+          "PaintMilliseconds": 1.8675,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 27.3488,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 43,
+          "AppendMilliseconds": 24.9935,
+          "PaintMilliseconds": 1.5908,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 26.8302,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 44,
+          "AppendMilliseconds": 35.7685,
+          "PaintMilliseconds": 1.4767,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 37.6316,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 45,
+          "AppendMilliseconds": 23.5972,
+          "PaintMilliseconds": 1.9182,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.778,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 46,
+          "AppendMilliseconds": 23.8692,
+          "PaintMilliseconds": 1.8948,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 26.0625,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 47,
+          "AppendMilliseconds": 22.7893,
+          "PaintMilliseconds": 1.8566,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.0214,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 48,
+          "AppendMilliseconds": 30.7337,
+          "PaintMilliseconds": 1.9023,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 32.8762,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 49,
+          "AppendMilliseconds": 20.8329,
+          "PaintMilliseconds": 1.5256,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.6134,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 50,
+          "AppendMilliseconds": 19.4607,
+          "PaintMilliseconds": 2.498,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.1824,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 51,
+          "AppendMilliseconds": 18.3742,
+          "PaintMilliseconds": 1.7237,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.407,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 52,
+          "AppendMilliseconds": 19.4385,
+          "PaintMilliseconds": 1.4743,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.1062,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 53,
+          "AppendMilliseconds": 27.9392,
+          "PaintMilliseconds": 1.3577,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 29.4972,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 54,
+          "AppendMilliseconds": 25.2829,
+          "PaintMilliseconds": 1.6842,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 27.2381,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 55,
+          "AppendMilliseconds": 25.833,
+          "PaintMilliseconds": 1.454,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 27.48,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 56,
+          "AppendMilliseconds": 15.332,
+          "PaintMilliseconds": 1.2915,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.8479,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 57,
+          "AppendMilliseconds": 13.4777,
+          "PaintMilliseconds": 1.2956,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.9772,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 58,
+          "AppendMilliseconds": 14.7043,
+          "PaintMilliseconds": 1.2233,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.1307,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 59,
+          "AppendMilliseconds": 13.8466,
+          "PaintMilliseconds": 1.2427,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.2757,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 60,
+          "AppendMilliseconds": 14.3806,
+          "PaintMilliseconds": 1.4356,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.021,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 61,
+          "AppendMilliseconds": 12.4377,
+          "PaintMilliseconds": 1.3836,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.023,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 62,
+          "AppendMilliseconds": 14.4177,
+          "PaintMilliseconds": 1.3239,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.9275,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 63,
+          "AppendMilliseconds": 13.995,
+          "PaintMilliseconds": 1.2932,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.4604,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 64,
+          "AppendMilliseconds": 14.1247,
+          "PaintMilliseconds": 1.2517,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5957,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 65,
+          "AppendMilliseconds": 14.158,
+          "PaintMilliseconds": 1.3748,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.746,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 66,
+          "AppendMilliseconds": 16.4282,
+          "PaintMilliseconds": 1.3409,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.9981,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 67,
+          "AppendMilliseconds": 18.2747,
+          "PaintMilliseconds": 1.5147,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.9695,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 68,
+          "AppendMilliseconds": 12.141,
+          "PaintMilliseconds": 1.3595,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.743,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 69,
+          "AppendMilliseconds": 12.8389,
+          "PaintMilliseconds": 1.5451,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.5952,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 70,
+          "AppendMilliseconds": 13.0412,
+          "PaintMilliseconds": 1.4386,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7051,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 71,
+          "AppendMilliseconds": 11.9855,
+          "PaintMilliseconds": 1.3286,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.5372,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 72,
+          "AppendMilliseconds": 12.5407,
+          "PaintMilliseconds": 1.5459,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2546,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 73,
+          "AppendMilliseconds": 12.8705,
+          "PaintMilliseconds": 1.6136,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.8252,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 74,
+          "AppendMilliseconds": 14.379,
+          "PaintMilliseconds": 1.9015,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4796,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 75,
+          "AppendMilliseconds": 15.9745,
+          "PaintMilliseconds": 1.5845,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.7508,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 76,
+          "AppendMilliseconds": 16.48,
+          "PaintMilliseconds": 1.5866,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.2647,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 77,
+          "AppendMilliseconds": 14.366,
+          "PaintMilliseconds": 1.5528,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2927,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 78,
+          "AppendMilliseconds": 15.4665,
+          "PaintMilliseconds": 1.7819,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.4521,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 79,
+          "AppendMilliseconds": 18.9518,
+          "PaintMilliseconds": 1.553,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.6803,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 80,
+          "AppendMilliseconds": 17.7185,
+          "PaintMilliseconds": 2.0364,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.9828,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 81,
+          "AppendMilliseconds": 13.4235,
+          "PaintMilliseconds": 1.7242,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.3882,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 82,
+          "AppendMilliseconds": 14.882,
+          "PaintMilliseconds": 1.5696,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.636,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 83,
+          "AppendMilliseconds": 12.2998,
+          "PaintMilliseconds": 1.6671,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1715,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 84,
+          "AppendMilliseconds": 15.0652,
+          "PaintMilliseconds": 1.4322,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.6621,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 85,
+          "AppendMilliseconds": 12.9337,
+          "PaintMilliseconds": 1.9128,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.047,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 86,
+          "AppendMilliseconds": 13.8831,
+          "PaintMilliseconds": 4.215,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.2611,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 87,
+          "AppendMilliseconds": 13.4246,
+          "PaintMilliseconds": 3.943,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.6025,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 88,
+          "AppendMilliseconds": 13.9191,
+          "PaintMilliseconds": 1.5227,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.6777,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 89,
+          "AppendMilliseconds": 16.3218,
+          "PaintMilliseconds": 2.1308,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.6748,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 90,
+          "AppendMilliseconds": 14.4272,
+          "PaintMilliseconds": 1.9208,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.5341,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 91,
+          "AppendMilliseconds": 18.4173,
+          "PaintMilliseconds": 1.9275,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.5312,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 92,
+          "AppendMilliseconds": 23.7407,
+          "PaintMilliseconds": 2.5655,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 26.577,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 93,
+          "AppendMilliseconds": 21.6023,
+          "PaintMilliseconds": 2.0293,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.8522,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 94,
+          "AppendMilliseconds": 16.6865,
+          "PaintMilliseconds": 2.271,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.2182,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 95,
+          "AppendMilliseconds": 13.6159,
+          "PaintMilliseconds": 2.6612,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4916,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 96,
+          "AppendMilliseconds": 16.629,
+          "PaintMilliseconds": 2.1565,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9584,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 97,
+          "AppendMilliseconds": 13.6247,
+          "PaintMilliseconds": 2.1954,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.0736,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 98,
+          "AppendMilliseconds": 14.406,
+          "PaintMilliseconds": 1.8197,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.3752,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 99,
+          "AppendMilliseconds": 14.4224,
+          "PaintMilliseconds": 1.6814,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2778,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 100,
+          "AppendMilliseconds": 13.3965,
+          "PaintMilliseconds": 1.7317,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.2728,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 101,
+          "AppendMilliseconds": 13.7333,
+          "PaintMilliseconds": 1.8065,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.7213,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 102,
+          "AppendMilliseconds": 14.1358,
+          "PaintMilliseconds": 2.5812,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.0475,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 103,
+          "AppendMilliseconds": 18.1015,
+          "PaintMilliseconds": 2.0062,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.2908,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 104,
+          "AppendMilliseconds": 23.3535,
+          "PaintMilliseconds": 2.1069,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.8266,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 105,
+          "AppendMilliseconds": 24.126,
+          "PaintMilliseconds": 1.8584,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 26.1638,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 106,
+          "AppendMilliseconds": 22.7454,
+          "PaintMilliseconds": 1.8771,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 24.7991,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 107,
+          "AppendMilliseconds": 15.1149,
+          "PaintMilliseconds": 1.8472,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.1407,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 108,
+          "AppendMilliseconds": 18.7174,
+          "PaintMilliseconds": 2.8462,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.794,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 109,
+          "AppendMilliseconds": 24.9651,
+          "PaintMilliseconds": 4.1942,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 29.3575,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 110,
+          "AppendMilliseconds": 23.7105,
+          "PaintMilliseconds": 2.2187,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 26.1972,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 111,
+          "AppendMilliseconds": 19.2762,
+          "PaintMilliseconds": 3.2097,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.7665,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 112,
+          "AppendMilliseconds": 17.431,
+          "PaintMilliseconds": 2.1556,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.7875,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 113,
+          "AppendMilliseconds": 19.2125,
+          "PaintMilliseconds": 2.4,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.8247,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 114,
+          "AppendMilliseconds": 17.9619,
+          "PaintMilliseconds": 2.6101,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.8608,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 115,
+          "AppendMilliseconds": 19.5797,
+          "PaintMilliseconds": 2.3257,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.1086,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 116,
+          "AppendMilliseconds": 21.8835,
+          "PaintMilliseconds": 2.9049,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.0864,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 117,
+          "AppendMilliseconds": 21.3185,
+          "PaintMilliseconds": 1.999,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.5287,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 118,
+          "AppendMilliseconds": 18.0504,
+          "PaintMilliseconds": 1.9305,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.1566,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 119,
+          "AppendMilliseconds": 16.5272,
+          "PaintMilliseconds": 2.0429,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.7746,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 120,
+          "AppendMilliseconds": 14.1671,
+          "PaintMilliseconds": 1.9714,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.3223,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 121,
+          "AppendMilliseconds": 12.9857,
+          "PaintMilliseconds": 1.9969,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.1566,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        }
+      ],
+      "commitMilliseconds": 13.1725,
+      "cpuMilliseconds": 2625.48,
+      "privateBytes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "gcCollections": [
+        18,
+        4,
+        1
+      ],
+      "correctness": "settled replay/immutable source/undo/redo exact",
+      "digest": "3bb3087b7557445024dd72c465604e5ba7a22fd1a55d0565020ca985e7d4b1d1"
+    },
+    {
+      "scenario": "empty",
+      "trial": 1,
+      "warmup": false,
+      "pointerDown": {
+        "Sequence": 122,
+        "AppendMilliseconds": 7.6393,
+        "PaintMilliseconds": 0.7867,
+        "UpdateToCanvasLeaseReleasedMilliseconds": 8.5946,
+        "NativePixelCopyBytes": 6553600,
+        "RenderThread": 1
+      },
+      "updates": [
+        {
+          "Sequence": 123,
+          "AppendMilliseconds": 6.45,
+          "PaintMilliseconds": 0.8631,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 7.4822,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 124,
+          "AppendMilliseconds": 14.692,
+          "PaintMilliseconds": 0.7984,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.664,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 125,
+          "AppendMilliseconds": 14.6116,
+          "PaintMilliseconds": 0.7514,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5354,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 126,
+          "AppendMilliseconds": 11.6895,
+          "PaintMilliseconds": 0.8366,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.6976,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 127,
+          "AppendMilliseconds": 12.3575,
+          "PaintMilliseconds": 0.8687,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.3825,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 128,
+          "AppendMilliseconds": 14.1266,
+          "PaintMilliseconds": 1.1437,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.4514,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 129,
+          "AppendMilliseconds": 14.4795,
+          "PaintMilliseconds": 0.9337,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.6172,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 130,
+          "AppendMilliseconds": 19.436,
+          "PaintMilliseconds": 1.001,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.6349,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 131,
+          "AppendMilliseconds": 18.8618,
+          "PaintMilliseconds": 0.918,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.9612,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 132,
+          "AppendMilliseconds": 24.8481,
+          "PaintMilliseconds": 1.2474,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 26.4211,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 133,
+          "AppendMilliseconds": 20.1766,
+          "PaintMilliseconds": 1.0839,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.4569,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 134,
+          "AppendMilliseconds": 16.1515,
+          "PaintMilliseconds": 1.04,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.4496,
+          "NativePixelCopyBytes": 6553600,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 135,
+          "AppendMilliseconds": 19.0652,
+          "PaintMilliseconds": 1.4644,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.7516,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 136,
+          "AppendMilliseconds": 22.0443,
+          "PaintMilliseconds": 1.2492,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.7275,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 137,
+          "AppendMilliseconds": 20.7865,
+          "PaintMilliseconds": 1.0699,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.1026,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 138,
+          "AppendMilliseconds": 14.9079,
+          "PaintMilliseconds": 1.0554,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4772,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 139,
+          "AppendMilliseconds": 18.3257,
+          "PaintMilliseconds": 1.0181,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.958,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 140,
+          "AppendMilliseconds": 14.2946,
+          "PaintMilliseconds": 0.9952,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.4447,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 141,
+          "AppendMilliseconds": 10.7545,
+          "PaintMilliseconds": 2.0871,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0299,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 142,
+          "AppendMilliseconds": 14.3586,
+          "PaintMilliseconds": 0.8916,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.4026,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 143,
+          "AppendMilliseconds": 15.3245,
+          "PaintMilliseconds": 1.0363,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.5025,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 144,
+          "AppendMilliseconds": 15.4727,
+          "PaintMilliseconds": 1.0311,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.8246,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 145,
+          "AppendMilliseconds": 16.9226,
+          "PaintMilliseconds": 0.91,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.0926,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 146,
+          "AppendMilliseconds": 14.4372,
+          "PaintMilliseconds": 0.9494,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5995,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 147,
+          "AppendMilliseconds": 21.0095,
+          "PaintMilliseconds": 1.5262,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.7306,
+          "NativePixelCopyBytes": 8912896,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 148,
+          "AppendMilliseconds": 20.4945,
+          "PaintMilliseconds": 1.3521,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.0461,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 149,
+          "AppendMilliseconds": 21.4358,
+          "PaintMilliseconds": 1.9196,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.5474,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 150,
+          "AppendMilliseconds": 20.6626,
+          "PaintMilliseconds": 1.2681,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.1428,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 151,
+          "AppendMilliseconds": 16.5514,
+          "PaintMilliseconds": 1.0708,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.7896,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 152,
+          "AppendMilliseconds": 13.8197,
+          "PaintMilliseconds": 1.1995,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.1826,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 153,
+          "AppendMilliseconds": 11.4159,
+          "PaintMilliseconds": 1.0581,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.7252,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 154,
+          "AppendMilliseconds": 11.9461,
+          "PaintMilliseconds": 1.0738,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.2042,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 155,
+          "AppendMilliseconds": 11.3988,
+          "PaintMilliseconds": 1.0573,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.6076,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 156,
+          "AppendMilliseconds": 11.7355,
+          "PaintMilliseconds": 1.0568,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.9579,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 157,
+          "AppendMilliseconds": 12.2754,
+          "PaintMilliseconds": 1.0725,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.5172,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 158,
+          "AppendMilliseconds": 9.416,
+          "PaintMilliseconds": 0.9855,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 10.5859,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 159,
+          "AppendMilliseconds": 10.4214,
+          "PaintMilliseconds": 0.8837,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.4529,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 160,
+          "AppendMilliseconds": 11.2673,
+          "PaintMilliseconds": 1.0077,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.4589,
+          "NativePixelCopyBytes": 11272192,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 161,
+          "AppendMilliseconds": 14.2158,
+          "PaintMilliseconds": 1.1386,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5237,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 162,
+          "AppendMilliseconds": 15.7943,
+          "PaintMilliseconds": 1.3435,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.3044,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 163,
+          "AppendMilliseconds": 13.927,
+          "PaintMilliseconds": 1.17,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.2735,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 164,
+          "AppendMilliseconds": 11.5821,
+          "PaintMilliseconds": 1.178,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.933,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 165,
+          "AppendMilliseconds": 11.381,
+          "PaintMilliseconds": 1.0997,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.6324,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 166,
+          "AppendMilliseconds": 12.7153,
+          "PaintMilliseconds": 1.1597,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.0389,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 167,
+          "AppendMilliseconds": 12.704,
+          "PaintMilliseconds": 1.356,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2847,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 168,
+          "AppendMilliseconds": 11.946,
+          "PaintMilliseconds": 1.269,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.4197,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 169,
+          "AppendMilliseconds": 12.0568,
+          "PaintMilliseconds": 1.1021,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.3155,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 170,
+          "AppendMilliseconds": 9.7962,
+          "PaintMilliseconds": 1.2307,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.1968,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 171,
+          "AppendMilliseconds": 13.3947,
+          "PaintMilliseconds": 1.2045,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7683,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 172,
+          "AppendMilliseconds": 11.7869,
+          "PaintMilliseconds": 1.1395,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0757,
+          "NativePixelCopyBytes": 13631488,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 173,
+          "AppendMilliseconds": 21.4869,
+          "PaintMilliseconds": 1.3653,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.0611,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 174,
+          "AppendMilliseconds": 14.9317,
+          "PaintMilliseconds": 1.2069,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2912,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 175,
+          "AppendMilliseconds": 13.8556,
+          "PaintMilliseconds": 1.2064,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.2273,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 176,
+          "AppendMilliseconds": 15.2918,
+          "PaintMilliseconds": 1.2265,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.6825,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 177,
+          "AppendMilliseconds": 11.167,
+          "PaintMilliseconds": 1.4932,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.8226,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 178,
+          "AppendMilliseconds": 12.5974,
+          "PaintMilliseconds": 1.2295,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9912,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 179,
+          "AppendMilliseconds": 12.2403,
+          "PaintMilliseconds": 1.5133,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9458,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 180,
+          "AppendMilliseconds": 13.6613,
+          "PaintMilliseconds": 1.391,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.2282,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 181,
+          "AppendMilliseconds": 13.5129,
+          "PaintMilliseconds": 1.402,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.1209,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 182,
+          "AppendMilliseconds": 11.3526,
+          "PaintMilliseconds": 1.4136,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.9518,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 183,
+          "AppendMilliseconds": 15.8229,
+          "PaintMilliseconds": 1.4051,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.4271,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 184,
+          "AppendMilliseconds": 15.2878,
+          "PaintMilliseconds": 1.418,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.885,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 185,
+          "AppendMilliseconds": 13.7455,
+          "PaintMilliseconds": 1.4615,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.3755,
+          "NativePixelCopyBytes": 15990784,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 186,
+          "AppendMilliseconds": 14.0614,
+          "PaintMilliseconds": 1.6012,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.8546,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 187,
+          "AppendMilliseconds": 16.0302,
+          "PaintMilliseconds": 1.6126,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.849,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 188,
+          "AppendMilliseconds": 21.4591,
+          "PaintMilliseconds": 1.7271,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.4219,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 189,
+          "AppendMilliseconds": 12.1741,
+          "PaintMilliseconds": 1.47,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.81,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 190,
+          "AppendMilliseconds": 11.2836,
+          "PaintMilliseconds": 1.3217,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.7686,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 191,
+          "AppendMilliseconds": 11.7043,
+          "PaintMilliseconds": 1.3461,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.2287,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 192,
+          "AppendMilliseconds": 10.0911,
+          "PaintMilliseconds": 1.5703,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.8568,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 193,
+          "AppendMilliseconds": 11.6823,
+          "PaintMilliseconds": 1.3105,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.1543,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 194,
+          "AppendMilliseconds": 11.4434,
+          "PaintMilliseconds": 1.4411,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0493,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 195,
+          "AppendMilliseconds": 11.5339,
+          "PaintMilliseconds": 1.3512,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0557,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 196,
+          "AppendMilliseconds": 11.5122,
+          "PaintMilliseconds": 1.3657,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0356,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 197,
+          "AppendMilliseconds": 13.4366,
+          "PaintMilliseconds": 1.3612,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.9986,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 198,
+          "AppendMilliseconds": 11.5085,
+          "PaintMilliseconds": 1.3135,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.9736,
+          "NativePixelCopyBytes": 18350080,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 199,
+          "AppendMilliseconds": 10.6157,
+          "PaintMilliseconds": 1.4577,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.2306,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 200,
+          "AppendMilliseconds": 15.6632,
+          "PaintMilliseconds": 1.8253,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.7263,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 201,
+          "AppendMilliseconds": 20.4623,
+          "PaintMilliseconds": 2.1923,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.8636,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 202,
+          "AppendMilliseconds": 15.866,
+          "PaintMilliseconds": 1.9743,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.0223,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 203,
+          "AppendMilliseconds": 17.5533,
+          "PaintMilliseconds": 2.1677,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.921,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 204,
+          "AppendMilliseconds": 17.6446,
+          "PaintMilliseconds": 1.6647,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.4901,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 205,
+          "AppendMilliseconds": 17.8927,
+          "PaintMilliseconds": 1.7101,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.7833,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 206,
+          "AppendMilliseconds": 16.444,
+          "PaintMilliseconds": 2.1115,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9045,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 207,
+          "AppendMilliseconds": 16.4158,
+          "PaintMilliseconds": 2.4582,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.0916,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 208,
+          "AppendMilliseconds": 13.9094,
+          "PaintMilliseconds": 1.6912,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.8294,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 209,
+          "AppendMilliseconds": 12.3265,
+          "PaintMilliseconds": 1.4356,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9215,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 210,
+          "AppendMilliseconds": 12.5024,
+          "PaintMilliseconds": 1.5925,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2521,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 211,
+          "AppendMilliseconds": 10.5126,
+          "PaintMilliseconds": 1.5799,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.2462,
+          "NativePixelCopyBytes": 20709376,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 212,
+          "AppendMilliseconds": 13.4913,
+          "PaintMilliseconds": 1.6745,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.3315,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 213,
+          "AppendMilliseconds": 15.4677,
+          "PaintMilliseconds": 1.6125,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.2465,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 214,
+          "AppendMilliseconds": 18.5051,
+          "PaintMilliseconds": 2.0709,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.7686,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 215,
+          "AppendMilliseconds": 14.577,
+          "PaintMilliseconds": 1.9123,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.6885,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 216,
+          "AppendMilliseconds": 11.3527,
+          "PaintMilliseconds": 1.8972,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.4369,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 217,
+          "AppendMilliseconds": 13.9787,
+          "PaintMilliseconds": 1.8678,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.0524,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 218,
+          "AppendMilliseconds": 13.2195,
+          "PaintMilliseconds": 2.5481,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.9375,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 219,
+          "AppendMilliseconds": 12.6888,
+          "PaintMilliseconds": 1.7509,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.6072,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 220,
+          "AppendMilliseconds": 13.6174,
+          "PaintMilliseconds": 1.6982,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.4809,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 221,
+          "AppendMilliseconds": 12.3962,
+          "PaintMilliseconds": 1.6067,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1797,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 222,
+          "AppendMilliseconds": 12.2832,
+          "PaintMilliseconds": 1.5515,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9917,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 223,
+          "AppendMilliseconds": 11.1373,
+          "PaintMilliseconds": 1.6508,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.9736,
+          "NativePixelCopyBytes": 23068672,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 224,
+          "AppendMilliseconds": 12.8943,
+          "PaintMilliseconds": 1.7938,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.8605,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 225,
+          "AppendMilliseconds": 16.6276,
+          "PaintMilliseconds": 2.1464,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9593,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 226,
+          "AppendMilliseconds": 18.6675,
+          "PaintMilliseconds": 2.1671,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.0228,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 227,
+          "AppendMilliseconds": 16.9919,
+          "PaintMilliseconds": 1.7199,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.872,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 228,
+          "AppendMilliseconds": 10.5802,
+          "PaintMilliseconds": 1.6294,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.3757,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 229,
+          "AppendMilliseconds": 13.3693,
+          "PaintMilliseconds": 1.8462,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.4167,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 230,
+          "AppendMilliseconds": 12.0812,
+          "PaintMilliseconds": 1.7738,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.0189,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 231,
+          "AppendMilliseconds": 13.4905,
+          "PaintMilliseconds": 1.6402,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.3085,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 232,
+          "AppendMilliseconds": 12.3179,
+          "PaintMilliseconds": 1.7349,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2078,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 233,
+          "AppendMilliseconds": 10.475,
+          "PaintMilliseconds": 1.6462,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.2723,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 234,
+          "AppendMilliseconds": 11.8421,
+          "PaintMilliseconds": 1.644,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.6383,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 235,
+          "AppendMilliseconds": 11.5406,
+          "PaintMilliseconds": 1.8244,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.5748,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 236,
+          "AppendMilliseconds": 12.8125,
+          "PaintMilliseconds": 1.6873,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.6629,
+          "NativePixelCopyBytes": 25427968,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 237,
+          "AppendMilliseconds": 15.7756,
+          "PaintMilliseconds": 1.8527,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.7896,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 238,
+          "AppendMilliseconds": 15.2846,
+          "PaintMilliseconds": 1.7523,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.1907,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 239,
+          "AppendMilliseconds": 16.4951,
+          "PaintMilliseconds": 2.0493,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.7016,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 240,
+          "AppendMilliseconds": 14.1362,
+          "PaintMilliseconds": 1.8651,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.1712,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 241,
+          "AppendMilliseconds": 12.5134,
+          "PaintMilliseconds": 1.8755,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.5447,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 242,
+          "AppendMilliseconds": 11.8162,
+          "PaintMilliseconds": 1.8622,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.843,
+          "NativePixelCopyBytes": 27787264,
+          "RenderThread": 1
+        }
+      ],
+      "commitMilliseconds": 16.9266,
+      "cpuMilliseconds": 1920.548,
+      "privateBytes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "gcCollections": [
+        18,
+        3,
+        1
+      ],
+      "correctness": "settled replay/immutable source/undo/redo exact",
+      "digest": "3bb3087b7557445024dd72c465604e5ba7a22fd1a55d0565020ca985e7d4b1d1"
+    },
+    {
+      "scenario": "existing",
+      "trial": 0,
+      "warmup": true,
+      "pointerDown": {
+        "Sequence": 243,
+        "AppendMilliseconds": 9.9176,
+        "PaintMilliseconds": 1.7532,
+        "UpdateToCanvasLeaseReleasedMilliseconds": 11.8337,
+        "NativePixelCopyBytes": 30670848,
+        "RenderThread": 1
+      },
+      "updates": [
+        {
+          "Sequence": 244,
+          "AppendMilliseconds": 5.4779,
+          "PaintMilliseconds": 1.695,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 7.3193,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 245,
+          "AppendMilliseconds": 13.8636,
+          "PaintMilliseconds": 1.7258,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.7251,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 246,
+          "AppendMilliseconds": 10.1252,
+          "PaintMilliseconds": 1.7169,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.0016,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 247,
+          "AppendMilliseconds": 10.3732,
+          "PaintMilliseconds": 1.7255,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.2464,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 248,
+          "AppendMilliseconds": 10.5267,
+          "PaintMilliseconds": 1.6751,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.35,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 249,
+          "AppendMilliseconds": 10.1942,
+          "PaintMilliseconds": 1.636,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.9812,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 250,
+          "AppendMilliseconds": 8.3335,
+          "PaintMilliseconds": 1.4843,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 9.9337,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 251,
+          "AppendMilliseconds": 9.424,
+          "PaintMilliseconds": 1.4914,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.0478,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 252,
+          "AppendMilliseconds": 9.3837,
+          "PaintMilliseconds": 1.8115,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.3448,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 253,
+          "AppendMilliseconds": 14.1747,
+          "PaintMilliseconds": 1.721,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.0592,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 254,
+          "AppendMilliseconds": 10.3321,
+          "PaintMilliseconds": 1.698,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.1738,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 255,
+          "AppendMilliseconds": 9.2595,
+          "PaintMilliseconds": 1.7737,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.1831,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 256,
+          "AppendMilliseconds": 11.5105,
+          "PaintMilliseconds": 2.0143,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.7969,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 257,
+          "AppendMilliseconds": 13.9157,
+          "PaintMilliseconds": 1.7856,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.8552,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 258,
+          "AppendMilliseconds": 13.7456,
+          "PaintMilliseconds": 1.849,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.7443,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 259,
+          "AppendMilliseconds": 10.9742,
+          "PaintMilliseconds": 1.7911,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.9056,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 260,
+          "AppendMilliseconds": 11.1713,
+          "PaintMilliseconds": 2.065,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.4685,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 261,
+          "AppendMilliseconds": 11.1634,
+          "PaintMilliseconds": 2.3492,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.667,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 262,
+          "AppendMilliseconds": 9.8017,
+          "PaintMilliseconds": 2.1021,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.0635,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 263,
+          "AppendMilliseconds": 11.7563,
+          "PaintMilliseconds": 2.2513,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1534,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 264,
+          "AppendMilliseconds": 12.7478,
+          "PaintMilliseconds": 2.1432,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.0879,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 265,
+          "AppendMilliseconds": 12.138,
+          "PaintMilliseconds": 2.1415,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.4336,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 266,
+          "AppendMilliseconds": 11.612,
+          "PaintMilliseconds": 2.3223,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1318,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 267,
+          "AppendMilliseconds": 12.0055,
+          "PaintMilliseconds": 2.348,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.5388,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 268,
+          "AppendMilliseconds": 13.7405,
+          "PaintMilliseconds": 2.4807,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4115,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 269,
+          "AppendMilliseconds": 14.2312,
+          "PaintMilliseconds": 2.527,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.9849,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 270,
+          "AppendMilliseconds": 18.713,
+          "PaintMilliseconds": 2.8288,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.738,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 271,
+          "AppendMilliseconds": 18.2062,
+          "PaintMilliseconds": 2.5483,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.9519,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 272,
+          "AppendMilliseconds": 13.988,
+          "PaintMilliseconds": 2.3928,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.5552,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 273,
+          "AppendMilliseconds": 11.5338,
+          "PaintMilliseconds": 2.2362,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9241,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 274,
+          "AppendMilliseconds": 10.6683,
+          "PaintMilliseconds": 2.2002,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0502,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 275,
+          "AppendMilliseconds": 12.1399,
+          "PaintMilliseconds": 2.4258,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7322,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 276,
+          "AppendMilliseconds": 13.3034,
+          "PaintMilliseconds": 2.2793,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.7581,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 277,
+          "AppendMilliseconds": 11.964,
+          "PaintMilliseconds": 2.1705,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.3005,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 278,
+          "AppendMilliseconds": 12.4152,
+          "PaintMilliseconds": 2.1782,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7405,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 279,
+          "AppendMilliseconds": 10.1749,
+          "PaintMilliseconds": 2.1587,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.498,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 280,
+          "AppendMilliseconds": 12.7057,
+          "PaintMilliseconds": 2.0998,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.9562,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 281,
+          "AppendMilliseconds": 12.3762,
+          "PaintMilliseconds": 2.2332,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7718,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 282,
+          "AppendMilliseconds": 13.7121,
+          "PaintMilliseconds": 2.3348,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2369,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 283,
+          "AppendMilliseconds": 16.928,
+          "PaintMilliseconds": 2.6659,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.7679,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 284,
+          "AppendMilliseconds": 19.0441,
+          "PaintMilliseconds": 2.5039,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.7217,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 285,
+          "AppendMilliseconds": 15.9789,
+          "PaintMilliseconds": 2.7627,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9797,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 286,
+          "AppendMilliseconds": 13.4666,
+          "PaintMilliseconds": 2.742,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4049,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 287,
+          "AppendMilliseconds": 16.2975,
+          "PaintMilliseconds": 2.7599,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.2332,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 288,
+          "AppendMilliseconds": 17.3083,
+          "PaintMilliseconds": 2.5804,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.0819,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 289,
+          "AppendMilliseconds": 16.3342,
+          "PaintMilliseconds": 2.464,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9714,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 290,
+          "AppendMilliseconds": 15.3022,
+          "PaintMilliseconds": 2.5113,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.0292,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 291,
+          "AppendMilliseconds": 15.389,
+          "PaintMilliseconds": 2.8228,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.4693,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 292,
+          "AppendMilliseconds": 16.663,
+          "PaintMilliseconds": 2.7625,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.6138,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 293,
+          "AppendMilliseconds": 16.7775,
+          "PaintMilliseconds": 2.6858,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.6688,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 294,
+          "AppendMilliseconds": 15.703,
+          "PaintMilliseconds": 2.9187,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.8237,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 295,
+          "AppendMilliseconds": 19.8554,
+          "PaintMilliseconds": 3.2836,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.3251,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 296,
+          "AppendMilliseconds": 17.2947,
+          "PaintMilliseconds": 2.8157,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.271,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 297,
+          "AppendMilliseconds": 17.267,
+          "PaintMilliseconds": 3.0209,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.4845,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 298,
+          "AppendMilliseconds": 14.4722,
+          "PaintMilliseconds": 3.6055,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.2774,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 299,
+          "AppendMilliseconds": 15.2481,
+          "PaintMilliseconds": 3.1088,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.5836,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 300,
+          "AppendMilliseconds": 13.6745,
+          "PaintMilliseconds": 2.7482,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.6082,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 301,
+          "AppendMilliseconds": 13.4772,
+          "PaintMilliseconds": 2.7353,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.3906,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 302,
+          "AppendMilliseconds": 12.6432,
+          "PaintMilliseconds": 2.7181,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5684,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 303,
+          "AppendMilliseconds": 12.0274,
+          "PaintMilliseconds": 2.8772,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.0798,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 304,
+          "AppendMilliseconds": 13.8128,
+          "PaintMilliseconds": 2.7025,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.6986,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 305,
+          "AppendMilliseconds": 16.6902,
+          "PaintMilliseconds": 3.3535,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.2257,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 306,
+          "AppendMilliseconds": 16.3555,
+          "PaintMilliseconds": 2.6246,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.1746,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 307,
+          "AppendMilliseconds": 17.8237,
+          "PaintMilliseconds": 3.1857,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.1905,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 308,
+          "AppendMilliseconds": 19.976,
+          "PaintMilliseconds": 3.2347,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.4037,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 309,
+          "AppendMilliseconds": 20.3308,
+          "PaintMilliseconds": 3.2016,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.7197,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 310,
+          "AppendMilliseconds": 14.1692,
+          "PaintMilliseconds": 2.8535,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.1965,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 311,
+          "AppendMilliseconds": 13.1555,
+          "PaintMilliseconds": 3.0435,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4172,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 312,
+          "AppendMilliseconds": 17.2781,
+          "PaintMilliseconds": 3.2626,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.7298,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 313,
+          "AppendMilliseconds": 11.3582,
+          "PaintMilliseconds": 2.9982,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.5329,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 314,
+          "AppendMilliseconds": 16.6756,
+          "PaintMilliseconds": 2.6458,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.4986,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 315,
+          "AppendMilliseconds": 16.8856,
+          "PaintMilliseconds": 3.1757,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.2433,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 316,
+          "AppendMilliseconds": 15.3995,
+          "PaintMilliseconds": 3.7812,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.4227,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 317,
+          "AppendMilliseconds": 17.9309,
+          "PaintMilliseconds": 3.8335,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.9988,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 318,
+          "AppendMilliseconds": 13.2565,
+          "PaintMilliseconds": 2.9027,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.3415,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 319,
+          "AppendMilliseconds": 13.294,
+          "PaintMilliseconds": 2.6922,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.1365,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 320,
+          "AppendMilliseconds": 11.4171,
+          "PaintMilliseconds": 2.6639,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2527,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 321,
+          "AppendMilliseconds": 16.2328,
+          "PaintMilliseconds": 2.623,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.0138,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 322,
+          "AppendMilliseconds": 17.2214,
+          "PaintMilliseconds": 2.5967,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.9874,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 323,
+          "AppendMilliseconds": 13.9256,
+          "PaintMilliseconds": 2.6887,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.807,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 324,
+          "AppendMilliseconds": 12.0531,
+          "PaintMilliseconds": 2.628,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.854,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 325,
+          "AppendMilliseconds": 10.4493,
+          "PaintMilliseconds": 2.5225,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.1457,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 326,
+          "AppendMilliseconds": 12.2666,
+          "PaintMilliseconds": 2.6548,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.1445,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 327,
+          "AppendMilliseconds": 11.8321,
+          "PaintMilliseconds": 3.3533,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.384,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 328,
+          "AppendMilliseconds": 11.8457,
+          "PaintMilliseconds": 2.7882,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.8062,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 329,
+          "AppendMilliseconds": 11.9907,
+          "PaintMilliseconds": 2.6382,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7989,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 330,
+          "AppendMilliseconds": 12.3852,
+          "PaintMilliseconds": 2.535,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.0872,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 331,
+          "AppendMilliseconds": 12.747,
+          "PaintMilliseconds": 2.594,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5012,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 332,
+          "AppendMilliseconds": 10.3229,
+          "PaintMilliseconds": 2.7416,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.254,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 333,
+          "AppendMilliseconds": 14.6134,
+          "PaintMilliseconds": 2.6188,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.4153,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 334,
+          "AppendMilliseconds": 16.0778,
+          "PaintMilliseconds": 2.6005,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.8608,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 335,
+          "AppendMilliseconds": 15.4502,
+          "PaintMilliseconds": 2.4936,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.1103,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 336,
+          "AppendMilliseconds": 11.3655,
+          "PaintMilliseconds": 2.5607,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.0834,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 337,
+          "AppendMilliseconds": 10.2392,
+          "PaintMilliseconds": 2.4788,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.8897,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 338,
+          "AppendMilliseconds": 11.338,
+          "PaintMilliseconds": 2.5192,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.0225,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 339,
+          "AppendMilliseconds": 11.2454,
+          "PaintMilliseconds": 2.4813,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.8832,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 340,
+          "AppendMilliseconds": 11.3342,
+          "PaintMilliseconds": 2.4614,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9584,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 341,
+          "AppendMilliseconds": 11.4903,
+          "PaintMilliseconds": 2.5189,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1852,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 342,
+          "AppendMilliseconds": 11.4336,
+          "PaintMilliseconds": 2.6543,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2619,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 343,
+          "AppendMilliseconds": 11.4692,
+          "PaintMilliseconds": 2.4975,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.137,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 344,
+          "AppendMilliseconds": 10.5889,
+          "PaintMilliseconds": 2.6228,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.3791,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 345,
+          "AppendMilliseconds": 14.6087,
+          "PaintMilliseconds": 2.8623,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.6384,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 346,
+          "AppendMilliseconds": 16.357,
+          "PaintMilliseconds": 2.8341,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.3524,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 347,
+          "AppendMilliseconds": 16.9724,
+          "PaintMilliseconds": 2.7754,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.9009,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 348,
+          "AppendMilliseconds": 17.3292,
+          "PaintMilliseconds": 2.9974,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.5572,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 349,
+          "AppendMilliseconds": 11.809,
+          "PaintMilliseconds": 3.084,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.0836,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 350,
+          "AppendMilliseconds": 18.8517,
+          "PaintMilliseconds": 2.8256,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.8792,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 351,
+          "AppendMilliseconds": 16.9915,
+          "PaintMilliseconds": 2.8105,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.983,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 352,
+          "AppendMilliseconds": 15.2466,
+          "PaintMilliseconds": 2.9538,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.376,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 353,
+          "AppendMilliseconds": 17.2674,
+          "PaintMilliseconds": 2.893,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.3409,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 354,
+          "AppendMilliseconds": 13.8625,
+          "PaintMilliseconds": 3.1887,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.2325,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 355,
+          "AppendMilliseconds": 15.7021,
+          "PaintMilliseconds": 3.0871,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.9663,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 356,
+          "AppendMilliseconds": 14.6201,
+          "PaintMilliseconds": 3.0196,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.838,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 357,
+          "AppendMilliseconds": 13.5282,
+          "PaintMilliseconds": 2.9305,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.6552,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 358,
+          "AppendMilliseconds": 13.4728,
+          "PaintMilliseconds": 2.5516,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.1934,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 359,
+          "AppendMilliseconds": 15.2635,
+          "PaintMilliseconds": 2.6622,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.0921,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 360,
+          "AppendMilliseconds": 15.413,
+          "PaintMilliseconds": 2.5495,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.1307,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 361,
+          "AppendMilliseconds": 13.7024,
+          "PaintMilliseconds": 2.568,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.4336,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 362,
+          "AppendMilliseconds": 11.4189,
+          "PaintMilliseconds": 2.47,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1385,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 363,
+          "AppendMilliseconds": 11.4036,
+          "PaintMilliseconds": 2.6555,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2145,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        }
+      ],
+      "commitMilliseconds": 11.3162,
+      "cpuMilliseconds": 2085.795,
+      "privateBytes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "gcCollections": [
+        18,
+        3,
+        1
+      ],
+      "correctness": "settled replay/immutable source/undo/redo exact",
+      "digest": "665656981ef08b030607ac87292eb9f00fb535f717b47a9d8b87149f3556378c"
+    },
+    {
+      "scenario": "existing",
+      "trial": 1,
+      "warmup": false,
+      "pointerDown": {
+        "Sequence": 364,
+        "AppendMilliseconds": 10.157,
+        "PaintMilliseconds": 2.3372,
+        "UpdateToCanvasLeaseReleasedMilliseconds": 12.6716,
+        "NativePixelCopyBytes": 30670848,
+        "RenderThread": 1
+      },
+      "updates": [
+        {
+          "Sequence": 365,
+          "AppendMilliseconds": 7.5087,
+          "PaintMilliseconds": 2.1396,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 9.8362,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 366,
+          "AppendMilliseconds": 17.0531,
+          "PaintMilliseconds": 2.8706,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.1812,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 367,
+          "AppendMilliseconds": 16.556,
+          "PaintMilliseconds": 3.2042,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.0633,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 368,
+          "AppendMilliseconds": 16.7294,
+          "PaintMilliseconds": 2.2629,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.1867,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 369,
+          "AppendMilliseconds": 11.6024,
+          "PaintMilliseconds": 1.9292,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.6919,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 370,
+          "AppendMilliseconds": 12.4067,
+          "PaintMilliseconds": 1.8637,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.4371,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 371,
+          "AppendMilliseconds": 10.1038,
+          "PaintMilliseconds": 1.9092,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.1784,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 372,
+          "AppendMilliseconds": 11.5186,
+          "PaintMilliseconds": 1.9851,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.6634,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 373,
+          "AppendMilliseconds": 11.3378,
+          "PaintMilliseconds": 1.8984,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.396,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 374,
+          "AppendMilliseconds": 11.455,
+          "PaintMilliseconds": 1.9193,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.5352,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 375,
+          "AppendMilliseconds": 11.6425,
+          "PaintMilliseconds": 2.1614,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.958,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 376,
+          "AppendMilliseconds": 10.1837,
+          "PaintMilliseconds": 1.8595,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.1966,
+          "NativePixelCopyBytes": 30670848,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 377,
+          "AppendMilliseconds": 12.9822,
+          "PaintMilliseconds": 3.5455,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.7016,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 378,
+          "AppendMilliseconds": 14.9367,
+          "PaintMilliseconds": 2.0413,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.1402,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 379,
+          "AppendMilliseconds": 15.0262,
+          "PaintMilliseconds": 2.1415,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.3387,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 380,
+          "AppendMilliseconds": 11.5256,
+          "PaintMilliseconds": 2.0548,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.7474,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 381,
+          "AppendMilliseconds": 12.2059,
+          "PaintMilliseconds": 2.0112,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.3872,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 382,
+          "AppendMilliseconds": 11.8396,
+          "PaintMilliseconds": 2.0023,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9979,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 383,
+          "AppendMilliseconds": 10.7254,
+          "PaintMilliseconds": 2.0632,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.9438,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 384,
+          "AppendMilliseconds": 12.3266,
+          "PaintMilliseconds": 2.0533,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.5442,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 385,
+          "AppendMilliseconds": 12.9526,
+          "PaintMilliseconds": 2.1249,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.2633,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 386,
+          "AppendMilliseconds": 14.4041,
+          "PaintMilliseconds": 4.6326,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.243,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 387,
+          "AppendMilliseconds": 16.3495,
+          "PaintMilliseconds": 2.3476,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.8786,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 388,
+          "AppendMilliseconds": 15.3207,
+          "PaintMilliseconds": 2.944,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.4773,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 389,
+          "AppendMilliseconds": 17.49,
+          "PaintMilliseconds": 2.2841,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.9936,
+          "NativePixelCopyBytes": 33030144,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 390,
+          "AppendMilliseconds": 18.4542,
+          "PaintMilliseconds": 2.3102,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.961,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 391,
+          "AppendMilliseconds": 24.0534,
+          "PaintMilliseconds": 3.233,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 27.5002,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 392,
+          "AppendMilliseconds": 20.1007,
+          "PaintMilliseconds": 2.4142,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.7189,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 393,
+          "AppendMilliseconds": 12.6225,
+          "PaintMilliseconds": 2.5269,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.316,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 394,
+          "AppendMilliseconds": 11.4607,
+          "PaintMilliseconds": 2.1015,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.7285,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 395,
+          "AppendMilliseconds": 10.0965,
+          "PaintMilliseconds": 2.2562,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5199,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 396,
+          "AppendMilliseconds": 12.8096,
+          "PaintMilliseconds": 2.3415,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.3189,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 397,
+          "AppendMilliseconds": 15.3242,
+          "PaintMilliseconds": 2.0808,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.6358,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 398,
+          "AppendMilliseconds": 14.3927,
+          "PaintMilliseconds": 2.5322,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.14,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 399,
+          "AppendMilliseconds": 14.5825,
+          "PaintMilliseconds": 2.583,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.3617,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 400,
+          "AppendMilliseconds": 11.6844,
+          "PaintMilliseconds": 2.2062,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.0672,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 401,
+          "AppendMilliseconds": 11.998,
+          "PaintMilliseconds": 2.4287,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.5984,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 402,
+          "AppendMilliseconds": 12.916,
+          "PaintMilliseconds": 2.4346,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5537,
+          "NativePixelCopyBytes": 35389440,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 403,
+          "AppendMilliseconds": 12.9106,
+          "PaintMilliseconds": 2.4936,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5888,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 404,
+          "AppendMilliseconds": 15.3501,
+          "PaintMilliseconds": 2.3354,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.8618,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 405,
+          "AppendMilliseconds": 13.4381,
+          "PaintMilliseconds": 2.395,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.9886,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 406,
+          "AppendMilliseconds": 11.2643,
+          "PaintMilliseconds": 2.3702,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.7916,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 407,
+          "AppendMilliseconds": 11.8322,
+          "PaintMilliseconds": 2.4558,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.4527,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 408,
+          "AppendMilliseconds": 11.566,
+          "PaintMilliseconds": 2.3108,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.0402,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 409,
+          "AppendMilliseconds": 11.408,
+          "PaintMilliseconds": 2.3514,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9245,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 410,
+          "AppendMilliseconds": 12.6474,
+          "PaintMilliseconds": 2.7502,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5853,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 411,
+          "AppendMilliseconds": 11.9445,
+          "PaintMilliseconds": 2.6425,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.8473,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 412,
+          "AppendMilliseconds": 10.9607,
+          "PaintMilliseconds": 2.3023,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.4083,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 413,
+          "AppendMilliseconds": 12.1426,
+          "PaintMilliseconds": 2.401,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7193,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 414,
+          "AppendMilliseconds": 11.8233,
+          "PaintMilliseconds": 2.3965,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.3849,
+          "NativePixelCopyBytes": 37748736,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 415,
+          "AppendMilliseconds": 11.6412,
+          "PaintMilliseconds": 2.3532,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1443,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 416,
+          "AppendMilliseconds": 15.0645,
+          "PaintMilliseconds": 2.4585,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.7127,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 417,
+          "AppendMilliseconds": 14.3433,
+          "PaintMilliseconds": 2.6695,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.2,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 418,
+          "AppendMilliseconds": 17.4692,
+          "PaintMilliseconds": 2.629,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 20.2925,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 419,
+          "AppendMilliseconds": 12.9816,
+          "PaintMilliseconds": 2.347,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.6296,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 420,
+          "AppendMilliseconds": 11.5062,
+          "PaintMilliseconds": 2.4897,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1709,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 421,
+          "AppendMilliseconds": 12.8717,
+          "PaintMilliseconds": 2.6844,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.7281,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 422,
+          "AppendMilliseconds": 11.4084,
+          "PaintMilliseconds": 2.3538,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9272,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 423,
+          "AppendMilliseconds": 11.8321,
+          "PaintMilliseconds": 2.3235,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.3215,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 424,
+          "AppendMilliseconds": 9.998,
+          "PaintMilliseconds": 2.4162,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5716,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 425,
+          "AppendMilliseconds": 11.3212,
+          "PaintMilliseconds": 2.342,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.8191,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 426,
+          "AppendMilliseconds": 11.4636,
+          "PaintMilliseconds": 2.5752,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2002,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 427,
+          "AppendMilliseconds": 12.1286,
+          "PaintMilliseconds": 2.655,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.9458,
+          "NativePixelCopyBytes": 40108032,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 428,
+          "AppendMilliseconds": 13.3714,
+          "PaintMilliseconds": 2.5411,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.1183,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 429,
+          "AppendMilliseconds": 14.788,
+          "PaintMilliseconds": 2.8706,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 17.8546,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 430,
+          "AppendMilliseconds": 15.935,
+          "PaintMilliseconds": 2.5084,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 18.5998,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 431,
+          "AppendMilliseconds": 12.0001,
+          "PaintMilliseconds": 2.431,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.592,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 432,
+          "AppendMilliseconds": 12.1371,
+          "PaintMilliseconds": 2.6216,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.9263,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 433,
+          "AppendMilliseconds": 11.9553,
+          "PaintMilliseconds": 2.648,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.7612,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 434,
+          "AppendMilliseconds": 9.8567,
+          "PaintMilliseconds": 2.4937,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5116,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 435,
+          "AppendMilliseconds": 11.5493,
+          "PaintMilliseconds": 2.5797,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.2889,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 436,
+          "AppendMilliseconds": 11.4683,
+          "PaintMilliseconds": 2.4691,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.094,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 437,
+          "AppendMilliseconds": 11.5344,
+          "PaintMilliseconds": 2.4296,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1187,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 438,
+          "AppendMilliseconds": 11.387,
+          "PaintMilliseconds": 2.633,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.1737,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 439,
+          "AppendMilliseconds": 24.8205,
+          "PaintMilliseconds": 2.4763,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 27.4702,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 440,
+          "AppendMilliseconds": 21.4091,
+          "PaintMilliseconds": 10.0257,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 31.7116,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 441,
+          "AppendMilliseconds": 18.083,
+          "PaintMilliseconds": 3.2449,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 21.5036,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 442,
+          "AppendMilliseconds": 34.4225,
+          "PaintMilliseconds": 7.7718,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 42.6238,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 443,
+          "AppendMilliseconds": 23.8734,
+          "PaintMilliseconds": 3.4313,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 27.5154,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 444,
+          "AppendMilliseconds": 18.9578,
+          "PaintMilliseconds": 3.6401,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 22.7844,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 445,
+          "AppendMilliseconds": 15.7407,
+          "PaintMilliseconds": 3.3002,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 19.2811,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 446,
+          "AppendMilliseconds": 12.5895,
+          "PaintMilliseconds": 3.4025,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2612,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 447,
+          "AppendMilliseconds": 13.9872,
+          "PaintMilliseconds": 2.7,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.8822,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 448,
+          "AppendMilliseconds": 12.0968,
+          "PaintMilliseconds": 2.4615,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.735,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 449,
+          "AppendMilliseconds": 11.7731,
+          "PaintMilliseconds": 2.6852,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.6364,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 450,
+          "AppendMilliseconds": 11.7207,
+          "PaintMilliseconds": 2.43,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.321,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 451,
+          "AppendMilliseconds": 11.3311,
+          "PaintMilliseconds": 2.4856,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.9735,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 452,
+          "AppendMilliseconds": 11.187,
+          "PaintMilliseconds": 2.1956,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.5217,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 453,
+          "AppendMilliseconds": 8.7097,
+          "PaintMilliseconds": 2.4012,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.2614,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 454,
+          "AppendMilliseconds": 10.5073,
+          "PaintMilliseconds": 2.1875,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.8471,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 455,
+          "AppendMilliseconds": 13.9002,
+          "PaintMilliseconds": 2.2172,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.2565,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 456,
+          "AppendMilliseconds": 13.2317,
+          "PaintMilliseconds": 2.1793,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.5551,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 457,
+          "AppendMilliseconds": 9.8877,
+          "PaintMilliseconds": 2.225,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.2515,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 458,
+          "AppendMilliseconds": 8.6378,
+          "PaintMilliseconds": 2.1996,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 10.9908,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 459,
+          "AppendMilliseconds": 9.9481,
+          "PaintMilliseconds": 2.1822,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.2658,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 460,
+          "AppendMilliseconds": 10.0516,
+          "PaintMilliseconds": 2.3339,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5177,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 461,
+          "AppendMilliseconds": 10.0127,
+          "PaintMilliseconds": 2.166,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.3094,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 462,
+          "AppendMilliseconds": 11.4507,
+          "PaintMilliseconds": 2.297,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.8941,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 463,
+          "AppendMilliseconds": 10.3216,
+          "PaintMilliseconds": 2.3002,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.7659,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 464,
+          "AppendMilliseconds": 10.1415,
+          "PaintMilliseconds": 2.227,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5208,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 465,
+          "AppendMilliseconds": 8.9455,
+          "PaintMilliseconds": 2.4257,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.5151,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 466,
+          "AppendMilliseconds": 10.8102,
+          "PaintMilliseconds": 2.1039,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0735,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 467,
+          "AppendMilliseconds": 11.8674,
+          "PaintMilliseconds": 2.3051,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 14.3417,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 468,
+          "AppendMilliseconds": 13.7064,
+          "PaintMilliseconds": 2.1784,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 16.0263,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 469,
+          "AppendMilliseconds": 13.3429,
+          "PaintMilliseconds": 2.2124,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.752,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 470,
+          "AppendMilliseconds": 8.7251,
+          "PaintMilliseconds": 2.195,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.0734,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 471,
+          "AppendMilliseconds": 10.0655,
+          "PaintMilliseconds": 2.202,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.415,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 472,
+          "AppendMilliseconds": 10.0721,
+          "PaintMilliseconds": 2.352,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5617,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 473,
+          "AppendMilliseconds": 10.981,
+          "PaintMilliseconds": 2.2582,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.4226,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 474,
+          "AppendMilliseconds": 10.1722,
+          "PaintMilliseconds": 2.5325,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 13.0667,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 475,
+          "AppendMilliseconds": 8.7637,
+          "PaintMilliseconds": 2.2371,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 11.179,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 476,
+          "AppendMilliseconds": 10.4902,
+          "PaintMilliseconds": 2.1816,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.8135,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 477,
+          "AppendMilliseconds": 10.0478,
+          "PaintMilliseconds": 2.2927,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.471,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 478,
+          "AppendMilliseconds": 10.0445,
+          "PaintMilliseconds": 2.2007,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.4369,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 479,
+          "AppendMilliseconds": 10.3747,
+          "PaintMilliseconds": 2.2307,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.7376,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 480,
+          "AppendMilliseconds": 13.3367,
+          "PaintMilliseconds": 2.2629,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.7417,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 481,
+          "AppendMilliseconds": 13.3018,
+          "PaintMilliseconds": 2.2129,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.6466,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 482,
+          "AppendMilliseconds": 12.7237,
+          "PaintMilliseconds": 2.2662,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 15.1465,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 483,
+          "AppendMilliseconds": 10.0515,
+          "PaintMilliseconds": 2.1757,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.3615,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        },
+        {
+          "Sequence": 484,
+          "AppendMilliseconds": 10.1532,
+          "PaintMilliseconds": 2.23,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 12.5334,
+          "NativePixelCopyBytes": 42467328,
+          "RenderThread": 1
+        }
+      ],
+      "commitMilliseconds": 13.6604,
+      "cpuMilliseconds": 2011.817,
+      "privateBytes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "gcCollections": [
+        19,
+        3,
+        1
+      ],
+      "correctness": "settled replay/immutable source/undo/redo exact",
+      "digest": "665656981ef08b030607ac87292eb9f00fb535f717b47a9d8b87149f3556378c"
+    }
+  ]
+}
