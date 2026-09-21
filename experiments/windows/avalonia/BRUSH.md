@@ -81,6 +81,22 @@ Not implemented/verified: actual mouse/pen events, GPU uploads/presentation, tra
 
 ## User-reported Windows 11 run
 
+### Coverage-color cache candidate
+
+The received Windows run had append P95 near 24 ms. A separate macOS profile found pixel publication consumed 61.6%/68.5% of append time. The candidate now precomputes the 256 possible premultiplied paint colors once per stroke (1,024 bytes), retaining the exact rounding and background compositing formulas. Dabs, curves, provisional tails, tile publication and history semantics are unchanged.
+
+The differential regression runs the actual current implementation against source retrieved from fixed commit `8cf1253`, with its SHA-256 checked. It covers 60 combinations and 720 intermediate previews, flush/commit equality and source immutability, including off-canvas points and partial tiles. No duplicate reference implementation is retained in the product:
+
+```sh
+python3 experiments/windows/brush-regression/run.py <DOTNET_SDK_EXECUTABLE> <NEW_TEMP_DIRECTORY>
+```
+
+Integration passes this regression plus all 13 original session checks. Nine output files exactly match the prior macOS probe; eight PNGs also match the received Windows output, with only CRLF/LF formatting differing in the otherwise identical project manifest.
+
+Four warmed, same-process alternating append comparisons were faster with the candidate (median paired ratio reduction about 10.19%). However, fresh-process full-preview P95 included a slower candidate second stroke in one pair. **No stable end-to-end or Windows speedup is claimed.** Full evidence and the Windows ABBA package identity are in [integration evidence](../../../docs/windows/evidence/brush-cache-candidate/integration-summary.json).
+
+`run-brush-ab.ps1` uses the original delivered app as baseline and a separate candidate copy, runs baseline/candidate/candidate/baseline, preserves all reports and compares nine PNG/project artifacts per run byte-for-byte. Each run is a fresh process and retains the original two-stroke input and timing definitions; it is not formal S02. Windows execution remains pending.
+
 On Windows 11 Pro x64 Build26200, the user reported preparation checks passed, 121 samples per stroke, 242 custom-control updates, 56 shared tiles and 13 session checks. Update plus preview P95 was 27.5388 / 29.166 ms; commit was 25.5688 / 24.0438 ms. These P95 observations exceed the planned 16.7 ms target, but this two-stroke, 40%-opacity headless workload is not the S02 acceptance workload. The configured RTX 4090D does not imply GPU rendering was tested.
 
 See [Windows 11 brush evidence](../../../docs/windows/evidence/avalonia-brush-windows11.json). The original archive has since been received: independent PNG checks match all four CPU/Metal difference records, and both outputs exactly match the earlier Mac Avalonia output. The actual Mac reader/exporter opens the Windows brush project, then saves and reopens it with unchanged pixels. See the [artifact review](../../../docs/windows/windows11-results-review.md) for raw timings, scope and the passing readback test. Functional preparation passed; performance and reference equivalence are not accepted.

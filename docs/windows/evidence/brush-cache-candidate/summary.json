@@ -1,0 +1,123 @@
+{
+  "sourceCommit": "8cf1253",
+  "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "sdk": "10.0.401",
+  "root": "/tmp/compositor-parent-brush-perf",
+  "kind": "Local macOS diagnosis and candidate validation only; Windows rerun pending",
+  "windowsExecuted": false,
+  "runs": {
+    "baseline-01": [
+      {
+        "stroke": 0,
+        "appendP95": 15.3478,
+        "previewP95": 1.6768,
+        "updateAndPreviewP95": 16.603,
+        "commitMilliseconds": 12.1157,
+        "managedAllocatedBytes": 211691752
+      },
+      {
+        "stroke": 1,
+        "appendP95": 18.5924,
+        "previewP95": 2.8024,
+        "updateAndPreviewP95": 20.2693,
+        "commitMilliseconds": 11.9057,
+        "managedAllocatedBytes": 230245328
+      }
+    ],
+    "candidate-01": [
+      {
+        "stroke": 0,
+        "appendP95": 11.1692,
+        "previewP95": 1.2944,
+        "updateAndPreviewP95": 12.137,
+        "commitMilliseconds": 10.1635,
+        "managedAllocatedBytes": 211703800
+      },
+      {
+        "stroke": 1,
+        "appendP95": 9.0121,
+        "previewP95": 1.7629,
+        "updateAndPreviewP95": 10.5175,
+        "commitMilliseconds": 7.2635,
+        "managedAllocatedBytes": 230239776
+      }
+    ],
+    "baseline-02": [
+      {
+        "stroke": 0,
+        "appendP95": 13.11,
+        "previewP95": 1.4376,
+        "updateAndPreviewP95": 13.887799999999999,
+        "commitMilliseconds": 13.1525,
+        "managedAllocatedBytes": 211700264
+      },
+      {
+        "stroke": 1,
+        "appendP95": 11.1594,
+        "previewP95": 1.9046,
+        "updateAndPreviewP95": 12.9551,
+        "commitMilliseconds": 9.5889,
+        "managedAllocatedBytes": 230252944
+      }
+    ],
+    "candidate-02": [
+      {
+        "stroke": 0,
+        "appendP95": 12.7776,
+        "previewP95": 1.6137,
+        "updateAndPreviewP95": 13.684099999999999,
+        "commitMilliseconds": 12.6975,
+        "managedAllocatedBytes": 211686016
+      },
+      {
+        "stroke": 1,
+        "appendP95": 12.774,
+        "previewP95": 2.4995,
+        "updateAndPreviewP95": 14.660599999999999,
+        "commitMilliseconds": 8.4005,
+        "managedAllocatedBytes": 230246056
+      }
+    ]
+  },
+  "exactArtifactComparisons": {
+    "filesPerRun": 9,
+    "runs": 4,
+    "allBytesEqual": true
+  },
+  "differentialRegression": "60 cases, 720 intermediate previews; flush/commit pixels/source immutability passed; black/white/mixed colors, five opacities, three diameters, partial edge tiles and off-canvas points",
+  "patchSha256": "157d782dcd9789f67d1fc84f12c52297c7cda84458846502d60fd4ab9ab24cc2",
+  "additionalPerStrokeStorageBytes": 1024,
+  "acceptance": "Not S02; only two strokes per process, 40% opacity. Concurrent machine load not controlled. No Windows speedup or final threshold claim.",
+  "sameProcessWarmedAppendPairs": [
+    {
+      "pair": 0,
+      "baselineMs": 1423.6211,
+      "candidateMs": 1259.3719,
+      "ratio": 0.8846257617283139,
+      "pixelsExact": true
+    },
+    {
+      "pair": 1,
+      "baselineMs": 1243.75,
+      "candidateMs": 1133.8834,
+      "ratio": 0.9116650452261306,
+      "pixelsExact": true
+    },
+    {
+      "pair": 2,
+      "baselineMs": 1651.7069,
+      "candidateMs": 1117.6109,
+      "ratio": 0.6766399656016452,
+      "pixelsExact": true
+    },
+    {
+      "pair": 3,
+      "baselineMs": 1245.5987,
+      "candidateMs": 1135.443,
+      "ratio": 0.9115640534949178,
+      "pixelsExact": true
+    }
+  ],
+  "medianAppendReductionPercent": 10.19,
+  "verdict": "Candidate reduces warmed Append work in all four local alternating-order pairs; full-preview P95 improvement inconsistent. Safe pixel-equivalent candidate for Windows A/B evaluation, not a verified Windows performance fix."
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "pair": 0,
+    "baselineMs": 1423.6211,
+    "candidateMs": 1259.3719,
+    "ratio": 0.8846257617283139,
+    "pixelsExact": true
+  },
+  {
+    "pair": 1,
+    "baselineMs": 1243.75,
+    "candidateMs": 1133.8834,
+    "ratio": 0.9116650452261306,
+    "pixelsExact": true
+  },
+  {
+    "pair": 2,
+    "baselineMs": 1651.7069,
+    "candidateMs": 1117.6109,
+    "ratio": 0.6766399656016452,
+    "pixelsExact": true
+  },
+  {
+    "pair": 3,
+    "baselineMs": 1245.5987,
+    "candidateMs": 1135.443,
+    "ratio": 0.9115640534949178,
+    "pixelsExact": true
+  }
+]

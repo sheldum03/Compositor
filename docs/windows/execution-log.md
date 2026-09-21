@@ -693,3 +693,12 @@ Pillow11.3.0/NumPy独立核算全部36组参考差分，与原报告完全一致
 Release build 0warning/error，Mac完整文字/诊断与20组合成回归均成功；新guard的Windows捕获失败保留实际exit134日志。PowerShell7.6.0仅语法检查通过，未冒充Windows执行。证据 evidence/text-ink-diagnostic。
 
 私有CompositorTextDiagnostic.zip为13,819,215bytes，SHA256 ee658c6f7db590f2918b557f257ecf9ab370d777f4c557a59d7782780af30722，CRC/patch文件hash核对。仅含新托管探针、源码、OFL和脚本，复用用户既有runtime/依赖；脚本复制新运行目录、不修改旧app/旧结果，检查同一DLL和patch身份，保留失败日志、14组图、原12样本与ordinary-ink.json并自动打包。已向用户交付一次运行命令；等待真实Windows诊断结果，不提前记为修复。父任务并行在独立/tmp副本诊断笔刷；本工作区不重复该工作、不操作服务器、不公开推送。
+
+
+## 2026-09-21：整合像素等价的笔刷颜色缓存候选
+
+父任务在固定8cf1253临时副本定位Publish占Append61.6%/68.5%，RemoveTail仅0.4%/0.3%。受控预热后同进程4对交替Append总时序原版→候选1423.62→1259.37、1243.75→1133.88、1651.71→1117.61、1245.60→1135.44ms，像素均相等，中位比例减少约10.19%。另一组完整新进程P95存在候选更慢反例，不能声称稳定E2E或Windows收益。
+
+只整合SoftBrushStroke每笔256色预计算，增加1024字节，保留Round255及原底图叠加。正式工作区重新执行独立60-case/720-preview差分回归和完整13项会话检查通过；9个输出文件与旧Mac基线逐字节相同。对收到Windows包的初次9文件字节比较在manifest失败，检查仅CRLF/LF不同、JSON数据一致，8个PNG均字节相等；没有为此改工程格式或容差。回归harness固定从Git取8cf1253并核对原文件hash，参考副本仅存在临时生成目录。
+
+Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2a91d12f7ece5b00699b5c164cd34f986eabf89ec0b9997f9385bbb6c4a1a7a8；原版程序集身份取自实际先前交付zip，候选复制到新目录，4轮结果/时序和9文件hash比较全部保留。脚本语法和包CRC检查通过，Windows尚未执行；先完成用户当前文字修复复测，避免同时要求两项操作。证据 evidence/brush-cache-candidate，S02/W-030/M1均未据此通过。

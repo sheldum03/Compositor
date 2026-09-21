@@ -9,6 +9,7 @@ internal sealed class SoftBrushStroke
     private readonly TiledRaster source;
     private readonly SoftBrushSettings settings;
     private readonly byte[] tip;
+    private readonly byte[] coverageColors = new byte[256 * 4];
     private readonly Dictionary<int, byte[]> coverage = [];
     private readonly Dictionary<int, byte[]> original = [];
     private readonly Dictionary<int, byte[]> pixels = [];
@@ -31,6 +32,14 @@ internal sealed class SoftBrushStroke
             throw new ArgumentException("Invalid soft brush settings");
         this.source = source;
         this.settings = settings with { Color = (double[])settings.Color.Clone() };
+        // Coverage is one byte, so its premultiplied paint color has only 256 possible values.
+        for (int coverageValue = 0; coverageValue < 256; coverageValue++)
+        {
+            int alpha = Round255(coverageValue * this.settings.Opacity);
+            for (int c = 0; c < 3; c++)
+                coverageColors[coverageValue * 4 + c] = Round255(this.settings.Color[c] * alpha);
+            coverageColors[coverageValue * 4 + 3] = (byte)alpha;
+        }
         // Match the 24-stop normalized Gaussian tip used by the CPU reference; hardness is zero.
         tip = new byte[settings.Diameter * settings.Diameter];
         var stops = Enumerable.Range(0, 25).Select(i =>
@@ -210,9 +219,10 @@ internal sealed class SoftBrushStroke
             for (int x = pair.Value.Left; x < pair.Value.Right; x++)
             {
                 int offset = (y - tile.Top) * tile.Width + x - tile.Left;
-                int alpha = Round255(mask[offset] * settings.Opacity);
+                int colorOffset = mask[offset] * 4;
+                int alpha = coverageColors[colorOffset + 3];
                 for (int c = 0; c < 3; c++)
-                    result[offset * 4 + c] = (byte)(Round255(settings.Color[c] * alpha) +
+                    result[offset * 4 + c] = (byte)(coverageColors[colorOffset + c] +
                         (baseline[offset * 4 + c] * (255 - alpha) + 127) / 255);
                 result[offset * 4 + 3] = (byte)(alpha + (baseline[offset * 4 + 3] * (255 - alpha) + 127) / 255);
             }
