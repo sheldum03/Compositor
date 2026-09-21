@@ -1,5 +1,5 @@
 {
-  "status": "native failure confirmed; fixed build deployed; local and Windows headless regressions passed; native retest pending",
+  "status": "native selection-cancel retest passed by user report; post-cancel text visible; native commit/undo/redo retest pending",
   "failureArchive": {
     "name": "window-flip-20260921-200520-ime-results.zip",
     "bytes": 38897,
@@ -38,6 +38,11 @@
   "fixedNativeWindow": {
     "pid": 44024,
     "baselineExportCaptured": true,
-    "userRetest": "pending"
+    "userRetest": "passed: user confirmed original text fully preserved after select-all, Microsoft Pinyin ceshi and Esc",
+    "cancelScreenshot": "native-cancel-user-confirmed.png",
+    "selectionRestorationVisuallyConfirmed": false,
+    "postFixNativeCommitUndoRedo": "pending",
+    "postFixNativeTabReturnCancel": "pending",
+    "cancelPixelsCompared": false
   }
 }
