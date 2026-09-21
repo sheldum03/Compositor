@@ -18,7 +18,7 @@ using Avalonia.Platform;
 internal static class TextProbe
 {
     private const string FontUri = "avares://Compositor.AvaloniaProbe/Fonts/SourceHanSansSC-Regular.otf";
-    public static void Run(string fixtures, string output)
+    public static void Run(string fixtures, string output, bool diagnostics = false)
     {
         Verify(fixtures);
         using var fontStream = AssetLoader.Open(new Uri(FontUri));
@@ -27,6 +27,7 @@ internal static class TextProbe
         var family = new FontFamily(FontUri + "#Source Han Sans SC");
         var face = new Typeface(family).GlyphTypeface;
         Check(face.FamilyName == "Source Han Sans SC" && face.GetGlyph('中') != 0, "Resolve embedded Chinese typeface");
+        if (diagnostics) TextRasterDiagnostics.Run(family, FontUri, output);
         CheckSpacing(family);
         var results = new List<object>();
         foreach (string package in Directory.GetDirectories(fixtures, "F11-*.comp").Order())
@@ -118,6 +119,7 @@ internal static class TextProbe
         }, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(Path.Combine(output, "text-report.json"), json + "\n");
         Console.WriteLine(json);
+        TextInkChecks.Verify(fixtures, output, saveReport: true);
     }
 
     private static TextBox Editor(SpacedTextPresenter presenter, FontFamily family, string text,

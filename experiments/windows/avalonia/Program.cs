@@ -12,14 +12,17 @@ internal static class Program
     private static void Main(string[] args)
     {
         bool brush = args.Length == 4 && args[0] == "--brush";
-        bool text = args.Length == 4 && args[0] == "--text";
-        if (brush || text) args = args[1..];
-        Check(args.Length == 3, "Usage: probe [--brush|--text] <fixed-fixtures-directory> <new-output-directory> <native-library-path>");
+        bool diagnostics = args.Length == 4 && args[0] == "--text-diagnostics";
+        bool verifyText = args.Length == 4 && args[0] == "--verify-text-output";
+        bool text = args.Length == 4 && (args[0] == "--text" || diagnostics);
+        if (brush || text || verifyText) args = args[1..];
+        Check(args.Length == 3, "Usage: probe [--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
         string fixtures = Path.GetFullPath(args[0]), output = Path.GetFullPath(args[1]);
         string nativePath = Path.GetFullPath(args[2]);
         var library = NativeLibrary.Load(nativePath);
         NativeLibrary.SetDllImportResolver(typeof(Native).Assembly,
             (name, _, _) => name == "compositor_native" ? library : 0);
+        if (verifyText) { TextInkChecks.Verify(fixtures, output); return; }
         Check(!Path.Exists(output), "Output directory must not exist");
         if (!brush && !text) VerifyCorpus(fixtures);
         Directory.CreateDirectory(output);
@@ -27,7 +30,7 @@ internal static class Program
             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
             .SetupWithoutStarting();
         if (brush) { BrushProbe.Run(fixtures, output); return; }
-        if (text) { TextProbe.Run(fixtures, output); return; }
+        if (text) { TextProbe.Run(fixtures, output, diagnostics); return; }
         var results = new List<object>();
         var names = Enumerable.Range(1, 7).Select(i => $"F{i:00}")
             .Concat(Enumerable.Range(1, 13).Select(i => $"B{i:00}"));

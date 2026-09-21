@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "Fixture": "F11-300-box-center",
+      "OrdinaryInk": 13462.078431372549,
+      "ReferenceInk": 13734.549019607843,
+      "Ratio": 0.9801616647298498,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-box-left",
+      "OrdinaryInk": 13462.086274509804,
+      "ReferenceInk": 13738.874509803922,
+      "Ratio": 0.9798536455736163,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-box-right",
+      "OrdinaryInk": 13462.921568627451,
+      "ReferenceInk": 13738.356862745099,
+      "Ratio": 0.9799513655912843,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-point-center",
+      "OrdinaryInk": 12912.349019607844,
+      "ReferenceInk": 13737.596078431372,
+      "Ratio": 0.9399278407872829,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-point-left",
+      "OrdinaryInk": 12911.541176470588,
+      "ReferenceInk": 13737.019607843138,
+      "Ratio": 0.9399084768794211,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-point-right",
+      "OrdinaryInk": 12911.36862745098,
+      "ReferenceInk": 13737.745098039215,
+      "Ratio": 0.9398462801070473,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-box-center",
+      "OrdinaryInk": 778.556862745098,
+      "ReferenceInk": 880.8196078431373,
+      "Ratio": 0.8839004670338231,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-box-left",
+      "OrdinaryInk": 779.0431372549019,
+      "ReferenceInk": 882.7294117647059,
+      "Ratio": 0.8825390055798414,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-box-right",
+      "OrdinaryInk": 778.8549019607843,
+      "ReferenceInk": 881.0431372549019,
+      "Ratio": 0.8840144926246073,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-point-center",
+      "OrdinaryInk": 772.8,
+      "ReferenceInk": 879.0627450980393,
+      "Ratio": 0.8791181338413014,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-point-left",
+      "OrdinaryInk": 773.1333333333333,
+      "ReferenceInk": 880.0980392156863,
+      "Ratio": 0.8784627381084995,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-point-right",
+      "OrdinaryInk": 773.1098039215686,
+      "ReferenceInk": 881.0431372549019,
+      "Ratio": 0.8774937017617264,
+      "Passed": true
+    }
+  ]
+}
