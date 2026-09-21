@@ -1,0 +1,9 @@
+[ 50%] Building CXX object CMakeFiles/ai_probe.dir/probe.cpp.obj
+[100%] Linking CXX executable ai_probe.exe
+ld.lld: error: undefined symbol: WinMain
+>>> referenced by ../crt/crtexewin.c:62
+>>>               libmingw32.a(lib64_libmingw32_a-crtexewin.o):(main)
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make[2]: *** [ai_probe.exe] Error 1
+make[1]: *** [CMakeFiles/ai_probe.dir/all] Error 2
+make: *** [all] Error 2

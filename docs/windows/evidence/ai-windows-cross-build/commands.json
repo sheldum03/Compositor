@@ -1,0 +1,19 @@
+[
+  [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "-S",
+    "/tmp/compositor-parent-ai-windows/source/experiments/windows/ai",
+    "-B",
+    "/tmp/compositor-parent-ai-windows/build",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_TOOLCHAIN_FILE=/tmp/compositor-parent-ai-windows/toolchain.cmake",
+    "-DORT_ROOT=/tmp/compositor-parent-ai-windows/sdk/onnxruntime-win-x64-1.30.0"
+  ],
+  [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "--build",
+    "/tmp/compositor-parent-ai-windows/build",
+    "--parallel",
+    "4"
+  ]
+]

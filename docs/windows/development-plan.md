@@ -29,7 +29,7 @@
 
 Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 4K 软笔也已完成两笔局部提交、立即下一笔、undo/redo、导出与 Mac 读回准备；两张结果与 Avalonia premultiplied RGBA8 精确相同。第二笔共享 56 个未改瓦片，两个 commit 分别复制 92/106 个瓦片；尚非 S02 或资源验收。详见 `experiments/windows/qt/BRUSH.md`。Qt 文字现已完成 12 个 F11 样本的同一 QTextDocument 预览/导出、2,631 个变换命中、合成预编辑与取消恢复、6 个框宽重排和 48 次离屏视图光标查询；与 Mac 文字仍有显著差异。详见 `experiments/windows/qt/TEXT.md`。Qt 也已在 Mac 实际运行三页原生窗口，完成输入/变换/导出、鼠标笔刷历史和工程往返，并修复整段替换文字丢失默认颜色的问题；真实 Windows 窗口仍待执行。Qt 的 LLVM-MinGW 构建已在 Windows Server 2022 实际运行 native/合成/笔刷/文字四项准备探针，并由 Mac 读回 20 个合成工程及 1 个笔刷工程；但 12 张文字图中的 Emoji 缺失，视觉失败待诊断。Server 不等于 Windows 11 参考机，两方案的真实 Windows IME 与同机验证均未完成，W-007/W-008、M1 保持未通过。详见 [Qt Server 评审](qt-windows-server-review.md)。
 
-W-009 AI 筛查新增独立 C++ ONNX Runtime 1.30.0 / U2NetP CPU 原型：公开 NASA 样图真实推理、三次输出一致、独立 Gray8 蒙版和 Mac 启停/保存读回通过。模型效果仍有背景残留，单个原生进程 RSS 约 635 MiB；权重分发和 Windows 路径未验证。详见 `experiments/windows/ai/README.md`，不能据此勾选 W-009 或 D-08。
+W-009 AI 筛查新增独立 C++ ONNX Runtime 1.30.0 / U2NetP CPU 原型：公开 NASA 样图真实推理、三次输出一致、独立 Gray8 蒙版和 Mac 启停/保存读回通过。模型效果仍有背景残留，单个原生进程 RSS 约 635 MiB；权重分发和 Windows 路径未验证。现已完成 LLVM-MinGW 交叉构建与 27 文件私有包身份核验，含 ORT ordinal 1 入口解析；Mac 适配脚本正负例及固定模型下载通过，Windows EXE/PowerShell5.1和实际运行库加载仍未执行。详见 `experiments/windows/ai/README.md`，不能据此勾选 W-009 或 D-08。
 
 HEIC 筛查已有 libheif1.23.4 + libde2651.1.1 原生路径，16 个自生成样本覆盖 8 种方向与透明度；alpha 精确，RGB 最大差 1/255 未接受容差。搬迁后的独立 Mac 目录与双依赖 sanitizer 通过，新增 33 个冻结数据文件，既有 242 个不变。LLVM-MinGW 交叉构建及75文件私有包已准备，仅修正现有wmain的MinGW链接入口；Mac适配脚本的正负例通过，Windows EXE/PowerShell仍未执行。真实 Windows 干净机、ICC/HDR/相机样本和发行授权仍缺，详见 `experiments/windows/heic/README.md`；W-009/W-031 不勾选。
 

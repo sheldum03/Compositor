@@ -1,0 +1,7 @@
+{
+  "sha256": "e080adde328996981560a60ee852b1504dbfbb5412d777aea445338f83c754e1",
+  "result": "/tmp/compositor-parent-ai-windows/runner-negativecheck/ai-run-20260921-152420-1cc8289f.zip",
+  "completed": false,
+  "error": "Native inference failed: exit=1; inspect native log and runtimeFiles",
+  "bytes": 796
+}

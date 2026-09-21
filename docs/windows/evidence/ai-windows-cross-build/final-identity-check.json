@@ -1,0 +1,30 @@
+{
+  "manifestFilesChecked": 27,
+  "archives": [
+    {
+      "file": "evidence/runner-negativecheck/ai-run-20260921-152420-1cc8289f.zip",
+      "profileJsonBytes": [],
+      "onnxWeightFiles": 0
+    },
+    {
+      "file": "evidence/runner-maccheck/ai-run-20260921-152221-42e0cbe9.zip",
+      "profileJsonBytes": [
+        898525,
+        898523,
+        0,
+        0
+      ],
+      "onnxWeightFiles": 0
+    },
+    {
+      "file": "evidence/runner-maccheck/ai-run-20260921-152626-41388b0c.zip",
+      "profileJsonBytes": [
+        899235,
+        899310,
+        0,
+        0
+      ],
+      "onnxWeightFiles": 0
+    }
+  ]
+}

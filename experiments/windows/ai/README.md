@@ -37,6 +37,16 @@ cmake --build <BUILD> --parallel 6
 
 The native program itself takes only a preverified local model, raw tensor and output directory. It depends on the C++ standard library and ONNX Runtime, not Qt, Skia or Python. The Mac SDK links Apple frameworks including CoreML/Metal, but the actual node profile shows CPU execution only; no acceleration provider is appended.
 
+## LLVM-MinGW Windows cross-build preparation
+
+The unchanged native probe now also cross-builds with LLVM-MinGW 20260908 / clang 23.1.1 and CMake 3.31.6 against the verified official ONNX Runtime 1.30.0 win-x64 SDK. The first link failed with undefined WinMain; adding `-municode` only for MINGW selects the existing `wmain` entry. This builds Windows binaries on Mac; it does not execute Windows.
+
+The private 7,717,659-byte kit has SHA-256 `61d074d63aa28eba01cedc97730140a32f70d64fa3c80617624b4b5e0037c738`. All 27 manifest files and ZIP CRC were independently rechecked. Five staged PE files are AMD64; 88 named imports and the ordinal import were checked. Independent parsing of raw PE bytes confirms that probe ordinal 1 resolves to the SDK DLL's `OrtGetApiBase`. Four required MSVC runtime DLLs are not bundled: MSVCP140.dll, MSVCP140_1.dll, VCRUNTIME140.dll and VCRUNTIME140_1.dll. Static import resolution does not prove runtime loading or clean-machine deployment.
+
+A separately adapted Mac wrapper completed eight native calls (two successes, six expected rejections); the repeated Unicode output matched, and the CPU profile recorded 1,344 kernel events. A NaN-input negative returned native/wrapper exit 1 and retained diagnostics. The Mac default-download branch also downloaded and hash-checked the fixed model and completed the same checks. These adaptations do not test Windows PowerShell 5.1, its download branch, Windows path handling or the Windows executable.
+
+The fixed input tensor matches the original Mac preprocessing. This Windows runner takes the tensor to raw predictions only: image preprocessing, postprocessing, final 512px mask and `.comp` output are not included. The kit and result archives contain no `.onnx` weights; the wrapper downloads the hash-pinned asset into a new run directory or accepts a local model path. Model selection, weight redistribution, active cancellation and GPU remain open. See [build and integration evidence](../../../docs/windows/evidence/ai-windows-cross-build/README.md).
+
 ## Prepared Windows feasibility CI
 
 [The feasibility workflow](../../../.github/workflows/windows-feasibility-probes.yml) runs AI and HEIC as independent Windows Server matrix jobs with fail-fast disabled. It pins Python 3.11.9 x64, CMake 3.31.6 and the existing inspection requirements; downloads the exact runtime/model/photo from `assets.json`; verifies every byte count and SHA-256 before extraction/use; then compiles this probe with MSVC Release. The runtime SDK `lib` directory is added to PATH. It records actual DLL hashes/imports and invokes the full existing harness, including Unicode paths, repeated CPU output, pre-termination/recovery and error cases. The final report must identify Windows execution.

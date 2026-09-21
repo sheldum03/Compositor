@@ -775,3 +775,12 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 收到 text-fix-20260921-152945.zip，1560237bytes，SHA256 cafecf36e32bb646e4301863f070d08ed3939545704d38dbae8e3da58e155f55，64文件CRC通过。独立Pillow/NumPy重算12组墨量与Mac参考差分，全部与原报告一致；完整RGBA预览/导出12/12、取消恢复12/12精确。实际查看全部12图及四组Mac对照，普通中英文恢复、Emoji可见，墨量比0.8053–0.8623通过既有严重丢失防护阈值。未改变阈值或参考。
 
 证据保存在evidence/text-grayscale-windows11；完整ZIP和60PNG在本任务同名artifact。NativeImeExecuted=false，最大参考误差161/166及Emoji外观差异仍未验收。原缺字阻断已修复，W008/M1仍未关闭。下一步只指导用户启动Avalonia真实窗口，再逐步执行微软拼音/焦点/变换检查；不同时要求笔刷AB或Qt操作。
+
+
+## 2026-09-21：整合 AI MinGW Unicode 入口和部署准备证据
+
+父任务冻结605a610的ONNX Runtime1.30.0原型首次链接WinMain未定义，仅对MINGW添加-municode后原目录链接成功，probe.cpp和模型均不改。本任务审查应用4行CMake补丁，核对probe源与冻结提交一致，重验7717659bytes私有包SHA25661d074d63aa28eba01cedc97730140a32f70d64fa3c80617624b4b5e0037c738、CRC及27文件身份，零onnx权重。独立解析原始PE字节确认probe按ordinal1导入，SDK DLL相同序号实际导出OrtGetApiBase；不把静态导入核对当作Windows加载成功。
+
+父任务的5个AMD64 PE/88命名符号/ordinal1检查、构建红绿日志与Mac适配脚本8调用正例、NaN负例native1/wrapper1、默认下载分支证据保留evidence/ai-windows-cross-build。输入tensor与原Mac字节一致，正例1344个CPU kernel；Mac适配并非Windows5.1。MSVCP140、MSVCP140_1、VCRUNTIME140、VCRUNTIME140_1未随包，未安装或复制系统运行库。
+
+Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至raw，不覆盖Windows图像前后处理、512px蒙版或.comp，不关闭D08/W009/W032/M1。本任务未操作服务器或浏览器，用户当前只安排原生窗口输入法下一步。补丁与文档单独提交，不混入文字复测提交。
