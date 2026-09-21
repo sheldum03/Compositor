@@ -603,3 +603,19 @@ HEIC新增只含两份既有源码身份的assets.json，重新核验本地archi
 验证：actionlint1.7.12对两条Windows工作流exit0；官方PowerShell7.6.0 Mac arm64 archive按release digest核验后在临时目录运行，实际解析两条工作流共**22段**shell脚本，无语法错误、未执行Windows命令。另实际验证PSNativeCommandUseErrorActionPreference+Stop+Tee-Object：原生exit0时PSexit0并进入后续步骤；原生exit7时PSexit1且后续标记未写，避免日志管道吞掉错误。各下载、wheel、runtime notices/imports与检查hash见 `evidence/feasibility-ci-preparation.json`，本机诊断目录 `/tmp/compositor-feasibility-ci-preflight-01`。未改原生算法/输入harness，沿用上一轮完整Release/sanitizer结果；未重复Mac app XCTest/全量套件。
 
 Windows/MSVC构建、宽字符入口、实际DLL加载、数值结果与模型质量/资源门槛都仍未验证。Developer-equipped Server CI不能充当Windows11参考机或干净VM；M0产品决策/设备、M1选型以及M2–M7和全部发布目标仍待原定验收。AI/HEIC两条CI入口至此已备好，W-005/009/W-031不勾选。
+
+## 2026-09-21：W-004 获得 Windows Server CPU 节点，完成源码传输校验
+
+起点 `003ff71`，工作区干净。用户通过原任务授权使用已登录 Chrome 中的腾讯云 Windows 轻量服务器，并要求 Computer Use。全部服务器操作使用 Chrome 原生界面、腾讯云 TAT PowerShell 和文件管理；未推送公开源码、改端口/密码/安全策略、升级套餐或中断既有管理员 RDP 会话。入库证据用 `tencent-cpu-01` 别名，省略公网 IP、账号和实例标识。
+
+实际环境为 Windows Server 2022 Datacenter x64 / 10.0.20348，Xeon Platinum 8255C、4 logical processors、4 GiB RAM。02:10:36 UTC 的只读命令 exit0，空闲内存 1,611 MiB、C 盘空闲 9.75 GiB；PATH 上有 Python/Node/Git，没有 cl/clang/clang-cl/GCC/Zig/CMake/dotnet，默认 dotnet 与 vswhere 路径不存在。显示适配器只有 Remote Display 与 Basic Display/SeaBIOS VBE，不能宣称硬件 GPU、Windows 11 或干净机验收。
+
+为低资源节点新增 `experiments/windows/native/run-mingw.ps1`：逐个编译现有 8 个 C 文件和 bridge，链接 DLL 后执行原 C++/ctypes 检查并检查 19 个 PE 导出，保留日志。没有改原算法或原测试。PowerShell7.6.0 本机语法检查通过；非 Windows 调用按预期 exit1 且未创建输出目录。Windows PowerShell5.1/编译器执行仍未完成。
+
+21 个源码/头文件/测试/构建脚本打包为 24,597 bytes，通过控制台文件选择器上传至 `C:\CompositorValidation\003ff71`。服务器在 02:25:52.0134209 UTC 实际解压并校验 archive 与每个文件 SHA-256，exit0、全部匹配；archive SHA-256 为 `0039d367e3288a6cc50a4a828b72f79809bcf8bdd3d6050c2bc43bf7d143a6fd`，逐文件身份记录在 `evidence/windows-server-environment.json`。
+
+便携 LLVM-MinGW20260908 官方包190,677,197 bytes、展开749,497,736 bytes；本机完整下载匹配官方 SHA-256。服务器 WebClient 下载900秒超时，仅留下16,627,762 bytes；控制台大包上传显示21.8MB后返回 `access deny`，只读检查确认目标没有该上传文件，原因未确定。随后通过 TAT 调用系统 curl 对原官方文件作120秒断点续传，180秒任务上限；10:34:17控制台时间启动，结果尚未读取。用户切到另一 Chrome 标签页输入内容后，暂停界面操作，避免干扰。
+
+另在本地用既有 SDK10.0.401 将原 C# 探针构建为 `UseAppHost=false` 的托管程序集，0 warning/error；同一程序集在Mac的.NET10.0.12/原Release动态库上通过17入口与1,000次释放检查。已下载并匹配官方SHA-512的.NET10.0.12 Windows x64 runtime zip为36,960,258 bytes，尚未上传/在Windows执行。托管包 `/tmp/compositor-pinvoke-managed-003ff71.zip`（9,006 bytes）和runtime均仅作后续准备，不是新的Windows运行证据。
+
+W-004 获得部分环境资源，W-006 仍待实际编译/运行。等待浏览器可继续操作后先读回续传状态，再完成工具链准备与已有测试；不将下载、源码校验或脚本解析计入实机测试通过。M0/M1、W-007/008/009及全部M2–M7/PRD/发布门槛保持原范围，目标尚未完成。

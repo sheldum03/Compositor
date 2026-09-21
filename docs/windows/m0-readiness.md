@@ -36,7 +36,7 @@ Windows 往返、跨平台浮点/字形容差、完整应用字体重启仍未�
 ## 尚未满足的门槛
 
 - W-003：D-01 首发 OS/架构、D-04 工程容器、D-11 文本缩放/缺字体策略仍待用户决定。现有建议与行为证据齐备，不把建议当确认。
-- W-004：尚无可用的 Windows 11 x64 参考机和干净虚拟机。硬件/OS/驱动及 S01–S05 的实际测量不能凭 Mac 或无 GPU CI 推定。
+- W-004：已获用户授权使用一台 Windows Server 2022 x64 轻量服务器，4 核/4 GB，已通过 Chrome Computer Use 执行环境检查（见 `evidence/windows-server-environment.json`）。这是部分资源进展；仍无 Windows 11 x64 参考机和干净虚拟机，未确认 GPU 加速，S01–S05 不能据此判定通过。
 - W-005/006：CMake/C++/C#/ctypes 的 Mac 实验已执行；Windows CI 已准备，但公开推送仍待确认，Windows 运行未执行。
 - W-007/008 可继续做受限且可逆的原型源码准备；只有实机四路径证据才能完成任务及供 W-009 选型。不能预选路线、进入大规模生产 UI 或把 Mac 原型当 Windows 验收。
 

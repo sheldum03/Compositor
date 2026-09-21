@@ -69,3 +69,25 @@ RGBA 为每像素 4 字节、预乘 sRGB 通道、行从上到下，stride 单�
 测试使用已知输入的行为断言，Release 不依赖会被 NDEBUG 关闭的 assert。首次运行修正了两个测试假设：轻度负畸变的角点部分覆盖应有 alpha；Create Texture 会从缺陷周边估计颗粒，不能要求与平色填充逐像素相同。没有因此修改算法。
 
 仍缺：Windows 编译/运行、实际 DLL 导出表、C# P/Invoke pinned buffer/释放、两框架到 C 的 BGRA/RGBA 接入、固定 Mac 参考的 Windows 差异分析、真实分配失败/压力与性能。ctypes 是另一种 FFI 的冒烟检查，不能记为 P/Invoke 完成。W-006、M0/M1 保持未验收。
+
+## 低资源 Windows Server 诊断准备
+
+2026-09-21 用户提供 Windows Server 2022 x64、4 核/4 GB 节点。通过 Chrome Computer Use 的腾讯云文件管理上传 21 个源码/测试文件，服务器实际校验压缩包与逐文件 SHA-256 全部匹配。环境和传输证据见 [windows-server-environment.json](../../../docs/windows/evidence/windows-server-environment.json)。尚未完成编译器准备或执行测试。
+
+`run-mingw.ps1` 用便携 LLVM-MinGW 串行编译原来的 8 个 C 文件和 bridge，再运行既有 C++ 合约测试、ctypes 和 PE 导出检查。脚本要求实际 Windows、新输出目录，降低当前进程优先级，PATH 修改仅在当前进程内生效并在结束时恢复；不安装系统组件。这是补充诊断路径，MSVC/CMake 与生产工具链仍需独立验证。
+
+固定官方包为 [LLVM-MinGW 20260908](https://github.com/mstorsjo/llvm-mingw/releases/tag/20260908) 的 `llvm-mingw-20260908-ucrt-x86_64.zip`，190,677,197 bytes，SHA-256：
+
+```text
+1bcf74d06b724aeecaa6412ca85f5b26fb1da770e7cdcefa9263c9c5c3ad34b6
+```
+
+本地完整下载已匹配官方 digest；Windows 端下载超时、控制台大包上传返回 `access deny`，不能把本地校验当作服务器 SDK 已可用。工具包准备好后执行：
+
+```powershell
+./experiments/windows/native/run-mingw.ps1 `
+  -ToolchainBin C:/CompositorValidation/003ff71/tools/llvm-mingw-20260908-ucrt-x86_64/bin `
+  -OutputDirectory C:/CompositorValidation/003ff71/native-run-01
+```
+
+当前只通过 PowerShell 7.6.0 的语法检查和非 Windows 拒绝路径检查；PowerShell 5.1 执行、编译器驱动/链接、19 个导出与测试结果均待实机运行，不能标记 W-006 完成。
