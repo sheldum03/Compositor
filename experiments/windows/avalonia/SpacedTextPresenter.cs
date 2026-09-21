@@ -12,7 +12,10 @@ internal sealed class SpacedTextPresenter(double? boxWidth, double lineSpacing) 
     protected override TextLayout CreateTextLayout()
     {
         string preedit = PreeditText ?? "";
-        string combined = (Text ?? "").Insert(CaretIndex, preedit);
+        string text = Text ?? "";
+        // TextBox can request layout between the text and selection/caret updates.
+        int caret = Math.Clamp(CaretIndex, 0, text.Length);
+        string combined = text.Insert(caret, preedit);
         var builder = new LayoutBuilder
         {
             FontFamily = FontFamily, FontSize = FontSize, FontStyle = FontStyle,
@@ -21,7 +24,7 @@ internal sealed class SpacedTextPresenter(double? boxWidth, double lineSpacing) 
             TextWrapping = boxWidth.HasValue ? TextWrapping.Wrap : TextWrapping.NoWrap,
             LetterSpacing = LetterSpacing, LineSpacing = lineSpacing, UseLayoutRounding = false
         };
-        int start = preedit.Length > 0 ? CaretIndex : Math.Min(SelectionStart, SelectionEnd);
+        int start = preedit.Length > 0 ? caret : Math.Min(SelectionStart, SelectionEnd);
         int end = preedit.Length > 0 ? start + preedit.Length : Math.Max(SelectionStart, SelectionEnd);
         if (preedit.Length == 0 && (start == end || !ShowSelectionHighlight || SelectionForegroundBrush == null))
             builder.Text = combined;
