@@ -1,5 +1,5 @@
 {
-  "status": "native failure confirmed; local fix passed; native retest pending",
+  "status": "native failure confirmed; fixed build deployed; local and Windows headless regressions passed; native retest pending",
   "failureArchive": {
     "name": "window-flip-20260921-200520-ime-results.zip",
     "bytes": 38897,
@@ -19,5 +19,25 @@
   "localImeCasesPassed": 40,
   "localSelectionCasesPassed": 48,
   "existingTextPngCompared": 60,
-  "existingTextPngChanged": 0
+  "existingTextPngChanged": 0,
+  "fixCommit": "ed54800",
+  "deploymentTransport": "UU terminal base64 chunks; ordinary UU file transfer stalled",
+  "deltaSha256": "544a11bf1af71146b6b78b6d8ac379e346aaf4f463b2c11307463e6ef1d3f551",
+  "deltaBytes": 132134,
+  "remoteDeltaSha256Matched": true,
+  "windowsRegression": {
+    "imeCases": 40,
+    "imeFailed": 0,
+    "imeExit": 0,
+    "selectionExit": 0,
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ime-fixed-20260921-230957",
+    "probeSha256": "c1a6c0ddb80d2b2d11abae335a95332cd0ffc796e8568de1e436d9070e4ee880",
+    "evidence": "ime-fixed-windows-regression.png",
+    "rawLogs": "stored on Windows; not yet retrieved"
+  },
+  "fixedNativeWindow": {
+    "pid": 44024,
+    "baselineExportCaptured": true,
+    "userRetest": "pending"
+  }
 }

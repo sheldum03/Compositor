@@ -12,6 +12,8 @@
 
 修复将被替换的选区保留在正文中，预输入仅改变 presenter 的临时显示；取消恢复选区，真实 TextInput 再按原选区提交，由 TextBox 保持撤销/重做。40 项本地 IME 回归、48 项拖选回归通过；12 个既有文字样本的 60 张 PNG 逐字节不变。Release 构建无警告/错误。这些结果不代替原生 TSF、微软拼音候选位置、实际 Esc 和切页后的实机复测。
 
+修复提交 `ed54800` 已部署。UU 常规文件传输反复停顿，改由其远程终端传送 132,134 字节增量包；远端 SHA-256 核对成功，重建主 DLL 的 SHA-256 与完整发布版 `c1a6c0ddb80d2b2d11abae335a95332cd0ffc796e8568de1e436d9070e4ee880` 相同。旧应用目录未改动，新目录为 `ime-selection-fixed-app`。Windows 本机再次完成 40 项 IME 回归和 48 项拖选，均 exit 0；原始日志保存在 `ime-fixed-20260921-230957`，尚未取回。已打开新原生窗口、导出基线并请求用户实际拼音取消复测，**此项原生验收待反馈**。见 [Windows 回归终端记录](evidence/windows11-remote-suite/ime-selection-cancel/ime-fixed-windows-regression.png) 和 [新窗口](evidence/windows11-remote-suite/ime-selection-cancel/ime-fixed-window-ready.png)。
+
 证据：[复核摘要](evidence/windows11-remote-suite/ime-selection-cancel/review.json)、[原生事件](evidence/windows11-remote-suite/ime-selection-cancel/failed-window-report.json)、[取消前](evidence/windows11-remote-suite/ime-selection-cancel/before.png)、[取消后](evidence/windows11-remote-suite/ime-selection-cancel/after.png)、[40 项本地回归](evidence/windows11-remote-suite/ime-selection-cancel/local-ime-regression.jsonl)。
 
 ## 环境与修复
