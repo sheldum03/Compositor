@@ -34,4 +34,4 @@ Mac 原生窗口已实际完成粘贴、键盘输入、撤销/重做、变换文
 
 原生窗口发现的背景擦除问题由真实 WindowBrushView 控件的回归捕获：不透明背景上 32,041 个像素变为半透明；SaveLayer 修正后为 0，真实窗口方块消失。最终带滚动布局的构建再次实际完成三页导出/保存，退出 0。原 20 个合成、12 个文字和 13 项笔刷会话检查通过。证据见 `docs/windows/evidence/avalonia-native-window-macos`；详细回归命令见 `../window-regression/README.md`。
 
-Windows 原生窗口、真实微软拼音和显示器 DPI 切换尚未执行；字体缺失/文字工程事务未实现，W-008/M1 不放行。
+Windows 11 原生窗口已通过 UU 远程实际启动，150% 显示缩放下首对预览/导出独立 RGBA 精确；发送字母后看到拼音候选，但随后远程输入无明显响应，正等待用户本机 Esc 对照，尚不能定位原因。此为未完成首轮，见 `docs/windows/evidence/avalonia-native-window-windows11-interim`。真实微软拼音完整行为、显示器 DPI 切换、字体缺失/文字工程事务仍未验收，W-008/M1 不放行。

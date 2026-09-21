@@ -25,7 +25,7 @@
 
 同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。Windows 11 已实际完成 242 次 headless 更新及 13 项会话检查，更新加预览 P95 为 27.5388/29.166 ms；不代表 S02 或原生窗口/性能验收通过。详见 `experiments/windows/avalonia/BRUSH.md`。
 
-文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。Windows 原始输出发现中英文严重缺失；实际 14 变体诊断中显式灰度抗锯齿恢复字形，已修正，用户回传的完整 12 样本已独立核验普通字形恢复，12/12 预览导出及取消恢复精确，墨量与参考差分指标复算吻合；跨平台像素差异仍未接受。Mac 原生窗口已记录预编辑事件和变换输入，但未运行真实 Windows 输入法、未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
+文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。Windows 原始输出发现中英文严重缺失；实际 14 变体诊断中显式灰度抗锯齿恢复字形，已修正，用户回传的完整 12 样本已独立核验普通字形恢复，12/12 预览导出及取消恢复精确，墨量与参考差分指标复算吻合；跨平台像素差异仍未接受。Mac 原生窗口已记录预编辑事件和变换输入；Windows 11 原生窗口也已启动并完成首次导出，出现拼音候选后远程输入无明显响应，等待本机 Esc 对照，整轮未完成。未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
 
 Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 4K 软笔也已完成两笔局部提交、立即下一笔、undo/redo、导出与 Mac 读回准备；两张结果与 Avalonia premultiplied RGBA8 精确相同。第二笔共享 56 个未改瓦片，两个 commit 分别复制 92/106 个瓦片；尚非 S02 或资源验收。详见 `experiments/windows/qt/BRUSH.md`。Qt 文字现已完成 12 个 F11 样本的同一 QTextDocument 预览/导出、2,631 个变换命中、合成预编辑与取消恢复、6 个框宽重排和 48 次离屏视图光标查询；与 Mac 文字仍有显著差异。详见 `experiments/windows/qt/TEXT.md`。Qt 也已在 Mac 实际运行三页原生窗口，完成输入/变换/导出、鼠标笔刷历史和工程往返，并修复整段替换文字丢失默认颜色的问题；真实 Windows 窗口仍待执行。Qt 的 LLVM-MinGW 构建已在 Windows Server 2022 实际运行 native/合成/笔刷/文字四项准备探针，并由 Mac 读回 20 个合成工程及 1 个笔刷工程；但 12 张文字图中的 Emoji 缺失，视觉失败待诊断。Server 不等于 Windows 11 参考机，两方案的真实 Windows IME 与同机验证均未完成，W-007/W-008、M1 保持未通过。详见 [Qt Server 评审](qt-windows-server-review.md)。
 

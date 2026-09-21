@@ -793,3 +793,10 @@ Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至r
 本任务独立核对两轮ZIP SHA/CRC，以及4466303字节修正版包75文件身份；原包比较仅runner一行及files.json变化。从成功ZIP直接读取16raw，使用本仓库固定参考重新计算全部像素指标，均精确吻合；16raw与原Mac libheif逐字节相同，alpha对ImageIO精确、RGB最大差1未接受。实际查看全部方向/alpha联系图，证据evidence/heic-windows-server含原始60文件、首次失败ZIP、修正脚本及整合核验。WindowsServer不等于Windows11干净机，不关闭D07/W031/M1。
 
 用户的UU Windows11输入法首轮仍等待本机Esc对照；本轮本任务没有再次操作前台或更改正在运行的窗口测试包。
+
+
+## 2026-09-21：UU 远程 Windows 11 原生窗口首轮中间结果
+
+用户授权直接通过UU操作Windows11。本任务用CUA文件传输冻结窗口ZIP和单独校验启动cmd；远端ZIP SHA通过，只向新window-test解压后启动原脚本。实际nativeWindow=true，10.0.26200，RenderScaling1.5，首次文字导出零差异；回收760×520PNG独立完整RGBA比较精确。输出window-run-20260921-154725仍运行。
+
+发送a后出现拼音候选UI，但后续Esc/Backspace/点击无明显反应；Windows时钟和文件传输仍正常，先前PowerShell长命令也有字符丢失，未定位到UU或测试程序。已暂停远程输入，请用户本机Esc对照。保存evidence/avalonia-native-window-windows11-interim的截图、原始中间报告/PNG、独立复核和启动器；报告写入早于候选观察，不能把其0事件数字当作最终IME记录。未执行完整文字/笔刷/合成三页流程，不记为通过，未重启/结束现场。
