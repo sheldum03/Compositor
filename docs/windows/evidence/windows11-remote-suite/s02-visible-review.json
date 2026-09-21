@@ -1,0 +1,31 @@
+{
+  "completed": true,
+  "nativeWindow": true,
+  "windowsExecuted": true,
+  "renderScaling": 1.5,
+  "sampledPrivatePeak": 410767360,
+  "reportSha256": "d858c477eaf7289921d15d34a00f11774dde927f871750750a0ecf5ac3628c76",
+  "accepted": false,
+  "reason": "Unobscured Windows native window observed at start/middle; no concurrent Windows tests or file transfer during measured run. Both update P95 values exceed 16.7 ms. Physical presentation is outside this harness.",
+  "exitCode": null,
+  "exitCodeNote": "PowerShell process object reported HasExited true but ExitCode was null; completed=true and 62 trial records establish harness completion, not a captured zero exit code.",
+  "percentileMethod": "nearest rank ceil(.95*n), excluding warmup and pointer-down",
+  "scenarios": [
+    {
+      "name": "empty",
+      "measuredTrials": 30,
+      "updates": 3600,
+      "updateP95Milliseconds": 26.9577,
+      "commitP95Milliseconds": 15.5731,
+      "finalPixelsExactWithFirstRun": true
+    },
+    {
+      "name": "existing",
+      "measuredTrials": 30,
+      "updates": 3600,
+      "updateP95Milliseconds": 27.4426,
+      "commitP95Milliseconds": 15.8797,
+      "finalPixelsExactWithFirstRun": true
+    }
+  ]
+}

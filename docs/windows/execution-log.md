@@ -831,3 +831,12 @@ Windows两轮字体A/B、qwindows/真实IME仍未执行，Server原Emoji失败�
 CUA→UU桌面点击/键盘不响应，鼠标模式对照及重连未恢复；UU自带终端可执行命令，终端与Explorer同Session1。517文件独立包实际完成selection/composition/text/brush/s02-check/heic，全部exit0；ai-download在20.10秒连接超时/curl28/0字节，随后本地模型8调用exit0。结果ZIP SHA为1837f1cbc9c054d2bb380f347a66fc370b1367a4fa10403d735f2d9e7066bc73；CRC及原始图像、AI profile、HEIC raw独立复核通过。20合成和笔刷工程在Mac实际读回2passed/0failed/0skipped；首次0测试误筛选不计通过。
 
 S02真实窗口完成62笔；首轮UU终端遮挡部分画布，仅作诊断，随后也有文件传输。更新P95为27.0772/32.5546ms，commit P95为14.3882/13.6883ms，采样专用内存452321280字节，不放行性能。Qt391文件独立对照已启动，最终归档尚未取回。工具随后明确返回Mac锁屏且无法自动解锁，已请用户手动解锁，未尝试绕过。第二轮完整可见S02、修复版窗口原生输入/三页保存、Qt归档及远端hash仍待继续。详见windows11-remote-test-review.md和evidence/windows11-remote-suite；未推送、未覆盖旧包、未选生产框架。
+
+
+## 2026-09-21：解锁后 Qt 结果复核与无遮挡 S02
+
+Qt归档5a6f4b57fb1377d7b32d52b5b0b0b120648a1816e08572139227aaa8e58d76a4已取回，远端哈希及内外层CRC匹配；此前batch/S02归档远端哈希亦匹配。20合成像素对、三组各12文字×3类比较（108对）及qwindows两对文字预览导出均精确。默认offscreen缺字框，Windows Fonts目录及原生qwindows合成事件导出恢复彩色Emoji；保持真实IME未验收。Qt20工程和笔刷工程在Mac实际reader两项通过，0失败0跳过。
+
+退出UU会话的隐藏启动未形成新运行；独立正常进程首次因预建输出目录被拒绝，修正启动器目录后s02-visible-20260921-190545完成62笔。完整画布开始/后半程截图已留存，期间无远端其他测试/文件传输。独立复算空层/已有层更新P95=26.9577/27.4426ms，提交P95=15.5731/15.8797ms，采样private峰值410767360bytes，最终图与首轮精确；更新仍超过16.7ms，性能不通过。PowerShell退出码为空，不声称exit0；原始report completed=true/error=null/62trials。归档SHA176d5868fe5a228bef26ec804723dd0c16d481b8dc5692c85f320e3dc75c3597。
+
+最新修复版原生窗口已通过Start-Process正常启动并保持打开。CUA桌面点击出现noWindowsAvailable，重置/置前/鼠标模式对照后仍未产生页签切换；键盘Tab也无可见效果，菜单/终端/文件传输正常。等待用户手动物理点击对照；未将合成测试冒充原生拖选/拼音/生命周期验收。详见windows11-remote-test-review.md；完整Windows1.0仍未完成，无推送、无生产选型。
