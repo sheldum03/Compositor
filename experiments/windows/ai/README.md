@@ -106,3 +106,12 @@ xcodebuild -project Compositor.xcodeproj -scheme Compositor -configuration Debug
 The test explicitly skips without the environment variable. Mac product/native C code was unchanged; no full Mac suite was rerun. Evidence is under `docs/windows/evidence/ai-u2netp-*`, including the source/mask/cutout sheet. The sheet and source image derive from the credited public-domain NASA photograph.
 
 Remaining W-009/M6 work: Windows x64 runtime/deployment, exact weight acquisition/license decision, HEIC decode/distribution screening, diverse labeled quality corpus, BiRefNet/other candidates, active cancellation, Basic/Advanced postprocessing, existing-mask preservation, preview/commit/history integration, failure recovery and final resource/performance/package validation. W-009 and M1 remain unpassed.
+
+
+## Bounded model download wrapper
+
+[run-ai.ps1](run-ai.ps1) is the source of the private kit launcher; it requires the kit's `app`, `fixtures` and `files.json`, and is not a standalone repository command. The first real Windows Server attempt with the old wrapper exceeded the external 240-second task deadline while downloading 4,058,944 of 4,574,861 bytes. It reached no native call and produced no result archive. This does not establish an inference failure or a general PowerShell defect.
+
+The corrected default-download branch uses Windows system `curl.exe -q` with a 20-second connection deadline and 120-second total transfer deadline, without retries. It retains curl's exit code, elapsed time, byte count and download log; failures still produce a diagnostic ZIP and exit 1. The fixed model length/SHA checks and optional `-ModelPath` path are unchanged. Missing system curl is reported without installing anything.
+
+The implementation task independently rechecked the revised 7,718,022-byte kit (`1daadfffcb64eacd2bc2f5319d7612b297df0c22a9728e636a0bff695af26a8c`), its 27 manifest identities, and the exact three changed paths. Fresh Mac-adapted full-wrapper tests cover success (eight native calls), a two-second slow-server timeout (curl28, retained archive, no native call), and same-length wrong-hash rejection before native invocation. This is not Windows PowerShell 5.1 or Windows inference acceptance. The new kit has not been uploaded or executed on Windows. See [raw evidence and independent checks](../../../docs/windows/evidence/ai-download-timeout-fix/README.md).

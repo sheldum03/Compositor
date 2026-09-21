@@ -1,0 +1,44 @@
+{
+  "native": null,
+  "os": "Unix 26.5.1",
+  "failureChecks": [],
+  "error": "Model download failed: curl exit=28; inspect download.log",
+  "windowsExecuted": false,
+  "modelQualityAccepted": false,
+  "activeInferenceCancellationTested": false,
+  "runtimeFiles": [
+    {
+      "name": "MSVCP140.dll",
+      "found": false,
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/MSVCP140.dll"
+    },
+    {
+      "name": "MSVCP140_1.dll",
+      "found": false,
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/MSVCP140_1.dll"
+    },
+    {
+      "name": "VCRUNTIME140.dll",
+      "found": false,
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/VCRUNTIME140.dll"
+    },
+    {
+      "name": "VCRUNTIME140_1.dll",
+      "found": false,
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/VCRUNTIME140_1.dll"
+    }
+  ],
+  "weightsRedistributionApproved": false,
+  "completed": false,
+  "unicode": null,
+  "invocations": [],
+  "productAccepted": false,
+  "download": {
+    "receivedBytes": 1024,
+    "exitCode": 28,
+    "elapsedSeconds": 2.0920152,
+    "maximumSeconds": 2
+  },
+  "powershell": "7.6.0",
+  "preprocessing": "frozen Mac-derived tensor, no Windows image preprocessing/postprocessing in this runner"
+}

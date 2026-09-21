@@ -800,3 +800,10 @@ Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至r
 用户授权直接通过UU操作Windows11。本任务用CUA文件传输冻结窗口ZIP和单独校验启动cmd；远端ZIP SHA通过，只向新window-test解压后启动原脚本。实际nativeWindow=true，10.0.26200，RenderScaling1.5，首次文字导出零差异；回收760×520PNG独立完整RGBA比较精确。输出window-run-20260921-154725仍运行。
 
 发送a后出现拼音候选UI，但后续Esc/Backspace/点击无明显反应；Windows时钟和文件传输仍正常，先前PowerShell长命令也有字符丢失，未定位到UU或测试程序。已暂停远程输入，请用户本机Esc对照。保存evidence/avalonia-native-window-windows11-interim的截图、原始中间报告/PNG、独立复核和启动器；报告写入早于候选观察，不能把其0事件数字当作最终IME记录。未执行完整文字/笔刷/合成三页流程，不记为通过，未重启/结束现场。
+
+
+## 2026-09-21：AI wrapper 下载整体时限修复与独立负例
+
+父任务旧WindowsServer首轮TAT240秒下载超时，只有4058944/4574861字节part，后续诊断无剩余相关进程、无原生调用。为使失败在任务时限内归档，runner改用系统curl -q/连接20秒/总传输120秒，无重试；原模型身份、推理与-ModelPath不变。本任务核验7718022字节修正版ZIP SHA/CRC/27manifest，只有runner/README/manifest改变，零权重文件；将逐字节一致的runner源纳入experiments/windows/ai/run-ai.ps1。
+
+在新Mac适配副本独立完整复跑正常/慢下载/错hash三项：正常wrapper0、8原生调用；慢服务发1024字节后阻塞，2秒测试时限实际curl28/2.092秒，wrapper1/2.919秒，失败ZIP保留；错hash在原生前拒绝。证据evidence/ai-download-timeout-fix保留适配脚本、原始ZIP、summary/log和包身份。本任务未操作CUA/服务器，修正版Windows分支尚未执行；旧包用本地模型的Server后续命令已由父任务提交但尚未读回，不提前记成功。

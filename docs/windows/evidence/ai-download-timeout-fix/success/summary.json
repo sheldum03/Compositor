@@ -1,0 +1,168 @@
+{
+  "preprocessing": "frozen Mac-derived tensor, no Windows image preprocessing/postprocessing in this runner",
+  "weightsRedistributionApproved": false,
+  "native": {
+    "inference": {
+      "onnxruntime": "1.30.0",
+      "execution": "CPU default; one intra/inter-op thread; sequential",
+      "sessionLoadMilliseconds": 70.346458,
+      "inferenceMilliseconds": [
+        446.429416,
+        358.131667,
+        293.242
+      ],
+      "outputMinimum": 1.19209289551e-07,
+      "outputMaximum": 0.999999523163,
+      "repeatedPredictionsExact": true,
+      "preTerminatedRunRejected": true,
+      "sessionRecovered": true,
+      "activeInferenceCancellationTested": false
+    },
+    "maximum": 0.9999995,
+    "rawSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "providers": {
+      "CPUExecutionProvider": 1344
+    },
+    "minimum": 1.1920929e-07
+  },
+  "powershell": "7.6.0",
+  "download": {
+    "exitCode": 0,
+    "receivedBytes": 4574861,
+    "elapsedSeconds": 0.1326281,
+    "maximumSeconds": 120
+  },
+  "completed": true,
+  "os": "Unix 26.5.1",
+  "windowsExecuted": false,
+  "productAccepted": false,
+  "modelQualityAccepted": false,
+  "failureChecks": [
+    {
+      "case": "short-input",
+      "exitCode": 1,
+      "noMaskPublished": true
+    },
+    {
+      "case": "nan-input",
+      "exitCode": 1,
+      "noMaskPublished": true
+    },
+    {
+      "case": "missing-model",
+      "exitCode": 1,
+      "noMaskPublished": true
+    },
+    {
+      "case": "invalid-model",
+      "exitCode": 1,
+      "noMaskPublished": true
+    }
+  ],
+  "error": null,
+  "runtimeFiles": [
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/MSVCP140.dll",
+      "found": false,
+      "name": "MSVCP140.dll"
+    },
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/MSVCP140_1.dll",
+      "found": false,
+      "name": "MSVCP140_1.dll"
+    },
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/VCRUNTIME140.dll",
+      "found": false,
+      "name": "VCRUNTIME140.dll"
+    },
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/VCRUNTIME140_1.dll",
+      "found": false,
+      "name": "VCRUNTIME140_1.dll"
+    }
+  ],
+  "unicode": {
+    "inference": {
+      "onnxruntime": "1.30.0",
+      "execution": "CPU default; one intra/inter-op thread; sequential",
+      "sessionLoadMilliseconds": 40.013084,
+      "inferenceMilliseconds": [
+        223.776458,
+        326.758167,
+        178.115666
+      ],
+      "outputMinimum": 1.19209289551e-07,
+      "outputMaximum": 0.999999523163,
+      "repeatedPredictionsExact": true,
+      "preTerminatedRunRejected": true,
+      "sessionRecovered": true,
+      "activeInferenceCancellationTested": false
+    },
+    "maximum": 0.9999995,
+    "rawSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "providers": {
+      "CPUExecutionProvider": 1344
+    },
+    "minimum": 1.1920929e-07
+  },
+  "activeInferenceCancellationTested": false,
+  "invocations": [
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/u2netp.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/fixtures/input.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-0.log",
+      "exitCode": 0,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/路径 空格 🧪/模型 🧠.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/路径 空格 🧪/输入 张量.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-1.log",
+      "exitCode": 0,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/推理 结果 🚀"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/路径 空格 🧪/模型 🧠.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/路径 空格 🧪/输入 张量.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-2.log",
+      "exitCode": 1,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/推理 结果 🚀"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/u2netp.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/short.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-3.log",
+      "exitCode": 1,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/short-input"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/u2netp.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/nan.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-4.log",
+      "exitCode": 1,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/nan-input"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/missing.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/fixtures/input.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-5.log",
+      "exitCode": 1,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/missing-model"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/invalid.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/fixtures/input.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-6.log",
+      "exitCode": 1,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/invalid-model"
+    },
+    {
+      "model": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/inputs/u2netp.onnx",
+      "tensor": "/private/tmp/compositor-ai-download-integration-success/fixtures/input.f32",
+      "log": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native-7.log",
+      "exitCode": 1,
+      "destination": "/private/tmp/compositor-ai-download-integration-success/ai-run-20260921-163018-68e14b26/results/native"
+    }
+  ]
+}

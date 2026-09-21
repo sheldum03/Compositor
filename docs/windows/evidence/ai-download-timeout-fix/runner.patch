@@ -1,0 +1,42 @@
+--- a/run-ai.ps1
++++ b/run-ai.ps1
+@@ -7,7 +7,7 @@
+ $out = Join-Path $run 'results'; $inputs = Join-Path $run 'inputs'
+ New-Item -ItemType Directory -Path $out, $inputs | Out-Null
+ $exe = Join-Path $root 'app\ai_probe.exe'
+-$invocations = @(); $failures = @(); $runtimeFiles = @(); $errorText = $null; $passed = $false; $native = $null; $unicode = $null
++$invocations = @(); $failures = @(); $runtimeFiles = @(); $errorText = $null; $passed = $false; $native = $null; $unicode = $null; $download = $null
+ $modelHash = '309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8'
+ function Hash-File([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
+ function Invoke-Probe([string]$Model, [string]$Tensor, [string]$Destination) {
+@@ -59,8 +59,19 @@
+     }
+     if (-not $ModelPath) {
+         $ModelPath = Join-Path $inputs 'u2netp.onnx'; $part = $ModelPath + '.part'
+-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+-        Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx' -OutFile $part -TimeoutSec 120
++        $curl = Join-Path ([Environment]::SystemDirectory) 'curl.exe'
++        if (-not (Test-Path -LiteralPath $curl)) { throw 'Windows system curl.exe required for bounded model download; alternatively pass -ModelPath' }
++        $download = @{maximumSeconds=120; exitCode=$null; elapsedSeconds=$null; receivedBytes=0}
++        $clock = [Diagnostics.Stopwatch]::StartNew()
++        $oldPreference = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
++        try {
++            & $curl -q --fail --location --silent --show-error --connect-timeout 20 --max-time 120 --output $part 'https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx' > (Join-Path $out 'download.log') 2>&1
++            $download.exitCode = $LASTEXITCODE
++        } finally {
++            $ErrorActionPreference = $oldPreference; $clock.Stop(); $download.elapsedSeconds = $clock.Elapsed.TotalSeconds
++            if (Test-Path -LiteralPath $part) { $download.receivedBytes = (Get-Item -LiteralPath $part).Length }
++        }
++        if ($download.exitCode -ne 0) { throw ('Model download failed: curl exit=' + $download.exitCode + '; inspect download.log') }
+         if ((Get-Item -LiteralPath $part).Length -ne 4574861 -or (Hash-File $part) -ne $modelHash) { throw 'Downloaded model identity mismatch' }
+         Move-Item -LiteralPath $part -Destination $ModelPath
+     }
+@@ -96,7 +107,7 @@
+     if ((Hash-File $ModelPath) -ne $modelHash) { throw 'Model source changed' }
+     $passed = $true
+ } catch { $errorText = $_.ToString() }
+-$summary = @{completed=$passed; error=$errorText; windowsExecuted=([Environment]::OSVersion.Platform -eq 'Win32NT'); os=[Environment]::OSVersion.VersionString; powershell=$PSVersionTable.PSVersion.ToString(); native=$native; unicode=$unicode; failureChecks=$failures; invocations=$invocations; runtimeFiles=$runtimeFiles; productAccepted=$false; modelQualityAccepted=$false; weightsRedistributionApproved=$false; activeInferenceCancellationTested=$false; preprocessing='frozen Mac-derived tensor, no Windows image preprocessing/postprocessing in this runner'}
++$summary = @{completed=$passed; error=$errorText; windowsExecuted=([Environment]::OSVersion.Platform -eq 'Win32NT'); os=[Environment]::OSVersion.VersionString; powershell=$PSVersionTable.PSVersion.ToString(); native=$native; unicode=$unicode; failureChecks=$failures; invocations=$invocations; runtimeFiles=$runtimeFiles; download=$download; productAccepted=$false; modelQualityAccepted=$false; weightsRedistributionApproved=$false; activeInferenceCancellationTested=$false; preprocessing='frozen Mac-derived tensor, no Windows image preprocessing/postprocessing in this runner'}
+ $summary | ConvertTo-Json -Depth 12 | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $out 'summary.json')
+ Add-Type -AssemblyName System.IO.Compression.FileSystem
+ $archive = $run + '.zip'; [IO.Compression.ZipFile]::CreateFromDirectory($out, $archive)

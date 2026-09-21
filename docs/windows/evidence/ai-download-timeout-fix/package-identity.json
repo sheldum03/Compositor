@@ -1,0 +1,11 @@
+{
+  "bytes": 7718022,
+  "sha256": "1daadfffcb64eacd2bc2f5319d7612b297df0c22a9728e636a0bff695af26a8c",
+  "manifestFiles": 27,
+  "windowsExecuted": false,
+  "changedPayloadFiles": [
+    "README.md",
+    "run-ai.ps1"
+  ],
+  "onnxWeightFiles": 0
+}
