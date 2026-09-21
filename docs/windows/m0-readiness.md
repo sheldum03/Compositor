@@ -36,7 +36,7 @@ Windows 的 20 个合成工程及 1 个笔刷工程已由 Mac 实际读回通过
 ## 尚未满足的门槛
 
 - W-003：D-01/D-04/D-11 的产品决定已收到。父任务于 2026-09-21 转达用户对明确问题的回复“按建议实施”：Windows 11 x64、首版 v8 .comp 文件夹工程；原字体可用时缩放重绘，缺字体保留缓存原画面并提示选择，不静默替换。关闭这三项待决定状态；不等于字体行为测试通过，也不授权公开推送、签名或性能容差变更。
-- W-004：已有 Windows Server 2022 x64 轻量服务器环境检查，并新增用户操作的 Windows 11 Pro x64 实机（Build26200、i9-13900、64 GiB、4090D，驱动32.0.15.9186）。见 `evidence/windows-server-environment.json` 与 `evidence/native-probe-windows11.json`。干净虚拟机、集显参考设备及 S01–S05/实际 GPU 路径尚待验证，W-004 保持部分完成。
+- W-004：已有 Windows Server 2022 x64 轻量服务器环境检查，并新增用户操作的 Windows 11 Pro x64 实机（Build26200、i9-13900、64 GiB、4090D，驱动32.0.15.9186）。见 `evidence/windows-server-environment.json` 与 `evidence/native-probe-windows11.json`。Server节点另已完成官方便携.NET10.0.12的hash及实际执行核验，见 `evidence/windows-server-runtime.json`，不计产品测试通过。干净虚拟机、集显参考设备及 S01–S05/实际 GPU 路径尚待验证，W-004 保持部分完成。
 - W-005/006：用户已在上述 Windows 11 实机运行 LLVM-MinGW C++/ctypes 探针，通过8个C算法的既有合约、19个DLL导出和1,000次分配/释放检查；随后同一DLL的.NET10.0.12 C# P/Invoke也通过17个接口与1,000次分配/释放检查。原生与框架原始输出已收到并复核，见 `windows11-results-review.md`；独立 P/Invoke 原始结果文件未随包提供。MSVC/CMake、完整固定样本兼容性仍未完成。Windows CI 已准备，公开推送仍待确认。
 - W-007/008 可继续做受限且可逆的原型源码准备；只有实机四路径证据才能完成任务及供 W-009 选型。不能预选路线、进入大规模生产 UI 或把 Mac 原型当 Windows 验收。
 
