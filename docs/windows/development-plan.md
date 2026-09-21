@@ -19,13 +19,13 @@
 - [ ] M6：完成完整兼容、IO 与抠图，交付 Beta。
 - [ ] M7：完成安装更新与发布验收，交付 1.0。
 
-以上勾选仅指准备和审计。W-001/W-002 的本阶段产出已通过对应检查；P-01–19 和 V-01–12 的 Windows 验收仍按后续阶段执行。W-003/W-004 未满足，M0 保持未通过；创建文档不是完成产品研发。
+以上勾选仅指准备和审计。W-001/W-002 的本阶段产出已通过对应检查；P-01–19 和 V-01–12 的 Windows 验收仍按后续阶段执行。W-003 的 D-01/D-04/D-11 已确认，W-004 的干净机与正式环境验收仍不完整，M0 保持未通过；创建文档不是完成产品研发。
 
-可逆原型准备：`experiments/windows/avalonia` 已在 Mac 完成 F01–F07/B01–B13 的真实 Skia 控件/离屏一致性、最小重命名另存和 Mac reader 读回；含灰度蒙版、同父连续剪贴与 clipped desaturation。20 个样本中 8 个与 Mac 完全一致，其余最大通道差 1/255；尚未接受容差。此为 W-008 的部分源码与证据准备，Windows 四路径未运行、未选型，详见实验 README 与实施记录。
+可逆原型准备：`experiments/windows/avalonia` 已在 Mac 完成 F01–F07/B01–B13 的真实 Skia 控件/离屏一致性、最小重命名另存和 Mac reader 读回；含灰度蒙版、同父连续剪贴与 clipped desaturation。20 个样本中 8 个与 Mac 完全一致，其余最大通道差 1/255；尚未接受容差。Windows 11 的 20 个合成样本也已实际离屏运行并保存，预览/导出零差异；其中 17 个对 Mac 参考最大差 2/255，未接受容差。Mac 原生窗口已实际操作，Windows GUI/IME 路径尚未运行，未选型；详见实验 WINDOW.md 与实施记录。
 
-同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。242 次 headless 绘制及两笔的耗时/复制量有记录，不代表 S02 或 Windows 实机通过。详见 `experiments/windows/avalonia/BRUSH.md`。
+同目录的 4K CPU 笔刷原型已重放两笔固定事件流，完成局部瓦片提交、立即下一笔、undo/redo、预览/导出与 Mac 读回；与 Mac CPU 仍有最大 3–4/255 alpha 差异，未接受容差。Windows 11 已实际完成 242 次 headless 更新及 13 项会话检查，更新加预览 P95 为 27.5388/29.166 ms；不代表 S02 或原生窗口/性能验收通过。详见 `experiments/windows/avalonia/BRUSH.md`。
 
-文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。与 Mac 文字仍有显著差异，未运行真实 Windows 输入法、未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
+文字路径已有 12 个 F11 样本的共享 TextBox 布局与导出精确比较、2,631 个变换光标命中、合成预编辑/取消/提交/撤销验证；取消后像素精确恢复。Windows 原始输出发现中英文严重缺失；实际 14 变体诊断中显式灰度抗锯齿恢复字形，已修正，完整 12 样本的 Windows 修复复测仍待回传。Mac 原生窗口已记录预编辑事件和变换输入，但未运行真实 Windows 输入法、未改文字缓存或 D-11 策略，不能勾选 W-008/M1。详见 `experiments/windows/avalonia/TEXT.md`。
 
 Qt 对照已在 `experiments/windows/qt` 完成 20 个相同样本的 CPU 合成、真实 QWidget 绘制/离屏一致性和最小工程往返；QPainter 缺少的四个非分离混合模式以 CPU 方程补齐。Release/ASan/UBSan 和实际 Mac reader 读回通过；与 Mac 的 15 个非精确样本最大通道差 1/255，未接受容差。Qt 4K 软笔也已完成两笔局部提交、立即下一笔、undo/redo、导出与 Mac 读回准备；两张结果与 Avalonia premultiplied RGBA8 精确相同。第二笔共享 56 个未改瓦片，两个 commit 分别复制 92/106 个瓦片；尚非 S02 或资源验收。详见 `experiments/windows/qt/BRUSH.md`。Qt 文字现已完成 12 个 F11 样本的同一 QTextDocument 预览/导出、2,631 个变换命中、合成预编辑与取消恢复、6 个框宽重排和 48 次离屏视图光标查询；与 Mac 文字仍有显著差异。详见 `experiments/windows/qt/TEXT.md`。两方案的真实 Windows IME 与同机验证均未完成，W-007/W-008、M1 保持未通过。
 

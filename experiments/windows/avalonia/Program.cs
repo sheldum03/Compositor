@@ -9,14 +9,16 @@ using SkiaSharp;
 
 internal static class Program
 {
+    [STAThread]
     private static void Main(string[] args)
     {
+        bool window = args.Length == 4 && args[0] == "--window";
         bool brush = args.Length == 4 && args[0] == "--brush";
         bool diagnostics = args.Length == 4 && args[0] == "--text-diagnostics";
         bool verifyText = args.Length == 4 && args[0] == "--verify-text-output";
         bool text = args.Length == 4 && (args[0] == "--text" || diagnostics);
-        if (brush || text || verifyText) args = args[1..];
-        Check(args.Length == 3, "Usage: probe [--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
+        if (brush || text || verifyText || window) args = args[1..];
+        Check(args.Length == 3, "Usage: probe [--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
         string fixtures = Path.GetFullPath(args[0]), output = Path.GetFullPath(args[1]);
         string nativePath = Path.GetFullPath(args[2]);
         var library = NativeLibrary.Load(nativePath);
@@ -26,6 +28,7 @@ internal static class Program
         Check(!Path.Exists(output), "Output directory must not exist");
         if (!brush && !text) VerifyCorpus(fixtures);
         Directory.CreateDirectory(output);
+        if (window) { WindowProbe.Run(fixtures, output, nativePath); return; }
         AppBuilder.Configure<Application>().UseSkia()
             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
             .SetupWithoutStarting();

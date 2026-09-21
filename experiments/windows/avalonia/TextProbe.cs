@@ -17,7 +17,7 @@ using Avalonia.Platform;
 
 internal static class TextProbe
 {
-    private const string FontUri = "avares://Compositor.AvaloniaProbe/Fonts/SourceHanSansSC-Regular.otf";
+    internal const string FontUri = "avares://Compositor.AvaloniaProbe/Fonts/SourceHanSansSC-Regular.otf";
     public static void Run(string fixtures, string output, bool diagnostics = false)
     {
         Verify(fixtures);
@@ -122,7 +122,7 @@ internal static class TextProbe
         TextInkChecks.Verify(fixtures, output, saveReport: true);
     }
 
-    private static TextBox Editor(SpacedTextPresenter presenter, FontFamily family, string text,
+    internal static TextBox Editor(SpacedTextPresenter presenter, FontFamily family, string text,
         double size, double tracking, TextAlignment alignment, IBrush foreground)
     {
         var box = new TextBox
@@ -242,7 +242,7 @@ internal static class TextProbe
         control.Measure(new Size(control.Width, control.Height));
         control.Arrange(new Rect(0, 0, control.Width, control.Height));
     }
-    private static void Save(Control control, string path)
+    internal static void Save(Control control, string path)
     {
         // Transparent, transformed text needs grayscale coverage, not LCD subpixel masks.
         RenderOptions.SetTextRenderingMode(control, TextRenderingMode.Antialias);
@@ -264,7 +264,7 @@ internal static class TextProbe
     {
         if (!condition) throw new InvalidDataException(message);
     }
-    private sealed class LayoutControl(TextLayout layout) : Control
+    internal sealed class LayoutControl(TextLayout layout) : Control
     {
         public int DrawCalls { get; private set; }
         public override void Render(DrawingContext context)

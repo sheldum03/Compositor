@@ -726,3 +726,16 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 父任务在macOS/PowerShell7.6.0隔离目录实际运行冻结的run-text-fix.ps1，以加载真实Windows DLL故意使探针exit134：旧wrapper返回0；加入完整性/退出码守卫的副本对同一故障返回1，两轮zip、summary和text-run.log均保留。归档 evidence/wrapper-failure-propagation 含两份冻结脚本及其hash、日志和摘要。此证据属于父任务执行的副本，不宣称当前v2包在Windows已测；本任务当前脚本的6种实际尾部guard检查另见 text-grayscale-fix/wrapper-exit-checks.json。
 
 不要求用户为第一版wrapper单独重跑；其完整产物仍按native ExitCode、样本完整性、墨量断言及图片核验。Windows PowerShell5.1和完整修复后文字样本仍待实际回传，既定产品决定持续有效，M0–M7范围不变。
+
+
+## 2026-09-21：Avalonia 真实窗口和 Mac 手动操作证据
+
+新增 --window 原生桌面入口，固定 Desktop/SimpleTheme11.3.22；三页覆盖变换 TextBox 输入与导出、4K 真实鼠标笔刷、F04 合成和工程另存重开。Windows明确请求Software/RedirectionSurface，Mac为Avalonia.Native Software；不提前选型、不实现生产界面或D-11缺字体工作流。输入/保存与绘制共用锁，关闭释放受保护；SKImage持有像素副本。实际Mac事件UI线程1、brush/composition绘制线程4。
+
+通过CUA实际操作Mac窗口，第一轮6组文字预览/导出精确、粘贴/撤销/重做和变换点击输入可见；2笔鼠标绘制、撤销/重做后保存及F04另存重开通过。初版原生笔刷可见方形背景擦除，独立真实WindowBrushView回归捕获不透明背景的32041个半透明像素，exit1；仅在原生绘制回调加SaveLayer后为0、exit0，真实窗口方块消失。原TiledRaster/算法未改。最终带滚动容器构建再实际检查三页并正常退出0；三轮共14对导出/重开PNG逐字节相等，原笔刷redo恢复及文字取消前后PNG相等。Mac原生预编辑事件不等于微软拼音验收。证据evidence/avalonia-native-window-macos，完整窗口产物在本任务artifact目录。
+
+最终程序集6214da989f8d527d11a2bc78cce70c8ddc6b939d70e067bc5b73e094cd811bec。原20合成、12文字墨量及13笔刷会话检查全通过；并行运行只作正确性检查，不比较时序。新的窗口背景回归保留在experiments/windows/window-regression。
+
+完整私有CompositorWindowTest.zip已准备，46859313bytes，SHA25663d489a89a1899a59cf238ae8bb6f90cd4f492c6d4023f30846ccb379137b163；402个清单文件身份及CRC逐项通过，包含完整新依赖、win-x64资产、固定样本、自有源码/字体及依赖许可；复用用户既有便携.NET和验证过的native DLL，不覆盖旧app。Windows原生资产PE机型均AMD64。PowerShell7.6语法通过，精确打包wrapper在Mac加载Windows DLL故意失败时native134、wrapper1，日志/ZIP均保留；Windows PowerShell5.1及GUI仍待实际运行。
+
+先等待用户完整12样本文字修复ZIP，再安排Windows原生窗口/微软拼音测试，避免并行要求操作。开发计划已纠正Windows headless已执行和W-003决定已确认的过时段落；M0/M1及完整M0–M7范围不变。未公开推送。

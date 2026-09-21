@@ -1,0 +1,136 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "windowsExecuted": false,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3",
+  "nativePreeditChanges": 0,
+  "textInputEvents": 0,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1,
+  "events": [
+    {
+      "utc": "2026-09-21T06:32:20.046989Z",
+      "name": "text-transform",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:20.215261Z",
+      "name": "native-window-opened",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "platform": "Unix 26.5.1",
+        "scaling": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:20.246311Z",
+      "name": "text-focus",
+      "thread": 1,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T06:32:36.744671Z",
+      "name": "text-focus",
+      "thread": 1,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T06:32:36.747005Z",
+      "name": "brush-cancel",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T06:32:36.747006Z",
+      "name": "tab-selection",
+      "thread": 1,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-21T06:32:36.758469Z",
+      "name": "brush-render-thread",
+      "thread": 4,
+      "onUiThread": false,
+      "data": 4
+    },
+    {
+      "utc": "2026-09-21T06:32:43.011968Z",
+      "name": "brush-pointer-update",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "x": 139.11459350585938,
+        "y": 174.59375,
+        "milliseconds": 18.7795
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:43.149533Z",
+      "name": "brush-pointer-update",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "x": 506.06768798828125,
+        "y": 374.75,
+        "milliseconds": 136.2126
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:43.152476Z",
+      "name": "brush-pointer-update",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "x": 506.06768798828125,
+        "y": 374.75,
+        "milliseconds": 0.0033
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:43.297771Z",
+      "name": "brush-commit",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "milliseconds": 145.256,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:45.200377Z",
+      "name": "brush-save-reopen",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "passed": true,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T06:32:56.559288Z",
+      "name": "brush-cancel",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T06:32:56.559339Z",
+      "name": "native-window-closed",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    }
+  ]
+}

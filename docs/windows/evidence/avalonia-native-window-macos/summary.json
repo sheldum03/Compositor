@@ -1,0 +1,171 @@
+{
+  "scope": "Mac real native window and headless regression; Windows GUI/IME/DPI not executed",
+  "runs": [
+    {
+      "run": "02",
+      "exitCode": 0,
+      "eventCounts": {
+        "text-transform": 5,
+        "native-window-opened": 1,
+        "text-focus": 8,
+        "text-preview-export": 6,
+        "brush-cancel": 8,
+        "tab-selection": 5,
+        "brush-render-thread": 1,
+        "brush-pointer-update": 6,
+        "brush-commit": 2,
+        "brush-save-reopen": 3,
+        "brush-undo": 1,
+        "brush-redo": 1,
+        "composition-render-thread": 1,
+        "composition-save-reopen": 1,
+        "native-preedit-change": 5,
+        "text-input": 1,
+        "native-window-closed": 1
+      },
+      "imagePairs": [
+        {
+          "path": "001-text",
+          "byteIdentical": true,
+          "sha256": "d5d5b7b36be6f7724097021dbaee8345dc404e9e0d2be99c6de6b22df31fe9e7"
+        },
+        {
+          "path": "002-text",
+          "byteIdentical": true,
+          "sha256": "2ebab542a97c8d2b23227dbc0835b9f99349c93c3983efc68216cf540207369f"
+        },
+        {
+          "path": "003-text",
+          "byteIdentical": true,
+          "sha256": "8b049f6dc21e258a89c40ce2856ea34cd076e14e9aea27aa8941efb52d3ad9d9"
+        },
+        {
+          "path": "004-text",
+          "byteIdentical": true,
+          "sha256": "edb6f6611726f513b50cc183205cab40d1f97e1e57aa7c7c430aabd7bbe4a2c5"
+        },
+        {
+          "path": "005-brush",
+          "byteIdentical": true,
+          "sha256": "20481a85814882f34d18bd5d0b013e604bfab95f52f118f3bc84dc860408ad1c"
+        },
+        {
+          "path": "006-brush",
+          "byteIdentical": true,
+          "sha256": "b30c8acadf2eb5df1f3c62ae524128fbe08a41085bb40033499d10c9fc4aa584"
+        },
+        {
+          "path": "007-brush",
+          "byteIdentical": true,
+          "sha256": "20481a85814882f34d18bd5d0b013e604bfab95f52f118f3bc84dc860408ad1c"
+        },
+        {
+          "path": "008-composition",
+          "byteIdentical": true,
+          "sha256": "ff25980de28489008736bc3159777628a58996b86368c3156d50fe95460237c3"
+        },
+        {
+          "path": "009-text",
+          "byteIdentical": true,
+          "sha256": "a789dc573647ff3200b28e34589f453ebb47508b49fab48caf6a77a736953b14"
+        },
+        {
+          "path": "010-text",
+          "byteIdentical": true,
+          "sha256": "a789dc573647ff3200b28e34589f453ebb47508b49fab48caf6a77a736953b14"
+        }
+      ]
+    },
+    {
+      "run": "03",
+      "exitCode": 0,
+      "eventCounts": {
+        "text-transform": 1,
+        "native-window-opened": 1,
+        "text-focus": 2,
+        "brush-cancel": 2,
+        "tab-selection": 1,
+        "brush-render-thread": 1,
+        "brush-pointer-update": 3,
+        "brush-commit": 1,
+        "brush-save-reopen": 1,
+        "native-window-closed": 1
+      },
+      "imagePairs": [
+        {
+          "path": "001-brush",
+          "byteIdentical": true,
+          "sha256": "39e61b230e41a2303713d9921616c255cd5669c9514e98966fc5df0c5f315303"
+        }
+      ]
+    },
+    {
+      "run": "04",
+      "exitCode": 0,
+      "eventCounts": {
+        "text-transform": 1,
+        "native-window-opened": 1,
+        "text-focus": 4,
+        "text-preview-export": 1,
+        "brush-cancel": 3,
+        "tab-selection": 2,
+        "brush-render-thread": 1,
+        "brush-pointer-update": 3,
+        "brush-commit": 1,
+        "brush-save-reopen": 1,
+        "composition-render-thread": 1,
+        "composition-save-reopen": 1,
+        "native-window-closed": 1
+      },
+      "imagePairs": [
+        {
+          "path": "001-text",
+          "byteIdentical": true,
+          "sha256": "d5d5b7b36be6f7724097021dbaee8345dc404e9e0d2be99c6de6b22df31fe9e7"
+        },
+        {
+          "path": "002-brush",
+          "byteIdentical": true,
+          "sha256": "67bc7058fd4af6d0afffcfaa01f62fbb9da78366de6c1e3e88233f9d8c4ba496"
+        },
+        {
+          "path": "003-composition",
+          "byteIdentical": true,
+          "sha256": "ff25980de28489008736bc3159777628a58996b86368c3156d50fe95460237c3"
+        }
+      ]
+    }
+  ],
+  "brushUndoChangesPixels": true,
+  "brushRedoRestoresExactBytes": true,
+  "textCancelExportBytesUnchanged": true,
+  "backgroundRegression": {
+    "beforeExitCode": 1,
+    "beforeNonOpaquePixels": 32041,
+    "afterExitCode": 0,
+    "afterNonOpaquePixels": 0
+  },
+  "headlessRegression": {
+    "composite": {
+      "exitCode": 0,
+      "samples": 20
+    },
+    "text": {
+      "exitCode": 0,
+      "samples": 12
+    },
+    "brush": {
+      "exitCode": 0,
+      "sessionChecks": 13
+    }
+  },
+  "final04AssemblySha256": "6214da989f8d527d11a2bc78cce70c8ddc6b939d70e067bc5b73e094cd811bec",
+  "fullArtifacts": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-native-window-macos",
+  "limitations": [
+    "Mac native preedit observations are not Microsoft Pinyin acceptance",
+    "CUA drag generated sparse events; timings are not latency or S02 results",
+    "Initial run 02 predates SaveLayer correction; 03 verifies corrected brush; 04 includes final scroll layout",
+    "Paste API reported clipboard timeout but actual field replacement and undo/redo were observed; no automatic retry",
+    "Text .comp transactions and D-11 missing-font workflow not implemented"
+  ]
+}

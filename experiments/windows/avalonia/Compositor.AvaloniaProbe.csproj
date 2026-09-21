@@ -14,5 +14,7 @@
     <Compile Include="../dotnet-bridge/Native.cs" Link="Native.cs" />
     <PackageReference Include="Avalonia.Headless" Version="11.3.22" />
     <PackageReference Include="Avalonia.Skia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.22" />
   </ItemGroup>
 </Project>

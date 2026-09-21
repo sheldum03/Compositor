@@ -182,7 +182,7 @@ internal static class BrushProbe
         using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Png, 100);
         return Convert.ToHexString(SHA256.HashData(data.ToArray()));
     }
-    private static string WriteProject(string fixtures, string output, int width, int height)
+    internal static string WriteProject(string fixtures, string output, int width, int height)
     {
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixtures, "soft-crossing-4k-cpu.comp/manifest.json")))!;
         var layer = manifest["layers"]![0]!;

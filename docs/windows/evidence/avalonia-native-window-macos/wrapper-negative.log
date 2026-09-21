@@ -1,0 +1,15 @@
+Test the three tabs, then close the window to collect results.
+
+ExitCode             : 134
+WindowsExecuted      : 
+NativeWindow         : 
+NativePreeditChanges : 
+TextInputEvents      : 
+TextExports          : 0
+BrushSaves           : 0
+CompositionSaves     : 0
+ActionErrors         : 0
+Scope                : Native window observations; IME candidate placement, foc
+                       us, DPI and visual acceptance require manual review
+
+Send this archive: /tmp/compositor-window-wrapper-negative/window-run-20260921-144055.zip

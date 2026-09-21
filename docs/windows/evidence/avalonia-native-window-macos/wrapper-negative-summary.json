@@ -1,0 +1,12 @@
+{
+  "ExitCode": 134,
+  "WindowsExecuted": null,
+  "NativeWindow": null,
+  "NativePreeditChanges": null,
+  "TextInputEvents": null,
+  "TextExports": 0,
+  "BrushSaves": 0,
+  "CompositionSaves": 0,
+  "ActionErrors": 0,
+  "Scope": "Native window observations; IME candidate placement, focus, DPI and visual acceptance require manual review"
+}

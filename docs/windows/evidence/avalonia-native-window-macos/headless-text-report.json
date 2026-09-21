@@ -1,0 +1,580 @@
+{
+  "status": "local preparation only; synthetic input is not Windows IME acceptance",
+  "platform": "macOS 26.5.1",
+  "architecture": "Arm64",
+  "runtime": ".NET 10.0.12",
+  "avalonia": "11.3.22.0",
+  "windowsExecuted": false,
+  "nativeImeExecuted": false,
+  "font": "Source Han Sans SC",
+  "fontSha256": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+  "corpusHashesVerified": 47,
+  "spacingChecks": "positive/negative additive spacing, tracking and layout invalidation passed",
+  "placement": "rerasterized layout fitted to each existing fixture rectangle; no cache or scale-policy change",
+  "results": [
+    {
+      "fixture": "F11-300-box-center",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 360,
+      "naturalHeight": 849.5375,
+      "lines": 7,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9875961920456718,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 357,
+        "maximumInverseError": 8.544921865905053E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 139.89583333333331,
+          "Y": 121.1,
+          "Width": 0,
+          "Height": 121.1
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 52047,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 3.291677818419722,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 41962
+      }
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 360,
+      "naturalHeight": 849.5375,
+      "lines": 7,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9875961920456718,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 357,
+        "maximumInverseError": 8.544921865905053E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 0,
+          "Y": 121.1,
+          "Width": 0,
+          "Height": 121.1
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 50975,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 3.0068126059416542,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 40354
+      }
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 360,
+      "naturalHeight": 849.5375,
+      "lines": 7,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9875961920456718,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 357,
+        "maximumInverseError": 8.544921865905053E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 257.7833333333333,
+          "Y": 121.1,
+          "Width": 0,
+          "Height": 121.1
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 61446,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 5.216874460998603,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 55501
+      }
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 1193,
+      "naturalHeight": 244.0375,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9932942162615256,
+      "scaleY": 0.9506735645136506,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 336,
+        "maximumInverseError": 2.984279490192421E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 496.70833333333337,
+          "Y": 0,
+          "Width": 0,
+          "Height": 122.9375
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 59775,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 4.027210305230432,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 54579
+      }
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 1193,
+      "naturalHeight": 244.0375,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9932942162615256,
+      "scaleY": 0.9506735645136506,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 336,
+        "maximumInverseError": 2.984279490192421E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 320.8333333333333,
+          "Y": 0,
+          "Width": 0,
+          "Height": 122.9375
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 52982,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.8902453866305406,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 44806
+      }
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 1193,
+      "naturalHeight": 244.0375,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9932942162615256,
+      "scaleY": 0.9506735645136506,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 336,
+        "maximumInverseError": 2.984279490192421E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 565.1583333333333,
+          "Y": 0,
+          "Width": 0,
+          "Height": 122.9375
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 60056,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 4.2090344101857395,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 54580
+      }
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 360,
+      "naturalHeight": 58.569,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9732110843620345,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 102,
+        "maximumInverseError": 3.9062499993747224E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 156.05,
+          "Y": 0,
+          "Width": 0,
+          "Height": 29.505
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 5336,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.6724181593079719,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 5175
+      }
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 360,
+      "naturalHeight": 58.569,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9732110843620345,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 102,
+        "maximumInverseError": 3.9062499993747224E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 77,
+          "Y": 0,
+          "Width": 0,
+          "Height": 29.505
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4928,
+        "MaximumChannelError": 133,
+        "MeanAbsoluteChannelError": 1.2003790558574783,
+        "MaximumAlphaError": 133,
+        "PixelsWithErrorAbove1": 4689
+      }
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 360,
+      "naturalHeight": 58.569,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9732110843620345,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 102,
+        "maximumInverseError": 3.9062499993747224E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 209.318,
+          "Y": 0,
+          "Width": 0,
+          "Height": 29.505
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 5169,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.5670000321574429,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4981
+      }
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 287,
+      "naturalHeight": 58.569,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9930313588850174,
+      "scaleY": 0.9732110843620345,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 82,
+        "maximumInverseError": 5.684341886080802E-14,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 119.55000000000001,
+          "Y": 0,
+          "Width": 0,
+          "Height": 29.505
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 5243,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.0185776561232767,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 5063
+      }
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 287,
+      "naturalHeight": 58.569,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9930313588850174,
+      "scaleY": 0.9732110843620345,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 82,
+        "maximumInverseError": 5.684341886080802E-14,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 77,
+          "Y": 0,
+          "Width": 0,
+          "Height": 29.505
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4760,
+        "MaximumChannelError": 133,
+        "MeanAbsoluteChannelError": 1.3772252635847526,
+        "MaximumAlphaError": 133,
+        "PixelsWithErrorAbove1": 4520
+      }
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 287,
+      "naturalHeight": 58.569,
+      "lines": 2,
+      "resolvedFonts": [
+        "Apple Color Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9930313588850174,
+      "scaleY": 0.9732110843620345,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 82,
+        "maximumInverseError": 5.684341886080802E-14,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 136.318,
+          "Y": 0,
+          "Width": 0,
+          "Height": 29.505
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 5232,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.045448094079481,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 5048
+      }
+    }
+  ]
+}

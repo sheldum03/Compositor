@@ -1,0 +1,191 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "windowsExecuted": false,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3",
+  "nativePreeditChanges": 0,
+  "textInputEvents": 0,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1,
+  "events": [
+    {
+      "utc": "2026-09-21T06:35:32.11449Z",
+      "name": "text-transform",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T06:35:32.399511Z",
+      "name": "native-window-opened",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "platform": "Unix 26.5.1",
+        "scaling": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T06:35:32.432734Z",
+      "name": "text-focus",
+      "thread": 1,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T06:35:33.744824Z",
+      "name": "text-focus",
+      "thread": 1,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T06:35:57.858392Z",
+      "name": "text-preview-export",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T06:35:57.921557Z",
+      "name": "text-focus",
+      "thread": 1,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T06:35:58.027539Z",
+      "name": "text-focus",
+      "thread": 1,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T06:35:58.031658Z",
+      "name": "brush-cancel",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T06:35:58.031659Z",
+      "name": "tab-selection",
+      "thread": 1,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-21T06:35:58.072794Z",
+      "name": "brush-render-thread",
+      "thread": 4,
+      "onUiThread": false,
+      "data": 4
+    },
+    {
+      "utc": "2026-09-21T06:36:04.418454Z",
+      "name": "brush-pointer-update",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "x": 148.11459350585938,
+        "y": 174.59375,
+        "milliseconds": 18.1061
+      }
+    },
+    {
+      "utc": "2026-09-21T06:36:04.570478Z",
+      "name": "brush-pointer-update",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "x": 515.0676879882812,
+        "y": 442.75,
+        "milliseconds": 150.0849
+      }
+    },
+    {
+      "utc": "2026-09-21T06:36:04.574835Z",
+      "name": "brush-pointer-update",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "x": 515.0676879882812,
+        "y": 442.75,
+        "milliseconds": 0.0069
+      }
+    },
+    {
+      "utc": "2026-09-21T06:36:04.747089Z",
+      "name": "brush-commit",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "milliseconds": 172.1788,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T06:36:06.557425Z",
+      "name": "brush-save-reopen",
+      "thread": 1,
+      "onUiThread": true,
+      "data": {
+        "passed": true,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T06:36:06.615981Z",
+      "name": "brush-cancel",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T06:36:06.615984Z",
+      "name": "tab-selection",
+      "thread": 1,
+      "onUiThread": true,
+      "data": 2
+    },
+    {
+      "utc": "2026-09-21T06:36:06.629289Z",
+      "name": "composition-render-thread",
+      "thread": 4,
+      "onUiThread": false,
+      "data": 4
+    },
+    {
+      "utc": "2026-09-21T06:36:19.390065Z",
+      "name": "composition-save-reopen",
+      "thread": 1,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T06:36:27.018109Z",
+      "name": "brush-cancel",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T06:36:27.018151Z",
+      "name": "native-window-closed",
+      "thread": 1,
+      "onUiThread": true,
+      "data": null
+    }
+  ]
+}

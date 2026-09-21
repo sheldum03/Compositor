@@ -1,0 +1,28 @@
+using System.Reflection;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using SkiaSharp;
+
+AppBuilder.Configure<Application>().UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
+var assembly = Assembly.Load("Compositor.AvaloniaProbe");
+var type = assembly.GetType("WindowBrushView")!;
+var view = (Control)Activator.CreateInstance(type, new Action<string, object>((_, _) => { }))!;
+type.GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(view, null);
+var session = type.GetField("session", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
+var settings = type.GetField("settings", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
+var stroke = session.GetType().GetMethod("Begin")!.Invoke(session, [settings])!;
+var point = Activator.CreateInstance(assembly.GetType("BrushPoint")!, 2000d, 2000d);
+stroke.GetType().GetMethod("Append")!.Invoke(stroke, [point]);
+session.GetType().GetMethod("Commit")!.Invoke(session, null);
+var root = new Border { Width = 700, Height = 700, Background = Brushes.WhiteSmoke, Child = view };
+root.Measure(new Size(700, 700)); root.Arrange(new Rect(0, 0, 700, 700));
+using var target = new RenderTargetBitmap(new PixelSize(700, 700), new Vector(96, 96));
+target.Render(root); target.Save(args[0]);
+using var pixels = SKBitmap.Decode(args[0]);
+int transparent = pixels.Pixels.Count(p => p.Alpha != 255);
+Console.WriteLine($"Non-opaque pixels over opaque window background: {transparent}");
+if (transparent != 0) return 1;
+return 0;
