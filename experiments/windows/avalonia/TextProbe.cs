@@ -133,10 +133,13 @@ internal static class TextProbe
             Template = new FuncControlTemplate<TextBox>((owner, scope) =>
             {
                 scope.Register("PART_TextPresenter", presenter);
+                presenter.Background = Brushes.Transparent;
                 presenter.Bind(TextPresenter.TextProperty, new Binding(nameof(TextBox.Text)) { Source = owner, Mode = BindingMode.TwoWay });
                 presenter.Bind(TextPresenter.CaretIndexProperty, new Binding(nameof(TextBox.CaretIndex)) { Source = owner });
                 presenter.Bind(TextPresenter.SelectionStartProperty, new Binding(nameof(TextBox.SelectionStart)) { Source = owner });
                 presenter.Bind(TextPresenter.SelectionEndProperty, new Binding(nameof(TextBox.SelectionEnd)) { Source = owner });
+                presenter.Bind(TextPresenter.SelectionBrushProperty, new Binding(nameof(TextBox.SelectionBrush)) { Source = owner });
+                presenter.Bind(TextPresenter.SelectionForegroundBrushProperty, new Binding(nameof(TextBox.SelectionForegroundBrush)) { Source = owner });
                 presenter.Bind(TextPresenter.TextAlignmentProperty, new Binding(nameof(TextBox.TextAlignment)) { Source = owner });
                 presenter.Bind(TextPresenter.LetterSpacingProperty, new Binding(nameof(TextBox.LetterSpacing)) { Source = owner });
                 return presenter;
