@@ -1,0 +1,60 @@
+{
+  "scope": "Actual native window and human-assisted selection evidence; not complete native IME/drag acceptance",
+  "archiveSha256": "fafdbc1704168c1b52215fd45c07063bff432d14eec855fccf8b4dd1064c0cc8",
+  "nativePreeditChanges": 33,
+  "textInputEvents": 5,
+  "injectedInputMethodCalls": 0,
+  "openedScaling": 1.5,
+  "reportScalingAfterClose": 1,
+  "scalingNote": "Read live scale from opened event; top-level report was written after close and returned default 1. No observed display-scale change.",
+  "events": {
+    "text-transform": 5,
+    "native-window-opened": 1,
+    "text-focus": 12,
+    "brush-cancel": 7,
+    "tab-selection": 4,
+    "brush-render-thread": 1,
+    "native-preedit-change": 33,
+    "text-preview-export": 2,
+    "text-input": 5,
+    "brush-pointer-update": 4,
+    "brush-commit": 2,
+    "brush-save-reopen": 2,
+    "brush-undo": 1,
+    "brush-redo": 1,
+    "composition-render-thread": 1,
+    "composition-save-reopen": 1,
+    "native-window-closed": 1
+  },
+  "decodedPairs": [
+    {
+      "save": "001-text",
+      "rgbaExact": true
+    },
+    {
+      "save": "002-text",
+      "rgbaExact": true
+    },
+    {
+      "save": "003-brush",
+      "rgbaExact": true
+    },
+    {
+      "save": "004-brush",
+      "rgbaExact": true
+    },
+    {
+      "save": "005-composition",
+      "rgbaExact": true
+    }
+  ],
+  "manualSelection": "User physically highlighted final 测试 in 中文1测试 at 150%, angle 0, not flipped. Screenshot confirmed two-character range. Pressing 1 yielded 中文11.",
+  "limitations": [
+    "CUA drag yielded no text selection; brush raw events contain only duplicate start points, not a continuous trajectory.",
+    "Keyboard delivery became intermittent; even Escape did not dismiss context menu, so subsequent Ctrl+Z nonresponse is not established as an editor bug.",
+    "Real Microsoft Pinyin candidate and commits observed. No-selection Escape restored displayed original. Select-all preedit then Escape removed original, and earlier Ctrl+Z restored it; needs isolated reproduction with text-state evidence.",
+    "Flipped manual drag, focus recovery, continuous brush/cancel, Qt native IME, remaining device matrix and full product acceptance pending."
+  ],
+  "closedNormally": true,
+  "stderrEmpty": true
+}

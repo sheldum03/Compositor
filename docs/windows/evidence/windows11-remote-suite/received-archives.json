@@ -30,5 +30,13 @@
     "crcVerified": true,
     "remoteHashReadbackPending": false,
     "remoteHashMatches": true
+  },
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/window-visible-20260921-191109.zip",
+    "bytes": 809276,
+    "sha256": "fafdbc1704168c1b52215fd45c07063bff432d14eec855fccf8b4dd1064c0cc8",
+    "crcVerified": true,
+    "remoteHashReadbackPending": false,
+    "remoteHashMatches": true
   }
 ]

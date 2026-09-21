@@ -840,3 +840,10 @@ Qt归档5a6f4b57fb1377d7b32d52b5b0b0b120648a1816e08572139227aaa8e58d76a4已取�
 退出UU会话的隐藏启动未形成新运行；独立正常进程首次因预建输出目录被拒绝，修正启动器目录后s02-visible-20260921-190545完成62笔。完整画布开始/后半程截图已留存，期间无远端其他测试/文件传输。独立复算空层/已有层更新P95=26.9577/27.4426ms，提交P95=15.5731/15.8797ms，采样private峰值410767360bytes，最终图与首轮精确；更新仍超过16.7ms，性能不通过。PowerShell退出码为空，不声称exit0；原始report completed=true/error=null/62trials。归档SHA176d5868fe5a228bef26ec804723dd0c16d481b8dc5692c85f320e3dc75c3597。
 
 最新修复版原生窗口已通过Start-Process正常启动并保持打开。CUA桌面点击出现noWindowsAvailable，重置/置前/鼠标模式对照后仍未产生页签切换；键盘Tab也无可见效果，菜单/终端/文件传输正常。等待用户手动物理点击对照；未将合成测试冒充原生拖选/拼音/生命周期验收。详见windows11-remote-test-review.md；完整Windows1.0仍未完成，无推送、无生产选型。
+
+
+## 2026-09-21：原生窗口人工拖选及三页保存
+
+用户手动页签确认后，CUA部分点击/键盘恢复；真实微软拼音候选/提交观察到，普通光标Esc恢复；全选后拼音取消显示清空、早先CtrlZ恢复，保留为需独立复现边界。用户手动在150%未翻转/0°高亮「中文1测试」末尾两字，截图及随后「中文11」确认精确替换。后续按键再次连Esc都无响应，不把CtrlZ无效归为已证实编辑器bug。
+
+当前归档window-visible-20260921-191109.zip，809276bytes，SHA fafdbc1704168c1b52215fd45c07063bff432d14eec855fccf8b4dd1064c0cc8，21项CRC通过。原生33预编辑/5输入/injected0；两笔点绘、按钮undo/redo、两次brush-save、一份composition-save以及两份text-export，5对解码RGBA精确，正常close且stderr空。CUA拖动仅形成重复起点，不能称为连续笔划通过；翻转手工回归仍待。详见native-window证据及主报告。未改产品代码/未推送。
