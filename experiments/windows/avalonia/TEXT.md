@@ -58,6 +58,10 @@ python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures/exte
 
 ### Captured-loss regression and live Windows diagnostic
 
+The user returned the live Windows diagnostic on 2026-09-21. With the same embedded font, text and transform, default TextBlock rendering has alpha mass 29; explicit `TextRenderingMode.Antialias` restores complete Chinese/Latin glyphs (920.475). Alias also restores coverage; direct Skia antialias, hinting/subpixel variants and glyph outlines render normally. This isolates a failing default antialiasing path, without establishing a driver defect or requiring font replacement. See [Windows observations and fix identity](../../../docs/windows/evidence/text-grayscale-fix/summary.json).
+
+The text `Save` helper now sets explicit grayscale antialiasing on each shared preview/export/input rendering root. No layout, font, transform, opacity or typography tolerance changed. All 12 Mac ink checks pass and all 60 PNGs are byte-identical to the previous Mac output. The complete fixed Windows F11 run is still awaiting verification; the simple diagnostic restoration alone does not close text/IME acceptance. `CompositorTextFix.zip` and its launcher collect the complete run into a new archive without overwriting prior evidence.
+
 `--text` now checks ordinary blue foreground ink against each fixed F11 reference, excluding the warm-colored emoji. Retaining less than half the reference ink fails the run after images, the original report and `ordinary-ink.json` have been saved. This is a catastrophic-loss guard, not a pixel tolerance or complete glyph correctness test. It does not detect every smaller glyph loss or wrong shape and cannot establish cross-platform typography acceptance on its own.
 
 `--verify-text-output <extended-fixtures> <existing-output> <native-library>` applies the same guard read-only to saved outputs. It rejects all 12 uploaded Windows images; the full live Mac run passes all 12. The single F11-72-point-right case has ink ratio 0.251 on the captured Windows output and 0.877 on Mac Avalonia. See [regression evidence](../../../docs/windows/evidence/text-ink-diagnostic/summary.json).

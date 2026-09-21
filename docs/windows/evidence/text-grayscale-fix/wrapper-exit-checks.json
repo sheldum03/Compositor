@@ -1,0 +1,41 @@
+{
+  "scope": "Actual final exit guards executed in PowerShell7.6 on macOS; not full Windows wrapper execution",
+  "cases": [
+    {
+      "script": "run-brush-ab.ps1",
+      "case": 0,
+      "expectedExit": 0,
+      "actualExit": 0
+    },
+    {
+      "script": "run-brush-ab.ps1",
+      "case": 1,
+      "expectedExit": 1,
+      "actualExit": 1
+    },
+    {
+      "script": "run-text-fix.ps1",
+      "case": 0,
+      "expectedExit": 0,
+      "actualExit": 0
+    },
+    {
+      "script": "run-text-fix.ps1",
+      "case": 1,
+      "expectedExit": 1,
+      "actualExit": 1
+    },
+    {
+      "script": "run-text-fix.ps1",
+      "case": 2,
+      "expectedExit": 1,
+      "actualExit": 1
+    },
+    {
+      "script": "run-text-fix.ps1",
+      "case": 3,
+      "expectedExit": 1,
+      "actualExit": 1
+    }
+  ]
+}

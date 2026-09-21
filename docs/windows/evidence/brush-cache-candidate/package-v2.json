@@ -1,0 +1,27 @@
+{
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-test-kit/CompositorBrushAB-v2.zip",
+  "bytes": 13814853,
+  "sha256": "3eb64e6e25207fd161b134a8757fa82ab55f220abbf4b06a82c4846f6a6da150",
+  "patch": [
+    {
+      "path": "patch/Compositor.AvaloniaProbe.deps.json",
+      "bytes": 13218,
+      "sha256": "7efbc24ebc73c46630eb98d418ba78449333ea67e2caf72d7b17df6c5dd83e61"
+    },
+    {
+      "path": "patch/Compositor.AvaloniaProbe.dll",
+      "bytes": 16670208,
+      "sha256": "65cb7bce1cb4046da26318e21a4d3a9ad0f4b6d41b9a94fe1601c9b54d918028"
+    },
+    {
+      "path": "patch/Compositor.AvaloniaProbe.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    }
+  ],
+  "baselineManagedAssemblySha256": "caa0bb2411539a8bf3885229a5a65f5242fb67d26da99d79a73660c65d068f7a",
+  "windowsExecuted": false,
+  "scope": "Fresh-process ABBA full probe observations; not S02; input, renderer and timing instrumentation unchanged",
+  "supersedesArchiveSha256": "2a91d12f7ece5b00699b5c164cd34f986eabf89ec0b9997f9385bbb6c4a1a7a8",
+  "wrapperChange": "After retaining logs and zip, return nonzero for failed or incomplete verification; native/managed payload unchanged"
+}

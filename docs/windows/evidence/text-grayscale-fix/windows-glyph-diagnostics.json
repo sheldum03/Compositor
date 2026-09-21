@@ -1,0 +1,231 @@
+{
+  "status": "observations only; not a verified fix",
+  "windowsExecuted": true,
+  "input": "ordinary Chinese and Latin glyphs without emoji",
+  "results": [
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "baseline",
+      "alphaMass": 29
+    },
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "antialias",
+      "alphaMass": 920.4745098039216
+    },
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "alias",
+      "alphaMass": 926.5882352941177
+    },
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "no-flip",
+      "alphaMass": 919.3529411764706
+    },
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "no-rotation",
+      "alphaMass": 110
+    },
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "opaque",
+      "alphaMass": 29
+    },
+    {
+      "route": "Avalonia TextBlock",
+      "variant": "plain",
+      "alphaMass": 116
+    },
+    {
+      "route": "direct Skia",
+      "variant": "baseline",
+      "alphaMass": 929.4196078431372,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    },
+    {
+      "route": "direct Skia",
+      "variant": "no-hinting",
+      "alphaMass": 929.4196078431372,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    },
+    {
+      "route": "direct Skia",
+      "variant": "no-subpixel",
+      "alphaMass": 929.4313725490196,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    },
+    {
+      "route": "direct Skia",
+      "variant": "alias",
+      "alphaMass": 933.6078431372549,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    },
+    {
+      "route": "direct Skia",
+      "variant": "no-flip",
+      "alphaMass": 930.0549019607843,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    },
+    {
+      "route": "direct Skia",
+      "variant": "no-rotation",
+      "alphaMass": 914.5960784313726,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    },
+    {
+      "route": "direct Skia",
+      "variant": "outline",
+      "alphaMass": 930.1411764705882,
+      "glyphs": [
+        {
+          "character": "\u4E2D",
+          "glyph": 9569,
+          "outlineBounds": "{Left=4.608,Top=-40.32,Width=38.688004,Height=44.112}"
+        },
+        {
+          "character": "\u6587",
+          "glyph": 20046,
+          "outlineBounds": "{Left=1.6800001,Top=-40.656002,Width=44.784004,Height=44.4}"
+        },
+        {
+          "character": "A",
+          "glyph": 34,
+          "outlineBounds": "{Left=0.192,Top=-35.184002,Width=28.800001,Height=35.184002}"
+        },
+        {
+          "character": "g",
+          "glyph": 72,
+          "outlineBounds": "{Left=2.4480002,Top=-26.736002,Width=23.952002,Height=38.736}"
+        }
+      ]
+    }
+  ]
+}

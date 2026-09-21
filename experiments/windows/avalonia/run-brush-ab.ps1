@@ -84,3 +84,5 @@ Compress-Archive -LiteralPath $resultsRoot -DestinationPath $zip
 $rows | Format-Table -AutoSize
 Write-Host "ArtifactBytesEqual: $identical"
 Write-Host "Send this archive: $zip"
+if (-not $identical) { exit 1 }
+exit 0

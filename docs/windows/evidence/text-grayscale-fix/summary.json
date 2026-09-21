@@ -1,0 +1,31 @@
+{
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-test-kit/CompositorTextFix.zip",
+  "bytes": 13822931,
+  "sha256": "f6110db3c9707611d3aaec54ee543a06541a4936347e5ba0e1347761dbfc7fab",
+  "patch": [
+    {
+      "path": "patch/Compositor.AvaloniaProbe.deps.json",
+      "bytes": 13218,
+      "sha256": "7efbc24ebc73c46630eb98d418ba78449333ea67e2caf72d7b17df6c5dd83e61"
+    },
+    {
+      "path": "patch/Compositor.AvaloniaProbe.dll",
+      "bytes": 16670208,
+      "sha256": "667e4372c735a512a82f504dc264b7a3a543b4802ae637731b0a36a88ac74848"
+    },
+    {
+      "path": "patch/Compositor.AvaloniaProbe.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    }
+  ],
+  "fix": "Explicit TextRenderingMode.Antialias on shared text rendering roots",
+  "windowsFullFixedCorpusExecuted": false,
+  "macChecks": "12 ordinary ink checks passed; all 60 PNGs byte-identical to prior Mac output",
+  "receivedDiagnosticArchive": {
+    "sha256": "9d3cb2851df6a505e555c312938ce9d0255d4bf1643cf070137e59d28342030b",
+    "bytes": 476958,
+    "entries": 80,
+    "crc": "passed"
+  }
+}

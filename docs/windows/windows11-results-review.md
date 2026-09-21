@@ -2,6 +2,8 @@
 
 已收到并核验用户上传的 `Windows11-TestResults-20260921-133437.zip`。工程互通检查通过；文字画面存在明显缺失，不能验收通过。原始自动检查的“通过”结论仅适用于各自断言范围。
 
+2026-09-21 后续诊断：同一 Windows 机器的实时变体确认，显式灰度抗锯齿恢复普通字形，默认模式仍只剩碎点。文字画布已作最小设置修复并通过 Mac 回归；完整 Windows 修复后 12 样本仍待复测。见 [后续证据](evidence/text-grayscale-fix/summary.json)。
+
 ## 核验范围与来源
 
 压缩包 7,291,136 bytes、247 个文件，CRC 检查通过；SHA-256 为 `b059e2b04fd7cfbd0f516468ca78d850608db83d6c65207a7252ed4b59f2e4c4`。Windows ZIP 的反斜杠目录分隔符在解压时规范化，原压缩包未修改。文件清单、原始 JSON、独立像素核算和 Mac 测试日志保存在 [证据目录](evidence/windows11-artifact-review/review-summary.json)。Windows 程序由用户执行；本轮在 Mac 上检查其输出，没有声称重新执行 Windows 二进制。

@@ -244,6 +244,8 @@ internal static class TextProbe
     }
     private static void Save(Control control, string path)
     {
+        // Transparent, transformed text needs grayscale coverage, not LCD subpixel masks.
+        RenderOptions.SetTextRenderingMode(control, TextRenderingMode.Antialias);
         using var image = new RenderTargetBitmap(new PixelSize((int)control.Width, (int)control.Height), new Vector(96, 96));
         image.Render(control); image.Save(path);
     }

@@ -702,3 +702,20 @@ Release build 0warning/error，Mac完整文字/诊断与20组合成回归均成�
 只整合SoftBrushStroke每笔256色预计算，增加1024字节，保留Round255及原底图叠加。正式工作区重新执行独立60-case/720-preview差分回归和完整13项会话检查通过；9个输出文件与旧Mac基线逐字节相同。对收到Windows包的初次9文件字节比较在manifest失败，检查仅CRLF/LF不同、JSON数据一致，8个PNG均字节相等；没有为此改工程格式或容差。回归harness固定从Git取8cf1253并核对原文件hash，参考副本仅存在临时生成目录。
 
 Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2a91d12f7ece5b00699b5c164cd34f986eabf89ec0b9997f9385bbb6c4a1a7a8；原版程序集身份取自实际先前交付zip，候选复制到新目录，4轮结果/时序和9文件hash比较全部保留。脚本语法和包CRC检查通过，Windows尚未执行；先完成用户当前文字修复复测，避免同时要求两项操作。证据 evidence/brush-cache-candidate，S02/W-030/M1均未据此通过。
+
+
+## 2026-09-21：Windows 实时诊断定位文字抗锯齿路径，提交灰度覆盖修复
+
+用户回传 text-diagnostic-20260921-140002.zip，476,958bytes / 80entries，SHA256 9d3cb2851df6a505e555c312938ce9d0255d4bf1643cf070137e59d28342030b，CRC通过。原12样本普通字形墨量继续全红；无emoji的Avalonia默认变体alphaMass29，显式Antialias恢复920.475，Alias926.588。直接Skia默认Antialias929.42及no-hinting/no-subpixel/outline均正常。实际查看PNG确认默认碎点、显式灰度模式中英文完整，样本本来设置镜像。证据 evidence/text-grayscale-fix。
+
+因此在TextProbe.Save仅增加显式TextRenderingMode.Antialias，使透明/变换文字画布使用灰度覆盖；不换字体、不改布局/颜色/透明度/变换、不选择outline作为产品渲染器。它修正可控的默认抗锯齿路径，未证明底层Skia/驱动内部缺陷。Mac重建0warning/error，12个墨量检查通过、全部60个PNG与此前Mac结果逐字节相同；完整Windows修复后F11仍待用户回传，不提前关闭视觉/IME门槛。
+
+已交付CompositorTextFix.zip，13,822,931bytes，SHA256 f6110db3c9707611d3aaec54ee543a06541a4936347e5ba0e1347761dbfc7fab。复用旧runtime/依赖，复制新app并自动打包完整12样本、日志、ink及摘要。父任务随后发现包装脚本在native失败但成功打包后会exit0；在独立/tmp负例已复现。当前两个新wrapper均已改为打包后显式验证并exit1/0；6种真实尾部守卫条件在PowerShell7.6实际执行符合预期。
+
+为保持已交付包可追溯，首包不修改，按其中summary.ExitCode/原始报告/图片判断，不要求用户仅为wrapper重跑。另准备-v2包：文字13,822,994bytes，SHA256 42610ad46067f240b29eb7c1117d210eab68b6975f541f221b1f7882a28d5dd4；笔刷13,814,853bytes，SHA256 3eb64e6e25207fd161b134a8757fa82ab55f220abbf4b06a82c4846f6a6da150。v2仅修正wrapper失败传播，托管payload未变化，CRC通过；Windows A/B仍未运行。
+
+## 2026-09-21：父任务补充 Windows Server 便携运行时证据
+
+父任务通过独立Chrome/TAT操作tencent-cpu-01，06:02:53.3038204Z下载官方.NET10.0.12 win-x64 runtime完成，curlExit0、36,960,258bytes、SHA512精确匹配微软元数据；06:05:11.5903914Z在C:\CompositorValidation\tools\dotnet-10.0.12运行--list-runtimes，exit0，剩余9.6GiB。证据 windows-server-runtime.json 来源为父任务界面读回转录，非原始日志下载。本任务未操作服务器，无系统安装/全局PATH/防火墙/密码/重启/RDP改动。
+
+此前LLVM续传实际curlExit28，只获得21,395,506/190,677,197bytes，TAT包装退出0不能当下载完成。runtime成功只证明Server环境可执行，不是Windows11、产品、GUI/IME/GPU或性能验收；旧文字诊断包未上传，避免与新Win11回传重复。W-004仍部分完成。
