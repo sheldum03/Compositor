@@ -40,7 +40,25 @@
     "selectionExit": 0,
     "probeSha256": "86d237ac1e9babc425b0ac24de1c7f73e61baf910cc61515d26a45af73838d12",
     "evidence": "windows-regression.png",
-    "rawLogs": "on Windows; not yet retrieved",
+    "rawLogs": "retrieved and CRC/hash verified; windows-*.jsonl and native-window-report.json",
     "nativeWindowPid": 34948
+  },
+  "archive": {
+    "name": "ime-v2-evidence-20260922.zip",
+    "sha256": "aa7ae651edbabae5c3eb5e9d7ece6672f0fc7b6eda436b35c05b0d0c4573ae11",
+    "bytes": 538900,
+    "entries": 105,
+    "crcPassed": true,
+    "remoteHashMatched": true
+  },
+  "archiveReview": {
+    "nativePreeditChanges": 0,
+    "textInputEvents": 0,
+    "injectedInputMethodCalls": 0,
+    "nativeClosedEvent": true,
+    "stderrEmpty": true,
+    "previewExportExact": true,
+    "nontransparentPixels": 12291,
+    "limitation": "User-reported cancellation pass retained. Retrieved v2 log contains no native IME events, so this archive does not independently corroborate the cancellation sequence or establish which window received it. Screenshot/export collected later after a zoom-button click; no before/after cancel pixel comparison. execution.json pending is the original pre-retest state and remains unchanged."
   }
 }

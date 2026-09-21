@@ -24,6 +24,12 @@
 
 第二版提交 `c570953` 已通过 UU 终端部署到独立的 `ime-selection-fixed-v2-app`；123,463 字节增量包 SHA-256 为 `bdc288f639725f38d2d30a7fd21df02b3fa8c92df0e8ce0470b4aae84c58e2b6`，远端重建主 DLL 核对为 `86d237ac1e9babc425b0ac24de1c7f73e61baf910cc61515d26a45af73838d12`。同一 Windows 机器上的 24 项启动流程、40 项客户端及 48 项拖选均 exit 0，截图保存在 [Windows 第二版回归](evidence/windows11-remote-suite/ime-selection-cancel/v2/windows-regression.png)。原始日志目录 `ime-v2-20260921-234137`，尚未取回；第二版原生窗口 PID 34948 启动后的真实切页取消复测，用户已确认通过。第一版失败记录仍保留。
 
+### 第二版归档复核（2026-09-22）
+
+已取回 `ime-v2-evidence-20260922.zip`（538,900 字节、105 项 CRC 通过），远端与本地 SHA-256 均为 `aa7ae651edbabae5c3eb5e9d7ece6672f0fc7b6eda436b35c05b0d0c4573ae11`。原始日志已归档至 [v2 证据目录](evidence/windows11-remote-suite/ime-selection-cancel/v2/review.json)：24/40/48 项回归及执行身份吻合，stderr 为空，原生窗口有正常关闭事件。导出的 preview/export 独立 RGBA 比较精确且正文非空。
+
+**证据限制**：收到的第二版原生报告 `nativePreeditChanges=0`、`textInputEvents=0`，没有记录到用户确认步骤的输入事件，因此保留用户通过反馈，但此归档不能独立证实取消序列或确定当时接收输入的窗口版本。本次归档操作先误点缩放（100%→150%），再导出当前正文；截图和导出不是取消前后对照。原始 execution.json 的 pending 是启动时状态，保持原文件不改。不会把缺少记录判成用户操作失败，也不将其改写为日志验证通过。
+
 ## 环境与修复
 
 实体机 PEIXU7-GY，Windows 11 Pro 10.0.26200 x64，i9-13900、64 GB、4090D；本轮报告记录 .NET 10.0.12、PowerShell 5.1.26100.9444。显示缩放 150%，Avalonia 使用软件渲染。通过 UU 自带文件传输和远程终端执行；终端与 Explorer 均为 Session 1。
