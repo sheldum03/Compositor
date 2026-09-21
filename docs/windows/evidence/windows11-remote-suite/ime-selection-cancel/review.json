@@ -1,5 +1,5 @@
 {
-  "status": "native selection-cancel retest passed by user report; post-cancel text visible; native commit/undo/redo retest pending",
+  "status": "native selection-cancel and commit/undo/redo retests passed by user report; native tab-return cancel retest pending",
   "failureArchive": {
     "name": "window-flip-20260921-200520-ime-results.zip",
     "bytes": 38897,
@@ -41,7 +41,17 @@
     "userRetest": "passed: user confirmed original text fully preserved after select-all, Microsoft Pinyin ceshi and Esc",
     "cancelScreenshot": "native-cancel-user-confirmed.png",
     "selectionRestorationVisuallyConfirmed": false,
-    "postFixNativeCommitUndoRedo": "pending",
+    "postFixNativeCommitUndoRedo": {
+      "status": "passed by user report",
+      "feedback": "全部正常",
+      "steps": [
+        "select all; Microsoft Pinyin ceshi; choose 测试; entire text becomes 测试",
+        "Ctrl+Z restores full original text",
+        "Ctrl+Y restores 测试",
+        "Ctrl+Z restores full original text again"
+      ],
+      "independentlyReplayed": false
+    },
     "postFixNativeTabReturnCancel": "pending",
     "cancelPixelsCompared": false
   }
