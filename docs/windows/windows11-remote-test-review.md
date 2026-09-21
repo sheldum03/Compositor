@@ -22,6 +22,8 @@
 
 第二版保留原选区保护，同时将包装客户端 SupportsSurroundingText 改为 false，避免 IMM32 在预输入前代为删除选区。SupportsPreedit 与光标矩形仍保留；环绕文本编辑/重新转换能力不作验收通过声明。新增 24 项首次/切页启动序列重放、40 项客户端及 48 项拖选在本地通过，60 张既有文字 PNG 不变。第二版原生复测仍待完成。见 [第二版复核](evidence/windows11-remote-suite/ime-selection-cancel/v2/review.json)。
 
+第二版提交 `c570953` 已通过 UU 终端部署到独立的 `ime-selection-fixed-v2-app`；123,463 字节增量包 SHA-256 为 `bdc288f639725f38d2d30a7fd21df02b3fa8c92df0e8ce0470b4aae84c58e2b6`，远端重建主 DLL 核对为 `86d237ac1e9babc425b0ac24de1c7f73e61baf910cc61515d26a45af73838d12`。同一 Windows 机器上的 24 项启动流程、40 项客户端及 48 项拖选均 exit 0，截图保存在 [Windows 第二版回归](evidence/windows11-remote-suite/ime-selection-cancel/v2/windows-regression.png)。原始日志目录 `ime-v2-20260921-234137`，尚未取回；第二版原生窗口 PID 34948 已打开，等候真实切页取消复测。第一版失败记录仍保留。
+
 ## 环境与修复
 
 实体机 PEIXU7-GY，Windows 11 Pro 10.0.26200 x64，i9-13900、64 GB、4090D；本轮报告记录 .NET 10.0.12、PowerShell 5.1.26100.9444。显示缩放 150%，Avalonia 使用软件渲染。通过 UU 自带文件传输和远程终端执行；终端与 Explorer 均为 Session 1。

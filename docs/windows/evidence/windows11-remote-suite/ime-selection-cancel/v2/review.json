@@ -1,5 +1,5 @@
 {
-  "status": "local regression passed; Windows v2 deployment in progress; native acceptance pending",
+  "status": "v2 deployed; local and Windows related regressions passed; native tab-cancel retest pending",
   "previousNativeTabCancel": "failed; user confirmed original text disappeared",
   "reproductionBeforeFix": {
     "command": "dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- --ime-tabs",
@@ -17,5 +17,19 @@
   "localSelectionCases": 48,
   "existingPngsCompared": 60,
   "changedPngs": 0,
-  "nativeRetest": "pending"
+  "nativeRetest": "pending",
+  "fixCommit": "c570953",
+  "windows": {
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ime-v2-20260921-234137",
+    "imm32ReplayCases": 24,
+    "imm32ReplayExit": 0,
+    "imeCases": 40,
+    "imeExit": 0,
+    "selectionCases": 48,
+    "selectionExit": 0,
+    "probeSha256": "86d237ac1e9babc425b0ac24de1c7f73e61baf910cc61515d26a45af73838d12",
+    "evidence": "windows-regression.png",
+    "rawLogs": "on Windows; not yet retrieved",
+    "nativeWindowPid": 34948
+  }
 }
