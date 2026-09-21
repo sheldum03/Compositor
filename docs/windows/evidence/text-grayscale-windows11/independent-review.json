@@ -1,0 +1,189 @@
+{
+  "method": "Independent Pillow11.3/NumPy full RGBA equality and nearest-integer premultiplication; reproduce all metrics and blue-ink checks",
+  "sampleCount": 12,
+  "previewExportExact": 12,
+  "cancelExact": 12,
+  "inkMetricsMatch": 12,
+  "macReferenceMetricsMatch": 12,
+  "ordinaryInkRatioRange": [
+    0.8052677538411122,
+    0.8622891748588789
+  ],
+  "transformedHitSamples": 2631,
+  "macReferenceMaximumErrors": [
+    161,
+    166
+  ],
+  "nativeImeExecuted": false,
+  "pixelToleranceAccepted": false,
+  "results": [
+    {
+      "fixture": "F11-300-box-center",
+      "ordinaryInkRatio": 0.8622891748588789,
+      "emojiWarmPixels": 3599,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 47811,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.8313929283016623,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 37800
+      }
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "ordinaryInkRatio": 0.8619925769528171,
+      "emojiWarmPixels": 3599,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 47404,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.714316992297856,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 36477
+      }
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "ordinaryInkRatio": 0.8620273395140154,
+      "emojiWarmPixels": 3578,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 55809,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 4.357911797067833,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 50255
+      }
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "ordinaryInkRatio": 0.8052677538411122,
+      "emojiWarmPixels": 3358,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 55034,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 3.706852656152614,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 50339
+      }
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "ordinaryInkRatio": 0.8053169623230771,
+      "emojiWarmPixels": 3378,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 48983,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.6618250515396746,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 41043
+      }
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "ordinaryInkRatio": 0.805277002676182,
+      "emojiWarmPixels": 3369,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 54370,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 3.5631694472070228,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 49592
+      }
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "ordinaryInkRatio": 0.8510211077917625,
+      "emojiWarmPixels": 227,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 4900,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.484496092870695,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4770
+      }
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "ordinaryInkRatio": 0.8490910544834204,
+      "emojiWarmPixels": 233,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 4658,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.1768699553011543,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4459
+      }
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "ordinaryInkRatio": 0.8506805658177028,
+      "emojiWarmPixels": 227,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 4700,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.299811878959385,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4538
+      }
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "ordinaryInkRatio": 0.8467396201837072,
+      "emojiWarmPixels": 231,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 4801,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.7728938564476886,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4639
+      }
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "ordinaryInkRatio": 0.8455831569566671,
+      "emojiWarmPixels": 236,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 4484,
+        "MaximumChannelError": 161,
+        "MeanAbsoluteChannelError": 1.3114405920519059,
+        "MaximumAlphaError": 161,
+        "PixelsWithErrorAbove1": 4278
+      }
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "ordinaryInkRatio": 0.8447562158938158,
+      "emojiWarmPixels": 226,
+      "previewExportExact": true,
+      "cancelExact": true,
+      "recomputedMacReference": {
+        "DifferentPixels": 4746,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.718440794809408,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4603
+      }
+    }
+  ]
+}

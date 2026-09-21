@@ -768,3 +768,10 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 父任务5个x64 PE/9条依赖边静态命名导入核对通过，不当作运行时证明。Windows私有包4466298bytes、SHA2563350ac1b5f29157e4d4d11a2b8aef464328b4cb7982c49873f5c1000088d9d45，本任务重新核对完整包SHA/CRC和75文件hash。原始构建日志/失败和修正退出码、源码身份、依赖汇总、wrapper适配正负例摘要保留evidence/heic-windows-cross-build；大PE表、源码包、raw及完整产物在父任务artifact。
 
 脚本正例仅在独立Mac副本替换平台guard/exe后执行：16decode、23invoke、指标/raw与原独立Python一致，exit0；参考alpha翻转负例native0/wrapper1，日志和ZIP保留。原Windows包不变，WindowsPowerShell5.1未执行。父任务因用户在Chrome切标签停止上传，服务器没有上传/执行；本任务未操作CUA/服务器。W009/W031/D07/M1均保持未完成，用户仍优先回传12文字修复结果。
+
+
+## 2026-09-21：用户 Windows 11 完整文字修复回传通过缺字复测
+
+收到 text-fix-20260921-152945.zip，1560237bytes，SHA256 cafecf36e32bb646e4301863f070d08ed3939545704d38dbae8e3da58e155f55，64文件CRC通过。独立Pillow/NumPy重算12组墨量与Mac参考差分，全部与原报告一致；完整RGBA预览/导出12/12、取消恢复12/12精确。实际查看全部12图及四组Mac对照，普通中英文恢复、Emoji可见，墨量比0.8053–0.8623通过既有严重丢失防护阈值。未改变阈值或参考。
+
+证据保存在evidence/text-grayscale-windows11；完整ZIP和60PNG在本任务同名artifact。NativeImeExecuted=false，最大参考误差161/166及Emoji外观差异仍未验收。原缺字阻断已修复，W008/M1仍未关闭。下一步只指导用户启动Avalonia真实窗口，再逐步执行微软拼音/焦点/变换检查；不同时要求笔刷AB或Qt操作。
