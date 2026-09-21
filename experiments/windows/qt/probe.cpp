@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include "brush.hpp"
+#include "window.hpp"
 #include <QApplication>
 #include <QCryptographicHash>
 #include <QDir>
@@ -127,7 +128,8 @@ int main(int argc, char **argv) {
         auto args = app.arguments();
         if (args.size() == 4 && args[1] == "--brush") { runBrushProbe(QFileInfo(args[2]).absoluteFilePath(), QFileInfo(args[3]).absoluteFilePath()); return 0; }
         if (args.size() == 4 && args[1] == "--text") { runTextProbe(QFileInfo(args[2]).absoluteFilePath(), QFileInfo(args[3]).absoluteFilePath()); return 0; }
-        require(args.size() == 3, "Usage: qt_probe [--brush|--text] <fixed-fixtures> <new-output>");
+        if (args.size() == 4 && (args[1] == "--window" || args[1] == "--window-check")) return runWindowProbe(QFileInfo(args[2]).absoluteFilePath(), QFileInfo(args[3]).absoluteFilePath(), args[1] == "--window-check");
+        require(args.size() == 3, "Usage: qt_probe [--brush|--text|--window|--window-check] <fixed-fixtures> <new-output>");
         QString fixtures = QFileInfo(args[1]).absoluteFilePath(), output = QFileInfo(args[2]).absoluteFilePath();
         verifyCorpus(fixtures);
         require(!QFileInfo::exists(output) && QDir().mkpath(output), "Output must be a new directory");

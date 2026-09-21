@@ -748,3 +748,14 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 父任务下载结果9499306bytes、SHA2564d3eda09a42df5a7edc636c3e667ecdcd2cbdd552278ceea9228e9a7c2df7d1b。本任务重新核对SHA/CRC/213项文件身份，并查看接触图确认Emoji缺字方框。父任务的36组独立像素核算、32组预览导出/12取消精确、两项Mac读回2passed/0failed/0skipped及原始报告/运行日志整合到evidence/qt-windows-server；评审qt-windows-server-review.md保留父任务执行来源，原始PNG和xcresult在其artifact目录。
 
 文字12样本普通蓝字墨量0.892–0.949不能掩盖Emoji视觉失败；offscreen字体库未发现系统fallback为待验证假设，fontdir/qwindows对照未执行。笔刷对Mac Qt预乘RGBA相同但PNG字节不同，对原CPU/Metal参考仍存在未接受差异。Server P95 53.6642/61.5534ms、commit58.8498/69.4234ms不是S02或Win11同机比较。已纠正Qt文档中所有Windows未执行与D-11决定未定的过时表述，MSVC/CI未执行状态保留；不选框架、不关闭M1。
+
+
+## 2026-09-21：整合 Qt 原生窗口并修复替换文本颜色继承
+
+父任务基于605a610在独立/tmp提供6文件窗口补丁与Mac/Windows交叉构建、原20合成/12文字/笔刷回归和实际背景负例证据。本任务独立检查接口/生命周期后应用，在权威源码重新Mac Release构建并运行--window-check通过；随后以cocoa启动真实窗口，通过CUA实际完成文字替换/粘贴/撤销/重做、鼠标两笔和history保存、F04另存。
+
+真实交互暴露原自动检查漏项：全选键盘/IME及粘贴后文字变黑，但预览/导出一致。新增真实TextItem全选QInputMethodEvent替换后的蓝色像素检查实际exit1；format同时设置段落默认setBlockCharFormat后exit0。重开真实窗口，键盘与纯文本粘贴保持蓝色，30°/翻转/125%和预编辑取消后的导出通过；同内容深色像素4619→0、蓝色0→4951。原12文字全部72PNG逐字节不变，鼠标历史往返和文字取消PNG恢复验证通过。两轮原生窗口均退出0，无报告错误；Mac原生预编辑事件不算微软拼音候选位置验收。
+
+最终权威源码的Windows LLVM-MinGW交叉配置/构建均退出0，3个自有PE机型AMD64；EXE尚未在Windows运行，未修改此前Server Emoji结论。一次过早发起构建因配置尚未完成返回could not load cache，随后在配置完成后正确构建；一次覆盖旧Mac测试bundle的启动exit137，换新私有bundle正常启动/退出，原因未确定。全部原始证据与明确限制见evidence/qt-native-window-macos，完整图片/工程/二进制在本任务qt-native-window-integrated artifact。
+
+用户仍优先回传完整12文字修复ZIP，未要求同时测试Qt/Avalonia新窗口。无Chrome/服务器操作；D11文字工程/字体缺失、Windows IME/DPI及M1/选型保持未完成。

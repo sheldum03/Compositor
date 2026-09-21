@@ -1,0 +1,2 @@
+qt.qpa.fonts: Populating font family aliases took 158 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+Replacing all text must preserve the blue text color

@@ -1,0 +1,40 @@
+-- The C compiler identification is Clang 23.1.1
+-- The CXX compiler identification is Clang 23.1.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /tmp/compositor-parent-qt-windows/llvm-mingw-20260908-ucrt-macos-universal/bin/x86_64-w64-mingw32-clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /tmp/compositor-parent-qt-windows/llvm-mingw-20260908-ucrt-macos-universal/bin/x86_64-w64-mingw32-clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Check if compiler accepts -pthread
+-- Check if compiler accepts -pthread - yes
+-- Found Threads: TRUE
+-- Performing Test HAVE_STDATOMIC
+-- Performing Test HAVE_STDATOMIC - Success
+-- Found WrapAtomic: TRUE
+CMake Warning at /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:3307 (message):
+  No qtpaths executable found for deployment purposes.  Candidates searched:
+
+      /tmp/compositor-parent-qt-windows/qt/bin/qtpaths6
+      /tmp/compositor-parent-qt-windows/qt/bin/qtpaths
+Call Stack (most recent call first):
+  /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6Core/Qt6CoreConfigExtras.cmake:30 (_qt_internal_setup_deploy_support)
+  /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:194 (include)
+  /tmp/compositor-windows-cmake-venv/lib/python3.9/site-packages/cmake/data/share/cmake-3.31/Modules/CMakeFindDependencyMacro.cmake:76 (find_package)
+  /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:142 (find_dependency)
+  /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6Widgets/Qt6WidgetsDependencies.cmake:51 (_qt_internal_find_qt_dependencies)
+  /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6Widgets/Qt6WidgetsConfig.cmake:40 (include)
+  /tmp/compositor-parent-qt-windows/qt/lib/cmake/Qt6/Qt6Config.cmake:257 (find_package)
+  CMakeLists.txt:5 (find_package)
+
+
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Configuring done (52.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/compositor-qt-window-integrated-win

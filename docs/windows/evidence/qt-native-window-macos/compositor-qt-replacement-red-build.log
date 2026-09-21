@@ -1,0 +1,5 @@
+[ 45%] Built target compositor_native
+[ 54%] Built target native_contract_tests
+[ 59%] Building CXX object CMakeFiles/qt_probe.dir/text_probe.cpp.o
+[ 63%] Linking CXX executable qt_probe
+[100%] Built target qt_probe

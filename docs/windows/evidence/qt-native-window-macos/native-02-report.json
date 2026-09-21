@@ -1,0 +1,95 @@
+{
+    "brushEvents": [
+    ],
+    "brushFailure": "",
+    "brushPaints": 8,
+    "checks": {
+    },
+    "errors": [
+    ],
+    "nativeImeAccepted": false,
+    "os": "macOS Tahoe (26.5.1)",
+    "platformPlugin": "cocoa",
+    "previewBuffer": "one viewport-sized premultiplied image at device pixel ratio, SourceOver on white; no full 4K preview export",
+    "productAccepted": false,
+    "qt": "6.11.2",
+    "saves": [
+        {
+            "commitEventsObserved": 1,
+            "content": "a",
+            "directory": "/tmp/compositor-qt-native-window-02/001-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "中文窗口 Qt English 😀\n实际输入与撤销",
+            "directory": "/tmp/compositor-qt-native-window-02/002-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "中文窗口 Qt English 😀\n实际输入与撤销",
+            "directory": "/tmp/compositor-qt-native-window-02/003-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "中文窗口 Qt English 😀\n实际输入与撤销",
+            "directory": "/tmp/compositor-qt-native-window-02/004-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "中文窗口 Qt English 😀\n实际输入与撤销",
+            "directory": "/tmp/compositor-qt-native-window-02/005-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 2,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        }
+    ],
+    "syntheticCheckMode": false,
+    "windowsExecuted": false
+}

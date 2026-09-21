@@ -1,0 +1,2 @@
+2026-09-21 15:04:30.548 qt_probe[45601:124890342] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+2026-09-21 15:04:30.693 qt_probe[45601:124890342] TSM AdjustCapsLockLEDForKeyTransitionHandling - _ISSetPhysicalKeyboardCapsLockLED Inhibit

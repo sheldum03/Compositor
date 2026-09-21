@@ -1,0 +1,22 @@
+[
+  {
+    "path": "experiments/windows/qt/CMakeLists.txt",
+    "sha256": "38a2e73b30e0a15c4ec2417cb4f1853cb2add3b8398564731c5228a46a762222"
+  },
+  {
+    "path": "experiments/windows/qt/probe.cpp",
+    "sha256": "8e3dc9422bc6174601d716fda757a4c3139de22bcee0da878998b37b6baa80c4"
+  },
+  {
+    "path": "experiments/windows/qt/text_probe.cpp",
+    "sha256": "074866bd82385aee4a7fe78f7ea3e714db3b62522befb3d53bdf3efa0bda088e"
+  },
+  {
+    "path": "experiments/windows/qt/window.cpp",
+    "sha256": "cb653d1e1523f7ea8c10668d9f05b2a877451eddbe13a0dac5ac9f970af9d31f"
+  },
+  {
+    "path": "experiments/windows/qt/window.hpp",
+    "sha256": "603ab21e8031d484a11eec5c8061ffbaf96c654fc09a4685302e77a9e9cc441d"
+  }
+]

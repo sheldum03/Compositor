@@ -102,3 +102,5 @@ python3 scripts/windows/render-probe-contact-sheet.py docs/windows/fixtures \
 ```
 
 The fixed soft-brush transaction/next-stroke/undo path now has [separate preparation evidence](BRUSH.md). The [text probe](TEXT.md) also covers shared layout, transformed caret hits and synthetic IME. Remaining W-007 work: diagnose the Server offscreen Emoji failure, native Windows IME, Windows 11 same-device deployment/execution, matched performance/resource measurements and resulting integration gaps. M0/M1 remain unpassed; this does not authorize production framework selection.
+
+The restricted real Qt window entry and Mac native interaction evidence are described in [WINDOW.md](WINDOW.md). Native Microsoft Pinyin and Windows 11 DPI acceptance remain open.

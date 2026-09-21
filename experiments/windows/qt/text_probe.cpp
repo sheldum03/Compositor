@@ -1,4 +1,7 @@
 #include "scene.hpp"
+#include "window.hpp"
+#include <QVBoxLayout>
+#include <QTemporaryDir>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
 #include <QCryptographicHash>
@@ -29,7 +32,14 @@ namespace {
 class TextItem final : public QGraphicsTextItem {
 public:
     using QGraphicsTextItem::inputMethodQuery;
-    int draws = 0;
+    int draws = 0, preeditEvents = 0, commitEvents = 0;
+    bool preeditActive = false;
+    void inputMethodEvent(QInputMethodEvent *event) override {
+        preeditActive = !event->preeditString().isEmpty();
+        if (preeditActive) ++preeditEvents;
+        if (!event->commitString().isEmpty()) ++commitEvents;
+        QGraphicsTextItem::inputMethodEvent(event);
+    }
     void paint(QPainter *p, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
         ++draws; QGraphicsTextItem::paint(p, option, widget);
     }
@@ -51,7 +61,8 @@ void format(TextItem &item, const QFont &font, QString text, double spacing, Qt:
     item.document()->setDocumentMargin(0); item.setFont(font); item.setPlainText(text);
     QTextCursor cursor(item.document()); cursor.select(QTextCursor::Document);
     QTextBlockFormat block; block.setAlignment(alignment); block.setLineHeight(spacing, QTextBlockFormat::LineDistanceHeight);
-    cursor.mergeBlockFormat(block); QTextCharFormat character; character.setForeground(color); cursor.mergeCharFormat(character);
+    cursor.mergeBlockFormat(block); QTextCharFormat character; character.setForeground(color);
+    cursor.setBlockCharFormat(character); cursor.mergeCharFormat(character);
     cursor.clearSelection(); cursor.setPosition(0); item.setTextCursor(cursor);
     item.setTextWidth(width); if (width < 0) item.setTextWidth(item.document()->idealWidth());
     item.document()->clearUndoRedoStacks();
@@ -207,4 +218,74 @@ void runTextProbe(const QString &fixtures, const QString &output) {
         {"fontSha256", QString::fromLatin1(fontHash)}, {"corpusHashesVerified", 47}, {"spacingChecks", "positive/negative additive spacing; absolute tracking and relayout passed"},
         {"placement", "shared document fitted to existing layer rectangle; no text cache/scale-policy change"}, {"results", results}};
     auto json = QJsonDocument(report).toJson(); writeFile(output + "/text-report.json", json); std::cout << json.constData();
+}
+
+
+WindowText::WindowText() {
+    auto fontBytes = readFile(":/fonts/SourceHanSansSC-Regular.otf");
+    require(QCryptographicHash::hash(fontBytes, QCryptographicHash::Sha256).toHex() ==
+        "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256", "Window font hash");
+    int fontId = QFontDatabase::addApplicationFontFromData(fontBytes);
+    require(fontId >= 0 && QFontDatabase::applicationFontFamilies(fontId).contains("Source Han Sans SC"), "Window Chinese font");
+    scene = new QGraphicsScene(this); scene->setSceneRect(0, 0, 900, 600);
+    auto text = new TextItem; item = text; scene->addItem(text);
+    QFont font("Source Han Sans SC"); font.setPixelSize(32);
+    format(*text, font, QString::fromUtf8("中文输入 / Windows IME\nSelect, replace, undo, redo. 😀"), 4, Qt::AlignLeft, QColor(30, 80, 190), 540);
+    view = new TextView(scene, this); view->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    view->setBackgroundBrush(Qt::white);
+    auto layout = new QVBoxLayout(this); layout->setContentsMargins(0, 0, 0, 0); layout->addWidget(view);
+    setPlacement(0, false, 1);
+}
+void WindowText::setPlacement(double angle, bool flip, double scale) {
+    QTransform transform; transform.translate(450, 220); transform.rotate(angle);
+    transform.scale(flip ? -scale : scale, scale); transform.translate(-270, -70);
+    item->setTransform(transform);
+}
+QJsonObject WindowText::exportTo(const QString &directory) {
+    auto text = static_cast<TextItem *>(item);
+    for (auto block = text->document()->begin(); block.isValid(); block = block.next())
+        require(block.layout()->preeditAreaText().isEmpty(), "Commit or cancel IME composition before exporting");
+    require(!QFileInfo::exists(directory) && QDir().mkpath(directory), "New text export directory required");
+    auto cursor = text->textCursor(); bool focused = text->hasFocus();
+    const QString original = text->toPlainText();
+    const bool undo = text->document()->isUndoAvailable(), redo = text->document()->isRedoAvailable();
+    auto cleared = cursor; cleared.clearSelection(); text->setTextCursor(cleared); text->clearFocus();
+    auto rendered = preview(*scene, {900, 600}), exported = exportImage(*text, {900, 600});
+    text->setTextCursor(cursor); if (focused) text->setFocus();
+    require(text->toPlainText() == original && text->textCursor().position() == cursor.position() &&
+        text->textCursor().anchor() == cursor.anchor() && text->document()->isUndoAvailable() == undo &&
+        text->document()->isRedoAvailable() == redo, "Export preserves text, selection and history");
+    auto difference = compareImages(rendered, exported);
+    save(rendered, directory + "/text-preview.png"); save(exported, directory + "/text-export.png");
+    require(difference["DifferentPixels"].toInteger() == 0, "Window text preview/export mismatch");
+    QJsonObject report{{"previewExport", difference}, {"content", text->toPlainText()},
+        {"preeditEventsObserved", text->preeditEvents}, {"commitEventsObserved", text->commitEvents}, {"nativeImeAccepted", false}};
+    writeFile(directory + "/text.json", QJsonDocument(report).toJson()); return report;
+}
+QJsonObject WindowText::inputCheck() {
+    auto text = static_cast<TextItem *>(item); auto original = text->toPlainText();
+    auto cursor = text->textCursor(); cursor.setPosition(2); text->setTextCursor(cursor);
+    QInputMethodEvent preedit(QString::fromUtf8("输入法"), {}); scene->sendEvent(text, &preedit);
+    require(text->preeditActive && text->toPlainText() == original && !text->document()->isUndoAvailable(), "Window preedit must not commit history");
+    QTemporaryDir temporary; require(temporary.isValid(), "IME export guard directory"); bool rejected = false;
+    try { exportTo(temporary.path() + "/preedit"); } catch (const std::exception &) { rejected = true; }
+    require(rejected && !QFileInfo::exists(temporary.path() + "/preedit"), "Reject active preedit export without partial output");
+    QInputMethodEvent cancel; scene->sendEvent(text, &cancel);
+    require(!text->preeditActive && text->toPlainText() == original && !text->document()->isUndoAvailable(), "Window canceled IME preserves text/history");
+    QInputMethodEvent commit; commit.setCommitString(QString::fromUtf8("测试")); scene->sendEvent(text, &commit);
+    require(text->toPlainText() != original, "Window IME commit changes text");
+    text->document()->undo(); require(text->toPlainText() == original, "Window text undo");
+    text->document()->redo(); require(text->toPlainText() != original, "Window text redo");
+    text->document()->undo();
+    cursor = text->textCursor(); cursor.select(QTextCursor::Document); text->setTextCursor(cursor);
+    QInputMethodEvent replacement; replacement.setCommitString("Replacement"); scene->sendEvent(text, &replacement);
+    auto replaced = preview(*scene, {900, 600}); int bluePixels = 0;
+    for (int y = 0; y < replaced.height(); ++y) for (int x = 0; x < replaced.width(); ++x) {
+        auto color = replaced.pixelColor(x, y);
+        if (color.alpha() > 0 && color.blue() > color.green() && color.green() > color.red()) ++bluePixels;
+    }
+    require(bluePixels > 0, "Replacing all text must preserve the blue text color");
+    text->document()->undo(); require(text->toPlainText() == original, "Full replacement undo");
+    cursor = text->textCursor(); cursor.setPosition(0); cursor.setPosition(2, QTextCursor::KeepAnchor); text->setTextCursor(cursor);
+    return {{"syntheticInput", true}, {"nativeImeAccepted", false}, {"cancelCommitUndoRedo", "passed"}, {"replaceAllColorPreserved", true}};
 }
