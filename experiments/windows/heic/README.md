@@ -28,7 +28,7 @@ cmake --build <PROBE_BUILD> --parallel 6
 
 The probe has warnings-as-errors enabled. The dependency Debug build emitted four upstream `sprintf` deprecation warnings; no warning suppression or upstream patch was introduced. The final staged binaries dynamically depend only on libheif, libde265 and the Mac C/C++ system runtime.
 
-Windows is an unexecuted build candidate using the same CMake settings under a Visual Studio x64 environment. It will need its actual DLL/CRT dependency inventory and a clean-machine run; the Mac relocation result is not a substitute for that evidence.
+MSVC remains an unexecuted build candidate using the same CMake settings under a Visual Studio x64 environment. LLVM-MinGW execution on Windows Server is recorded below. It will need its actual DLL/CRT dependency inventory and a clean-machine run; the Mac relocation result is not a substitute for that evidence.
 
 ## Fixtures and checks
 
@@ -68,13 +68,13 @@ These generated files report zero raw ICC bytes. Therefore the ICC-copy branch a
 
 Pinned Python 3.11.9 x64 / NumPy 2.0.2 / Pillow 11.3.0 run the same 16-case, Unicode, failure and existing-output harness, and the report must identify Windows execution. The job records DLL hashes/imports, source COPYING notices, configure/build/install logs and CMake caches. The `windows-heic-feasibility-<commit>` artifact retains those plus PNG/JSON/raw pixel/log outputs for 14 days, including failure diagnostics. Downloaded sources/runtime binaries are not in the artifact. It is not a portable decoder distribution or license clearance.
 
-The workflow is preparation only: source archives were independently hash-verified and the dependency configuration exercised on Mac, while Windows/MSVC/runtime execution remains absent. The CI runner is a developer-equipped Windows Server image, not the Windows 11 reference machine or clean deployment VM. No push/remote dispatch occurred; W-009/W-031/M1 stay open. See `docs/windows/evidence/feasibility-ci-preparation.json`.
+The workflow is preparation only: source archives were independently hash-verified and the dependency configuration exercised on Mac, while this MSVC CI workflow remains unexecuted. The separate LLVM-MinGW Server execution below does not execute this workflow. The CI runner is a developer-equipped Windows Server image, not the Windows 11 reference machine or clean deployment VM. No push/remote dispatch occurred; W-009/W-031/M1 stay open. See `docs/windows/evidence/feasibility-ci-preparation.json`.
 
 ## Native Unicode path regression
 
 The Windows entry point now takes wide arguments through [`wmain`](https://learn.microsoft.com/en-us/cpp/cpp/main-function-command-line-args?view=msvc-170), passing native paths to `std::filesystem` and file streams. It no longer treats Windows narrow command-line bytes as UTF-8. POSIX keeps its native `main` arguments. No system locale or UTF-8 code-page setting is required by this source path.
 
-The non-ASCII replay now covers Chinese, spaces and non-BMP Emoji in **both** input and output paths, including an explicit pixel-budget argument. Pixels must equal the original orientation-6-alpha decode; a second run must refuse the existing output without changing it, and the copied HEIC must remain intact. Release and ASan/UBSan (including the already instrumented decoder dependencies) passed on Mac at `/tmp/compositor-native-unicode-01`. The Windows entry point, compiler and runtime remain unexecuted. This rerun used the build-prefix libraries and does not refresh the earlier relocated-stage binary. Evidence: `docs/windows/evidence/native-unicode-preparation.json`.
+The non-ASCII replay now covers Chinese, spaces and non-BMP Emoji in **both** input and output paths, including an explicit pixel-budget argument. Pixels must equal the original orientation-6-alpha decode; a second run must refuse the existing output without changing it, and the copied HEIC must remain intact. Release and ASan/UBSan (including the already instrumented decoder dependencies) passed on Mac at `/tmp/compositor-native-unicode-01`. At that Mac rerun the Windows entry point, compiler and runtime remained unexecuted; the later LLVM-MinGW Server run below now covers the fixed Unicode case. This rerun used the build-prefix libraries and does not refresh the earlier relocated-stage binary. Evidence: `docs/windows/evidence/native-unicode-preparation.json`.
 
 ## Local relocation and distribution candidate
 
@@ -98,7 +98,7 @@ The loader trace confirms both decoder libraries come from the relocated directo
 
 Both libraries' source headers use LGPL-3.0-or-later; their [libheif COPYING](https://github.com/strukturag/libheif/blob/v1.23.4/COPYING) and [libde265 COPYING](https://github.com/strukturag/libde265/blob/v1.1.1/COPYING) include the license texts. A candidate distribution would retain replaceable shared libraries, notices and exact corresponding source/build instructions. Final package obligations, codec patent/distribution questions and D-07 approval are still unresolved. Dynamic linking and successful decoding alone do not establish release clearance.
 
-Evidence: `docs/windows/evidence/heic-{macos,preparation}.json`, `heic-contact-sheet.png`. Release output is `/tmp/compositor-heic-run-02`; sanitizer is `/tmp/compositor-heic-run-sanitized`. Their logs use the same path plus `.log`. The native resource log is `/tmp/compositor-heic-metrics-resources.log`. W-009, W-031, M1 and release gates remain unpassed; no remote CI or Windows execution occurred.
+Evidence: `docs/windows/evidence/heic-{macos,preparation}.json`, `heic-contact-sheet.png`. Release output is `/tmp/compositor-heic-run-02`; sanitizer is `/tmp/compositor-heic-run-sanitized`. Their logs use the same path plus `.log`. The native resource log is `/tmp/compositor-heic-metrics-resources.log`. W-009, W-031, M1 and release gates remain unpassed; these Mac runs did not execute remote CI or Windows; subsequent Server evidence is recorded below.
 
 ## LLVM-MinGW preparation update — 2026-09-21
 
@@ -106,4 +106,13 @@ The frozen libde265 1.1.1/libheif 1.23.4 sources and this probe now cross-build 
 
 The private 4,466,298-byte kit and 75-file manifest were independently rechecked at integration (SHA-256 `3350ac1b5f29157e4d4d11a2b8aef464328b4cb7982c49873f5c1000088d9d45`). The Windows wrapper was syntax checked; a separately adapted **Mac** copy exercised 16 decodes/23 invocations and matched all existing independent raw/metric results. A changed-reference-alpha negative returned wrapper1 with native0 and retained its ZIP/logs. These are Mac script checks, not Windows execution. Full evidence and provenance: [cross-build record](../../../docs/windows/evidence/heic-windows-cross-build/README.md).
 
-No Windows upload or execution occurred because the user was actively using Chrome. Windows runtime, Windows PowerShell5.1, Windows11/clean-machine, real-photo/ICC/HDR and distribution gates remain open; the fixed-sample Mac RGB difference of 1/255 remains unaccepted.
+The initial upload was paused while the user was using Chrome. The subsequent authorized Server execution is recorded below; Windows11/clean-machine, real-photo/ICC/HDR and distribution gates remain open.
+
+
+## Windows Server execution and PowerShell 5.1 fix
+
+The parent task executed the verified original kit on the authorized Windows Server 2022 x64 host (10.0.20348, PowerShell 5.1.20348.3932). The first wrapper exited 1 before any native call: wrapping ConvertFrom-Json with `@(...)` produced a nested one-element array in PowerShell 5.1. Removing only that wrapper on the frozen-case assignment restored the expected 16 cases. The original failed result and payload were retained; a new directory held the corrected script and updated manifest. Native code, DLLs and input/reference bytes were unchanged.
+
+The fresh run exited 0 and made 23 native calls: 17 successes (including Unicode paths) and 6 expected rejections. All 16 raw images equal the previous Mac libheif output exactly. Independent recomputation against the frozen Mac ImageIO PNGs reproduces every reported metric: alpha exact, premultiplied RGB maximum difference 1/255, still unaccepted as a product tolerance. Both parent and implementation task inspected the contact sheet.
+
+The implementation task independently verified the original 420-byte failure ZIP, 19,585-byte success ZIP, and 75-file corrected kit. The corrected kit is 4,466,303 bytes, SHA-256 `15ca24a9bc120da0ed774255723e54c928143d94fd43dd8ff18b0cc2cc60d528`; its payload matches the successful Server version, although that new ZIP itself was not uploaded. This proves the fixed-sample decoder and loader path on Server only. Windows11 clean-machine deployment, real images, ICC/HDR, UI import, licensing and W-031 remain open. See [original results and independent review](../../../docs/windows/evidence/heic-windows-server/README.md).

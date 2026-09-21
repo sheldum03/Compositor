@@ -1,0 +1,211 @@
+{
+  "host": "tencent-cpu-01",
+  "windowsServerExecuted": true,
+  "windows11Executed": false,
+  "powershell": "5.1.20348.3932",
+  "samples": 16,
+  "nativeInvocations": 23,
+  "successes": 17,
+  "expectedRejections": 6,
+  "allMetricsIndependentlyVerified": true,
+  "allRawEqualMacLibheif": true,
+  "alphaExactVsMacImageIO": true,
+  "maxPremultipliedRgbDifferenceVsMacImageIO": 1,
+  "imageToleranceAccepted": false,
+  "iccHdrValidated": false,
+  "productAccepted": false,
+  "results": [
+    {
+      "case": "orientation-1-opaque",
+      "rgbaSha256": "b2d388fb46656e4f75786c52316a27cc7773860c02e0702ea03932fc27a9fc1b",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 2.4804
+    },
+    {
+      "case": "orientation-1-alpha",
+      "rgbaSha256": "442f08999cf9f13282d7a2b06fb49c3d1e447a1300f3cd12ea8fb63fbedb4184",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.2614
+    },
+    {
+      "case": "orientation-2-opaque",
+      "rgbaSha256": "f8ed3f73bc22e7e2c02e81e5e1288b7e53a7ed87997f547ae0a410d615eed5ab",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.6439
+    },
+    {
+      "case": "orientation-2-alpha",
+      "rgbaSha256": "550417d870ec0a7cfcbb0be9c490ca7d485d47ef92421698ecf643d3fd3c65f7",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.1316
+    },
+    {
+      "case": "orientation-3-opaque",
+      "rgbaSha256": "d9224998f309f5482cf390559c5a747d0b2a04e58fe7e503e1746b7a1e8d2852",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.7596
+    },
+    {
+      "case": "orientation-3-alpha",
+      "rgbaSha256": "9a7773749191b26e653dacbc80bdde22fae164c28bdbda8bafd79d63b07214da",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.1324
+    },
+    {
+      "case": "orientation-4-opaque",
+      "rgbaSha256": "968915043c444d4ee3ff34c4a81b68c8265b6864b7cc412f3c1051013d06dc67",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.7729
+    },
+    {
+      "case": "orientation-4-alpha",
+      "rgbaSha256": "7834b9bcb7c2a0ff96fe1edc937434f70d7ec3e881563eafff6be17488da06a2",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.1983
+    },
+    {
+      "case": "orientation-5-opaque",
+      "rgbaSha256": "8d5798992912f5254154646012e53a7047deaee57ff6662a3914504d69c81299",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.6761
+    },
+    {
+      "case": "orientation-5-alpha",
+      "rgbaSha256": "6205c52f2678dd474ddde0e0149216d26188a31a684982210e0edb66d7bc1225",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.5379
+    },
+    {
+      "case": "orientation-6-opaque",
+      "rgbaSha256": "ad361d7ccaa87492347871d849eeda60a9621e99cf613d05a3a6f1cac2944169",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.6708
+    },
+    {
+      "case": "orientation-6-alpha",
+      "rgbaSha256": "139257504a2feefcedf83d41f533e1dfa0c8c16839c72e4fb1e3fb1b88773a53",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.141
+    },
+    {
+      "case": "orientation-7-opaque",
+      "rgbaSha256": "e1ce1f7052a38a13b0e7d4d626335094d3817b8289eb54beb2288e224c897b08",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.6795
+    },
+    {
+      "case": "orientation-7-alpha",
+      "rgbaSha256": "3a18253cdce48ff5affa40d0e0c578252738cc8b1cb882c065d48901a39f693f",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.1078
+    },
+    {
+      "case": "orientation-8-opaque",
+      "rgbaSha256": "2048350f5078aee2f687a1a18f12a9712e70ab35ce07b58bd31f8c998f04669f",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      },
+      "decodeMilliseconds": 1.6891
+    },
+    {
+      "case": "orientation-8-alpha",
+      "rgbaSha256": "8b2e8c877d77022b2ce6dbbd27e0fae8aba061c8eedc02b7e7642d1cff3814ad",
+      "matchesMacLibheifRaw": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      },
+      "decodeMilliseconds": 2.2719
+    }
+  ]
+}

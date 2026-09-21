@@ -1,0 +1,11 @@
+--- a/run-heic.ps1
++++ b/run-heic.ps1
+@@ -26,7 +26,7 @@
+         if ((Get-Item -LiteralPath $path).Length -ne $entry.bytes -or (Hash-File $path) -ne $entry.sha256) { throw ('Package identity mismatch: ' + $entry.path) }
+     }
+     $env:LIBHEIF_PLUGIN_PATH = Join-Path $run 'nonexistent-plugins'
+-    $cases = @(Get-Content -Raw -LiteralPath (Join-Path $root 'fixtures\cases.json') | ConvertFrom-Json)
++    $cases = Get-Content -Raw -LiteralPath (Join-Path $root 'fixtures\cases.json') | ConvertFrom-Json
+     if ($cases.Count -ne 16) { throw 'Expected 16 frozen cases' }
+     foreach ($case in $cases) {
+         $destination = Join-Path $run $case.name

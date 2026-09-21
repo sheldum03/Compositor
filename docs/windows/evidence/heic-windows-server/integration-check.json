@@ -1,0 +1,214 @@
+{
+  "provenance": "Windows Server executed by parent task; package and original outputs independently rechecked by implementation task",
+  "archives": [
+    {
+      "file": "heic-server-results-605a610-20260921.zip",
+      "bytes": 420,
+      "sha256": "e6d2840c82f477f2715de43462d65c2e3af13430c249a8f051df207004a09487",
+      "files": 1,
+      "crc": "passed"
+    },
+    {
+      "file": "heic-server-results-ps51fix-20260921.zip",
+      "bytes": 19585,
+      "sha256": "c878380e7a4a2dd51b3066e3ff62eb5552daae47053778c274a2241a09d9c2f4",
+      "files": 60,
+      "crc": "passed"
+    },
+    {
+      "file": "CompositorHeicProbe-ps51fixed.zip",
+      "bytes": 4466303,
+      "sha256": "15ca24a9bc120da0ed774255723e54c928143d94fd43dd8ff18b0cc2cc60d528",
+      "files": 76,
+      "crc": "passed"
+    }
+  ],
+  "fixedKitManifestFiles": 75,
+  "kitChangedPaths": [
+    "CompositorHeicProbe/files.json",
+    "CompositorHeicProbe/run-heic.ps1"
+  ],
+  "results": [
+    {
+      "case": "orientation-1-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-1-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-2-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-2-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-3-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-3-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-4-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-4-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-5-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-5-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-6-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-6-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-7-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-7-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    },
+    {
+      "case": "orientation-8-opaque",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 4608,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.25
+      }
+    },
+    {
+      "case": "orientation-8-alpha",
+      "metricsRecomputed": true,
+      "rawEqualMacLibheif": true,
+      "metrics": {
+        "differentPixels": 2304,
+        "maximumChannelError": 1,
+        "maximumAlphaError": 0,
+        "meanAbsoluteChannelError": 0.15625
+      }
+    }
+  ],
+  "windows11Executed": false,
+  "imageToleranceAccepted": false,
+  "nativeInvocations": 23,
+  "successes": 17,
+  "expectedRejections": 6
+}

@@ -1,0 +1,615 @@
+﻿{
+    "failureChecks":  [
+                          {
+                              "noOutputPublished":  true,
+                              "exitCode":  1,
+                              "case":  "truncated"
+                          },
+                          {
+                              "noOutputPublished":  true,
+                              "exitCode":  1,
+                              "case":  "wrong-format"
+                          },
+                          {
+                              "noOutputPublished":  true,
+                              "exitCode":  1,
+                              "case":  "missing"
+                          },
+                          {
+                              "noOutputPublished":  true,
+                              "exitCode":  1,
+                              "case":  "budget"
+                          }
+                      ],
+    "powershell":  "5.1.20348.3932",
+    "results":  [
+                    {
+                        "case":  "orientation-1-opaque",
+                        "rgbaSha256":  "b2d388fb46656e4f75786c52316a27cc7773860c02e0702ea03932fc27a9fc1b",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.4804,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-1-alpha",
+                        "rgbaSha256":  "442f08999cf9f13282d7a2b06fb49c3d1e447a1300f3cd12ea8fb63fbedb4184",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.2614,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-2-opaque",
+                        "rgbaSha256":  "f8ed3f73bc22e7e2c02e81e5e1288b7e53a7ed87997f547ae0a410d615eed5ab",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.6439,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-2-alpha",
+                        "rgbaSha256":  "550417d870ec0a7cfcbb0be9c490ca7d485d47ef92421698ecf643d3fd3c65f7",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.1316,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-3-opaque",
+                        "rgbaSha256":  "d9224998f309f5482cf390559c5a747d0b2a04e58fe7e503e1746b7a1e8d2852",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.7596,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-3-alpha",
+                        "rgbaSha256":  "9a7773749191b26e653dacbc80bdde22fae164c28bdbda8bafd79d63b07214da",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.1324,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-4-opaque",
+                        "rgbaSha256":  "968915043c444d4ee3ff34c4a81b68c8265b6864b7cc412f3c1051013d06dc67",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.7729,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-4-alpha",
+                        "rgbaSha256":  "7834b9bcb7c2a0ff96fe1edc937434f70d7ec3e881563eafff6be17488da06a2",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  96,
+                                       "height":  64,
+                                       "sourceRowStride":  384,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.1983,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-5-opaque",
+                        "rgbaSha256":  "8d5798992912f5254154646012e53a7047deaee57ff6662a3914504d69c81299",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.6761,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-5-alpha",
+                        "rgbaSha256":  "6205c52f2678dd474ddde0e0149216d26188a31a684982210e0edb66d7bc1225",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.5379,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-6-opaque",
+                        "rgbaSha256":  "ad361d7ccaa87492347871d849eeda60a9621e99cf613d05a3a6f1cac2944169",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.6708,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-6-alpha",
+                        "rgbaSha256":  "139257504a2feefcedf83d41f533e1dfa0c8c16839c72e4fb1e3fb1b88773a53",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.141,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-7-opaque",
+                        "rgbaSha256":  "e1ce1f7052a38a13b0e7d4d626335094d3817b8289eb54beb2288e224c897b08",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.6795,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-7-alpha",
+                        "rgbaSha256":  "3a18253cdce48ff5affa40d0e0c578252738cc8b1cb882c065d48901a39f693f",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.1078,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-8-opaque",
+                        "rgbaSha256":  "2048350f5078aee2f687a1a18f12a9712e70ab35ce07b58bd31f8c998f04669f",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.25,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  4608,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  false,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  1.6891,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    },
+                    {
+                        "case":  "orientation-8-alpha",
+                        "rgbaSha256":  "8b2e8c877d77022b2ce6dbbd27e0fae8aba061c8eedc02b7e7642d1cff3814ad",
+                        "comparison":  {
+                                           "meanAbsoluteChannelError":  0.15625,
+                                           "maximumAlphaError":  0,
+                                           "differentPixels":  2304,
+                                           "maximumChannelError":  1
+                                       },
+                        "decode":  {
+                                       "libheif":  "1.23.4",
+                                       "decoder":  "libde265 HEVC decoder, version 1.1.1",
+                                       "width":  64,
+                                       "height":  96,
+                                       "sourceRowStride":  256,
+                                       "hasAlpha":  true,
+                                       "premultiplied":  false,
+                                       "sourceIccBytes":  0,
+                                       "exifBlocks":  1,
+                                       "readDecodeCopyMilliseconds":  2.2719,
+                                       "warnings":  0,
+                                       "decoderCount":  1,
+                                       "encoderCount":  1,
+                                       "encoderId":  "mask"
+                                   }
+                    }
+                ],
+    "windowsExecuted":  true,
+    "nativeImeAccepted":  false,
+    "error":  null,
+    "generalIccAndHdrValidated":  false,
+    "source":  "same frozen 16 HEIC/PNG cases; independent Mac-decoded RGBA references",
+    "invocations":  [
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-1-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-1-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-0.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-1-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-1-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-1.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-2-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-2-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-2.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-2-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-2-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-3.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-3-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-3-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-4.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-3-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-3-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-5.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-4-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-4-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-6.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-4-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-4-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-7.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-5-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-5-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-8.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-5-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-5-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-9.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-6-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-6-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-10.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-6-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-6-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-11.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-7-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-7-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-12.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-7-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-7-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-13.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-8-opaque.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-8-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-14.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-8-alpha.heic",
+                            "exitCode":  0,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-8-alpha",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-15.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\路径 空格 🧪\\方向与透明度 🌈.heic",
+                            "exitCode":  0,
+                            "budget":  "100000000",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\路径 空格 🧪\\解码 结果 🚀",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-16.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\路径 空格 🧪\\方向与透明度 🌈.heic",
+                            "exitCode":  1,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\路径 空格 🧪\\解码 结果 🚀",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-17.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\truncated.heic",
+                            "exitCode":  1,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\truncated-rejected",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-18.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-1-opaque-mac.png",
+                            "exitCode":  1,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\wrong-format-rejected",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-19.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\missing.heic",
+                            "exitCode":  1,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\missing-rejected",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-20.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-1-opaque.heic",
+                            "exitCode":  1,
+                            "budget":  "100",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\budget-rejected",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-21.log"
+                        },
+                        {
+                            "input":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\fixtures\\orientation-1-opaque.heic",
+                            "exitCode":  1,
+                            "budget":  "",
+                            "destination":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\orientation-1-opaque",
+                            "log":  "C:\\CompositorValidation\\heic-605a610-ps51fix-20260921\\CompositorHeicProbe\\heic-run-20260921-154201-ed84abbf\\native-22.log"
+                        }
+                    ],
+    "os":  "Microsoft Windows NT 10.0.20348.0",
+    "completed":  true,
+    "productAccepted":  false,
+    "imageToleranceAccepted":  false
+}

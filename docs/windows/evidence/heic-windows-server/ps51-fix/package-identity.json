@@ -1,0 +1,10 @@
+{
+  "bytes": 4466303,
+  "sha256": "15ca24a9bc120da0ed774255723e54c928143d94fd43dd8ff18b0cc2cc60d528",
+  "manifestFiles": 75,
+  "changedPayloadFiles": [
+    "run-heic.ps1"
+  ],
+  "serverRunUsesSamePatchedRunnerAndPayload": true,
+  "newZipItselfUploaded": false
+}

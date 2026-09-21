@@ -1,0 +1,16 @@
+{
+  "libheif": "1.23.4",
+  "decoder": "libde265 HEVC decoder, version 1.1.1",
+  "width": 64,
+  "height": 96,
+  "sourceRowStride": 256,
+  "hasAlpha": true,
+  "premultiplied": false,
+  "sourceIccBytes": 0,
+  "exifBlocks": 1,
+  "readDecodeCopyMilliseconds": 2.141,
+  "warnings": 0,
+  "decoderCount": 1,
+  "encoderCount": 1,
+  "encoderId": "mask"
+}

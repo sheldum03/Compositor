@@ -784,3 +784,12 @@ Windows ABBA复测包CompositorBrushAB.zip已准备：13,814,837bytes，SHA256 2
 父任务的5个AMD64 PE/88命名符号/ordinal1检查、构建红绿日志与Mac适配脚本8调用正例、NaN负例native1/wrapper1、默认下载分支证据保留evidence/ai-windows-cross-build。输入tensor与原Mac字节一致，正例1344个CPU kernel；Mac适配并非Windows5.1。MSVCP140、MSVCP140_1、VCRUNTIME140、VCRUNTIME140_1未随包，未安装或复制系统运行库。
 
 Windows EXE/实际DLL加载/网络脚本均待执行。runner仅固定tensor至raw，不覆盖Windows图像前后处理、512px蒙版或.comp，不关闭D08/W009/W032/M1。本任务未操作服务器或浏览器，用户当前只安排原生窗口输入法下一步。补丁与文档单独提交，不混入文字复测提交。
+
+
+## 2026-09-21：整合 HEIC Server 真实解码与 PS5.1 修正证据
+
+父任务在授权Tencent Windows Server2022上核验原包后执行，首轮wrapper1/0native，原因是PS5.1的ConvertFrom-Json外围@()令16样本嵌成1个数组元素。只移除这层包装，在全新目录更新runner清单后重跑wrapper0：16样本、23原生调用，17成功6预期拒绝。原包、420字节失败ZIP和19585字节成功ZIP均保留。
+
+本任务独立核对两轮ZIP SHA/CRC，以及4466303字节修正版包75文件身份；原包比较仅runner一行及files.json变化。从成功ZIP直接读取16raw，使用本仓库固定参考重新计算全部像素指标，均精确吻合；16raw与原Mac libheif逐字节相同，alpha对ImageIO精确、RGB最大差1未接受。实际查看全部方向/alpha联系图，证据evidence/heic-windows-server含原始60文件、首次失败ZIP、修正脚本及整合核验。WindowsServer不等于Windows11干净机，不关闭D07/W031/M1。
+
+用户的UU Windows11输入法首轮仍等待本机Esc对照；本轮本任务没有再次操作前台或更改正在运行的窗口测试包。
