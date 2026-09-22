@@ -1,6 +1,6 @@
 # S02 优化进展（2026-09-22）
 
-**尚未通过 S02。** 已归档第二版 IME 证据，随后完成两轮 Windows 性能对照；第三版瓦片缓存候选本地验证通过，Windows 包已准备。Mac 锁屏且 UU 工具自动解锁失败，已请求用户解锁，后续实机操作暂停。没有改变 16.7 ms 门槛、笔划工作量、60 Hz 设置或计时终点。
+**S02 功能反馈正常，数值性能门槛尚未通过。** 用户于本轮确认 S02 测试没有问题。恢复 UU 连接后核对，远端最新目录仍是定时器对照，缓存候选尚未安装；因此保留功能反馈，性能采用以下原始记录独立判断。第二版 IME 证据已归档。没有改变 16.7 ms 门槛、笔划工作量、60 Hz 设置或计时终点。
 
 ## 已完成实机对照
 
@@ -8,13 +8,17 @@
 | --- | --- | --- | --- |
 | 原无遮挡基线 | 26.9577 ms | 27.4426 ms | 未通过 |
 | 透明目标像素快速路径 | 26.6946 ms | 26.9585 ms | 未通过；两张最终图与原基线 RGBA 精确一致 |
-| 上述版本 + 笔划期间请求 1 ms 定时器精度 | 27.0043 ms | 27.2742 ms | 终端显示 62 笔完成，无改善，相关代码已撤回；原始报告仍在 Windows，尚未独立复算 |
+| 上述版本 + 笔划期间请求 1 ms 定时器精度 | 27.0043 ms | 27.2742 ms | 62 笔原始记录已取回复算，图像精确；无改善，代码已撤回 |
+| 瓦片图像缓存 | 26.9440 ms | 27.0677 ms | 62 笔 / 7200 更新完成，复制下降但总延迟未改善 |
+| 缓存 + 覆盖率向量累积（当前） | 25.2184 ms | 26.7092 ms | CPU 和空层常见更新明显改善，P95 仍超标 |
 
 透明快速路径的 62 笔 / 7200 次测量更新已经从原始记录复算，提交 P95 为 11.3153/15.2015 ms，专用内存采样峰值 464,621,568 字节。append P95 为 6.013/10.6475 ms；paint P95 为 6.2964/8.437 ms；请求至绘制入口 P95 为 17.0852/15.23 ms，canvas 获取/释放 P95 均小于 0.003 ms。各阶段 P95 不能相加，等待段不等于纯操作系统计时器误差。
 
-Avalonia.Win32 11.3.22 实际 DLL 的 Win32Platform 绑定 DefaultRenderTimer(60)，与观察到的等待一起促成定时器精度假设。对照没有收益，未将 timeBeginPeriod 留在代码中，也未将未知原因写成已证实根因。API 请求成功数还需读取原始报告确认。[微软 API 说明](https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod)要求配对释放，并说明其调度/耗电影响与 Windows 11 可见性限制。
+Avalonia.Win32 11.3.22 实际 DLL 的 Win32Platform 绑定 DefaultRenderTimer(60)，与观察到的等待一起促成定时器精度假设。对照没有收益，未将 timeBeginPeriod 留在代码中，也未将未知原因写成已证实根因。原始报告已确认 62/62 笔 `highResolutionTimerRequested=true`，仍无可测收益。[微软 API 说明](https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod)要求配对释放，并说明其调度/耗电影响与 Windows 11 可见性限制。
 
-首轮原始归档：`s02-optimized-20260922-002128.zip`，3,134,088 字节，5 项 CRC 通过，远端/本地 hash 相同，见 [身份](transparent-archive.json)、[复算](transparent-windows-review.json)、[像素对照](transparent-pixel-comparison.json)。第二轮目录是 Windows `s02-timer-20260922-003126`，包身份见 [timer package](s02-timer-package.json)。
+首轮原始归档：`s02-optimized-20260922-002128.zip`，3,134,088 字节，5 项 CRC 通过，远端/本地 hash 相同，见 [身份](transparent-archive.json)、[复算](transparent-windows-review.json)、[像素对照](transparent-pixel-comparison.json)。定时器轮原始 zip 的 hash/CRC、62 次成功标记及零像素差分见 [timer archive](timer-archive.json)，数值见 [timer review](timer-windows-review.json)。
+
+缓存版实机 `s02-cache-20260922-114129` 已完成；提交 P95 11.9367/15.5905 ms，专用内存采样峰值 463,167,488 字节；每帧复制均约 4.6 MiB，最终两图与原基线 RGBA 精确。原始包 3,134,728 字节，远端/本地 hash 相同，5 项 CRC 通过，见 [archive](cache-archive.json) 与 [逐帧复算](cache-windows-review.json)。
 
 ## 当前候选改动与验证
 
@@ -28,13 +32,33 @@ Avalonia.Win32 11.3.22 实际 DLL 的 Win32Platform 绑定 DefaultRenderTimer(60
 
 尝试过的通道循环展开、去除临时合成层均无稳定本地收益，已撤回；未引入 GPU 后端或确定 GUI 选型。
 
-Windows x64 Release 构建通过，候选增量包 [身份](s02-cache-package.json)已核验可精确重建发布 DLL，尚未部署/执行。包名 `CompositorS02CacheDelta.zip`，106,207 字节，重建 DLL SHA-256 为 `7bcc13474ef6bfe0ca57d1170f1c6ec0f4b697c8e3dad5637f8da63ee2006ea9`。它从已部署 IME v2 构建独立 `s02-cache-app`，不覆盖旧包。
+Windows x64 Release 构建通过，缓存增量包 [身份](s02-cache-package.json)已核验可精确重建发布 DLL，并已部署/执行。包名 `CompositorS02CacheDelta.zip`，106,207 字节，重建 DLL SHA-256 为 `7bcc13474ef6bfe0ca57d1170f1c6ec0f4b697c8e3dad5637f8da63ee2006ea9`。它从已部署 IME v2 构建独立 `s02-cache-app`，不覆盖旧包。
 
-## 恢复后的下一步
+## 本轮覆盖率累积优化
 
-1. 取回定时器对照的 zip，核验 hash/CRC、请求成功标记、像素与逐帧记录，保留无收益实验。
-2. 部署缓存候选，核对 DLL 身份；保持 1000×1000 逻辑视口、150% 显示缩放、4000×4000 文档、800 px / 0 硬度 / 100% 不透明度，原路径及相同软件后端。
-3. 无遮挡、无并行测试/文件传输时执行空层/已有层各 1 笔预热 + 30 笔测量；用 `experiments/windows/avalonia/review-s02.py <report.json>` 复算门槛，另核对原图/历史及最终图片。
-4. 若仍超标，依据新阶段数据继续定位，而不是将本地收益或固定计时器假设当作完成。清理/取消路径及内存也需验证。
+当前版本只将逐像素覆盖率累积改为 `System.Numerics.Vector` 批量运算；用 ushort 保持整数精度，范围内除 255 的等价式保留原舍入，短行及不支持硬件向量的运行时使用原标量公式。不修改笔径、路径、采样间距、临时笔尾、颜色、发布混合或渲染设置。所用 API 见微软 [Widen](https://learn.microsoft.com/zh-cn/dotnet/api/system.numerics.vector.widen?view=net-10.0) / [Narrow](https://learn.microsoft.com/en-us/dotnet/api/system.numerics.vector.narrow?view=net-10.0)。
+
+当前已通过全部 65,536 种 coverage/tip 输入对 × 9 种长度（含非对齐、向量边界及余数），默认向量路径与 `DOTNET_EnableHWIntrinsic=0` 回退均通过 264 张冻结像素回归。临时副本将向量舍入常数 127 改为 126，立即被穷举检查捕获（exit 134）；正确实现恢复通过。S02 headless 484 回调和 40% 不透明度 brush 探针 242 更新 / 13 项会话检查通过。见 [本地验证](simd-local-validation.json)。
+
+另尝试缩小笔尾回退后发布区域，像素正确但同一时段 Mac 耗时收益不稳定，已撤回；保留临时诊断目录与事实记录，不放入发布版本。Mac 当日与前夜整体耗时不同，不用跨时段数据推断性能提升。
+
+SIMD 版本已构建并部署到独立 `s02-simd-app`，包身份见 [package](s02-simd-package.json)。Windows `s02-simd-20260922-115119` 的 62 笔 / 7200 次测量更新全部完成，原图不变、提交、撤销/重做检查通过，两张最终图与最初 Windows 基线零 RGBA 差异。原始 zip 3,131,494 字节，远端/本地 hash 相同、5 项 CRC 通过，见 [archive](simd-archive.json)。[开始](s02-simd-start.png) / [中途](s02-simd-mid.png)截图显示完整视口无遮挡；回放期间无其他 Windows 测试或文件传输。
+
+| 指标（空层 / 已有层） | 同日缓存对照 | 当前向量版 |
+| --- | --- | --- |
+| Append P95 | 6.0892 / 10.6874 ms | 2.7548 / 8.1024 ms |
+| 每笔平均进程 CPU 时间 | 2845.83 / 3348.44 ms | 2442.19 / 2844.27 ms |
+| 更新 P50 | 24.9143 / 24.9459 ms | 9.8716 / 24.7789 ms |
+| 3600 次更新中 ≤16.7 ms 数量 | 131 / 33 | 2859 / 434 |
+| 更新 P95 | 26.9440 / 27.0677 ms | 25.2184 / 26.7092 ms |
+| 提交 P95 | 11.9367 / 15.5905 ms | 10.5139 / 14.4033 ms |
+
+这轮将 Append P95 降低约 55%/24%，每笔平均 CPU 时间降低约 14%/15%。空层常见更新显著改善，但两组尾部延迟依然超标；已有层混合、绘制与调度仍需处理。当前 Paint P95 为 6.3625/8.1854 ms，请求至绘制入口 P95 为 17.1337/17.1433 ms；阶段 P95 不可相加。专用内存采样峰值 442,466,304 字节。详见[独立复算](simd-windows-review.json)与[同日阶段对照](cache-simd-phase-comparison.json)。`review-s02.py` 仍返回 exit 1，不能标记 S02 性能通过，也不代表真实输入到物理呈现耗时。
+
+## 后续优先级
+
+1. 在原生窗口进一步拆分请求到 SceneControl 入队、渲染定时器到实际绘制的等待；当前时间戳不足以区分 UI 排队、框架调度及 OS 等待，不能直接认定某个定时器是根因。
+2. 针对已有层的发布混合和高 DPI 软件绘制分别做单变量实验，先保持当前 CPU、60 Hz、工作量及像素语义；只保留实测有收益的改动。不要通过去掉调度段或放宽 P95 来通过。
+3. 后续若评估 GPU 路径，作为独立后端实验记录，并补图像及资源验证；不能将更换后端当成当前软件路径已达标。完整 S05、真实输入及 Windows 1.0 验收仍单独跟踪。
 
 全部原始本地产物位于 `/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite`；本地 headless 记录还位于 `/tmp/compositor-s02-*-20260922`。本文件与包身份不代替 Windows 1.0 或 W-008/M1 验收。

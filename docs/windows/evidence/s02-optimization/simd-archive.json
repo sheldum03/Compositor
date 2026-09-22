@@ -1,0 +1,17 @@
+{
+  "name": "s02-simd-20260922-115119.zip",
+  "bytes": 3131494,
+  "sha256": "9a6c624e669c7e36a61b90eadf9d6adac64bf541e4db58871ceb7ec2afaae875",
+  "entries": 5,
+  "crcPassed": true,
+  "pixelComparison": [
+    {
+      "name": "empty-final.png",
+      "differentPixels": 0
+    },
+    {
+      "name": "existing-final.png",
+      "differentPixels": 0
+    }
+  ]
+}

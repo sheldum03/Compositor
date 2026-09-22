@@ -1,0 +1,17 @@
+{
+  "name": "s02-cache-20260922-114129.zip",
+  "bytes": 3134728,
+  "sha256": "0c712b53df9d14ad16cbed1d9a7e2f77e0dda6baaf4778091467ddbe1b6d9d99",
+  "entries": 5,
+  "crcPassed": true,
+  "pixelComparison": [
+    {
+      "name": "empty-final.png",
+      "differentPixels": 0
+    },
+    {
+      "name": "existing-final.png",
+      "differentPixels": 0
+    }
+  ]
+}

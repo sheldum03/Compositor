@@ -1,0 +1,19 @@
+{
+  "name": "s02-timer-20260922-003126.zip",
+  "bytes": 3134153,
+  "sha256": "9858496c48ffc8f9bd8c679cd761b0ad46152d3610938420430e4f1ccaabc99a",
+  "entries": 5,
+  "crcPassed": true,
+  "highResolutionTimerRequested": 62,
+  "trials": 62,
+  "pixelComparison": [
+    {
+      "name": "empty-final.png",
+      "differentPixels": 0
+    },
+    {
+      "name": "existing-final.png",
+      "differentPixels": 0
+    }
+  ]
+}

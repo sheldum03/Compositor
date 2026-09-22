@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Runtime.InteropServices;
 using SkiaSharp;
 
@@ -204,13 +205,31 @@ internal sealed class SoftBrushStroke
             }
             dirty[key] = dirty.TryGetValue(key, out var previousDirty) ? SKRectI.Union(previousDirty, touched) : touched;
             for (int y = touched.Top; y < touched.Bottom; y++)
-            for (int x = touched.Left; x < touched.Right; x++)
+                AccumulateCoverage(mask.AsSpan((y - tile.Top) * tile.Width + touched.Left - tile.Left, touched.Width),
+                    tip.AsSpan((y - top) * settings.Diameter + touched.Left - left, touched.Width));
+        }
+    }
+    internal static void AccumulateCoverage(Span<byte> mask, ReadOnlySpan<byte> stamp)
+    {
+        int i = 0;
+        if (Vector.IsHardwareAccelerated)
+        {
+            var full = new Vector<ushort>(255);
+            var rounding = new Vector<ushort>(127);
+            for (; i <= mask.Length - Vector<byte>.Count; i += Vector<byte>.Count)
             {
-                int offset = (y - tile.Top) * tile.Width + x - tile.Left;
-                int deposited = tip[(y - top) * settings.Diameter + x - left];
-                mask[offset] = (byte)(mask[offset] + (deposited * (255 - mask[offset]) + 127) / 255);
+                Vector.Widen(new Vector<byte>(mask.Slice(i)), out var low, out var high);
+                Vector.Widen(new Vector<byte>(stamp.Slice(i)), out var tipLow, out var tipHigh);
+                var nLow = tipLow * (full - low) + rounding;
+                var nHigh = tipHigh * (full - high) + rounding;
+                // Exact n / 255 for this range (127..65152), with no ushort overflow.
+                low += (nLow + Vector<ushort>.One + (nLow >> 8)) >> 8;
+                high += (nHigh + Vector<ushort>.One + (nHigh >> 8)) >> 8;
+                Vector.Narrow(low, high).CopyTo(mask.Slice(i));
             }
         }
+        for (; i < mask.Length; i++)
+            mask[i] = (byte)(mask[i] + (stamp[i] * (255 - mask[i]) + 127) / 255);
     }
     private void Publish()
     {

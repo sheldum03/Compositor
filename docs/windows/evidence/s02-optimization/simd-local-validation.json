@@ -1,0 +1,57 @@
+{
+  "scope": "macOS headless correctness; timing affected by variable host load, not Windows acceptance",
+  "runs": [
+    {
+      "name": "cache-today",
+      "completed": true,
+      "error": null,
+      "frames": 484,
+      "finalPngSha256": {
+        "empty-final.png": "d03b4830e585c136c190a5591f62198233c31eb17ad53cf8f0f83a5dc88cc6a5",
+        "existing-final.png": "60fa42c6b9bc43de570f86b726b73d0877a147c1b80a1bb3b08c6df6a448d7fd"
+      }
+    },
+    {
+      "name": "dirty",
+      "completed": true,
+      "error": null,
+      "frames": 484,
+      "finalPngSha256": {
+        "empty-final.png": "d03b4830e585c136c190a5591f62198233c31eb17ad53cf8f0f83a5dc88cc6a5",
+        "existing-final.png": "60fa42c6b9bc43de570f86b726b73d0877a147c1b80a1bb3b08c6df6a448d7fd"
+      }
+    },
+    {
+      "name": "simd",
+      "completed": true,
+      "error": null,
+      "frames": 484,
+      "finalPngSha256": {
+        "empty-final.png": "d03b4830e585c136c190a5591f62198233c31eb17ad53cf8f0f83a5dc88cc6a5",
+        "existing-final.png": "60fa42c6b9bc43de570f86b726b73d0877a147c1b80a1bb3b08c6df6a448d7fd"
+      }
+    }
+  ],
+  "exhaustiveCoverageCases": 65536,
+  "spanLengths": [
+    1,
+    15,
+    16,
+    17,
+    31,
+    32,
+    33,
+    257,
+    65536
+  ],
+  "goldenRasters": 264,
+  "hardwareAccelerationEnabledPassed": true,
+  "hardwareAccelerationDisabledPassed": true,
+  "negativeRoundingMutationExitCode": 134,
+  "brushProbe": {
+    "updates": 242,
+    "sessionChecks": 13,
+    "output": "/tmp/compositor-brush-simd-20260922",
+    "passed": true
+  }
+}

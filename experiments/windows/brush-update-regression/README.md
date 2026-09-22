@@ -1,6 +1,6 @@
 # Brush update pixel regression
 
-The 264 hashes in `baseline.json` were generated from the pre-optimization `SoftBrushStroke.cs` and `TiledRaster.cs` at `e6bcc9f`, using .NET 10.0.401 / SkiaSharp 2.88.9 on macOS arm64. They cover provisional frames and commits for 12/40/520/800 px, 1/40/100% opacity, transparent and previously painted layers, crossings, repeated coordinates and clipping at the document edges. Undo, redo and cancellation are also checked. The current test additionally requires repeated unchanged draws to copy zero pixels and clearing the cache to reconstruct the same image.
+The 264 hashes in `baseline.json` were generated from the pre-optimization `SoftBrushStroke.cs` and `TiledRaster.cs` at `e6bcc9f`, using .NET 10.0.401 / SkiaSharp 2.88.9 on macOS arm64. They cover provisional frames and commits for 12/40/520/800 px, 1/40/100% opacity, transparent and previously painted layers, crossings, repeated coordinates and clipping at the document edges. Undo, redo and cancellation are also checked. The current test additionally requires repeated unchanged draws to copy zero pixels and clearing the cache to reconstruct the same image. Coverage accumulation is checked against the original scalar formula for all 65,536 byte pairs, with unaligned spans and lengths around 16/32-byte vector boundaries. Set `DOTNET_EnableHWIntrinsic=0` to run the same checks through the scalar fallback.
 
 Run from the repository root:
 

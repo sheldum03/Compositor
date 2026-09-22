@@ -1,0 +1,62 @@
+[
+  {
+    "run": "s02-cache-20260922-114129",
+    "scenario": "empty",
+    "cpuMillisecondsMean": 2845.8333333333335,
+    "nativeCopyBytesPerFrame": 4823449.6,
+    "phaseMeans": {
+      "AppendMilliseconds": 5.019850611111111,
+      "PaintMilliseconds": 5.063293666666667,
+      "RequestToRenderMilliseconds": 14.779046083333334,
+      "UpdateToCanvasLeaseReleasedMilliseconds": 24.865443694444444
+    },
+    "updateP50": 24.914250000000003,
+    "updatesWithin16_7ms": 131,
+    "measuredUpdates": 3600
+  },
+  {
+    "run": "s02-cache-20260922-114129",
+    "scenario": "existing",
+    "cpuMillisecondsMean": 3348.4375,
+    "nativeCopyBytesPerFrame": 4823449.6,
+    "phaseMeans": {
+      "AppendMilliseconds": 6.2818718888888885,
+      "PaintMilliseconds": 7.333611888888889,
+      "RequestToRenderMilliseconds": 11.631676194444445,
+      "UpdateToCanvasLeaseReleasedMilliseconds": 25.250504916666667
+    },
+    "updateP50": 24.94585,
+    "updatesWithin16_7ms": 33,
+    "measuredUpdates": 3600
+  },
+  {
+    "run": "s02-simd-20260922-115119",
+    "scenario": "empty",
+    "cpuMillisecondsMean": 2442.1875,
+    "nativeCopyBytesPerFrame": 4823449.6,
+    "phaseMeans": {
+      "AppendMilliseconds": 1.812622611111111,
+      "PaintMilliseconds": 4.985360666666667,
+      "RequestToRenderMilliseconds": 5.943773416666667,
+      "UpdateToCanvasLeaseReleasedMilliseconds": 12.744323472222222
+    },
+    "updateP50": 9.8716,
+    "updatesWithin16_7ms": 2859,
+    "measuredUpdates": 3600
+  },
+  {
+    "run": "s02-simd-20260922-115119",
+    "scenario": "existing",
+    "cpuMillisecondsMean": 2844.2708333333335,
+    "nativeCopyBytesPerFrame": 4823449.6,
+    "phaseMeans": {
+      "AppendMilliseconds": 3.163803722222222,
+      "PaintMilliseconds": 7.2576380277777774,
+      "RequestToRenderMilliseconds": 13.114690583333333,
+      "UpdateToCanvasLeaseReleasedMilliseconds": 23.53881575
+    },
+    "updateP50": 24.7789,
+    "updatesWithin16_7ms": 434,
+    "measuredUpdates": 3600
+  }
+]

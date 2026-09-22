@@ -2,6 +2,20 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SkiaSharp;
 
+// Exhaust every coverage/tip pair, including unaligned spans and scalar remainders.
+foreach (int length in new[] { 1, 15, 16, 17, 31, 32, 33, 257, 65536 })
+{
+    var mask = new byte[length + 2]; var stamp = new byte[length + 2];
+    for (int first = 0; first < 65536; first += length)
+    {
+        int count = Math.Min(length, 65536 - first);
+        for (int i = 0; i < count; i++) { mask[i + 1] = (byte)((first + i) >> 8); stamp[i + 1] = (byte)(first + i); }
+        var expected = (byte[])mask.Clone();
+        for (int i = 1; i <= count; i++) expected[i] = (byte)(mask[i] + (stamp[i] * (255 - mask[i]) + 127) / 255);
+        SoftBrushStroke.AccumulateCoverage(mask.AsSpan(1, count), stamp.AsSpan(1, count));
+        if (!mask.AsSpan().SequenceEqual(expected)) throw new Exception("Coverage accumulation differs from scalar formula or overwrites span boundary");
+    }
+}
 // Frozen pre-optimization raster hashes include provisional tails, clipping and nontransparent destinations.
 var actual = new Dictionary<string, string>();
 using var srgb = SKColorSpace.CreateSrgb();
@@ -54,5 +68,5 @@ else
     var expected = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(args[0]))!;
     if (actual.Count != expected.Count || actual.Any(pair => !expected.TryGetValue(pair.Key, out var hash) || hash != pair.Value))
         throw new Exception("Brush transient/committed raster differs from frozen pre-optimization output");
-    Console.WriteLine($"PASS: {actual.Count} transient/committed rasters; undo/redo/cancel; 4 diameters, 3 opacities, empty/existing layers");
+    Console.WriteLine($"PASS: 65536 coverage pairs across 9 span lengths; {actual.Count} transient/committed rasters; undo/redo/cancel; 4 diameters, 3 opacities, empty/existing layers");
 }
