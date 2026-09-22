@@ -15,7 +15,7 @@
 
 同机启动 `qt-remote-suite/window-app/qt_probe.exe --window`，PID 15572，输出 `qt-window`。原生窗口可见中文、英文和 Emoji；尚未证明原生 IME 输入。直接 UU 输入曾落在同组控制台的预编辑区，已按 Esc 取消，不计 Qt 证据。改用定向输入脚本后，前台窗口检查在发送前拒绝；AppActivate 返回 true 也未使检查通过。没有移除前台保护或将此直接归因于 Qt 产品缺陷。
 
-后续确认没有 QT 环境变量覆盖；Qt 仍在运行，前台检查仍未通过。最大化 Avalonia 测试窗口已正常关闭，用户原有窗口保留。
+后续确认没有 QT 环境变量覆盖；Qt 仍在运行，前台检查仍未通过。读取实时句柄为 91620222（PID 15572），窗口 enabled/visible 均为 true；SetForegroundWindow 返回 0，前台仍是 Qt 所属控制台 PID 37208。最初使用手抄的少一位旧句柄产生无效句柄诊断，已改为从进程直接取值，不把该诊断当作窗口失效。UU 两次点击也未使 Qt 前置，已请求用户手动点击；再次进入终端时 Mac 锁屏、自动解锁失败。未绕过前台保护，也未将此判为 Qt 编辑缺陷。最大化 Avalonia 测试窗口已正常关闭，用户原有窗口保留。
 
 ## S05 九轮诊断包 R4
 
@@ -24,7 +24,7 @@
 - 本地九轮：900 编辑、900 撤销、900 重做、18900 回调及九组 4000×4000 保存重开像素通过，最终旧文档引用为零。[复核](compositor-s05-soak-review.json) / [原始报告身份](local-soak-report-identity.json)。
 - 默认三轮重跑通过：[复核](compositor-s05-default-after-soak-review.json)。现有 S02 本地四笔及原生读回对照保持精确。
 - 三轮报告冒充九轮证据被复核脚本拒绝：[负例](compositor-s05-soak-negative.log)。
-- Windows x64 Release 构建及包 hash/CRC 已核验；[R4 包身份](s02-lifecycle-r4-package.json)。**R4 已传输并核验包及 DLL hash，Windows 九轮原生诊断已启动。** 输出 `C:\Users\Administrator\Desktop\CompositorTest\s05-soak-20260922-185546`，PID 45392。运行期间未启动其他 Windows 测试或文件传输。再次查询时工具报告 Mac 锁屏、自动解锁失败，最终结果尚未取回；Windows 资源稳定性仍未通过。
+- Windows x64 Release 构建及包 hash/CRC 已核验；[R4 包身份](s02-lifecycle-r4-package.json)。**R4 已传输并核验包及 DLL hash，Windows 九轮原生诊断已启动。** 输出 `C:\Users\Administrator\Desktop\CompositorTest\s05-soak-20260922-185546`，PID 45392。运行期间未启动其他 Windows 测试或文件传输。启动后的首次查询因锁屏中断；恢复后九轮原始结果已取回并完成独立复核，见 [九轮报告](windows-soak-r4-followup.md)。Windows 资源稳定性仍未通过。
 
 ## 原始证据与复核
 
@@ -36,4 +36,4 @@
 python experiments/windows/avalonia/review-native-brush.py <解压后的证据目录>
 ```
 
-恢复连接后先检查九轮进程及输出，取回原始报告和九组图像，独立复核完整性及资源趋势；再继续 Qt 焦点与真实拼音对照。设备矩阵、M1 和完整 Windows 1.0 尚未放行。
+九轮进程已退出，完整性与图像已复核；继续补充资源归因证据及 Qt 焦点与真实拼音对照。设备矩阵、M1 和完整 Windows 1.0 尚未放行。

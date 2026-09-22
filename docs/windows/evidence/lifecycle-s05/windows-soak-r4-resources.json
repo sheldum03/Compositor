@@ -1,0 +1,265 @@
+{
+  "scenario": "S05-soak-diagnostic",
+  "expectedRounds": 9,
+  "completed": true,
+  "error": null,
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "windowClosed": false,
+  "renderScaling": 1.5,
+  "workload": "4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; 9 rounds",
+  "baseline": {
+    "PrivateBytes": 23953408,
+    "WorkingSetBytes": 72036352,
+    "ManagedBytes": 1609312,
+    "LastGcCommittedBytes": 0,
+    "LastGcFragmentedBytes": 0,
+    "Handles": 540
+  },
+  "rounds": [
+    {
+      "round": 0,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 442667008,
+        "WorkingSetBytes": 502018048,
+        "ManagedBytes": 265360032,
+        "LastGcCommittedBytes": 183590912,
+        "LastGcFragmentedBytes": 29516728,
+        "Handles": 577
+      },
+      "afterClose": {
+        "PrivateBytes": 425426944,
+        "WorkingSetBytes": 485965824,
+        "ManagedBytes": 265384704,
+        "LastGcCommittedBytes": 183590912,
+        "LastGcFragmentedBytes": 29516728,
+        "Handles": 577
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 1,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 461623296,
+        "WorkingSetBytes": 521400320,
+        "ManagedBytes": 242982632,
+        "LastGcCommittedBytes": 395350016,
+        "LastGcFragmentedBytes": 150977216,
+        "Handles": 571
+      },
+      "afterClose": {
+        "PrivateBytes": 443277312,
+        "WorkingSetBytes": 504029184,
+        "ManagedBytes": 243007384,
+        "LastGcCommittedBytes": 395350016,
+        "LastGcFragmentedBytes": 150977216,
+        "Handles": 571
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 2,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 900952064,
+        "WorkingSetBytes": 957108224,
+        "ManagedBytes": 765176968,
+        "LastGcCommittedBytes": 558346240,
+        "LastGcFragmentedBytes": 2032488,
+        "Handles": 568
+      },
+      "afterClose": {
+        "PrivateBytes": 886218752,
+        "WorkingSetBytes": 941731840,
+        "ManagedBytes": 765193328,
+        "LastGcCommittedBytes": 558346240,
+        "LastGcFragmentedBytes": 2032488,
+        "Handles": 568
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 2,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 3,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 1133989888,
+        "WorkingSetBytes": 1191415808,
+        "ManagedBytes": 305738104,
+        "LastGcCommittedBytes": 799715328,
+        "LastGcFragmentedBytes": 359653064,
+        "Handles": 565
+      },
+      "afterClose": {
+        "PrivateBytes": 1118167040,
+        "WorkingSetBytes": 1175728128,
+        "ManagedBytes": 305746328,
+        "LastGcCommittedBytes": 799715328,
+        "LastGcFragmentedBytes": 359653064,
+        "Handles": 565
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 4,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 957911040,
+        "WorkingSetBytes": 1016852480,
+        "ManagedBytes": 407065008,
+        "LastGcCommittedBytes": 689025024,
+        "LastGcFragmentedBytes": 163430848,
+        "Handles": 570
+      },
+      "afterClose": {
+        "PrivateBytes": 940441600,
+        "WorkingSetBytes": 999747584,
+        "ManagedBytes": 407073232,
+        "LastGcCommittedBytes": 689025024,
+        "LastGcFragmentedBytes": 163430848,
+        "Handles": 570
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 5,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 413028352,
+        "WorkingSetBytes": 473284608,
+        "ManagedBytes": 251961680,
+        "LastGcCommittedBytes": 349712384,
+        "LastGcFragmentedBytes": 81490704,
+        "Handles": 565
+      },
+      "afterClose": {
+        "PrivateBytes": 395759616,
+        "WorkingSetBytes": 457355264,
+        "ManagedBytes": 251967984,
+        "LastGcCommittedBytes": 349712384,
+        "LastGcFragmentedBytes": 81490704,
+        "Handles": 565
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 6,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 1019228160,
+        "WorkingSetBytes": 1074888704,
+        "ManagedBytes": 878311080,
+        "LastGcCommittedBytes": 675074048,
+        "LastGcFragmentedBytes": 1918272,
+        "Handles": 567
+      },
+      "afterClose": {
+        "PrivateBytes": 1002250240,
+        "WorkingSetBytes": 1059049472,
+        "ManagedBytes": 878319304,
+        "LastGcCommittedBytes": 675074048,
+        "LastGcFragmentedBytes": 1918272,
+        "Handles": 567
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 7,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 1162215424,
+        "WorkingSetBytes": 1219411968,
+        "ManagedBytes": 269085120,
+        "LastGcCommittedBytes": 1090076672,
+        "LastGcFragmentedBytes": 276511712,
+        "Handles": 565
+      },
+      "afterClose": {
+        "PrivateBytes": 1146097664,
+        "WorkingSetBytes": 1203150848,
+        "ManagedBytes": 269100488,
+        "LastGcCommittedBytes": 1090076672,
+        "LastGcFragmentedBytes": 276511712,
+        "Handles": 565
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 8,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": 1397710848,
+        "WorkingSetBytes": 1451749376,
+        "ManagedBytes": 958566336,
+        "LastGcCommittedBytes": 1129418752,
+        "LastGcFragmentedBytes": 1878800,
+        "Handles": 565
+      },
+      "afterClose": {
+        "PrivateBytes": 1380040704,
+        "WorkingSetBytes": 1434468352,
+        "ManagedBytes": 958574560,
+        "LastGcCommittedBytes": 1129418752,
+        "LastGcFragmentedBytes": 1878800,
+        "Handles": 565
+      },
+      "afterDiagnosticCollection": {
+        "PrivateBytes": 1246085120,
+        "WorkingSetBytes": 1302208512,
+        "ManagedBytes": 3251520,
+        "LastGcCommittedBytes": 828702720,
+        "LastGcFragmentedBytes": 232520,
+        "Handles": 562
+      },
+      "retainedDocuments": 0,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    }
+  ],
+  "elapsedMilliseconds": 354852.3406,
+  "resourceAccepted": false,
+  "notes": "Native software canvas callbacks; synthetic input. All natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
+}

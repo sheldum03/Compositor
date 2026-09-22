@@ -24,9 +24,9 @@
 | 输入设备 | 已有物理拖选反馈；远程自动拖动曾只产生点 | 连续物理鼠标路径、数位笔基础输入；OS 注入单独标注 |
 | 参考与干净环境 | 已有 Server 2022 轻量节点部分构建/CPU 证据 | 普通集显实机、干净 Windows 普通用户安装/离线/卸载；Server 不代替 |
 
-已向用户询问是否有额外设备，当前尚无新增答复；不得把未执行改成通过。用户解锁后完成了 R3 生命周期/S05 复测及原始包核验，随后 Mac 再次锁屏，UU 自动解锁失败；连续输入和 Qt 原生操作仍需再次手动解锁。见 [R3 记录](evidence/lifecycle-s05/r3-followup.md)。
+已向用户询问是否有额外设备，当前尚无新增答复；不得把未执行改成通过。用户解锁后完成了 R3 生命周期/S05 复测及原始包核验，随后 Mac 再次锁屏，UU 自动解锁失败；连续 OS 笔刷输入随后已完成并归档；Qt 原生操作仍未完成。见 [R3 记录](evidence/lifecycle-s05/r3-followup.md)。
 
-再次解锁后的连续输入事件和 Qt 窗口观察见[补充记录](evidence/lifecycle-s05/native-input-followup.md)：连续 OS 笔刷图像已独立通过并归档，Qt IME 未完成。九轮资源诊断 R4 已部署并在 Windows 启动，查询结果时再次锁屏；最终报告待取回，资源稳定性未放行。
+再次解锁后的连续输入事件和 Qt 窗口观察见[补充记录](evidence/lifecycle-s05/native-input-followup.md)：连续 OS 笔刷图像已独立通过并归档，Qt IME 未完成。九轮资源诊断 R4 已完成并取回，900 次编辑及九组图像独立通过；内存中途回落、后段峰值上升，资源稳定性未放行，见[九轮分析](evidence/lifecycle-s05/windows-soak-r4-followup.md)。
 
 ## 决策闭合条件
 

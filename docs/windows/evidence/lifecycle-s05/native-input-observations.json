@@ -23,8 +23,8 @@
   "qtWindowPid": 15572,
   "qtWindowStillOpen": true,
   "qtImeExecuted": false,
-  "qtInputBlocker": "SendInput helper foreground guard rejected input before injection; AppActivate returned true but did not resolve it",
-  "currentBlocker": "Mac locked again; UU automatic unlock failed while checking the running nine-round Windows diagnostic",
+  "qtInputBlocker": "Current Qt HWND 91620222 is enabled/visible; SetForegroundWindow returned 0 and foreground remained Qt console PID 37208. UU clicks did not bring Qt forward; manual click requested. No IME injection accepted.",
+  "currentBlocker": "Mac locked again; UU automatic unlock failed while returning to Qt diagnostics after Windows nine-round S05 evidence was retrieved and independently verified",
   "archiveSha256": "d370e0c7689b784c8231679d55a6f4bfd2e665da242fb3de857135d106542cd3",
   "independentReview": "native-brush-review.json"
 }

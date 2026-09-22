@@ -6,7 +6,7 @@
 
 本轮新增：小视口拒绝与运行中关闭已在 Windows 复测通过。S05 两版各三轮原始包已取回，600 编辑、12600 回调及六组保存重开图像已独立复核；关闭后自然内存仍增长，资源稳定性未放行。连续输入和 Qt 对照执行前 Mac 再次锁屏，待再次解锁。见[复测记录](evidence/lifecycle-s05/r3-followup.md)与[M1 评审草案](m1-selection-review.md)。
 
-随后补充：连续 OS 笔刷的两次提交、取消及历史事件和六组新图像已独立复核通过并归档；Qt 原生窗口已启动但输入焦点尚未解决。S05 九轮诊断 R4 已部署并在 Windows 启动，最终报告待取回。查询结果时 Mac 再次锁屏，见[最新执行记录](evidence/lifecycle-s05/native-input-followup.md)。
+随后补充：连续 OS 笔刷的两次提交、取消及历史事件和六组新图像已独立复核通过并归档；Qt 原生窗口已启动但输入焦点尚未解决。S05 九轮诊断 R4 已完成并取回，900 次编辑和九组图像独立通过；内存中途回落但后段峰值仍上升，继续定位资源保留，见[九轮结果](evidence/lifecycle-s05/windows-soak-r4-followup.md)。Qt 焦点问题正在排查，见[最新执行记录](evidence/lifecycle-s05/native-input-followup.md)。
 
 ## 当前完成边界
 
