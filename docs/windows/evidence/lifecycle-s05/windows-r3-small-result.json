@@ -1,0 +1,31 @@
+{
+  "exitCode": 1,
+  "stderr": {},
+  "report": {
+    "completed": false,
+    "error": "System.InvalidOperationException: S02 needs a fully visible 1000x1000 logical viewport; current screen/DPI cannot provide it\r\n   at BrushPerformanceProbe.Run.Execute(Int32 measuredCount, Action render) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/BrushPerformanceProbe.cs:line 182",
+    "nativeWindow": true,
+    "windowsExecuted": true,
+    "windowClosed": false,
+    "updatesAttempted": 0,
+    "viewportChecks": [],
+    "viewportError": null,
+    "viewportNotes": "Final measured update per scenario also includes readback/reference/PNG validation; cost remains in timing. Both bitmaps use identical RGBA8 premultiplied sRGB, matrix and size. Not physical presentation.",
+    "platform": "Microsoft Windows NT 10.0.26200.0",
+    "processorCount": 32,
+    "runtime": "10.0.12",
+    "renderScaling": 1.5,
+    "clientWidth": 700,
+    "clientHeight": 700,
+    "viewport": "1000x1000 logical; 4000x4000 document; scale .25",
+    "opacity": 1,
+    "diameter": 800,
+    "hardness": 0,
+    "measuredCountPerScenario": 30,
+    "sampledPrivatePeak": null,
+    "memoryNotes": "PrivateMemorySize64 sampled after each frame and commit; null if unavailable; not a continuous peak measurement. Fresh one-stroke history per trial; S05 is separate.",
+    "timingNotes": "Synthetic sequential updates wait for native canvas lease release; includes scheduling and append, not physical presentation, input-device latency, GPU timing, or VRAM. No S02 acceptance inferred automatically.",
+    "performanceAccepted": false,
+    "trials": []
+  }
+}
