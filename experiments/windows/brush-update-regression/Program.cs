@@ -16,6 +16,18 @@ foreach (int length in new[] { 1, 15, 16, 17, 31, 32, 33, 257, 65536 })
         if (!mask.AsSpan().SequenceEqual(expected)) throw new Exception("Coverage accumulation differs from scalar formula or overwrites span boundary");
     }
 }
+// Packed destination blending must preserve every scalar channel and alpha rounding.
+for (uint alpha = 0; alpha < 256; alpha++)
+for (uint value = 0; value < 256; value++)
+{
+    uint baseline = value | ((value ^ 85) << 8) | (((value + 91) & 255) << 16) | ((value ^ 173) << 24);
+    uint color = alpha | ((alpha / 2) << 8) | ((alpha / 3) << 16) | (alpha << 24);
+    uint expected = 0;
+    for (int shift = 0; shift < 32; shift += 8)
+        expected |= (((color >> shift) & 255) + (((baseline >> shift) & 255) * (255 - alpha) + 127) / 255) << shift;
+    if (SoftBrushStroke.BlendPixel(baseline, color, 255 - alpha) != expected)
+        throw new Exception("Packed destination blend differs from scalar channels");
+}
 // Frozen pre-optimization raster hashes include provisional tails, clipping and nontransparent destinations.
 var actual = new Dictionary<string, string>();
 using var srgb = SKColorSpace.CreateSrgb();
@@ -26,6 +38,15 @@ string Render(Action<SKCanvas> draw)
     surface.Canvas.Save(); surface.Canvas.Scale(.5f); draw(surface.Canvas); surface.Canvas.Restore();
     using var image = surface.Snapshot();
     using var bitmap = SKBitmap.FromImage(image);
+    return Convert.ToHexString(SHA256.HashData(bitmap.Bytes));
+}
+string RenderBackdrop(Action<SKCanvas> draw, float scale, bool isolated)
+{
+    surface.Canvas.Clear(new SKColor(19, 51, 87, 143));
+    surface.Canvas.ClipRect(new SKRect(0, 0, 600, 450));
+    if (isolated) surface.Canvas.SaveLayer(); else surface.Canvas.Save();
+    surface.Canvas.Translate(.3f, .7f); surface.Canvas.Scale(scale); draw(surface.Canvas); surface.Canvas.Restore();
+    using var image = surface.Snapshot(); using var bitmap = SKBitmap.FromImage(image);
     return Convert.ToHexString(SHA256.HashData(bitmap.Bytes));
 }
 BrushPoint[] path = [new(-12, 30), new(20, 20), new(120, 80), new(260, 280), new(520, 470),
@@ -50,6 +71,9 @@ foreach (double opacity in new[] { .01, .4, 1 })
             string repeated = Render(c => copied = stroke.Paint(c, images));
             if (copied != 0 || repeated != actual[$"{key}/update-{i}"]) throw new Exception("Unchanged frame copied pixels or changed output");
         }
+        foreach (float scale in new[] { .175f, .25f, .375f })
+            if (RenderBackdrop(c => stroke.Paint(c, images), scale, true) != RenderBackdrop(c => stroke.Paint(c, images), scale, false))
+                throw new Exception("Direct brush composition differs from isolated layer over a backdrop");
         session.Commit(); actual[$"{key}/commit"] = Render(c => session.Current.Paint(c, images: images));
         images.Clear();
         long rebuilt = 0;

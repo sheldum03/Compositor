@@ -1,0 +1,37 @@
+{
+  "scenarios": [
+    {
+      "scenario": "empty",
+      "measuredFrames": 3600,
+      "updateP95": 25.1111,
+      "commitP95": 10.5753,
+      "updatePassed": false,
+      "commitPassed": true,
+      "AppendMillisecondsP95": 2.7017,
+      "PaintMillisecondsP95": 6.3127,
+      "RequestToRenderMillisecondsP95": 17.0977,
+      "CanvasAcquireMillisecondsP95": 0.0018,
+      "CanvasReleaseMillisecondsP95": 0.0024,
+      "RequestToSceneMillisecondsP95": 0.1581,
+      "SceneToRenderMillisecondsP95": 16.9277
+    },
+    {
+      "scenario": "existing",
+      "measuredFrames": 3600,
+      "updateP95": 26.7184,
+      "commitP95": 11.57,
+      "updatePassed": false,
+      "commitPassed": true,
+      "AppendMillisecondsP95": 4.1679,
+      "PaintMillisecondsP95": 8.1684,
+      "RequestToRenderMillisecondsP95": 17.1557,
+      "CanvasAcquireMillisecondsP95": 0.0018,
+      "CanvasReleaseMillisecondsP95": 0.0022,
+      "RequestToSceneMillisecondsP95": 0.2302,
+      "SceneToRenderMillisecondsP95": 16.9874
+    }
+  ],
+  "sampledPrivatePeak": 446500864,
+  "proposedS02GatesPassed": false,
+  "scope": "Nearest rank; excludes warmup and pointer-down. Native canvas lease release, not physical presentation. Unobscured viewport and image comparisons require separate evidence."
+}

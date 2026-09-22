@@ -1,0 +1,17 @@
+{
+  "name": "s02-packed-20260922-140917.zip",
+  "bytes": 3198217,
+  "sha256": "a99338e8a1d1390d1ac0edfbd6333c00b75a3dd92319ae03ef09f3ed64bdae8f",
+  "entries": 5,
+  "crcPassed": true,
+  "pixelComparison": [
+    {
+      "name": "empty-final.png",
+      "differentPixels": 0
+    },
+    {
+      "name": "existing-final.png",
+      "differentPixels": 0
+    }
+  ]
+}

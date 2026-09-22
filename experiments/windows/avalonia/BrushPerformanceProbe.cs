@@ -59,7 +59,7 @@ internal static class BrushPerformanceProbe
         private readonly SoftBrushSettings settings = new(800, 1, [1, 0.3, 0.1]);
         private BrushSession session = new(new TiledRaster(4000, 4000));
         private TaskCompletionSource<Frame>? pending;
-        private long started, requestedAt, renderEnteredAt, paintedAt, paintEndedAt, copied;
+        private long started, requestedAt, queuedAt, renderEnteredAt, paintedAt, paintEndedAt, copied;
         private double appendMs, paintMs;
         private int sequence, paintedSequence, renderThread;
         public SceneControl View { get; }
@@ -67,12 +67,14 @@ internal static class BrushPerformanceProbe
         public bool Passed { get; private set; }
         private sealed record Frame(int Sequence, double AppendMilliseconds, double PaintMilliseconds,
             double UpdateToCanvasLeaseReleasedMilliseconds, long NativePixelCopyBytes, int RenderThread,
-            double RequestToRenderMilliseconds, double CanvasAcquireMilliseconds, double CanvasReleaseMilliseconds);
+            double RequestToRenderMilliseconds, double CanvasAcquireMilliseconds, double CanvasReleaseMilliseconds,
+            double RequestToSceneMilliseconds, double SceneToRenderMilliseconds);
 
         internal Run(string fixtures, string output, bool nativeWindow)
         {
             this.fixtures = fixtures; this.output = output; this.nativeWindow = nativeWindow;
-            View = new SceneControl(1000, 1000, Paint, Painted, () => { lock (gate) renderEnteredAt = Stopwatch.GetTimestamp(); }) { Width = 1000, Height = 1000 };
+            View = new SceneControl(1000, 1000, Paint, Painted, () => { lock (gate) renderEnteredAt = Stopwatch.GetTimestamp(); },
+                () => { lock (gate) queuedAt = Stopwatch.GetTimestamp(); }) { Width = 1000, Height = 1000 };
         }
         private void Paint(SKCanvas canvas)
         {
@@ -80,7 +82,7 @@ internal static class BrushPerformanceProbe
             {
                 if (closed) return;
                 long t = Stopwatch.GetTimestamp();
-                canvas.SaveLayer(); canvas.Scale(0.25f);
+                canvas.Save(); canvas.Scale(0.25f);
                 copied = session.Active is { } stroke ? stroke.Paint(canvas, images) : session.Current.Paint(canvas, images: images);
                 canvas.Restore();
                 paintEndedAt = Stopwatch.GetTimestamp();
@@ -96,7 +98,9 @@ internal static class BrushPerformanceProbe
                 var frame = new Frame(sequence, appendMs, paintMs, Stopwatch.GetElapsedTime(started).TotalMilliseconds, copied, renderThread,
                     Stopwatch.GetElapsedTime(requestedAt, renderEnteredAt).TotalMilliseconds,
                     Stopwatch.GetElapsedTime(renderEnteredAt, paintedAt).TotalMilliseconds,
-                    Stopwatch.GetElapsedTime(paintEndedAt).TotalMilliseconds);
+                    Stopwatch.GetElapsedTime(paintEndedAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(requestedAt, queuedAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(queuedAt, renderEnteredAt).TotalMilliseconds);
                 pending = null; completion.SetResult(frame);
             }
         }

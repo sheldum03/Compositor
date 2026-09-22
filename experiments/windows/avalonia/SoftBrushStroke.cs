@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using SkiaSharp;
 
 internal readonly record struct BrushPoint(double X, double Y);
@@ -251,16 +252,24 @@ internal sealed class SoftBrushStroke
                     continue;
                 }
                 int colorOffset = mask[offset] * 4;
-                int alpha = coverageColors[colorOffset + 3];
-                for (int c = 0; c < 3; c++)
-                    result[offset * 4 + c] = (byte)(coverageColors[colorOffset + c] +
-                        (baseline[offset * 4 + c] * (255 - alpha) + 127) / 255);
-                result[offset * 4 + 3] = (byte)(alpha + (baseline[offset * 4 + 3] * (255 - alpha) + 127) / 255);
+                resultPixels[offset] = BlendPixel(baselinePixels[offset], colors[mask[offset]],
+                    (uint)(255 - coverageColors[colorOffset + 3]));
             }
             versions[pair.Key] = ++version;
             PublishedPixelBytes += (long)pair.Value.Width * pair.Value.Height * 4;
         }
         dirty.Clear();
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static uint BlendPixel(uint baseline, uint color, uint inverseAlpha)
+    {
+        // Two independent 16-bit lanes; each intermediate stays below 65536.
+        const uint lanes = 0x00ff00ff;
+        uint rb = (baseline & lanes) * inverseAlpha + 0x007f007f;
+        uint ga = ((baseline >> 8) & lanes) * inverseAlpha + 0x007f007f;
+        rb = ((rb + 0x00010001 + ((rb >> 8) & lanes)) >> 8) & lanes;
+        ga = ((ga + 0x00010001 + ((ga >> 8) & lanes)) >> 8) & lanes;
+        return color + (rb | (ga << 8));
     }
     private static byte Round255(double value) => (byte)Math.Clamp(Math.Floor(value + 0.5), 0, 255);
 }

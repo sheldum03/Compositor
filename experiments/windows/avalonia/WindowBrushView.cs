@@ -28,9 +28,8 @@ internal sealed class WindowBrushView(Action<string, object?> record) : Decorato
             {
                 if (closed) return;
                 if (!renderThreadRecorded) { record("brush-render-thread", Environment.CurrentManagedThreadId); renderThreadRecorded = true; }
-                // Src tile replacement must stay inside a transparent layer,
-                // otherwise transparent pixels erase the native window background.
-                canvas.SaveLayer(); canvas.Scale(0.175f);
+                // Disjoint tiles use SrcOver, preserving the window background without an intermediate layer.
+                canvas.Save(); canvas.Scale(0.175f);
                 if (session.Active is { } active) active.Paint(canvas, images);
                 else session.Current.Paint(canvas, images: images);
                 canvas.Restore();

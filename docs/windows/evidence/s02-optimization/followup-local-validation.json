@@ -1,0 +1,26 @@
+{
+  "platform": "macOS arm64; local checks do not replace Windows evidence",
+  "coverageInputPairs": 65536,
+  "coverageSpanLengths": 9,
+  "blendInputPairs": 65536,
+  "frozenRasters": 264,
+  "defaultVectorPassed": true,
+  "scalarFallbackPassed": true,
+  "backdropScales": [
+    0.175,
+    0.25,
+    0.375
+  ],
+  "backdropExact": true,
+  "packedRoundingMutationExit": 134,
+  "srcWithoutLayerMutationExit": 134,
+  "ordinaryBrushUpdates": 242,
+  "ordinaryBrushSessionChecks": 13,
+  "s02HeadlessCallbacks": 484,
+  "windowsReleaseBuildPassed": true,
+  "testedWindowsDllSha256": "11509e3e7ebb5e1ba7c918f4ea4cf90cd6e2491bef4930896826434aa91cbbce",
+  "finalDllSha256": "592d51778c2a390352783d789744632e4c63dc59e4546df733de2c4b3a71f055",
+  "finalDifference": "Only stale WindowBrushView comment corrected after exact reconstruction of tested direct DLL; blend oracle expanded to cover destination alpha byte too. No executable probe change after direct run.",
+  "gpuDiagnosticRetained": false,
+  "alphaEndpointBranchRetained": false
+}

@@ -26,7 +26,8 @@ for scenario in ('empty', 'existing'):
     row = dict(scenario=scenario, measuredFrames=len(frames), updateP95=update, commitP95=commit,
                updatePassed=update <= 16.7, commitPassed=commit <= 100)
     for field in ('AppendMilliseconds', 'PaintMilliseconds', 'RequestToRenderMilliseconds',
-                  'CanvasAcquireMilliseconds', 'CanvasReleaseMilliseconds'):
+                  'CanvasAcquireMilliseconds', 'CanvasReleaseMilliseconds',
+                  'RequestToSceneMilliseconds', 'SceneToRenderMilliseconds'):
         if all(field in f for f in frames):
             assert all(f[field] >= 0 for f in frames), field
             row[field + 'P95'] = p95([f[field] for f in frames])

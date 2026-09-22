@@ -60,7 +60,7 @@ internal sealed class TiledRaster(int width, int height)
         TileImageCache? images = null, IReadOnlyDictionary<int, long>? versions = null)
     {
         long copied = 0;
-        using var paint = new SKPaint { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
+        using var paint = new SKPaint { BlendMode = SKBlendMode.SrcOver, FilterQuality = SKFilterQuality.None };
         long Draw(int key, byte[] pixels, long version) => images is null
             ? DrawTile(canvas, Bounds(key), pixels)
             : images.Draw(canvas, Bounds(key), key, pixels, version, paint);
@@ -76,7 +76,7 @@ internal sealed class TiledRaster(int width, int height)
         using var image = SKImage.FromPixelCopy(new SKImageInfo(bounds.Width, bounds.Height,
             SKColorType.Rgba8888, SKAlphaType.Premul, srgb), rgba);
         // The native image owns its copy; the mutable stroke buffer is not lent to deferred drawing.
-        using var paint = new SKPaint { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
+        using var paint = new SKPaint { BlendMode = SKBlendMode.SrcOver, FilterQuality = SKFilterQuality.None };
         canvas.DrawImage(image, bounds.Left, bounds.Top, paint);
         return rgba.Length;
     }

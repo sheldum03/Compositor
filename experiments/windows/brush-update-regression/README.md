@@ -11,3 +11,5 @@ dotnet run --project experiments/windows/brush-update-regression/Regression.cspr
 Rendering uses RGBA8 premultiplied sRGB at 50% with nearest sampling. This is a pixel regression, not a Windows performance or physical-pointer acceptance test. S02 uses the unchanged 4000×4000 workload in `avalonia/PERFORMANCE.md`.
 
 `--record <path>` is for explicit baseline generation. Do not regenerate the baseline to make a failing comparison pass. `-p:BrushSourceDir=<directory>` compiles diagnostic variants of the current brush API without changing production files. The pre-cache baseline was recorded before adding cache assertions; do not use the current cached-call test driver to regenerate it against the older API.
+
+Packed destination blending additionally checks all 256×256 source-alpha/destination-byte combinations across the four RGBA channels. Direct composition is compared with isolated-layer composition over a semi-transparent backdrop at 17.5%, 25% and 37.5%, with fractional translation. Frozen transient/committed hashes still apply.

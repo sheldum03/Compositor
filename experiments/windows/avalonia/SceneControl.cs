@@ -6,15 +6,20 @@ using Avalonia.Skia;
 using SkiaSharp;
 
 // The control and export call the same compositor. The caller owns the scene lifetime.
-internal sealed class SceneControl(int width, int height, Action<SKCanvas> paint, Action? afterRender = null, Action? beforeRender = null) : Control
+internal sealed class SceneControl(int width, int height, Action<SKCanvas> paint, Action? afterRender = null, Action? beforeRender = null, Action? queued = null) : Control
 {
     public SceneControl(FixtureScene scene) : this(scene.Width, scene.Height, scene.Paint) { }
     private readonly int width = width, height = height;
     private readonly Action<SKCanvas> paint = paint;
     private readonly Action? afterRender = afterRender;
     private readonly Action? beforeRender = beforeRender;
+    private readonly Action? queued = queued;
     public int DrawCalls { get; private set; }
-    public override void Render(DrawingContext context) => context.Custom(new Draw(this));
+    public override void Render(DrawingContext context)
+    {
+        queued?.Invoke();
+        context.Custom(new Draw(this));
+    }
 
     private sealed class Draw(SceneControl owner) : ICustomDrawOperation
     {

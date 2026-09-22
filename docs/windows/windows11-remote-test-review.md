@@ -63,7 +63,11 @@ Mac 读回使用 Swift Testing 精确函数选择（含 `()`），最终 **2 pas
 
 见 [Qt 独立核验](evidence/windows11-remote-suite/qt-independent-review.json)、[字体对照原始摘要](evidence/windows11-remote-suite/qt/font-summary.json)、[原生插件合成事件记录](evidence/windows11-remote-suite/qt/window-report.json) 与 [Mac 读回](evidence/windows11-remote-suite/qt-mac-readback-summary.json)。
 
-## 2026-09-22 S02 优化进展
+## 2026-09-22 S02 后续计划执行结果
+
+新增 queue / packed / direct / GPU 四轮实机对照各完成 62 笔 / 7200 测量更新，原始包 hash/CRC 已核验。当前保留的软件 direct 版本空层/已有层更新 P95 11.2461/25.1137 ms，提交 9.7930/12.1172 ms，内存采样峰值 444,841,984 字节；三轮软件最终图片与原 Windows 基线精确一致。空层达到门槛，整体 S02 仍失败。GPU 对照已有层 40.2432 ms 且 PNG 读回不精确，代码撤回。具体改动、验证和未完成项见[执行记录](evidence/s02-optimization/followup-plan.md)。
+
+## 2026-09-22 S02 前轮优化进展
 
 第二版证据已归档，定时器对照原始 zip 已取回且 62 次请求均成功，但无收益，代码撤回。用户本轮反馈 S02 功能测试正常；其反馈与数值性能判定分别记录。随后经 UU 完成缓存版及覆盖率向量版各 62 笔 / 7200 更新：向量版 Append P95 为 2.7548/8.1024 ms，比同日缓存对照减少约 55%/24%；每笔平均 CPU 时间减少约 14%/15%。两张最终图片与最初 Windows 基线 RGBA 精确。总更新 P95 为 25.2184/26.7092 ms，仍超 16.7 ms。源码、包、截图、原始报告 hash/CRC 和独立复算见[优化记录](evidence/s02-optimization/README.md)。S02 数值性能及完整 Windows 1.0 仍未通过。
 
