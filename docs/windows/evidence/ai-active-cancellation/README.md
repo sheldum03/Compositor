@@ -14,6 +14,7 @@
 | 构建 | AppleClang 21 / C++17，警告视为错误；CMake 3.31.6 Release 实际构建及新入口通过 |
 | 内存检查 | 自有 C++ 启用 ASan/UBSan 的实际取消/恢复通过；预编译 ORT 未插桩，未启用 LeakSanitizer，不证明线程竞争或长期无泄漏 |
 | Windows CI | 已加入五轮活动取消和独立复核步骤，YAML 解析通过；未推送、未运行，不记为 Windows 通过 |
+| Windows x64 私下测试包 | LLVM-MinGW Release 构建通过；五个 AMD64 PE 的 123 个包内导入符号匹配导出，ZIP CRC 和逐文件身份通过；尚未在 Windows 执行，见 [构建记录和实测入口](windows-build-preparation.md) |
 
 [五轮结果](five-trials.json)、[CMake Release](cmake-release-review.json)、[ASan/UBSan](sanitized-review.json)、[原始文件及源码身份](identity.json)、[缺算子反例](negative-missing-kernels.log)、[旧探针反例](negative-pretermination-only.log)。完整 profile、预测张量和日志保存在 [本地原始目录](/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/ai-active-cancellation)，不含模型权重。
 
