@@ -28,6 +28,8 @@
 
 再次解锁后的连续输入事件和 Qt 窗口观察见[补充记录](evidence/lifecycle-s05/native-input-followup.md)：连续 OS 笔刷图像已独立通过并归档，Qt IME 未完成。九轮资源诊断 R4 已完成并取回，900 次编辑及九组图像独立通过；内存中途回落、后段峰值上升，资源稳定性未放行，见[九轮分析](evidence/lifecycle-s05/windows-soak-r4-followup.md)。
 
+R5 已补充 GC/分配采样并完成本地回归和 Windows 发布；尚无 R5 实机资源数据。当前阻断是本会话未提供桌面控制工具，不能继续 UU 原生操作，见 [R5 准备](evidence/lifecycle-s05/r5-gc-preparation.md)。
+
 ## 决策闭合条件
 
 - D-02：补原生文字、连续笔刷和运行可靠性后，按证据选择一条生产路线；当前只记录 Avalonia 性能证据领先，不提前将其写成已选型。

@@ -8,6 +8,8 @@
 
 随后补充：连续 OS 笔刷的两次提交、取消及历史事件和六组新图像已独立复核通过并归档；Qt 原生窗口已启动但输入焦点尚未解决。S05 九轮诊断 R4 已完成并取回，900 次编辑和九组图像独立通过；内存中途回落但后段峰值仍上升，继续定位资源保留，见[九轮结果](evidence/lifecycle-s05/windows-soak-r4-followup.md)。Qt 焦点问题正在排查，见[最新执行记录](evidence/lifecycle-s05/native-input-followup.md)。
 
+最新准备：R5 补充 GC 归因采样，本地九轮/默认三轮及 Windows 发布已验证，实机尚未执行。当前会话缺少桌面控制工具，不能操作 UU；见 [R5 包与执行步骤](evidence/lifecycle-s05/r5-gc-preparation.md)。
+
 ## 当前完成边界
 
 - 第二版 `c570953` 的“切页返回→全选→微软拼音 ceshi→Esc→原文保留”按用户实机反馈通过。112 项相关 Windows 自动回归也通过；本次没有独立比较原生取消前后 PNG。已通过的这一手动步骤无需再次要求用户确认。

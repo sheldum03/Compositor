@@ -7,13 +7,18 @@ internal static partial class BrushPerformanceProbe
 {
     private sealed partial class Run
     {
-        private sealed record ResourceSample(long? PrivateBytes, long WorkingSetBytes, long ManagedBytes, long LastGcCommittedBytes, long LastGcFragmentedBytes, int? Handles);
+        private sealed record ResourceSample(long? PrivateBytes, long WorkingSetBytes, long ManagedBytes, long LastGcCommittedBytes, long LastGcFragmentedBytes, int? Handles,
+            long TotalAllocatedBytesEstimate, int Gen0Collections, int Gen1Collections, int Gen2Collections,
+            long LastGcIndex, int LastGcGeneration, long LastGcHeapSizeBytes, long LastGcPromotedBytes, long LastGcLohSizeAfterBytes);
         private static ResourceSample Resources()
         {
             using var process = Process.GetCurrentProcess(); process.Refresh();
             var gc = GC.GetGCMemoryInfo();
             return new(process.PrivateMemorySize64 > 0 ? process.PrivateMemorySize64 : null, process.WorkingSet64, GC.GetTotalMemory(false), gc.TotalCommittedBytes, gc.FragmentedBytes,
-                OperatingSystem.IsWindows() ? process.HandleCount : null);
+                OperatingSystem.IsWindows() ? process.HandleCount : null,
+                GC.GetTotalAllocatedBytes(false), GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2),
+                gc.Index, gc.Generation, gc.HeapSizeBytes, gc.PromotedBytes,
+                gc.GenerationInfo.Length > 3 ? gc.GenerationInfo[3].SizeAfterBytes : 0);
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
         private WeakReference ReleaseDocument()
@@ -82,6 +87,8 @@ internal static partial class BrushPerformanceProbe
                 windowClosed = WindowClosed, renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
                 workload = $"4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; {roundCount} rounds",
                 baseline, rounds, elapsedMilliseconds = elapsed.Elapsed.TotalMilliseconds, trials,
+                resourceDiagnosticsVersion = 2, serverGc = System.Runtime.GCSettings.IsServerGC,
+                runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
                 resourceAccepted = false,
                 notes = "Native software canvas callbacks; synthetic input. All natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
             }, new JsonSerializerOptions { WriteIndented = true }));

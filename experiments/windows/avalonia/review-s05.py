@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('report', type=Path)
 parser.add_argument('--allow-local', action='store_true', help='Correctness diagnostics only; never Windows acceptance')
 parser.add_argument('--soak', action='store_true', help='Require the separate nine-round diagnostic, not the three-round S05 scenario')
+parser.add_argument('--gc-diagnostics', action='store_true', help='Require allocation and GC samples from R5 or later')
 args = parser.parse_args()
 r = json.loads(args.report.read_text(encoding='utf-8-sig'))
 round_count = 9 if args.soak else 3
@@ -27,10 +28,26 @@ assert len({v['finalDigest'] for v in r['rounds']}) == 1, 'Identical rounds prod
 assert all(v['afterDiagnosticCollection'] is None for v in r['rounds'][:-1]), 'Unexpected forced GC between rounds'
 assert r['rounds'][-1]['afterDiagnosticCollection'] is not None
 assert r['rounds'][-1]['retainedDocuments'] == 0
+if args.gc_diagnostics:
+    assert r.get('resourceDiagnosticsVersion') == 2, 'Requires allocation/GC diagnostics, not earlier evidence'
+    samples = [r['baseline']]
+    for index, row in enumerate(r['rounds']):
+        samples.extend(t['resources'] for t in r['trials'] if t['round'] == index)
+        samples.extend([row['beforeClose'], row['afterClose']])
+    samples.append(r['rounds'][-1]['afterDiagnosticCollection'])
+    cumulative = ['TotalAllocatedBytesEstimate', 'Gen0Collections', 'Gen1Collections', 'Gen2Collections', 'LastGcIndex']
+    for key in cumulative:
+        values = [s[key] for s in samples]
+        assert all(isinstance(v, int) and v >= 0 for v in values), key
+        assert all(a <= b for a, b in zip(values, values[1:])), key + ' decreased'
+    for sample in samples:
+        assert sample['LastGcGeneration'] in (0, 1, 2)
+        assert all(sample[key] >= 0 for key in ['LastGcHeapSizeBytes', 'LastGcPromotedBytes', 'LastGcLohSizeAfterBytes'])
+    assert samples[-1]['Gen2Collections'] > samples[-2]['Gen2Collections'], 'Final diagnostic GC not observed'
 private = [v['afterClose']['PrivateBytes'] for v in r['rounds']]
 valid_private = all(v is not None and v > 0 for v in private)
 print(json.dumps(dict(correctnessPassed=True, windowsExecuted=r['windowsExecuted'], nativeWindow=r['nativeWindow'],
-    diagnosticOnly=args.soak, rounds=round_count,
+    diagnosticOnly=args.soak, rounds=round_count, gcDiagnosticsChecked=args.gc_diagnostics,
     edits=100 * round_count, undoChecks=100 * round_count, redoChecks=100 * round_count, previewCallbacks=len(frames), elapsedMilliseconds=r['elapsedMilliseconds'],
     postClosePrivateBytes=private, postCloseHandles=[v['afterClose']['Handles'] for v in r['rounds']],
     monotonicPrivateGrowthObserved=all(a < b for a, b in zip(private, private[1:])) if valid_private else None,
