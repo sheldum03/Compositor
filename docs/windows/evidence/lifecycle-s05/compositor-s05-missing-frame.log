@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/review-s05.py", line 20, in <module>
+    assert all(len(t['frames']) == 21 and t['commitMilliseconds'] >= 0 for t in edits)
+AssertionError

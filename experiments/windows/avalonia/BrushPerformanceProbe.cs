@@ -10,16 +10,16 @@ using Avalonia.Threading;
 using Avalonia.Skia;
 using SkiaSharp;
 
-// S02 workload only. Timings end after releasing the Skia canvas lease, not at physical presentation.
-internal static class BrushPerformanceProbe
+// Fixed S02 replay and S05 resource workload. Timings end after releasing the Skia canvas lease, not at physical presentation.
+internal static partial class BrushPerformanceProbe
 {
-    internal static void Window(string fixtures, string output) => AppBuilder.Configure(() => new ProbeApp(fixtures, output))
+    internal static void Window(string fixtures, string output, bool small = false, bool longRun = false) => AppBuilder.Configure(() => new ProbeApp(fixtures, output, small, longRun))
         .UsePlatformDetect()
         .With(new Win32PlatformOptions { RenderingMode = [Win32RenderingMode.Software], CompositionMode = [Win32CompositionMode.RedirectionSurface] })
         .With(new AvaloniaNativePlatformOptions { RenderingMode = [AvaloniaNativeRenderingMode.Software] })
         .StartWithClassicDesktopLifetime([]);
 
-    private sealed class ProbeApp(string fixtures, string output) : Application
+    private sealed class ProbeApp(string fixtures, string output, bool small, bool longRun) : Application
     {
         public override void OnFrameworkInitializationCompleted()
         {
@@ -27,29 +27,30 @@ internal static class BrushPerformanceProbe
             {
                 desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 var run = new Run(fixtures, output, true);
-                var window = new Window { Title = "Compositor S02 — running", Width = 1024, Height = 1040, Content = run.View, CanResize = false };
-                window.Closed += (_, _) => run.Stop.Cancel();
-                window.Opened += async (_, _) =>
+                var window = new Window { Title = longRun ? "Compositor S05 — 3 rounds of 100 edits" : "Compositor S02 — running", Width = small ? 700 : 1024, Height = small ? 700 : 1040, Content = run.View, CanResize = false };
+                window.Closed += (_, _) => { run.WindowClosed = true; run.Stop.Cancel(); };
+                window.Opened += (_, _) => Dispatcher.UIThread.Post(async () =>
                 {
-                    await run.Execute(30, () => run.View.InvalidateVisual());
+                    if (longRun) await run.ExecuteLong(() => run.View.InvalidateVisual());
+                    else await run.Execute(30, () => run.View.InvalidateVisual());
                     desktop.Shutdown(run.Passed ? 0 : 1);
-                };
+                });
                 desktop.MainWindow = window;
             }
             base.OnFrameworkInitializationCompleted();
         }
     }
 
-    internal static void Check(string fixtures, string output)
+    internal static void Check(string fixtures, string output, bool longRun = false)
     {
         var run = new Run(fixtures, output, false);
         run.View.Measure(new Size(1000, 1000)); run.View.Arrange(new Rect(0, 0, 1000, 1000));
         using var target = new RenderTargetBitmap(new PixelSize(1000, 1000), new Vector(96, 96));
-        run.Execute(1, () => target.Render(run.View)).GetAwaiter().GetResult();
-        if (!run.Passed) throw new InvalidOperationException("S02 harness check failed; see report.json");
+        (longRun ? run.ExecuteLong(() => target.Render(run.View)) : run.Execute(1, () => target.Render(run.View))).GetAwaiter().GetResult();
+        if (!run.Passed) throw new InvalidOperationException("Brush harness check failed; see report.json");
     }
 
-    private sealed class Run
+    private sealed partial class Run
     {
         private readonly string fixtures, output;
         private readonly bool nativeWindow;
@@ -71,6 +72,7 @@ internal static class BrushPerformanceProbe
         public SceneControl View { get; }
         public CancellationTokenSource Stop { get; } = new();
         public bool Passed { get; private set; }
+        public bool WindowClosed { get; set; }
         private sealed record Frame(int Sequence, double AppendMilliseconds, double PaintMilliseconds,
             double UpdateToCanvasLeaseReleasedMilliseconds, long NativePixelCopyBytes, int RenderThread,
             double RequestToRenderMilliseconds, double CanvasAcquireMilliseconds, double CanvasReleaseMilliseconds,
@@ -254,7 +256,7 @@ internal static class BrushPerformanceProbe
         }
         private void Save(string? error, long? sampledPrivatePeak, int measuredCount) => File.WriteAllText(Path.Combine(output, "report.json"),
             JsonSerializer.Serialize(new { completed = Passed, error, nativeWindow, windowsExecuted = OperatingSystem.IsWindows(),
-                viewportChecks, viewportError,
+                windowClosed = WindowClosed, updatesAttempted = sequence, viewportChecks, viewportError,
                 viewportNotes = "Final measured update per scenario also includes readback/reference/PNG validation; cost remains in timing. Both bitmaps use identical RGBA8 premultiplied sRGB, matrix and size. Not physical presentation.",
                 platform = Environment.OSVersion.ToString(), processorCount = Environment.ProcessorCount,
                 runtime = Environment.Version.ToString(), renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,

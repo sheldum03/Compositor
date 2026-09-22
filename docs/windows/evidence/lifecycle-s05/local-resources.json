@@ -1,0 +1,108 @@
+{
+  "scenario": "S05",
+  "completed": true,
+  "error": null,
+  "windowsExecuted": false,
+  "nativeWindow": false,
+  "windowClosed": false,
+  "renderScaling": null,
+  "workload": "4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; 3 rounds",
+  "baseline": {
+    "PrivateBytes": null,
+    "WorkingSetBytes": 73891840,
+    "ManagedBytes": 344352,
+    "ManagedCommittedBytes": 0,
+    "ManagedFragmentedBytes": 0,
+    "Handles": null
+  },
+  "rounds": [
+    {
+      "round": 0,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 631275520,
+        "ManagedBytes": 240596928,
+        "ManagedCommittedBytes": 288309248,
+        "ManagedFragmentedBytes": 113097504,
+        "Handles": null
+      },
+      "afterClose": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 630751232,
+        "ManagedBytes": 240605152,
+        "ManagedCommittedBytes": 288309248,
+        "ManagedFragmentedBytes": 113097504,
+        "Handles": null
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 1,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 580550656,
+        "ManagedBytes": 243307744,
+        "ManagedCommittedBytes": 375357440,
+        "ManagedFragmentedBytes": 129934624,
+        "Handles": null
+      },
+      "afterClose": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 447479808,
+        "ManagedBytes": 243315968,
+        "ManagedCommittedBytes": 375357440,
+        "ManagedFragmentedBytes": 129934624,
+        "Handles": null
+      },
+      "afterDiagnosticCollection": null,
+      "retainedDocuments": 1,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    },
+    {
+      "round": 2,
+      "edits": 100,
+      "undoChecks": 100,
+      "redoChecks": 100,
+      "beforeClose": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 540033024,
+        "ManagedBytes": 743882152,
+        "ManagedCommittedBytes": 599425024,
+        "ManagedFragmentedBytes": 1560360,
+        "Handles": null
+      },
+      "afterClose": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 515358720,
+        "ManagedBytes": 743890376,
+        "ManagedCommittedBytes": 599425024,
+        "ManagedFragmentedBytes": 1560360,
+        "Handles": null
+      },
+      "afterDiagnosticCollection": {
+        "PrivateBytes": null,
+        "WorkingSetBytes": 314343424,
+        "ManagedBytes": 11113744,
+        "ManagedCommittedBytes": 151584768,
+        "ManagedFragmentedBytes": 130860512,
+        "Handles": null
+      },
+      "retainedDocuments": 0,
+      "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+      "saveReopenPassed": true
+    }
+  ],
+  "elapsedMilliseconds": 19298.6113,
+  "resourceAccepted": false,
+  "notes": "Native software canvas callbacks; synthetic input. All three natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
+}
