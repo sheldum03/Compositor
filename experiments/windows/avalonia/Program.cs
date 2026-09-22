@@ -13,8 +13,9 @@ internal static class Program
     private static void Main(string[] args)
     {
         bool s02Small = args.Length == 4 && args[0] == "--s02-small-window";
-        bool s05Window = args.Length == 4 && args[0] == "--s05-window";
-        bool s05Check = args.Length == 4 && args[0] == "--s05-check";
+        bool s05Window = args.Length == 4 && (args[0] == "--s05-window" || args[0] == "--s05-soak-window");
+        bool s05Check = args.Length == 4 && (args[0] == "--s05-check" || args[0] == "--s05-soak-check");
+        int resourceRounds = s05Window || s05Check ? (args[0].Contains("-soak-") ? 9 : 3) : 0;
         bool s02Window = args.Length == 4 && args[0] == "--s02-window";
         bool s02Check = args.Length == 4 && args[0] == "--s02-check";
         bool window = args.Length == 4 && args[0] == "--window";
@@ -23,7 +24,7 @@ internal static class Program
         bool verifyText = args.Length == 4 && args[0] == "--verify-text-output";
         bool text = args.Length == 4 && (args[0] == "--text" || diagnostics);
         if (brush || text || verifyText || window || s02Window || s02Small || s05Window || s05Check || s02Check) args = args[1..];
-        Check(args.Length == 3, "Usage: probe [--s02-window|--s02-small-window|--s05-window|--s05-check|--s02-check|--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
+        Check(args.Length == 3, "Usage: probe [--s02-window|--s02-small-window|--s05-window|--s05-check|--s05-soak-window|--s05-soak-check|--s02-check|--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
         string fixtures = Path.GetFullPath(args[0]), output = Path.GetFullPath(args[1]);
         string nativePath = Path.GetFullPath(args[2]);
         var library = NativeLibrary.Load(nativePath);
@@ -33,12 +34,12 @@ internal static class Program
         Check(!Path.Exists(output), "Output directory must not exist");
         if (!brush && !text && !s02Window && !s02Small && !s05Window && !s05Check && !s02Check) VerifyCorpus(fixtures);
         Directory.CreateDirectory(output);
-        if (s02Window || s02Small || s05Window) { BrushPerformanceProbe.Window(fixtures, output, s02Small, s05Window); return; }
+        if (s02Window || s02Small || s05Window) { BrushPerformanceProbe.Window(fixtures, output, s02Small, resourceRounds); return; }
         if (window) { WindowProbe.Run(fixtures, output, nativePath); return; }
         AppBuilder.Configure<Application>().UseSkia()
             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
             .SetupWithoutStarting();
-        if (s02Check || s05Check) { BrushPerformanceProbe.Check(fixtures, output, s05Check); return; }
+        if (s02Check || s05Check) { BrushPerformanceProbe.Check(fixtures, output, resourceRounds); return; }
         if (brush) { BrushProbe.Run(fixtures, output); return; }
         if (text) { TextProbe.Run(fixtures, output, diagnostics); return; }
         var results = new List<object>();

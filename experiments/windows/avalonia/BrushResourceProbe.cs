@@ -71,25 +71,25 @@ internal static partial class BrushPerformanceProbe
             }
             return digests;
         }
-        internal async Task ExecuteLong(Action render)
+        internal async Task ExecuteLong(Action render, int roundCount)
         {
             string? error = null;
             var rounds = new List<object>(); var releasedDocuments = new List<WeakReference>();
             var baseline = Resources(); var elapsed = Stopwatch.StartNew();
             void SaveLong() => File.WriteAllText(Path.Combine(output, "report.json"), JsonSerializer.Serialize(new
             {
-                scenario = "S05", completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
+                scenario = roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
                 windowClosed = WindowClosed, renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
-                workload = "4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; 3 rounds",
+                workload = $"4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; {roundCount} rounds",
                 baseline, rounds, elapsedMilliseconds = elapsed.Elapsed.TotalMilliseconds, trials,
                 resourceAccepted = false,
-                notes = "Native software canvas callbacks; synthetic input. All three natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
+                notes = "Native software canvas callbacks; synthetic input. All natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
             }, new JsonSerializerOptions { WriteIndented = true }));
             try
             {
                 if (nativeWindow && (TopLevel.GetTopLevel(View) is not { } top || top.ClientSize.Width < 1000 || top.ClientSize.Height < 1000))
                     throw new InvalidOperationException("S05 needs a 1000x1000 logical viewport");
-                for (int round = 0; round < 3; round++)
+                for (int round = 0; round < roundCount; round++)
                 {
                     Stop.Token.ThrowIfCancellationRequested();
                     var digests = await EditDocument(round, render, SaveLong);
@@ -98,13 +98,13 @@ internal static partial class BrushPerformanceProbe
                     var afterClose = Resources();
                     // Only diagnose reachability after recording natural post-close memory.
                     ResourceSample? afterDiagnosticCollection = null;
-                    if (round == 2)
+                    if (round == roundCount - 1)
                     {
                         GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
                         afterDiagnosticCollection = Resources();
                     }
                     int retainedDocuments = releasedDocuments.Count(w => w.IsAlive);
-                    if (round == 2 && retainedDocuments != 0) throw new InvalidDataException("Closed S05 document is still referenced");
+                    if (round == roundCount - 1 && retainedDocuments != 0) throw new InvalidDataException("Closed S05 document is still referenced");
                     rounds.Add(new { round, edits = 100, undoChecks = 100, redoChecks = 100, beforeClose, afterClose,
                         afterDiagnosticCollection, retainedDocuments, finalDigest = digests[^1], saveReopenPassed = true });
                     SaveLong();

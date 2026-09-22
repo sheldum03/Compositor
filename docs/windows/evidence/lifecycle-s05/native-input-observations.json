@@ -1,0 +1,28 @@
+{
+  "status": "terminal observations; raw Windows input outputs not yet retrieved",
+  "windowsExecuted": true,
+  "inputBoundary": "Windows SendInput, not physical hardware",
+  "root": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-input-20260922-175634",
+  "dllSha256": "40ad2fdb8b4279f1b98d68b0bb8d54a1b9b710392f9289240fe81fa05cf22813",
+  "diagnosticWindowPid": 42624,
+  "diagnosticWindowClosed": true,
+  "maximizedWindowPid": 29424,
+  "maximizedWindowStillOpen": true,
+  "observedBrushCommits": 2,
+  "observedBrushPointerUpdates": 68,
+  "lastSixSaveUndoCounts": [
+    0,
+    1,
+    1,
+    2,
+    1,
+    2
+  ],
+  "observedActionErrors": [],
+  "independentPixelReviewPassed": null,
+  "qtWindowPid": 15572,
+  "qtWindowStillOpen": true,
+  "qtImeExecuted": false,
+  "qtInputBlocker": "SendInput helper foreground guard rejected input before injection; AppActivate returned true but did not resolve it",
+  "currentBlocker": "Mac locked again; UU automatic unlock failed; manual unlock requested"
+}

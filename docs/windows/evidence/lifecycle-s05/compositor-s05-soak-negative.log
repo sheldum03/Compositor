@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/review-s05.py", line 13, in <module>
+    assert r['scenario'] == ('S05-soak-diagnostic' if args.soak else 'S05') and r['completed'] and r['error'] is None
+AssertionError
