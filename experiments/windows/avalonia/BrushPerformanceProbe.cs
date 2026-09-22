@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Avalonia.Skia;
 using SkiaSharp;
 
 // S02 workload only. Timings end after releasing the Skia canvas lease, not at physical presentation.
@@ -55,6 +56,11 @@ internal static class BrushPerformanceProbe
         private readonly object gate = new();
         private readonly TileImageCache images = new();
         private bool closed;
+        private bool captureViewport;
+        private string captureScenario = "";
+        private string? viewportError;
+        private sealed record ViewportCheck(string Scenario, int Width, int Height, int DifferentPixels, int MaximumChannelError);
+        private readonly List<ViewportCheck> viewportChecks = [];
         private readonly List<object> trials = [];
         private readonly SoftBrushSettings settings = new(800, 1, [1, 0.3, 0.1]);
         private BrushSession session = new(new TiledRaster(4000, 4000));
@@ -74,7 +80,7 @@ internal static class BrushPerformanceProbe
         {
             this.fixtures = fixtures; this.output = output; this.nativeWindow = nativeWindow;
             View = new SceneControl(1000, 1000, Paint, Painted, () => { lock (gate) renderEnteredAt = Stopwatch.GetTimestamp(); },
-                () => { lock (gate) queuedAt = Stopwatch.GetTimestamp(); }) { Width = 1000, Height = 1000 };
+                () => { lock (gate) queuedAt = Stopwatch.GetTimestamp(); }, InspectViewport) { Width = 1000, Height = 1000 };
         }
         private void Paint(SKCanvas canvas)
         {
@@ -88,6 +94,48 @@ internal static class BrushPerformanceProbe
                 paintEndedAt = Stopwatch.GetTimestamp();
                 paintMs = Stopwatch.GetElapsedTime(t, paintEndedAt).TotalMilliseconds;
                 paintedSequence = sequence; paintedAt = t; renderThread = Environment.CurrentManagedThreadId;
+            }
+        }
+        private void InspectViewport(ISkiaSharpApiLease lease)
+        {
+            lock (gate)
+            {
+                if (!captureViewport || sequence % 121 != 0) return;
+                captureViewport = false;
+                try
+                {
+                    var matrix = lease.SkCanvas.TotalMatrix;
+                    var bounds = SKRectI.Round(matrix.MapRect(new SKRect(0, 0, 1000, 1000)));
+                    using var srgb = SKColorSpace.CreateSrgb();
+                    var info = new SKImageInfo(bounds.Width, bounds.Height, SKColorType.Rgba8888, SKAlphaType.Premul, srgb);
+                    using var actual = new SKBitmap(info);
+                    using var expected = new SKBitmap(info);
+                    if (lease.SkSurface is not { } native || !native.ReadPixels(info, actual.GetPixels(), actual.RowBytes, bounds.Left, bounds.Top))
+                        throw new InvalidOperationException("Native viewport readback failed");
+                    using var reference = SKSurface.Create(info);
+                    reference.Canvas.Clear(nativeWindow ? SKColors.White : SKColors.Transparent);
+                    reference.Canvas.Translate(-bounds.Left, -bounds.Top);
+                    reference.Canvas.Concat(ref matrix); reference.Canvas.Scale(.25f);
+                    session.Active!.Paint(reference.Canvas);
+                    if (!reference.ReadPixels(info, expected.GetPixels(), expected.RowBytes, 0, 0))
+                        throw new InvalidOperationException("Reference viewport readback failed");
+                    byte[] a = actual.Bytes, b = expected.Bytes;
+                    int different = 0, maxError = 0;
+                    for (int i = 0; i < a.Length; i += 4)
+                    {
+                        bool changed = false;
+                        for (int c = 0; c < 4; c++) { int error = Math.Abs(a[i + c] - b[i + c]); changed |= error != 0; maxError = Math.Max(maxError, error); }
+                        if (changed) different++;
+                    }
+                    foreach (var (name, bitmap) in new[] { ("native", actual), ("reference", expected) })
+                    {
+                        using var image = SKImage.FromBitmap(bitmap);
+                        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+                        using var file = File.Create(Path.Combine(output, captureScenario + "-" + name + "-preview.png")); data.SaveTo(file);
+                    }
+                    viewportChecks.Add(new(captureScenario, bounds.Width, bounds.Height, different, maxError));
+                }
+                catch (Exception e) { viewportError = e.ToString(); }
             }
         }
         private void Painted()
@@ -154,7 +202,8 @@ internal static class BrushPerformanceProbe
                     Stop.Token.ThrowIfCancellationRequested();
                     var source = scenario == 0 ? empty : existing;
                     string sourceDigest = source.Digest();
-                    lock (gate) { images.Clear(); session = new BrushSession(source); session.Begin(settings); }
+                    lock (gate) { images.Clear(); session = new BrushSession(source); session.Begin(settings);
+                        captureViewport = trial == measuredCount; captureScenario = scenario == 0 ? "empty" : "existing"; }
                     var frames = new List<Frame>(); var privateBytes = new List<long?>();
                     var gcBefore = Enumerable.Range(0, 3).Select(GC.CollectionCount).ToArray();
                     process.Refresh(); var cpuBefore = process.TotalProcessorTime;
@@ -192,6 +241,8 @@ internal static class BrushPerformanceProbe
                     Save(null, sampledPrivatePeak, measuredCount);
                 }
                 Stop.Token.ThrowIfCancellationRequested();
+                if (viewportError is not null || viewportChecks.Count != 2 || viewportChecks.Any(v => v.DifferentPixels != 0))
+                    throw new InvalidDataException("Viewport differs from uncached RGBA reference: " + viewportError);
                 Passed = true;
             }
             catch (Exception e) { error = e.ToString(); }
@@ -203,6 +254,8 @@ internal static class BrushPerformanceProbe
         }
         private void Save(string? error, long? sampledPrivatePeak, int measuredCount) => File.WriteAllText(Path.Combine(output, "report.json"),
             JsonSerializer.Serialize(new { completed = Passed, error, nativeWindow, windowsExecuted = OperatingSystem.IsWindows(),
+                viewportChecks, viewportError,
+                viewportNotes = "Final measured update per scenario also includes readback/reference/PNG validation; cost remains in timing. Both bitmaps use identical RGBA8 premultiplied sRGB, matrix and size. Not physical presentation.",
                 platform = Environment.OSVersion.ToString(), processorCount = Environment.ProcessorCount,
                 runtime = Environment.Version.ToString(), renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
                 clientWidth = TopLevel.GetTopLevel(View)?.ClientSize.Width, clientHeight = TopLevel.GetTopLevel(View)?.ClientSize.Height, viewport = "1000x1000 logical; 4000x4000 document; scale .25", opacity = 1,

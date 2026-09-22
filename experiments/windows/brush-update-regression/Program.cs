@@ -28,6 +28,16 @@ for (uint value = 0; value < 256; value++)
     if (SoftBrushStroke.BlendPixel(baseline, color, 255 - alpha) != expected)
         throw new Exception("Packed destination blend differs from scalar channels");
 }
+// Revisiting an already allocated area must not clone every tail tile on each pointer update.
+var allocationStroke = new SoftBrushStroke(new TiledRaster(4000, 4000), new(800, 1, [1, .3, .1]));
+for (int i = 0; i < 12; i++) allocationStroke.Append(new(2000 + i % 2 * 50, 2000 + i % 3 * 40));
+long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+for (int i = 0; i < 32; i++) allocationStroke.Append(new(2000 + i % 2 * 50, 2000 + i % 3 * 40));
+long tailUpdateAllocations = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
+if (tailUpdateAllocations > 4 * 1024 * 1024)
+    throw new Exception($"Repeated tail updates allocated {tailUpdateAllocations} bytes (budget 4 MiB)");
+Console.WriteLine($"PASS: 32 repeated tail updates allocated {tailUpdateAllocations} bytes (budget 4 MiB)");
+allocationStroke.Cancel();
 // Frozen pre-optimization raster hashes include provisional tails, clipping and nontransparent destinations.
 var actual = new Dictionary<string, string>();
 using var srgb = SKColorSpace.CreateSrgb();
@@ -40,12 +50,12 @@ string Render(Action<SKCanvas> draw)
     using var bitmap = SKBitmap.FromImage(image);
     return Convert.ToHexString(SHA256.HashData(bitmap.Bytes));
 }
-string RenderBackdrop(Action<SKCanvas> draw, float scale, bool isolated)
+string RenderBackdrop(Action<SKCanvas> draw, float scale, bool isolated, float offsetX = .3f, float offsetY = .7f)
 {
     surface.Canvas.Clear(new SKColor(19, 51, 87, 143));
     surface.Canvas.ClipRect(new SKRect(0, 0, 600, 450));
     if (isolated) surface.Canvas.SaveLayer(); else surface.Canvas.Save();
-    surface.Canvas.Translate(.3f, .7f); surface.Canvas.Scale(scale); draw(surface.Canvas); surface.Canvas.Restore();
+    surface.Canvas.Translate(offsetX, offsetY); surface.Canvas.Scale(scale); draw(surface.Canvas); surface.Canvas.Restore();
     using var image = surface.Snapshot(); using var bitmap = SKBitmap.FromImage(image);
     return Convert.ToHexString(SHA256.HashData(bitmap.Bytes));
 }
@@ -74,6 +84,10 @@ foreach (double opacity in new[] { .01, .4, 1 })
         foreach (float scale in new[] { .175f, .25f, .375f })
             if (RenderBackdrop(c => stroke.Paint(c, images), scale, true) != RenderBackdrop(c => stroke.Paint(c, images), scale, false))
                 throw new Exception("Direct brush composition differs from isolated layer over a backdrop");
+        foreach (float scale in new[] { .125f, .25f, .375f, .5f, 1f, 1.5f, .175f, .375f })
+            foreach (var (x, y) in new[] { (0f, 0f), (1f, 3f), (35f, 17f), (-8f, -6f), (.3f, .7f) })
+                if (RenderBackdrop(c => stroke.Paint(c, images), scale, false, x, y) != RenderBackdrop(c => stroke.Paint(c), scale, false, x, y))
+                    throw new Exception($"Cached viewport differs from full-resolution nearest sampling: {key}, scale={scale}, offset={x}/{y}");
         session.Commit(); actual[$"{key}/commit"] = Render(c => session.Current.Paint(c, images: images));
         images.Clear();
         long rebuilt = 0;

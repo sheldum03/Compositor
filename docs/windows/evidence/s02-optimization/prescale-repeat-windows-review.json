@@ -1,0 +1,53 @@
+{
+  "scenarios": [
+    {
+      "scenario": "empty",
+      "measuredFrames": 3600,
+      "updateP95": 11.0144,
+      "commitP95": 9.5465,
+      "updatePassed": true,
+      "commitPassed": true,
+      "AppendMillisecondsP95": 1.8636,
+      "PaintMillisecondsP95": 1.5858,
+      "RequestToRenderMillisecondsP95": 8.7938,
+      "CanvasAcquireMillisecondsP95": 0.0024,
+      "CanvasReleaseMillisecondsP95": 0.0016,
+      "RequestToSceneMillisecondsP95": 0.0521,
+      "SceneToRenderMillisecondsP95": 8.7681
+    },
+    {
+      "scenario": "existing",
+      "measuredFrames": 3600,
+      "updateP95": 11.3419,
+      "commitP95": 12.6258,
+      "updatePassed": true,
+      "commitPassed": true,
+      "AppendMillisecondsP95": 2.4107,
+      "PaintMillisecondsP95": 1.9802,
+      "RequestToRenderMillisecondsP95": 8.6112,
+      "CanvasAcquireMillisecondsP95": 0.0023,
+      "CanvasReleaseMillisecondsP95": 0.0016,
+      "RequestToSceneMillisecondsP95": 0.0587,
+      "SceneToRenderMillisecondsP95": 8.585
+    }
+  ],
+  "sampledPrivatePeak": 872730624,
+  "proposedS02GatesPassed": true,
+  "viewportChecks": [
+    {
+      "Scenario": "empty",
+      "Width": 1500,
+      "Height": 1500,
+      "DifferentPixels": 0,
+      "MaximumChannelError": 0
+    },
+    {
+      "Scenario": "existing",
+      "Width": 1500,
+      "Height": 1500,
+      "DifferentPixels": 0,
+      "MaximumChannelError": 0
+    }
+  ],
+  "scope": "Nearest rank; excludes warmup and pointer-down. Native canvas lease release, not physical presentation. Unobscured viewport and image comparisons require separate evidence."
+}

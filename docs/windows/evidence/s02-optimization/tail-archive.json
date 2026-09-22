@@ -1,0 +1,25 @@
+{
+  "name": "s02-tail-20260922-150000.zip",
+  "bytes": 3191450,
+  "sha256": "1ec1bd65a9f2c6f531db0f4248523b24b81f64cc7494e771205a21b86788a40a",
+  "entries": 5,
+  "crcPassed": true,
+  "completed": true,
+  "trials": 62,
+  "renderScaling": 1.5,
+  "finalPixels": {
+    "empty": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    },
+    "existing": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    }
+  },
+  "nativePreview": null
+}

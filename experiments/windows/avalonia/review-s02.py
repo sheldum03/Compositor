@@ -10,6 +10,11 @@ assert report['nativeWindow'] and report['windowsExecuted'], 'Requires native Wi
 assert report['measuredCountPerScenario'] >= 30
 assert report['diameter'] == 800 and report['hardness'] == 0 and report['opacity'] == 1
 assert report['viewport'] == '1000x1000 logical; 4000x4000 document; scale .25'
+viewport_checks = report.get('viewportChecks')
+if viewport_checks is not None:
+    assert report.get('viewportError') is None
+    assert [v['Scenario'] for v in viewport_checks] == ['empty', 'existing']
+    assert all(v['DifferentPixels'] == 0 and v['MaximumChannelError'] == 0 for v in viewport_checks), 'Native preview mismatch'
 
 def p95(values):
     return sorted(values)[math.ceil(len(values) * .95) - 1]
@@ -34,6 +39,6 @@ for scenario in ('empty', 'existing'):
     rows.append(row)
 peak = report['sampledPrivatePeak']
 passed = all(r['updatePassed'] and r['commitPassed'] for r in rows) and peak is not None and peak <= 2 * 1024**3
-print(json.dumps(dict(scenarios=rows, sampledPrivatePeak=peak, proposedS02GatesPassed=passed,
+print(json.dumps(dict(scenarios=rows, sampledPrivatePeak=peak, proposedS02GatesPassed=passed, viewportChecks=viewport_checks,
     scope='Nearest rank; excludes warmup and pointer-down. Native canvas lease release, not physical presentation. Unobscured viewport and image comparisons require separate evidence.'), indent=2))
 sys.exit(0 if passed else 1)

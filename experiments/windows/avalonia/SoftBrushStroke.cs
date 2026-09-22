@@ -19,7 +19,8 @@ internal sealed class SoftBrushStroke
     private readonly Dictionary<int, long> versions = [];
     private long version;
     private readonly Dictionary<int, SKRectI> dirty = [];
-    private readonly Dictionary<int, byte[]?> tail = [];
+    private readonly Dictionary<int, (byte[]? Pixels, SKRectI Bounds)> tail = [];
+    private readonly Dictionary<int, byte[]> tailBackups = [];
     private readonly List<BrushPoint> samples = [];
     private BrushPoint? previous;
     private double distanceToNext;
@@ -131,8 +132,14 @@ internal sealed class SoftBrushStroke
             (int)Math.Ceiling(Math.Max(start.Y, end.Y) + reach));
         foreach (int key in Keys(bounds))
         {
-            tail[key] = coverage.TryGetValue(key, out var mask) ? (byte[])mask.Clone() : null;
-            TailBackupBytes += tail[key]?.Length ?? 0;
+            byte[]? backup = null;
+            if (coverage.TryGetValue(key, out var mask))
+            {
+                if (!tailBackups.TryGetValue(key, out backup)) tailBackups[key] = backup = new byte[mask.Length];
+                mask.CopyTo(backup, 0);
+            }
+            tail[key] = (backup, SKRectI.Intersect(source.Bounds(key), bounds));
+            TailBackupBytes += backup?.Length ?? 0;
         }
         var saved = (previous, distanceToNext);
         Walk(end);
@@ -143,9 +150,9 @@ internal sealed class SoftBrushStroke
         foreach (var pair in tail)
         {
             if (!coverage.TryGetValue(pair.Key, out var mask)) continue;
-            if (pair.Value is { } backup) backup.CopyTo(mask, 0);
+            if (pair.Value.Pixels is { } backup) backup.CopyTo(mask, 0);
             else Array.Clear(mask);
-            dirty[pair.Key] = source.Bounds(pair.Key);
+            dirty[pair.Key] = pair.Value.Bounds;
         }
         tail.Clear();
     }
