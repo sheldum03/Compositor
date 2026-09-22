@@ -1,5 +1,5 @@
 {
-  "status": "terminal observations; raw Windows input outputs not yet retrieved",
+  "status": "Windows OS brush input independently passed; Qt IME incomplete",
   "windowsExecuted": true,
   "inputBoundary": "Windows SendInput, not physical hardware",
   "root": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-input-20260922-175634",
@@ -7,7 +7,7 @@
   "diagnosticWindowPid": 42624,
   "diagnosticWindowClosed": true,
   "maximizedWindowPid": 29424,
-  "maximizedWindowStillOpen": true,
+  "maximizedWindowStillOpen": false,
   "observedBrushCommits": 2,
   "observedBrushPointerUpdates": 68,
   "lastSixSaveUndoCounts": [
@@ -19,10 +19,12 @@
     2
   ],
   "observedActionErrors": [],
-  "independentPixelReviewPassed": null,
+  "independentPixelReviewPassed": true,
   "qtWindowPid": 15572,
   "qtWindowStillOpen": true,
   "qtImeExecuted": false,
   "qtInputBlocker": "SendInput helper foreground guard rejected input before injection; AppActivate returned true but did not resolve it",
-  "currentBlocker": "Mac locked again; UU automatic unlock failed; manual unlock requested"
+  "currentBlocker": "Mac locked again; UU automatic unlock failed while checking the running nine-round Windows diagnostic",
+  "archiveSha256": "d370e0c7689b784c8231679d55a6f4bfd2e665da242fb3de857135d106542cd3",
+  "independentReview": "native-brush-review.json"
 }

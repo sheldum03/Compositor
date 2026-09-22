@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "windowsExecuted": true,
+  "inputBoundary": "Windows SendInput, not physical hardware",
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/NativeBrushInputEvidence.zip",
+  "archiveBytes": 5490254,
+  "archiveSha256": "d370e0c7689b784c8231679d55a6f4bfd2e665da242fb3de857135d106542cd3",
+  "archiveCrcPassed": true,
+  "rawRoot": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/native-brush-input",
+  "pointerUpdates": 68,
+  "committedStrokes": 2,
+  "lastSixSaveUndoCounts": [
+    0,
+    1,
+    1,
+    2,
+    1,
+    2
+  ],
+  "pngPairsCompared": 6,
+  "differentPixels": 0,
+  "cancelRestoredPixels": true,
+  "undoRestoredPixels": true,
+  "redoRestoredPixels": true,
+  "nextStrokeChangedPixels": true,
+  "windowClosedRecorded": true,
+  "physicalInputAccepted": false,
+  "qtImeAccepted": false
+}
