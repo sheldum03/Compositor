@@ -30,6 +30,8 @@
 
 R5 已补充 GC/分配采样并完成本地回归和 Windows 发布；尚无 R5 实机资源数据。当前阻断是本会话未提供桌面控制工具，不能继续 UU 原生操作，见 [R5 准备](evidence/lifecycle-s05/r5-gc-preparation.md)。
 
+2026-09-23 补充：AI 原型新增独立活动推理取消/同会话恢复检查，五轮本地 profile 与预测精确复核通过；Windows CI 步骤已准备但未执行，不关闭 Windows/产品取消门槛。见[活动取消证据](evidence/ai-active-cancellation/README.md)。
+
 ## 决策闭合条件
 
 - D-02：补原生文字、连续笔刷和运行可靠性后，按证据选择一条生产路线；当前只记录 Avalonia 性能证据领先，不提前将其写成已选型。

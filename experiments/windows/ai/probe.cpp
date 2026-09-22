@@ -6,6 +6,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -21,7 +22,8 @@ int wmain(int argc, wchar_t **argv) {
 int main(int argc, char **argv) {
 #endif
     try {
-        check(argc == 4, "Usage: ai_probe <verified-u2netp.onnx> <1x3x320x320-f32le> <new-output-directory>");
+        const bool activeCancellation = argc == 5 && fs::path(argv[4]) == "--active-cancel";
+        check(argc == 4 || activeCancellation, "Usage: ai_probe <verified-u2netp.onnx> <1x3x320x320-f32le> <new-output-directory> [--active-cancel]");
         check(std::string(Ort::GetVersionString()) == "1.30.0", "Pinned ONNX Runtime version");
         const fs::path model(argv[1]), inputPath(argv[2]), output(argv[3]);
         uint32_t endian = 1; check(*reinterpret_cast<unsigned char *>(&endian) == 1, "Little-endian float fixture");
@@ -67,13 +69,50 @@ int main(int argc, char **argv) {
         auto recovered = session.Run(run, inputs, &tensor, 1, outputNames.data(), outputNames.size());
         check(std::memcmp(first.data(), recovered[0].GetTensorData<float>(), first.size() * sizeof(float)) == 0, "Session usable after termination reset");
         auto profile = session.EndProfilingAllocated(allocator); check(fs::is_regular_file(fs::u8path(profile.get())), "CPU profile emitted");
+        if (activeCancellation) {
+            auto activeOptions = options.Clone();
+            auto activePrefix = output / "active-profile"; activeOptions.EnableProfiling(activePrefix.c_str());
+            Ort::Session activeSession(env, model.c_str(), activeOptions);
+            Ort::RunOptions activeRun;
+            std::promise<void> entered; auto entry = entered.get_future();
+            auto worker = std::async(std::launch::async, [&] {
+                entered.set_value();
+                try { activeSession.Run(activeRun, inputs, &tensor, 1, outputNames.data(), outputNames.size()); }
+                catch (const Ort::Exception &error) {
+                    if (std::string(error.what()).find("terminate") != std::string::npos) return true;
+                    throw;
+                }
+                return false;
+            });
+            entry.get();
+            check(worker.wait_for(std::chrono::milliseconds(10)) == std::future_status::timeout,
+                  "Inference finished before cancellation could be requested");
+            auto cancelStart = Clock::now(); activeRun.SetTerminate();
+            const bool rejected = worker.get(); // Join before resetting options or releasing borrowed storage.
+            const double cancelToJoinMs = milliseconds(cancelStart);
+            check(rejected, "Active inference did not return a termination error");
+            activeRun.UnsetTerminate();
+            auto activeRecovered = activeSession.Run(activeRun, inputs, &tensor, 1, outputNames.data(), outputNames.size());
+            check(std::memcmp(first.data(), activeRecovered[0].GetTensorData<float>(), first.size() * sizeof(float)) == 0,
+                  "Session output changed after active cancellation");
+            auto activeProfile = activeSession.EndProfilingAllocated(allocator);
+            check(fs::is_regular_file(fs::u8path(activeProfile.get())), "Active cancellation profile emitted");
+            std::ofstream recoveredMask(output / "active-recovered.f32", std::ios::binary);
+            recoveredMask.write(reinterpret_cast<const char *>(activeRecovered[0].GetTensorData<float>()), std::streamsize(first.size() * sizeof(float)));
+            recoveredMask.close(); check(bool(recoveredMask), "Write recovery prediction");
+            std::ofstream activeReport(output / "active-cancellation.json");
+            activeReport << std::setprecision(12) << "{\n  \"terminationErrorObserved\": true,\n  \"workerJoined\": true,\n"
+                << "  \"cancelledCallReturnedOutput\": false,\n  \"sessionRecovered\": true,\n"
+                << "  \"cancelToJoinMilliseconds\": " << cancelToJoinMs << "\n}\n";
+            activeReport.close(); check(bool(activeReport), "Write active cancellation observations");
+        }
         auto extrema = std::minmax_element(first.begin(), first.end()); check(*extrema.second - *extrema.first > .5f, "Nonconstant foreground prediction");
         std::ofstream mask(output / "mask.f32", std::ios::binary); mask.write(reinterpret_cast<const char *>(first.data()), std::streamsize(first.size() * sizeof(float))); mask.close(); check(bool(mask), "Write raw prediction");
         std::ofstream report(output / "inference.json");
         report << std::setprecision(12) << "{\n  \"onnxruntime\": \"" << Ort::GetVersionString() << "\",\n  \"execution\": \"CPU default; one intra/inter-op thread; sequential\",\n"
             << "  \"sessionLoadMilliseconds\": " << loadMs << ",\n  \"inferenceMilliseconds\": [" << times[0] << ", " << times[1] << ", " << times[2] << "],\n"
             << "  \"outputMinimum\": " << *extrema.first << ",\n  \"outputMaximum\": " << *extrema.second << ",\n"
-            << "  \"repeatedPredictionsExact\": true,\n  \"preTerminatedRunRejected\": true,\n  \"sessionRecovered\": true,\n  \"activeInferenceCancellationTested\": false\n}\n";
+            << "  \"repeatedPredictionsExact\": true,\n  \"preTerminatedRunRejected\": true,\n  \"sessionRecovered\": true,\n  \"activeInferenceCancellationTested\": " << (activeCancellation ? "true" : "false") << "\n}\n";
         report.close(); check(bool(report), "Write inference report");
         std::cout << "CPU inference and pre-termination checks passed; inspect profile and mask; not Windows or quality acceptance\n";
         return 0;

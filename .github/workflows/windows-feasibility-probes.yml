@@ -132,6 +132,17 @@ jobs:
             Tee-Object build/evidence/screen.txt
           $report = Get-Content build/output/screening.json -Raw | ConvertFrom-Json
           if ($report.windowsExecuted -ne $true) { throw "Expected Windows execution evidence" }
+      - name: Check active AI cancellation and exact recovery
+        if: matrix.probe == 'ai'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          for ($trial = 1; $trial -le 5; $trial++) {
+            $output = "build/output/active-cancel-$trial"
+            & build/probe/Release/ai_probe.exe build/assets/u2netp.onnx build/output/input.f32 $output --active-cancel 2>&1 |
+              Tee-Object "build/evidence/active-cancel-$trial.log"
+            python experiments/windows/ai/review-active-cancel.py $output |
+              Set-Content "build/evidence/active-cancel-$trial-review.json"
+          }
       - name: Retain diagnostics without model weights or runtime binaries
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

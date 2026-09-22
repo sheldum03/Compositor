@@ -71,6 +71,8 @@ The first output is the saliency mask. The pinned adapter's min/max normalizatio
 
 One sequential CPU session uses one intra-op and one inter-op thread. Three successful predictions must match bitwise; a pre-terminated `RunOptions` must reject a run, then resetting it must restore successful identical output. This checks **cancellation before inference**, not interruption of an active run or a UI cancellation lifecycle. RAII owns session/tensors; input storage stays alive until synchronous runs return. Profiling attributes every executed kernel to `CPUExecutionProvider`.
 
+The optional fourth argument `--active-cancel` now tests cross-thread cancellation in a separate profiled CPU session, followed by exact same-session recovery. Run `python3 experiments/windows/ai/review-active-cancel.py <native-output>` to require actual kernel work within the canceled inference; a thread-entry signal alone is insufficient. Five local trials, default-output regression, CMake Release and own-code ASan/UBSan checks pass. Windows CI steps are prepared but unexecuted. This does not implement UI document cancellation or settle model selection. See [active cancellation evidence](../../../docs/windows/evidence/ai-active-cancellation/README.md).
+
 ## Observed results and limits
 
 Final screening output `/tmp/compositor-ai-run-02` passed; the standalone resource observation `/tmp/compositor-ai-native-metrics` used the same model/input and emitted the identical raw prediction:
