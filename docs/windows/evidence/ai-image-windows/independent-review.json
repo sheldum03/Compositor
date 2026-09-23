@@ -1,0 +1,81 @@
+{
+  "windowsExecutionRecorded": true,
+  "independentlyReviewedOn": "macOS",
+  "archiveSha256": "e555a25b3ae633cb70dedd792830e892c69d9fa115b10b752e17dc8947fb1037",
+  "archiveBytes": 3697251,
+  "consoleHashMatched": true,
+  "inputTensorExactEarlierFixture": true,
+  "rawPredictionExactEarlierWindows": true,
+  "unicodeRawPredictionExact": true,
+  "profiles": [
+    {
+      "path": "native/cpu-profile_2026-09-23_15-39-10_586.json",
+      "providers": {
+        "CPUExecutionProvider": 1460
+      }
+    },
+    {
+      "path": "\u8def\u5f84 \u7a7a\u683c \ud83e\uddea/\u63a8\u7406 \u7ed3\u679c \ud83d\ude80/cpu-profile_2026-09-23_15-39-12_607.json",
+      "providers": {
+        "CPUExecutionProvider": 1460
+      }
+    }
+  ],
+  "postprocessingPixelsExact": true,
+  "cutoutRgbPreservedAlphaEqualsMask": true,
+  "separateImageAndMaskAssetsExact": true,
+  "maskMode": "L",
+  "maskSize": [
+    512,
+    512
+  ],
+  "zeroPixels": 108712,
+  "fullPixels": 395,
+  "intermediatePixels": 153037,
+  "maskPixelsSha256": "229a020666a9cf6d8baf1c43c7d5ea7552c77767f8a0064c0f13d169812d2b6f",
+  "nativeReport": {
+    "onnxruntime": "1.30.0",
+    "execution": "CPU default; one intra/inter-op thread; sequential",
+    "sessionLoadMilliseconds": 53.0361,
+    "inferenceMilliseconds": [
+      407.4727,
+      406.9732,
+      363.2715
+    ],
+    "outputMinimum": 1.19209289551e-07,
+    "outputMaximum": 0.999999523163,
+    "repeatedPredictionsExact": true,
+    "preTerminatedRunRejected": true,
+    "sessionRecovered": true,
+    "activeInferenceCancellationTested": false
+  },
+  "scope": "One fixed public image; does not accept quality, distribution, UI integration or full Windows product",
+  "rawFileHashes": {
+    "execution.json": "82dec86ecd9837909ae6c8b3c1bf07eab090551e013684efdbbc13eb190f6485",
+    "launch.json": "21c3f9c3d67cabe9d60cb70037f915dfa2e2cd66bd51abf7b0cee104a8743541",
+    "screening/contact-sheet.png": "6b1710fc2eceee29224696b88410cec634fb6f166ed225f882aa9d49794454be",
+    "screening/cutout.png": "9b187a9e6f8b0c5a4e0189a91eea38137fb547d6bbe7887a577f42680eca424c",
+    "screening/input.f32": "d085f68b79a2a856160a0ea207180658a3d58da7d77feaca7b1fffcca4136951",
+    "screening/invalid-model/cpu-profile_2026-09-23_15-39-12_493.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "screening/invalid.f32": "f9b0078b5df596d2ea19010c001bbd009e651de2c57e8fb7e355f31eb9d3f739",
+    "screening/mask.png": "178b1cd41f83828c1ee12a47b3ee21485be49c3da8d2527c426c911aa767eb2d",
+    "screening/missing-model/cpu-profile_2026-09-23_15-39-12_424.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "screening/nan.f32": "a3345e8ad53ac57baa21266bde2d10d6f2dd8803a1c75b9b92723cd60b2b73e0",
+    "screening/native/cpu-profile_2026-09-23_15-39-10_586.json": "b2a72b2198b5858339db4f601a8789d992faa47cbcc2ed2069197ed56b7cd6d5",
+    "screening/native/inference.json": "5b7231530924a369339394e9fb940835d6c2773634054b878227a6f81eb50644",
+    "screening/native/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "screening/native.log": "262bdaa0b4363fd57d7e334406801686423e862a3b776b5e89ac8592c014f7d8",
+    "screening/screening.json": "4edd14df55980b036454d170ce31a6797a947ce5a668119c59b48b3d62477b51",
+    "screening/source.png": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+    "screening/subject.comp/images/00000000-0000-4000-9000-000000000020.mask.png": "178b1cd41f83828c1ee12a47b3ee21485be49c3da8d2527c426c911aa767eb2d",
+    "screening/subject.comp/images/00000000-0000-4000-9000-000000000020.png": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+    "screening/subject.comp/manifest.json": "76fce996c97225910b61ae42ce97f39e7aefebae5ea179c945f22c5d62e27b9a",
+    "screening/\u8def\u5f84 \u7a7a\u683c \ud83e\uddea/native.log": "262bdaa0b4363fd57d7e334406801686423e862a3b776b5e89ac8592c014f7d8",
+    "screening/\u8def\u5f84 \u7a7a\u683c \ud83e\uddea/\u63a8\u7406 \u7ed3\u679c \ud83d\ude80/cpu-profile_2026-09-23_15-39-12_607.json": "a162be52958d850ecf86a4e4bba83fcc4c274f88967433d0407bde6ca49cb0c0",
+    "screening/\u8def\u5f84 \u7a7a\u683c \ud83e\uddea/\u63a8\u7406 \u7ed3\u679c \ud83d\ude80/inference.json": "bb37e295e93700c6e31e23e5be4da5d06eada3bd8479d4fae81d18567f64bcfd",
+    "screening/\u8def\u5f84 \u7a7a\u683c \ud83e\uddea/\u63a8\u7406 \u7ed3\u679c \ud83d\ude80/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "screening/\u8def\u5f84 \u7a7a\u683c \ud83e\uddea/\u8f93\u5165 \u5f20\u91cf.f32": "d085f68b79a2a856160a0ea207180658a3d58da7d77feaca7b1fffcca4136951",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "4edd14df55980b036454d170ce31a6797a947ce5a668119c59b48b3d62477b51"
+  }
+}

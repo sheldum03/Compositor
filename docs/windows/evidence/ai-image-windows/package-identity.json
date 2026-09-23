@@ -1,0 +1,14 @@
+{
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/ai-image-windows-preparation/CompositorAiImage.zip",
+  "bytes": 54856513,
+  "sha256": "43255c98d8f7db21bd17a28100e13fc03e9f6f37c2af2e989fe17c1c2ac2704a",
+  "entries": 44,
+  "crcPassed": true,
+  "containsWeights": false,
+  "windowsExecuted": false,
+  "sourceCommit": "b9345e3116078b583d00a5f6e100af5bde817573",
+  "nativePackageSha256": "c51297c2a6a614554ea10bab686e8bb7f8603d21024255bf40ab61a5c75e9203",
+  "verifiedPeFiles": 66,
+  "uuUploadObserved": true,
+  "windowsExecutionStarted": false
+}

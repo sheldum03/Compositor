@@ -44,6 +44,8 @@ Qt 同条件 S02 测试能力已补齐：100% 不透明度、空层/已有层各
 
 2026-09-23 已补充 [实机环境报告](evidence/windows11-environment/README.md)：驱动 32.0.15.9186、当前平衡电源方案和单一微软拼音配置；此为性能运行后的观察，不倒推历史条件。实际 `pinvoke-test/runtime` 的 193 个文件已逐项匹配官方 .NET 10.0.12 win-x64 清单，见 [运行库复核](evidence/dependency-inventory/dotnet-runtime-windows-review.json)。普通集显、第二输入法与干净机覆盖仍缺。随后 Qt 桌面操作因 Mac 再次锁屏而中断，未增加原生输入通过项。
 
+2026-09-23 已完成 [Windows AI 照片完整流程及 Mac 读回](evidence/ai-image-windows/README.md)：同一固定照片从图像预处理到原生推理、Gray8 蒙版和分离资产工程全部实际执行；独立像素核验及实际 Mac 蒙版/保存重开测试通过（1 项、无跳过）。补齐了此前仅有固定张量的缺口，单张质量、权重许可、获取与产品事务仍未放行。
+
 ## 决策闭合条件
 
 - D-02：补原生文字、连续笔刷和运行可靠性后，按证据选择一条生产路线；当前只记录 Avalonia 性能证据领先，不提前将其写成已选型。

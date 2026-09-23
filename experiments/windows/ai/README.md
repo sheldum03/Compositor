@@ -1,5 +1,7 @@
 # Native model inference — W-009 preparation
 
+2026-09-23 update: the unchanged full `screen.py` image harness now passed on Windows 11 using a private, isolated inspection runtime. The resulting Gray8 mask, separate image/mask project and Unicode prediction were independently verified; the actual Mac reader/exporter passed the Windows-generated project's editable-mask and save/reopen test (1 passed, 0 skipped). See [Windows image pipeline evidence](../../../docs/windows/evidence/ai-image-windows/README.md). Historical preparation-only statements below describe their original runs; this does not settle model quality, exact weight authorization, production UI or clean-machine distribution.
+
 A real U2NetP ONNX model now runs locally through ONNX Runtime's C++ CPU API and produces a separate editable Gray8 layer mask. This is one Mac-host feasibility sample, not a model selection, Windows execution, quality gate or redistribution approval. HEIC screening remains a separate W-009 item. No Qt/Avalonia production direction is selected by this experiment.
 
 ## Sources and acquisition
