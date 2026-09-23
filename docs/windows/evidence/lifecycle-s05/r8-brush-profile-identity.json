@@ -1,0 +1,16 @@
+{
+  "sourceCommit": "459f732ba91165ff749813da0c6f3fb4e440a9f9",
+  "sourceFiles": {
+    "experiments/windows/avalonia/TiledRaster.cs": "b55f252738861b9e502c1cc8f0794a7d9ca24d2be9264b4d1d76ef21d0d5cbf9",
+    "experiments/windows/avalonia/SoftBrushStroke.cs": "34757eac9f3f5bc26e2d99ceed0d73cd1d1a69c478bf013d807cdb5ef24d7198",
+    "experiments/windows/avalonia/TileImageCache.cs": "0a5a16683583b3e69473755323b761cfbc52b8011c37b911a67cfeb3ebe3d62b"
+  },
+  "method": "Same S05 100 strokes / 21 points, actual core types linked into local console harness. Thread managed allocation samples per phase; digests outside measured phases. No renderer/native-memory measurement.",
+  "runtime": ".NET 10.0.12",
+  "windowsExecuted": false,
+  "archive": {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-phases-r8-preparation/S05BrushAllocationProfile.zip",
+    "bytes": 10284,
+    "sha256": "b388d8ecad5624ff56715b541a2a07ab06179defb1ccacfb23c157328498f9e8"
+  }
+}
