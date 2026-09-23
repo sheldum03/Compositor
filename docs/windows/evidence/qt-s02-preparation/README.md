@@ -1,5 +1,7 @@
 # Qt S02 重放器准备（2026-09-23）
 
+**2026-09-23 实机更新：Windows 两轮原生重放、视口读回及独立复核已完成；更新 P95 25–28 ms，未通过 16.7 ms 门槛。见 [Windows 原始结果](../qt-s02-windows/README.md)。以下保留准备阶段证据。**
+
 已补齐独立的 Qt S02 原生窗口入口、逐帧原始记录、实际 backing-store 像素核对、异常退出和独立复核器。**此版本尚未在 Windows 执行，Qt 同机性能分布和 M1 仍未通过。** 当前 UU 工具持续报告 Mac 已锁定；此前 Avalonia R8 的最终状态仍待取回，R9 尚未实机运行。
 
 工作负载和计时定义见 [PERFORMANCE.md](../../../../experiments/windows/qt/PERFORMANCE.md)。这里增加测试能力，未改变 Qt 笔刷算法、已冻结参考图或拟定性能门槛。
