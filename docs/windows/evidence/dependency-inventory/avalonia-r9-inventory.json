@@ -1,0 +1,785 @@
+{
+  "status": "local artifact inventory; D-07 and redistribution acceptance remain open",
+  "publishPath": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/brush-source-r9-preparation/windows-publish",
+  "runtimeTarget": ".NETCoreApp,Version=v10.0/win-x64",
+  "lockSha256": "127df275f2e66b6f97ae780dbda0a18e54a4b263788b7ba676ffb4151f88c95f",
+  "depsSha256": "3f5032d2587c8841cd073635a849e55c6087ea43c97518370e6cf126060a9c07",
+  "packageCount": 24,
+  "matchedAssetCount": 28,
+  "packages": [
+    {
+      "name": "Avalonia",
+      "version": "11.3.22",
+      "dependencyType": "Transitive",
+      "lockContentHash": "61kKbPq/2W/S8PkjRYnDCSvH2fAvhC3eTrYFtwMUZVShP5M2xXII76kIQo8bcezxwFkHc/yoRP3xzae2tFZRsQ==",
+      "archiveSha256": "6d5f340ac8ee2d6c16ca0a75c33360bed03c2b81904203445eda0c4a96ec8d27",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Base.dll",
+          "publishedPath": "Avalonia.Base.dll",
+          "sha256": "499fa3bc5fc67c68a3fe7878a41d1a999e1e1d0a803c4720e6bde7af9d4b503c"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Controls.dll",
+          "publishedPath": "Avalonia.Controls.dll",
+          "sha256": "7443c62f26877dbdb4d6344a80da0073581de81ff41f312cd89e303f8ad0d818"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.DesignerSupport.dll",
+          "publishedPath": "Avalonia.DesignerSupport.dll",
+          "sha256": "085ff03fc21d5aac324334d7cc072aa8a366a6b7f43dd6e61142c4385122c088"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Dialogs.dll",
+          "publishedPath": "Avalonia.Dialogs.dll",
+          "sha256": "0e5cdb7bfc305617cbafc0fc3f85aef22befebdcf715fb3ce789f9bd797523cf"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Markup.Xaml.dll",
+          "publishedPath": "Avalonia.Markup.Xaml.dll",
+          "sha256": "83e52184a26289ccad19ef658931d38e56a24c8493253bf6c85f8097aa26d71f"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Markup.dll",
+          "publishedPath": "Avalonia.Markup.dll",
+          "sha256": "e7ec0a01631ec70b48a11f049d9ee6d7ed5d41fdadc09671d9be3d96c39896c4"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Metal.dll",
+          "publishedPath": "Avalonia.Metal.dll",
+          "sha256": "3252c96aaf54a8d26b4cc1f0d5adb05a30dc4172426601c0bcde6981f7ac9618"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.MicroCom.dll",
+          "publishedPath": "Avalonia.MicroCom.dll",
+          "sha256": "1b42462c80577d3ef40af2b6dd864147eb014877f9d62756c32df11335550835"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.OpenGL.dll",
+          "publishedPath": "Avalonia.OpenGL.dll",
+          "sha256": "f962ab7f1a5f967e526e81b4e7194789957ca9aad5d7af92d08484fe2969027e"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Vulkan.dll",
+          "publishedPath": "Avalonia.Vulkan.dll",
+          "sha256": "3af1944812eeb4ae41407e0b4e3aad655ba3b20cc4f3d6b17438bfba1e20a391"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.dll",
+          "publishedPath": "Avalonia.dll",
+          "sha256": "3098925ae76f9cd96238dd80323a537928ca4c36b997e9cb91983389f53d6250"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "29a6daf5ea9aba0a874d8060e83af8704aa234abf2639fc81a85a6b3450dfb7c"
+    },
+    {
+      "name": "Avalonia.Angle.Windows.Natives",
+      "version": "2.1.25547.20250602",
+      "dependencyType": "Transitive",
+      "lockContentHash": "ZL0VLc4s9rvNNFt19Pxm5UNAkmKNylugAwJPX9ulXZ6JWs/l6XZihPWWTyezaoNOVyEPU8YbURtW7XMAtqXH5A==",
+      "archiveSha256": "2c4fe510d007a6d9b3eaddd3fc0a09c2786975afb1b3b3eaae2346cdd71f83c3",
+      "assets": [
+        {
+          "kind": "native",
+          "packagePath": "runtimes/win-x64/native/av_libglesv2.dll",
+          "publishedPath": "av_libglesv2.dll",
+          "sha256": "9b203e40323b49dad29546a52b8b67d200bba8ff4cab9709a79cede23ba847d4"
+        }
+      ],
+      "notices": [
+        {
+          "packagePath": "LICENSE",
+          "bytes": 1675,
+          "sha256": "54aff7276217df9f6b5181613999d208c9e40d2b1d51bf55217837e6871a4a63"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "file",
+        "value": "LICENSE"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/angle/",
+        "commit": "cb8b4e1307a9d8f5ff56b8c5973bea4158ffead8"
+      },
+      "nuspecSha256": "21b69e91e3851f7cd86de9060f9829a7fde2ce11df2fc79b80098ab94fda2321"
+    },
+    {
+      "name": "Avalonia.BuildServices",
+      "version": "11.3.2",
+      "dependencyType": "Transitive",
+      "lockContentHash": "qHDToxto1e3hci5YqbG9n0Ty8mlp3zBUN5wT66wKqaDVzXyQ0do3EnRILd4Ke9jpvsktaPpgE0YjEk7hornryQ==",
+      "archiveSha256": "eb0c74ead8d229640e957d9ccdda7a5a1d27bb055aa71e6a7ffb3c423e707b8d",
+      "assets": [],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia.BuildServices",
+        "commit": "777f975b0a0cecf0311273711d56697212c558c0"
+      },
+      "nuspecSha256": "a8846537f7d074b8f9ed753c03678128c36bd046939ee245fad8c575a7cd3e9b"
+    },
+    {
+      "name": "Avalonia.Desktop",
+      "version": "11.3.22",
+      "dependencyType": "Direct",
+      "lockContentHash": "TXdIJ5WA473KqFd/b3EqnXUIgFDhPuOx2OkzG7Fm8EkCPF5JKkCwg+i7yq8IRsYKcQ4I8X/4HkUyCb8DcfgfYg==",
+      "archiveSha256": "7b1194a6521692f6254072273751fecdb0348aa0cbe64952276fb602db0e5d5e",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Desktop.dll",
+          "publishedPath": "Avalonia.Desktop.dll",
+          "sha256": "9436cfee6fcb4ed55576235b18fac1bef66b312ff8f2bea410ef67b39c60f7b0"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "0af3ff16c65310eaa20c1f4f208010869659bb4bc79d9debffe363c4a9971f64"
+    },
+    {
+      "name": "Avalonia.FreeDesktop",
+      "version": "11.3.22",
+      "dependencyType": "Transitive",
+      "lockContentHash": "heXRjopzKbNVGnLI+YPM6VBcf+cKGKKNdyXBYAlAlbcPfkExOTrGBSPDSSSHaT9uEByqZ4xo/9T0IqDtGm2PAQ==",
+      "archiveSha256": "1954c6b23271259cac7af21252a7b2d0be2603a8ee9f281b61fd2290f583a125",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.FreeDesktop.dll",
+          "publishedPath": "Avalonia.FreeDesktop.dll",
+          "sha256": "2df5e3dbee6e92e971559367e26874763151f0ecd328230f4245374c959f54a0"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "c18e29794d679ce339b99e9e50257478ab3f5e389d4c49a674a095a0ab417886"
+    },
+    {
+      "name": "Avalonia.Headless",
+      "version": "11.3.22",
+      "dependencyType": "Direct",
+      "lockContentHash": "yb0+VpNVTDW2ok6SBiICk4/iOoPoH6fudqqCV8BPuW5mHqpxC2wko+9AiYs0ak0OiXYcvhmrywWenPgmaDKoPQ==",
+      "archiveSha256": "fc3021982ea8e75e0359ebc51fc1c295415ba23fafd10f7155e9845d015c5a2a",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Headless.dll",
+          "publishedPath": "Avalonia.Headless.dll",
+          "sha256": "dfd0d77b37ff8548c1f3770a0e711f1da12fae9f0ff3785be98d10d7a55caee6"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "658076b2306d4b575ade5e1c749f0d7e70b99ff1728497d1e1841a64a2294206"
+    },
+    {
+      "name": "Avalonia.Native",
+      "version": "11.3.22",
+      "dependencyType": "Transitive",
+      "lockContentHash": "sU/KJQKqrRkstS1EWIhRvD/ADIkItoOSss3sL/wtPFFFJINPOrge5qMnwNi0RbDzNKb4TrZwEv6eeD27Ip+ACQ==",
+      "archiveSha256": "b2b8458d8960ee29ca5df2e33ac173a5b3b7a49c9eb28bbb7856899f4b99c584",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Native.dll",
+          "publishedPath": "Avalonia.Native.dll",
+          "sha256": "adcc965298df1b901793a20dd97cecd222bda3ebb8304e67f1ce16058e6b7de8"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "93a10bd0a34aac839c7f1c4617b557a10664f1c8886019379af0d46268848715"
+    },
+    {
+      "name": "Avalonia.Remote.Protocol",
+      "version": "11.3.22",
+      "dependencyType": "Transitive",
+      "lockContentHash": "Ll5YswLkNW0WZm7RkvGS+8B9vH4/x77IsnCqlBvmXOgiQd0J5bpJQFYo1NDVyRLadp4e8Yqg1WP2xEc6IK94HQ==",
+      "archiveSha256": "5191eb31f2aa5af8acab74f39a8882e8bcbcd26fee052c05a99ae92738d42f3c",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Remote.Protocol.dll",
+          "publishedPath": "Avalonia.Remote.Protocol.dll",
+          "sha256": "bfeae2db167106578d989b05a7c3081e433b0b22757015689e70ee6da01afd08"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "ebcf54147686112f4c57766dce2cc6782f189540deb33d6473689019e0c493b4"
+    },
+    {
+      "name": "Avalonia.Skia",
+      "version": "11.3.22",
+      "dependencyType": "Direct",
+      "lockContentHash": "ZbnfFCr2f1l3RD1E/Tn5tJDRFIDm9ICY/PzG4lhuShd6mDg+0y5wRCytCYOSM79KhlboU/f0O7J1Mw7s83Sy3A==",
+      "archiveSha256": "c50726cd2ed7490892bc8c30ca0f10f602d32f276e3b6930658b3cf4caeaf6de",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Skia.dll",
+          "publishedPath": "Avalonia.Skia.dll",
+          "sha256": "fd7a05ee6d5c46571b455c9cdb7a38325f58a5a7a49c9cb1283d4fbcc63ad31e"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "13e08d300219674f302aee1df31fda7e87cc22b5a7cb833a4567a9b700303e2d"
+    },
+    {
+      "name": "Avalonia.Themes.Simple",
+      "version": "11.3.22",
+      "dependencyType": "Direct",
+      "lockContentHash": "SsAQb6TilpCPKhY6GOPNfjDEuvR8dUxmozDi5Ws49X/CZmtfbsPSVFuEtCapxucwn1jFtNJYjvakDiHjxw6Sbw==",
+      "archiveSha256": "ce5368942cbc6012104a2243d43597dfd692c07bada9aeed683514442fd40c6d",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Themes.Simple.dll",
+          "publishedPath": "Avalonia.Themes.Simple.dll",
+          "sha256": "e5b4063374d7259e419710df92bc1de402c42d3a8434b6cf470b883f1bf6c4d4"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "a5522507b683b143d8e888c0f2e63313339346d4d53de8fc18b9f53ed85358bf"
+    },
+    {
+      "name": "Avalonia.Win32",
+      "version": "11.3.22",
+      "dependencyType": "Transitive",
+      "lockContentHash": "9kP1kWFJtbW2fFmGY2fs1kn0Rx1ARpf3Mz+QrLhagYUp6RaMN5Imus5YiOQWCTe8ZkQqktt8PsKUDWyvj8SiYQ==",
+      "archiveSha256": "cb6f4f6ff9c0961f885bee00235c6732b949ae3d907b9edc359418a1a08b2d3d",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Win32.Automation.dll",
+          "publishedPath": "Avalonia.Win32.Automation.dll",
+          "sha256": "0b339e393afd48855feafade4aca93521b2d5f48db82193e532e3627abd122d2"
+        },
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.Win32.dll",
+          "publishedPath": "Avalonia.Win32.dll",
+          "sha256": "60849b34f83b36679f77b431af056306f20ba4d82aecfe2a2fae50a4798b9487"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "8fa36082c43a074e2b84d4766dba44d2c16918710d6cc749247ea3c4c165bb7d"
+    },
+    {
+      "name": "Avalonia.X11",
+      "version": "11.3.22",
+      "dependencyType": "Transitive",
+      "lockContentHash": "w4OZxdAPAjGDKpBrU5kbiXzbbQT/ZcdGTMareDODdyIPFvd4AX+5iPAv08Ih87evHOXAf04dpvJyAEPgw1kMFg==",
+      "archiveSha256": "39446f916e6262e4c9a5a40f1b3257f8c923edeface9fab9304709653246ae37",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Avalonia.X11.dll",
+          "publishedPath": "Avalonia.X11.dll",
+          "sha256": "3f36729c3af81ee34b165b64a9ec43ad10f305881d67aa596757ce98f002d12e"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/AvaloniaUI/Avalonia/",
+        "commit": "627ae9ef921621e27e7aa58df2796fbadb50af88"
+      },
+      "nuspecSha256": "ed8e4c1f1499c6f7ce779e7c429b570812c8535e96554a77eb79fdec3e296c87"
+    },
+    {
+      "name": "HarfBuzzSharp",
+      "version": "8.3.1.1",
+      "dependencyType": "Transitive",
+      "lockContentHash": "tLZN66oe/uiRPTZfrCU4i8ScVGwqHNh5MHrXj0yVf4l7Mz0FhTGnQ71RGySROTmdognAs0JtluHkL41pIabWuQ==",
+      "archiveSha256": "eb5e32bfa6caf729e17549ef5b8c08920a417b6b2a4e1dbc53d7036737613dcd",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/HarfBuzzSharp.dll",
+          "publishedPath": "HarfBuzzSharp.dll",
+          "sha256": "951fdc1c6db0bad84ae9329297dec0fcd38e1105ee477479ec66b8900e2f3bb5"
+        }
+      ],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://go.microsoft.com/fwlink/?linkid=868515",
+        "branch": "release/3.119.0",
+        "commit": "64f24b1cddb68d30ec0ac6b661964178fc21d5ec"
+      },
+      "nuspecSha256": "e571ae0dc9e64e135726030457c5b3b2dc71c5baf9ec32053f70e0ed2701fb30"
+    },
+    {
+      "name": "HarfBuzzSharp.NativeAssets.Linux",
+      "version": "8.3.1.1",
+      "dependencyType": "Transitive",
+      "lockContentHash": "3EZ1mpIiKWRLL5hUYA82ZHteeDIVaEA/Z0rA/wU6tjx6crcAkJnBPwDXZugBSfo8+J3EznvRJf49uMsqYfKrHg==",
+      "archiveSha256": "b016decfa7dcf5ac5572c05b2076e9421fcc33934794c2604aee85cae6735725",
+      "assets": [],
+      "notices": [
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        },
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://go.microsoft.com/fwlink/?linkid=868515",
+        "branch": "release/3.119.0",
+        "commit": "64f24b1cddb68d30ec0ac6b661964178fc21d5ec"
+      },
+      "nuspecSha256": "6192a99bdee8ffc111bb2a2ce1abb55aae7c175da9e419ba901138ab994b9c58"
+    },
+    {
+      "name": "HarfBuzzSharp.NativeAssets.WebAssembly",
+      "version": "8.3.1.1",
+      "dependencyType": "Transitive",
+      "lockContentHash": "loJweK2u/mH/3C2zBa0ggJlITIszOkK64HLAZB7FUT670dTg965whLFYHDQo69NmC4+d9UN0icLC9VHidXaVCA==",
+      "archiveSha256": "98b2a82ea238ed91d7a9330bc0fd540a6edf683a6d51f42e90dbddabac3fc71c",
+      "assets": [],
+      "notices": [
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        },
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://go.microsoft.com/fwlink/?linkid=868515",
+        "branch": "release/3.119.0",
+        "commit": "64f24b1cddb68d30ec0ac6b661964178fc21d5ec"
+      },
+      "nuspecSha256": "3a3a77d72e858f5768936f71ccaa645d368fde7b1e87eff1b901be040c70dc4b"
+    },
+    {
+      "name": "HarfBuzzSharp.NativeAssets.Win32",
+      "version": "8.3.1.1",
+      "dependencyType": "Transitive",
+      "lockContentHash": "UsJtQsfAJoFDZrXc4hCUfRPMqccfKZ0iumJ/upcUjz/cmsTgVFGNEL5yaJWmkqsuFYdMWbj/En5/kS4PFl9hBA==",
+      "archiveSha256": "526e22c0b773f57b5a0d202cb6135975ebfa74c8b2ece0681ceae8accacc632a",
+      "assets": [
+        {
+          "kind": "native",
+          "packagePath": "runtimes/win-x64/native/libHarfBuzzSharp.dll",
+          "publishedPath": "libHarfBuzzSharp.dll",
+          "sha256": "eb76238c9e8e41d44b5a5b18167c4c5b39ca5db4277af5dbe92d730f0fc14a7d"
+        }
+      ],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://go.microsoft.com/fwlink/?linkid=868515",
+        "branch": "release/3.119.0",
+        "commit": "64f24b1cddb68d30ec0ac6b661964178fc21d5ec"
+      },
+      "nuspecSha256": "c50d98703c6396879005597cc50d9b4f71405257d21e0b08e9d06f40a8df6ade"
+    },
+    {
+      "name": "HarfBuzzSharp.NativeAssets.macOS",
+      "version": "8.3.1.1",
+      "dependencyType": "Transitive",
+      "lockContentHash": "jbtCsgftcaFLCA13tVKo5iWdElJScrulLTKJre36O4YQTIlwDtPPqhRZNk+Y0vv4D1gxbscasGRucUDfS44ofQ==",
+      "archiveSha256": "84adb429b5f63a97b020ee6a1b9816c39221e86a0b7080e014ea822488d747f4",
+      "assets": [],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://go.microsoft.com/fwlink/?linkid=868515",
+        "branch": "release/3.119.0",
+        "commit": "64f24b1cddb68d30ec0ac6b661964178fc21d5ec"
+      },
+      "nuspecSha256": "42879d6dfce7f734ea55506ad9d886e38d0dca7f74938ef2b8d3338f1154b61d"
+    },
+    {
+      "name": "MicroCom.Runtime",
+      "version": "0.11.0",
+      "dependencyType": "Transitive",
+      "lockContentHash": "MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA==",
+      "archiveSha256": "55dc293f97ec725bcda89ba9a5a3afc04c2fda87e7008e594b3d95f9411d2c5d",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net5.0/MicroCom.Runtime.dll",
+          "publishedPath": "MicroCom.Runtime.dll",
+          "sha256": "59839e18e46b06ab23b633944ae3c3b552a300c5da389da870dfa980bcef93c1"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kekekeks/MicroCom"
+      },
+      "nuspecSha256": "74072c279aeaa6d5ab52dc8833a446f9f0f6cc8e6ecccd52684b732e0f88c495"
+    },
+    {
+      "name": "SkiaSharp",
+      "version": "2.88.9",
+      "dependencyType": "Transitive",
+      "lockContentHash": "3MD5VHjXXieSHCleRLuaTXmL2pD0mB7CcOB1x2kA1I4bhptf4e3R27iM93264ZYuAq6mkUyX5XbcxnZvMJYc1Q==",
+      "archiveSha256": "8d9ff89d55d826daf3f5205feac61cfecd05c52ed178860ce24324ae1652fb6e",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net6.0/SkiaSharp.dll",
+          "publishedPath": "SkiaSharp.dll",
+          "sha256": "17ee1284313749f73a5cf5f309318d831741a8d6d397c998c5fc6485843c28bb"
+        }
+      ],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/mono/SkiaSharp",
+        "branch": "release/2.88.9",
+        "commit": "9699cdf046a989423a5e5eca68e7fd813486d81c"
+      },
+      "nuspecSha256": "5b5058e678f44bbef1aee6d9e13f32f0abd33e634f80fcdc87cd27666a4d01a8"
+    },
+    {
+      "name": "SkiaSharp.NativeAssets.Linux",
+      "version": "2.88.9",
+      "dependencyType": "Transitive",
+      "lockContentHash": "cWSaJKVPWAaT/WIn9c8T5uT/l4ETwHxNJTkEOtNKjphNo8AW6TF9O32aRkxqw3l8GUdUo66Bu7EiqtFh/XG0Zg==",
+      "archiveSha256": "990fe805aa9147bd567d2eba9890af71cdee296ec23441e83cdd898a50dbc3f0",
+      "assets": [],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/mono/SkiaSharp",
+        "branch": "release/2.88.9",
+        "commit": "9699cdf046a989423a5e5eca68e7fd813486d81c"
+      },
+      "nuspecSha256": "af17c352af085245ec17fa74fe93fe9523fbee8ceede207d2d70061898992cc4"
+    },
+    {
+      "name": "SkiaSharp.NativeAssets.WebAssembly",
+      "version": "2.88.9",
+      "dependencyType": "Transitive",
+      "lockContentHash": "kt06RccBHSnAs2wDYdBSfsjIDbY3EpsOVqnlDgKdgvyuRA8ZFDaHRdWNx1VHjGgYzmnFCGiTJBnXFl5BqGwGnA==",
+      "archiveSha256": "be014be0f772dced51281a7e4fd3775b89e41fdcaead9d2cba8f2ede03e69a16",
+      "assets": [],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/mono/SkiaSharp",
+        "branch": "release/2.88.9",
+        "commit": "9699cdf046a989423a5e5eca68e7fd813486d81c"
+      },
+      "nuspecSha256": "b378c9d29bd7137aaa306137322201ae9f79028aa324bd163ee655385ca396d4"
+    },
+    {
+      "name": "SkiaSharp.NativeAssets.Win32",
+      "version": "2.88.9",
+      "dependencyType": "Transitive",
+      "lockContentHash": "wb2kYgU7iy84nQLYZwMeJXixvK++GoIuECjU4ECaUKNuflyRlJKyiRhN1MAHswvlvzuvkrjRWlK0Za6+kYQK7w==",
+      "archiveSha256": "90fe573391a0c0719f3497dee13db23b934866d885ef50dda74a5dd6f1b957fe",
+      "assets": [
+        {
+          "kind": "native",
+          "packagePath": "runtimes/win-x64/native/libSkiaSharp.dll",
+          "publishedPath": "libSkiaSharp.dll",
+          "sha256": "9a0d95e8caaa852c70d085af6a40a744242172ad9ea3fd6bc7599875a8a1dbcd"
+        }
+      ],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/mono/SkiaSharp",
+        "branch": "release/2.88.9",
+        "commit": "9699cdf046a989423a5e5eca68e7fd813486d81c"
+      },
+      "nuspecSha256": "b73d8bdfc08c79b2668ad5a6c639ac5069cf2810c5efe64a8814c2ef6ede0ab6"
+    },
+    {
+      "name": "SkiaSharp.NativeAssets.macOS",
+      "version": "2.88.9",
+      "dependencyType": "Transitive",
+      "lockContentHash": "Nv5spmKc4505Ep7oUoJ5vp3KweFpeNqxpyGDWyeEPTX2uR6S6syXIm3gj75dM0YJz7NPvcix48mR5laqs8dPuA==",
+      "archiveSha256": "aaf1ae0268d71a318a33338f06f3fd55645538809219beda3557a353494b7bf8",
+      "assets": [],
+      "notices": [
+        {
+          "packagePath": "LICENSE.txt",
+          "bytes": 1129,
+          "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+        },
+        {
+          "packagePath": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 139775,
+          "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5"
+        }
+      ],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/mono/SkiaSharp",
+        "branch": "release/2.88.9",
+        "commit": "9699cdf046a989423a5e5eca68e7fd813486d81c"
+      },
+      "nuspecSha256": "d44d34606180f834d38bb6e4e9aecb6d334c269b8b1c043be340301b17ca40d6"
+    },
+    {
+      "name": "Tmds.DBus.Protocol",
+      "version": "0.21.3",
+      "dependencyType": "Transitive",
+      "lockContentHash": "hDwB8WsQoyALQKqIbwzS68UKdlnafDm4T/DkO/JrA/YIneP/rKv96SxYPVXeh3FP4i/SXfShrYftKLtciJAIlw==",
+      "archiveSha256": "1d51081d27927b6f5eae01f1b0dbd662ede8ec08bc5592a8d3dc859fe9a24e72",
+      "assets": [
+        {
+          "kind": "runtime",
+          "packagePath": "lib/net8.0/Tmds.DBus.Protocol.dll",
+          "publishedPath": "Tmds.DBus.Protocol.dll",
+          "sha256": "feb2ec8ded9c8c786eaaf91623bdb58f32a9b552497c02e6828b177140a3b118"
+        }
+      ],
+      "notices": [],
+      "licenseMetadata": {
+        "type": "expression",
+        "value": "MIT"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/tmds/Tmds.DBus.git",
+        "branch": "refs/heads/release/0.21",
+        "commit": "8cb04f66c330b64244e996ff68f685f27f7381a0"
+      },
+      "nuspecSha256": "acf46df1d5143698d46f3863910edb381e828fbe6b6454f46c7ecb4d8d642759"
+    }
+  ],
+  "publishedLicenseDirectory": [
+    {
+      "path": "Licenses/SourceHanSans-OFL.txt",
+      "sha256": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2"
+    }
+  ],
+  "limits": [
+    "NuGet signatures and lock content hashes are not independently authenticated by this script",
+    "Package license metadata is not an audit of all embedded native third-party components",
+    "External .NET runtime, compositor_native.dll, Qt, HEIC and model weights are outside this publish inventory",
+    "No Windows process was executed and no test package was changed"
+  ]
+}
