@@ -1,0 +1,80 @@
+{
+  "archiveName": "S05GcR5Evidence-20260923.zip",
+  "archiveBytes": 12483363,
+  "archiveSha256": "9151446f5c0b517b19433833104fd3031ea6beae8e33f0f0ca2a5e1c92d28658",
+  "archiveCrcPassed": true,
+  "archiveEntries": 44,
+  "rawReportSha256": "36bbf5e49c7c6b308638498290028fbaca480682f619697a3bbe73ea32243fd8",
+  "rawRoot": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-gc-r5-evidence/normalized",
+  "windowsOutput": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\s05-gc-r5-20260923-093211",
+  "pid": 40408,
+  "probeExit": 0,
+  "reviewExit": 0,
+  "stderrBytes": 0,
+  "dllSha256": "769fd3bd947b712291225d680c7e3040932cf7887e64ecbf2a49d00295f00c53",
+  "launch": {
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\s05-gc-r5-20260923-093211",
+    "pid": 40408,
+    "dllSha256": "769FD3BD947B712291225D680C7E3040932CF7887E64ECBF2A49D00295F00C53",
+    "packageSha256": "5E21749FC1ADC8DC3CE009A6EB6A66DD7195A13C5CA6283F07A96A825F0BDFA1",
+    "utc": "2026-09-23T01:32:11.5976962Z",
+    "os": {
+      "Caption": "Microsoft Windows 11 专业版",
+      "Version": "10.0.26200",
+      "BuildNumber": "26200"
+    }
+  },
+  "pngReview": {
+    "pngPairsCompared": 9,
+    "pngDifferentPixels": 0,
+    "allRoundsAndR4Exact": true,
+    "rounds": [
+      {
+        "round": 0,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 1,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 2,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 3,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 4,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 5,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 6,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 7,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      },
+      {
+        "round": 8,
+        "differentPixels": 0,
+        "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+      }
+    ]
+  },
+  "normalization": "ZIP uses backslash entry separators; normalized only directory separators for local review. Original archive retained unchanged."
+}

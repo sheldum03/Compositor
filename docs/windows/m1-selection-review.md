@@ -28,7 +28,7 @@
 
 再次解锁后的连续输入事件和 Qt 窗口观察见[补充记录](evidence/lifecycle-s05/native-input-followup.md)：连续 OS 笔刷图像已独立通过并归档，Qt IME 未完成。九轮资源诊断 R4 已完成并取回，900 次编辑及九组图像独立通过；内存中途回落、后段峰值上升，资源稳定性未放行，见[九轮分析](evidence/lifecycle-s05/windows-soak-r4-followup.md)。
 
-R5 已补充 GC/分配采样并完成本地回归和 Windows 发布；尚无 R5 实机资源数据。当前阻断是本会话未提供桌面控制工具，不能继续 UU 原生操作，见 [R5 准备](evidence/lifecycle-s05/r5-gc-preparation.md)。
+2026-09-23 已恢复 UU 操作并完成 R5 实机九轮：900 次编辑及九组图像独立通过，原生/复核退出码均为 0。占用多次自然回落，最终诊断 GC 后托管内存约 3.21 MiB、旧文档引用为零，但 committed 仍约 737.26 MiB；不能由对象可回收直接认定资源稳定。见 [R5 实测](evidence/lifecycle-s05/windows-soak-r5-followup.md)。Qt 原生 IME 和设备矩阵仍未完成。
 
 2026-09-23 补充：AI 原型新增独立活动推理取消/同会话恢复检查，五轮本地 profile 与预测精确复核通过；Windows CI 步骤已准备但未执行，不关闭 Windows/产品取消门槛。见[活动取消证据](evidence/ai-active-cancellation/README.md)。
 
