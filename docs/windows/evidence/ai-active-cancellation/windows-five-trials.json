@@ -1,0 +1,117 @@
+[
+  {
+    "trial": 1,
+    "windowsReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "Windows-11-10.0.26200-SP0",
+      "windowsExecuted": true,
+      "cancelledRunKernelEvents": 3,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 0.4066,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    },
+    "independentLocalReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "macOS-26.5.1-arm64-arm-64bit",
+      "windowsExecuted": false,
+      "cancelledRunKernelEvents": 3,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 0.4066,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    }
+  },
+  {
+    "trial": 2,
+    "windowsReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "Windows-11-10.0.26200-SP0",
+      "windowsExecuted": true,
+      "cancelledRunKernelEvents": 4,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 0.1032,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    },
+    "independentLocalReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "macOS-26.5.1-arm64-arm-64bit",
+      "windowsExecuted": false,
+      "cancelledRunKernelEvents": 4,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 0.1032,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    }
+  },
+  {
+    "trial": 3,
+    "windowsReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "Windows-11-10.0.26200-SP0",
+      "windowsExecuted": true,
+      "cancelledRunKernelEvents": 2,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 3.5345,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    },
+    "independentLocalReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "macOS-26.5.1-arm64-arm-64bit",
+      "windowsExecuted": false,
+      "cancelledRunKernelEvents": 2,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 3.5345,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    }
+  },
+  {
+    "trial": 4,
+    "windowsReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "Windows-11-10.0.26200-SP0",
+      "windowsExecuted": true,
+      "cancelledRunKernelEvents": 2,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 9.8285,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    },
+    "independentLocalReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "macOS-26.5.1-arm64-arm-64bit",
+      "windowsExecuted": false,
+      "cancelledRunKernelEvents": 2,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 9.8285,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    }
+  },
+  {
+    "trial": 5,
+    "windowsReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "Windows-11-10.0.26200-SP0",
+      "windowsExecuted": true,
+      "cancelledRunKernelEvents": 3,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 0.9677,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    },
+    "independentLocalReview": {
+      "activeCancellationEvidencePassed": true,
+      "host": "macOS-26.5.1-arm64-arm-64bit",
+      "windowsExecuted": false,
+      "cancelledRunKernelEvents": 3,
+      "recoveredRunKernelEvents": 365,
+      "cancelToJoinMilliseconds": 0.9677,
+      "recoveredPredictionSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+      "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+    }
+  }
+]

@@ -30,7 +30,7 @@
 
 2026-09-23 已恢复 UU 操作并完成 R5 实机九轮：900 次编辑及九组图像独立通过，原生/复核退出码均为 0。占用多次自然回落，最终诊断 GC 后托管内存约 3.21 MiB、旧文档引用为零，但 committed 仍约 737.26 MiB；不能由对象可回收直接认定资源稳定。见 [R5 实测](evidence/lifecycle-s05/windows-soak-r5-followup.md)。Qt 原生 IME 和设备矩阵仍未完成。
 
-2026-09-23 补充：AI 原型新增独立活动推理取消/同会话恢复检查，五轮本地 profile 与预测精确复核通过；Windows CI 步骤已准备但未执行，不关闭 Windows/产品取消门槛。见[活动取消证据](evidence/ai-active-cancellation/README.md)。
+2026-09-23 补充：AI 原型的活动推理取消/同会话恢复已完成五轮 Windows 实机执行与原始 profile/预测独立复核；每轮取消前均有 CPU 算子，恢复预测精确一致。Windows CI 仍未执行，UI/产品取消门槛未关闭。见[Windows 活动取消证据](evidence/ai-active-cancellation/windows-review.md)。
 
 ## 决策闭合条件
 

@@ -1,5 +1,7 @@
 # Windows 活动取消：已执行，原始包待取回（2026-09-23）
 
+**后续已完成取回与独立复核，见 [最终原生探针结果](windows-review.md)。以下保留锁屏时的检查点。**
+
 UU 操作恢复后，已在原 Windows 11 Pro 26200 实机部署并执行 [已冻结测试包](windows-build-preparation.md)。包 SHA-256 和全部清单文件在 Windows 再次核验通过；模型使用既有 `remote-suite/private-model/u2netp.onnx`，4,574,861 字节和固定 SHA-256 在运行前通过检查，没有下载或重新分发权重。
 
 ## 已观察的执行结果
