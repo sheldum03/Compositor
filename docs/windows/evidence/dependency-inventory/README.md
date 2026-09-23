@@ -49,7 +49,9 @@ Qt、AI、HEIC 行沿用已有证据；本轮未重新下载它们的 SDK 或执
 
 新增 [verify-runtime-inventory.py](../../../../scripts/windows/verify-runtime-inventory.py) 只读比对安装目录，记录缺失、改动及额外文件，不启动 `.NET`，报告已存在时拒绝覆盖。本地从已校验 ZIP 解压后 193 文件通过；修改/缺失 `dotnet.exe`、增加额外文件以及覆盖旧报告的反例均按预期拒绝。Mac 上的这些检查不计为 Windows 执行。
 
-UU 恢复后先取回 R8、执行 R9 性能测试，再做文件核对，避免磁盘扫描干扰计时。将证据 ZIP 解压至新目录 `runtime-inventory-kit` 后，在 Windows `CompositorTest` 目录运行（输出文件必须不存在）：
+2026-09-23 已在 Windows 11 测试机执行该核验：`pinvoke-test/runtime` 的 193 个文件全部匹配，无额外文件。取回报告后独立核对全部路径、大小和 SHA-256，均与已验证的官方 10.0.12 win-x64 清单一致，清单自身 SHA-256 和官方 ZIP 身份也匹配。见 [Windows 原始报告](dotnet-runtime-windows-identity.json)及[独立复核](dotnet-runtime-windows-review.json)。这是现有测试安装目录的文件身份核验，未启动新的运行库测试，不代替干净机、安装更新或发行接受；此前本地清单的 `windowsExecuted=false` 保留为该次准备工作的事实。
+
+本次核验在 R9/R8 交替性能测试结束后执行，避免磁盘扫描干扰计时。将证据 ZIP 解压至新目录 `runtime-inventory-kit` 后，在 Windows `CompositorTest` 目录可复现（输出文件必须不存在）：
 
 ```powershell
 python .\runtime-inventory-kit\verify-runtime-inventory.py .\runtime-inventory-kit\inventory.json .\pinvoke-test\runtime .\runtime-identity-20260923.json
