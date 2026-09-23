@@ -2,6 +2,8 @@
 
 This isolated CPU path replays the same fixed two-stroke workload as [Avalonia](../avalonia/BRUSH.md). It exercises local commits, the immediate next stroke, history, widget painting, export and project readback on Mac. It does not complete W-007, M1 or Windows performance acceptance.
 
+The separate [S02 window replay](PERFORMANCE.md) adds the 100%-opacity, 30-measured-stroke workload and raw frame distributions. It preserves this original two-stroke probe; its local checks and cross-build do not establish Windows performance acceptance.
+
 ## Reproduce
 
 Build the pinned Release target using [README.md](README.md), then run from the repository root with a new output directory:

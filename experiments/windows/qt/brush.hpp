@@ -75,3 +75,4 @@ private:
     size_t position = 0;
 };
 void runBrushProbe(const QString &fixtures, const QString &output);
+int runBrushPerformanceProbe(const QString &fixtures, const QString &output, bool nativeWindow);
