@@ -13,13 +13,13 @@ using SkiaSharp;
 // Fixed S02 replay and S05 resource workload. Timings end after releasing the Skia canvas lease, not at physical presentation.
 internal static partial class BrushPerformanceProbe
 {
-    internal static void Window(string fixtures, string output, bool small = false, int resourceRounds = 0) => AppBuilder.Configure(() => new ProbeApp(fixtures, output, small, resourceRounds))
+    internal static void Window(string fixtures, string output, bool small = false, int resourceRounds = 0, bool resourceIdle = false) => AppBuilder.Configure(() => new ProbeApp(fixtures, output, small, resourceRounds, resourceIdle))
         .UsePlatformDetect()
         .With(new Win32PlatformOptions { RenderingMode = [Win32RenderingMode.Software], CompositionMode = [Win32CompositionMode.RedirectionSurface] })
         .With(new AvaloniaNativePlatformOptions { RenderingMode = [AvaloniaNativeRenderingMode.Software] })
         .StartWithClassicDesktopLifetime([]);
 
-    private sealed class ProbeApp(string fixtures, string output, bool small, int resourceRounds) : Application
+    private sealed class ProbeApp(string fixtures, string output, bool small, int resourceRounds, bool resourceIdle) : Application
     {
         public override void OnFrameworkInitializationCompleted()
         {
@@ -31,7 +31,7 @@ internal static partial class BrushPerformanceProbe
                 window.Closed += (_, _) => { run.WindowClosed = true; run.Stop.Cancel(); };
                 window.Opened += (_, _) => Dispatcher.UIThread.Post(async () =>
                 {
-                    if (resourceRounds > 0) await run.ExecuteLong(() => run.View.InvalidateVisual(), resourceRounds);
+                    if (resourceRounds > 0) await run.ExecuteLong(() => run.View.InvalidateVisual(), resourceRounds, resourceIdle);
                     else await run.Execute(30, () => run.View.InvalidateVisual());
                     desktop.Shutdown(run.Passed ? 0 : 1);
                 });
@@ -41,12 +41,12 @@ internal static partial class BrushPerformanceProbe
         }
     }
 
-    internal static void Check(string fixtures, string output, int resourceRounds = 0)
+    internal static void Check(string fixtures, string output, int resourceRounds = 0, bool resourceIdle = false)
     {
         var run = new Run(fixtures, output, false);
         run.View.Measure(new Size(1000, 1000)); run.View.Arrange(new Rect(0, 0, 1000, 1000));
         using var target = new RenderTargetBitmap(new PixelSize(1000, 1000), new Vector(96, 96));
-        (resourceRounds > 0 ? run.ExecuteLong(() => target.Render(run.View), resourceRounds) : run.Execute(1, () => target.Render(run.View))).GetAwaiter().GetResult();
+        (resourceRounds > 0 ? run.ExecuteLong(() => target.Render(run.View), resourceRounds, resourceIdle) : run.Execute(1, () => target.Render(run.View))).GetAwaiter().GetResult();
         if (!run.Passed) throw new InvalidOperationException("Brush harness check failed; see report.json");
     }
 

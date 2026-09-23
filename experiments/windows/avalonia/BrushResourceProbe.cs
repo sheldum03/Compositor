@@ -76,18 +76,21 @@ internal static partial class BrushPerformanceProbe
             }
             return digests;
         }
-        internal async Task ExecuteLong(Action render, int roundCount)
+        private sealed record IdleSample(double ElapsedMilliseconds, ResourceSample Resources, int RetainedDocuments);
+        internal async Task ExecuteLong(Action render, int roundCount, bool idleDiagnostic = false)
         {
             string? error = null;
             var rounds = new List<object>(); var releasedDocuments = new List<WeakReference>();
+            var idleSamples = new List<IdleSample>();
             var baseline = Resources(); var elapsed = Stopwatch.StartNew();
             void SaveLong() => File.WriteAllText(Path.Combine(output, "report.json"), JsonSerializer.Serialize(new
             {
-                scenario = roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
+                scenario = idleDiagnostic ? "S05-idle-diagnostic" : roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
                 windowClosed = WindowClosed, renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
                 workload = $"4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; {roundCount} rounds",
                 baseline, rounds, elapsedMilliseconds = elapsed.Elapsed.TotalMilliseconds, trials,
-                resourceDiagnosticsVersion = 2, serverGc = System.Runtime.GCSettings.IsServerGC,
+                idleSamples, idleObservationSeconds = idleDiagnostic ? 60 : 0,
+                resourceDiagnosticsVersion = idleDiagnostic ? 3 : 2, serverGc = System.Runtime.GCSettings.IsServerGC,
                 runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
                 resourceAccepted = false,
                 notes = "Native software canvas callbacks; synthetic input. All natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
@@ -103,7 +106,18 @@ internal static partial class BrushPerformanceProbe
                     var beforeClose = Resources(); releasedDocuments.Add(ReleaseDocument()); render();
                     if (nativeWindow) await Task.Delay(1000, Stop.Token); else Thread.Sleep(1000);
                     var afterClose = Resources();
-                    // Only diagnose reachability after recording natural post-close memory.
+                    if (idleDiagnostic && round == roundCount - 1)
+                    {
+                        var idle = Stopwatch.StartNew();
+                        idleSamples.Add(new(0, afterClose, releasedDocuments.Count(w => w.IsAlive)));
+                        for (int sample = 1; sample <= 6; sample++)
+                        {
+                            if (nativeWindow) await Task.Delay(10000, Stop.Token); else Thread.Sleep(10000);
+                            Stop.Token.ThrowIfCancellationRequested();
+                            idleSamples.Add(new(idle.Elapsed.TotalMilliseconds, Resources(), releasedDocuments.Count(w => w.IsAlive)));
+                        }
+                    }
+                    // Only diagnose reachability after recording natural post-close memory and any idle samples.
                     ResourceSample? afterDiagnosticCollection = null;
                     if (round == roundCount - 1)
                     {

@@ -1,0 +1,17 @@
+{
+  "localEvidence": {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-idle-r6-preparation/S05IdleR6LocalEvidence.zip",
+    "bytes": 16307851,
+    "sha256": "474d64b223c9cf90501202410631bfb394ef2007f2d0f7f26e5e4e04bd09eaf2"
+  },
+  "windowsExecuted": false,
+  "windowsPublishPassed": true,
+  "lockPackageDefinitionsUnchanged": 24,
+  "sourceFiles": {
+    "experiments/windows/avalonia/Program.cs": "e8f8e9ffc8de7328e2472d98e3342925c76ac9de5b3a50363e0c56425280dc75",
+    "experiments/windows/avalonia/BrushPerformanceProbe.cs": "05bbda49db5c121272d78b371a57793e68a96ceb1acdebb8b045e4e7d354e9f4",
+    "experiments/windows/avalonia/BrushResourceProbe.cs": "a597c1642accbf417f6aacd091d03b18d1fc421735b1e4a8f286b7a84bf62699",
+    "experiments/windows/avalonia/review-s05.py": "92f22847e22456ee7e22019168c472332fd61003d60e27f1c75156dd33735f02"
+  },
+  "windowsDll": "2ccf8ba6615f9d9389385610a17e4b70327095962a0f6c5e3923fbad3226508e"
+}
