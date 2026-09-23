@@ -1,0 +1,28 @@
+{
+  "status": "Windows four fixture faces and layout passed with restricted adapter; raw control failed only second TTC face",
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/font-loading-20260923/font-loading-20260923-233736.zip",
+  "bytes": 2134,
+  "sha256": "b6fe7af0baa7524f9e9e8a5fb6c9cd5862cd3c14a7b349458f0f1e6630123240",
+  "verifiedFileHashes": 5,
+  "windowsExecuted": true,
+  "processes": [
+    {
+      "mode": "raw",
+      "pid": 30740,
+      "exitCode": 1
+    },
+    {
+      "mode": "adapted",
+      "pid": 47216,
+      "exitCode": 0
+    }
+  ],
+  "runtime": "10.0.12",
+  "invalidFixturesRejected": 3,
+  "directSkiaSecondFace": {
+    "windowsWeight": 700,
+    "windowsAdvanceAt100": 80,
+    "macResult": null
+  },
+  "productionFontImportAccepted": false
+}

@@ -76,3 +76,5 @@ UU 的“窗口”菜单执行窗口缩放后，坐标点击恢复；双击唯�
 完整包上传两次暂停，第一次恢复时报“文件信息变更，无法断点续传”，本地摘要复核未变。最终只上传 7,564 字节的 `NativeFollowupDelta.zip`（SHA-256 `8c8b4faa895f37b992e7fcd7a60e7019fcc41a4fbd06a27bbd293a657ed1392b`），Windows `Get-FileHash` 一致；复制旧 `AvaloniaImeMatrix` 到新 `AvaloniaImeFollowup`，再将脚本／清单／README 补丁解压到新副本。所有载荷仍由新清单逐项验证。[完整包身份](native-followup/package.json)保留准备时未执行状态，不把失败上传记为完整包交付。
 
 实际启动命令为 `python AvaloniaImeFollowup/run-matrix.py --native-only`，输出目录 `C:\Users\Administrator\Desktop\CompositorTest\avalonia-ime-matrix-20260923-224035`，runtime PID 49608，原生 PID 42996。随后工具明确报告 Mac 锁屏且自动解锁失败，窗口保留；本轮反向选区、焦点切换和小视口尚未执行，也没有最终退出码或结果归档。恢复后继续同一窗口，不重新启动或重复已有自动测试。
+
+后续画面恢复，按唯一标题 `native-20260923-224035` 置前并最大化同一窗口，首次导出显示完成；鼠标可定位文字光标，但 Ctrl+Home、方向键、Ctrl+A、拼音输入均未产生可确认的响应，连系统 Win+R 也未响应。未将这些操作记为原生选区或 IME 失败/通过。独立 UU 终端 session2 随后正常完成字体实验，说明独立终端可用，不能证明桌面键盘通道正常；已请求用户用实体键盘作 Win+R 对照。窗口未被重启或关闭，尚无最终归档；取回字体结果后工具再次明确报告 Mac 锁屏。

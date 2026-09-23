@@ -1,0 +1,18 @@
+{
+  "manifestSha256": "53b32e9da545289ae38127a3f0633ddff6b5ee8bcd9502f9cefd8faf2d6a6934",
+  "processes": [
+    {
+      "mode": "raw",
+      "pid": 30740,
+      "exitCode": 1
+    },
+    {
+      "mode": "adapted",
+      "pid": 47216,
+      "exitCode": 0
+    }
+  ],
+  "windowsExecuted": true,
+  "fontLoadingPassed": true,
+  "productionFontImportAccepted": false
+}
