@@ -1,0 +1,44 @@
+{
+  "status": "partial evidence verified; native IME acceptance incomplete",
+  "windowsExecuted": true,
+  "reviewHost": "macOS",
+  "remoteDirectory": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-input-20260922-175634\\qt-window",
+  "archive": {
+    "name": "QtNativeImePartial-20260923.zip",
+    "bytes": 37868,
+    "sha256": "501d5a65c42edbf7175fe9a6cf0d7ad51b0a3b31653f980b8da3a1632345a117",
+    "remoteHashMatched": true,
+    "crcPassed": true,
+    "entries": 3
+  },
+  "files": {
+    "text-export.png": {
+      "bytes": 21106,
+      "sha256": "5228dba577e5e7876bb0be23c6c6ac34e48ea93b87e5203affd676f41eac23cd"
+    },
+    "text.json": {
+      "bytes": 378,
+      "sha256": "1e38ab76f13633fe1507602cf42b5d8dbaca8c5cac7f0825aaa3570e0fb2c373"
+    },
+    "text-preview.png": {
+      "bytes": 21106,
+      "sha256": "5228dba577e5e7876bb0be23c6c6ac34e48ea93b87e5203affd676f41eac23cd"
+    }
+  },
+  "baselineContentExact": true,
+  "previewExportRgbaExact": true,
+  "imageSize": [
+    900,
+    600
+  ],
+  "preeditEventsObserved": 8,
+  "commitEventsObserved": 0,
+  "nativeImeAccepted": false,
+  "windowReportRetrieved": false,
+  "remaining": [
+    "native candidate commit",
+    "undo and redo with exported content verification",
+    "selection and transformed input matrix",
+    "window close report"
+  ]
+}

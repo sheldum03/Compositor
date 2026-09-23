@@ -32,6 +32,8 @@
 
 2026-09-23 补充：AI 原型的活动推理取消/同会话恢复已完成五轮 Windows 实机执行与原始 profile/预测独立复核；每轮取消前均有 CPU 算子，恢复预测精确一致。Windows CI 仍未执行，UI/产品取消门槛未关闭。见[Windows 活动取消证据](evidence/ai-active-cancellation/windows-review.md)。
 
+Qt 原生输入取得阶段性证据：候选预编辑取消后的首次导出已取回，8 次预编辑、0 次提交，原文逐字保留且预览/导出像素精确。随后远程输入和焦点仍不可靠，原生提交、撤销/重做与变换矩阵未关闭，见 [Qt 阶段性复核](evidence/qt-native-ime-windows/README.md)。
+
 ## 决策闭合条件
 
 - D-02：补原生文字、连续笔刷和运行可靠性后，按证据选择一条生产路线；当前只记录 Avalonia 性能证据领先，不提前将其写成已选型。
