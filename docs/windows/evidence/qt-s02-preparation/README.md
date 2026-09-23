@@ -26,6 +26,17 @@
 
 ## 实机执行顺序
 
+已生成 `CompositorQtS02R1.zip`（36,056,346 字节），源码提交 `406c239`；[包身份](package-identity.json)及[本地安装核验](kit-verification.json)已记录。包内四个 x64 构建产物、Python 安装/执行/复核脚本和源码 tar；安装时核对原 Qt 窗口 EXE、8 项继承依赖及 10 个冻结输入文件，复制到新的 `qt-s02-r1-app`。本地重建安装目录与 manifest 精确匹配，重复安装拒绝；执行器明确拒绝在非 Windows 系统运行。该包尚未上传到用户 Windows。
+
+UU 恢复后，在 `CompositorTest` 目录确认 ZIP 的 SHA-256 与上述身份一致，再执行短命令：
+
+```powershell
+Expand-Archive CompositorQtS02R1.zip qt-s02-r1-kit
+python qt-s02-r1-kit/run.py
+```
+
+执行器依次运行 C 契约、Qt 生命周期检查和两次完整原生 S02，各子进程的 PID、退出码、原始 stdout/stderr 均保留；性能数值未达标时仍保留第二次测量，不重试或改变负载。测试生成唯一结果目录及带 hash 的 ZIP。环境设置仅传入这些子进程，系统 DPI 自动生效，不修改全局 PATH 或现有 Qt IME 窗口目录。
+
 1. 先确认并取回原来的 Avalonia R8 结果，避免重复启动；然后完成已准备的 R9 测试。
 2. 在原 Windows 实体机将 Qt S02 安装到新目录，校验旧包、共享 DLL、冻结输入及新二进制身份，不覆盖当前 Qt IME 窗口目录。
 3. 运行原生 C 契约和 Qt 生命周期自检，再顺序运行两次完整 S02。保持系统 DPI、无遮挡视口及电源配置；原生窗口逐次记录 62 笔 / 7200 个测量更新。
