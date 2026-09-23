@@ -23,3 +23,9 @@ UU 切为全屏后，下半部分空白问题消失，既有 Qt 文字区可完�
 直接远程键盘操作观察到：Esc 取消恢复原文；再次输入后按空格提交“中文”；Ctrl+Z 恢复原文、Ctrl+Y 恢复“中文”。各状态分别点击了 `Export + check`。随后 Rotation=30、Flip X 勾选、Scale=1.25，变换文字正确显示。候选栏在组合文字换行后出现在其右侧，尚未接受其准确定位。
 
 下一次导出/选区操作的工具调用因 Mac 锁屏、自动解锁失败而中断，该次调用是否部分执行不明确。新导出尚未取回，故这些是 [GUI 观察记录](followup-ui-observations.json)，不新增“独立复核通过”项。继续使用原输出 `native-input-20260922-175634/qt-window`；恢复后先核对当前状态，完成变换选区输入并取回原始导出，最后正常关闭取得完整报告。不要因观察中断而重启窗口或清除历史。
+
+## 预编辑换行坐标的本地诊断
+
+2026-09-23 使用同一 Qt 6.11.2、固定思源字体、32 px 字号、540 px 文本宽度和原始内容，在独立 offscreen 程序中测试末尾 `z` 与 `zhong'wen` 预编辑。后者实际把第二段从一行变为两行；同时检查无变换和旋转 30°/水平翻转/125% 缩放。四例中 item 的 `ImCursorRectangle` 均与共享布局的实际预编辑光标位置相符，view 的矩形也与 item→scene→viewport 映射精确相等。见 [原始结果](wrapped-cursor-local.json)及[执行身份](wrapped-cursor-local-identity.json)。
+
+本地未复现几何错误，故未修改 Qt 控件或推断 Windows 候选栏偏移原因。该程序通过合成 `QInputMethodEvent` 测坐标，不能覆盖 Windows 输入法查询时机或候选栏放置策略；实际 Windows 位置验收仍开放。第一次以相对字体路径启动未加载字体、退出 2，不产生几何结论；改用已核验绝对路径后退出 0。诊断[源码、构建日志及完整结果](/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/qt-ime-wrapped-cursor)保留于实验目录。
