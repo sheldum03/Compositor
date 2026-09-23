@@ -14,7 +14,7 @@ internal sealed class SoftBrushStroke
     private readonly byte[] tip;
     private readonly byte[] coverageColors = new byte[256 * 4];
     private readonly Dictionary<int, byte[]> coverage = [];
-    private readonly Dictionary<int, byte[]> original = [];
+    private readonly Dictionary<int, ReadOnlyMemory<byte>> original = [];
     private readonly Dictionary<int, byte[]> pixels = [];
     private readonly Dictionary<int, long> versions = [];
     private long version;
@@ -208,8 +208,9 @@ internal sealed class SoftBrushStroke
             {
                 mask = new byte[tile.Width * tile.Height];
                 coverage.Add(key, mask);
-                original.Add(key, source.CopyTile(key));
-                pixels.Add(key, (byte[])original[key].Clone());
+                var baseline = source.ReadTile(key);
+                original.Add(key, baseline);
+                pixels.Add(key, baseline.IsEmpty ? new byte[tile.Width * tile.Height * 4] : baseline.ToArray());
             }
             dirty[key] = dirty.TryGetValue(key, out var previousDirty) ? SKRectI.Union(previousDirty, touched) : touched;
             for (int y = touched.Top; y < touched.Bottom; y++)
@@ -244,22 +245,23 @@ internal sealed class SoftBrushStroke
         foreach (var pair in dirty)
         {
             var tile = source.Bounds(pair.Key);
-            byte[] mask = coverage[pair.Key], baseline = original[pair.Key], result = pixels[pair.Key];
-            var baselinePixels = MemoryMarshal.Cast<byte, uint>(baseline);
+            byte[] mask = coverage[pair.Key], result = pixels[pair.Key];
+            var baselinePixels = MemoryMarshal.Cast<byte, uint>(original[pair.Key].Span);
             var resultPixels = MemoryMarshal.Cast<byte, uint>(result.AsSpan());
             var colors = MemoryMarshal.Cast<byte, uint>(coverageColors);
             for (int y = pair.Value.Top; y < pair.Value.Bottom; y++)
             for (int x = pair.Value.Left; x < pair.Value.Right; x++)
             {
                 int offset = (y - tile.Top) * tile.Width + x - tile.Left;
+                uint baselinePixel = baselinePixels.IsEmpty ? 0 : baselinePixels[offset];
                 // An untouched transparent pixel has no destination contribution.
-                if (baselinePixels[offset] == 0)
+                if (baselinePixel == 0)
                 {
                     resultPixels[offset] = colors[mask[offset]];
                     continue;
                 }
                 int colorOffset = mask[offset] * 4;
-                resultPixels[offset] = BlendPixel(baselinePixels[offset], colors[mask[offset]],
+                resultPixels[offset] = BlendPixel(baselinePixel, colors[mask[offset]],
                     (uint)(255 - coverageColors[colorOffset + 3]));
             }
             versions[pair.Key] = ++version;

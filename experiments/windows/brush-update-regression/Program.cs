@@ -38,6 +38,8 @@ if (tailUpdateAllocations > 4 * 1024 * 1024)
     throw new Exception($"Repeated tail updates allocated {tailUpdateAllocations} bytes (budget 4 MiB)");
 Console.WriteLine($"PASS: 32 repeated tail updates allocated {tailUpdateAllocations} bytes (budget 4 MiB)");
 allocationStroke.Cancel();
+CheckStrokeAllocations();
+
 // Frozen pre-optimization raster hashes include provisional tails, clipping and nontransparent destinations.
 var actual = new Dictionary<string, string>();
 using var srgb = SKColorSpace.CreateSrgb();
@@ -107,4 +109,44 @@ else
     if (actual.Count != expected.Count || actual.Any(pair => !expected.TryGetValue(pair.Key, out var hash) || hash != pair.Value))
         throw new Exception("Brush transient/committed raster differs from frozen pre-optimization output");
     Console.WriteLine($"PASS: 65536 coverage pairs across 9 span lengths; {actual.Count} transient/committed rasters; undo/redo/cancel; 4 diameters, 3 opacities, empty/existing layers");
+}
+
+
+static void CheckStrokeAllocations()
+{
+    var session = new BrushSession(new TiledRaster(4000, 4000));
+    var digests = new List<string> { session.Current.Digest() };
+    long appendAllocations = 0, committedPixelBytes = 0;
+    for (int edit = 0; edit < 100; edit++)
+    {
+        var source = session.Current;
+        string sourceDigest = digests[^1];
+        var stroke = session.Begin(new(160, .4, [1, .3, .1]));
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int point = 0; point <= 20; point++)
+            stroke.Append(new(180 + edit % 10 * 360 + point * 6,
+                180 + edit / 10 * 360 + 50 * Math.Sin(point * Math.PI / 10)));
+        appendAllocations += GC.GetAllocatedBytesForCurrentThread() - before;
+        if (source.Digest() != sourceDigest) throw new Exception("Active stroke mutated its source snapshot");
+        session.Commit(); committedPixelBytes += stroke.CommitCopiedBytes;
+        if (source.Digest() != sourceDigest) throw new Exception("Commit mutated its source snapshot");
+        digests.Add(session.Current.Digest());
+    }
+    if (digests[^1] != "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7")
+        throw new Exception("S05 fixed stroke trace changed");
+    for (int edit = 0; edit < 100; edit++)
+    {
+        session.Undo();
+        if (session.Current.Digest() != digests[session.UndoCount]) throw new Exception("Shared snapshot undo changed");
+    }
+    for (int edit = 0; edit < 100; edit++)
+    {
+        session.Redo();
+        if (session.Current.Digest() != digests[session.UndoCount]) throw new Exception("Shared snapshot redo changed");
+    }
+    // Working RGBA pixels plus byte coverage/tail masks fit below two RGBA copies.
+    // An additional full copy of the immutable source exceeds this bound on the fixed trace.
+    Console.WriteLine($"Stroke append allocations: {appendAllocations}; budget: {2 * committedPixelBytes}");
+    if (appendAllocations >= 2 * committedPixelBytes)
+        throw new Exception("Stroke still allocates a full immutable-source copy per touched tile");
 }

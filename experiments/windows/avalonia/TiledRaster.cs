@@ -18,8 +18,8 @@ internal sealed class TiledRaster(int width, int height)
         int x = key % Columns * TileSize, y = key / Columns * TileSize;
         return new SKRectI(x, y, Math.Min(x + TileSize, Width), Math.Min(y + TileSize, Height));
     }
-    public byte[] CopyTile(int key) => tiles.TryGetValue(key, out var tile)
-        ? (byte[])tile.Clone() : new byte[Bounds(key).Width * Bounds(key).Height * 4];
+    public ReadOnlyMemory<byte> ReadTile(int key) => tiles.TryGetValue(key, out var tile)
+        ? tile : ReadOnlyMemory<byte>.Empty;
 
     public TiledRaster Replacing(IEnumerable<KeyValuePair<int, byte[]>> replacements)
     {
