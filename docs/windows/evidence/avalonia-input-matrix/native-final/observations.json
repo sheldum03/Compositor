@@ -1,0 +1,105 @@
+{
+  "nativeProcessId": 40532,
+  "windowTitleSuffix": "native-20260923-185914",
+  "input": "CUA through UU to Microsoft Pinyin; not physical-device acceptance",
+  "candidateObservations": "Visible in conversation screenshots; raw exports pending independent verification",
+  "cases": [
+    {
+      "name": "rotate13",
+      "baseline": 1,
+      "cancel": 2,
+      "commit": 3,
+      "undo": 4,
+      "redo": 5
+    },
+    {
+      "name": "rotate13-flipY-stretch75",
+      "baseline": 6,
+      "cancel": 7,
+      "commit": 8,
+      "undo": 9,
+      "redo": 10
+    },
+    {
+      "name": "rotate13-flipXY-stretch75-zoom150",
+      "baseline": 11,
+      "cancel": 12,
+      "commit": 13,
+      "undo": 14,
+      "redo": 15
+    },
+    {
+      "name": "rotate13-flipXY-stretch75-zoom50",
+      "baseline": 16,
+      "cancel": 17,
+      "commit": 18,
+      "undo": 19,
+      "redo": 20
+    },
+    {
+      "name": "identity",
+      "baseline": 21,
+      "cancel": 23,
+      "commit": 24,
+      "undo": 25,
+      "redo": 26
+    },
+    {
+      "name": "rotate13-flipX",
+      "baseline": 31,
+      "cancel": 33,
+      "commit": 34,
+      "undo": 35,
+      "redo": 36
+    },
+    {
+      "name": "system100-identity",
+      "baseline": 38,
+      "cancel": 39,
+      "commit": 40,
+      "undo": 41,
+      "redo": 42
+    },
+    {
+      "name": "system100-rotate13-flipXY-stretch75-zoom150",
+      "baseline": 43,
+      "cancel": 44,
+      "commit": 45,
+      "undo": 46,
+      "redo": 47
+    },
+    {
+      "name": "system200-identity",
+      "baseline": 48,
+      "cancel": 49,
+      "commit": 50,
+      "undo": 51,
+      "redo": 52
+    },
+    {
+      "name": "system200-rotate13-flipXY-stretch75-zoom50",
+      "baseline": 53,
+      "cancel": 54,
+      "commit": 55,
+      "undo": 56,
+      "redo": 57
+    }
+  ],
+  "otherExports": {
+    "22": "Remote drag attempt; no selection highlight observed, not accepted",
+    "27": "Tab away/back then select all, real ceshi preedit, Esc; original all-selected observed",
+    "28": "Redo after cancel; expected prefix 测试",
+    "29": "Undo; expected original",
+    "30": "Identity, long preedit wrapping, Esc; expected original; candidate followed new line",
+    "32": "Horizontal flip plus 13 degrees, long preedit wrapping, Esc; expected original; candidate near new line",
+    "37": "Restored identity and original text before system DPI tests",
+    "58": "Restored identity transform, original text and Windows system 150%; final export before normal close"
+  },
+  "systemDpiObserved": [
+    "initial 150% in Settings",
+    "changed to 100% in Settings",
+    "changed to 200% in Settings",
+    "restored 150% in Settings before normal window close"
+  ],
+  "captureRecovery": "CUA coordinate clicks became usable after UU Window menu performZoom; double-clicking unique native title maximized the correct Windows window"
+}
