@@ -1,6 +1,6 @@
 # Avalonia 输入矩阵准备与导出失焦修复
 
-2026-09-23。本轮只完成本地 Headless 验证与 Windows 测试包准备，未增加真实 Windows IME 或系统 DPI 通过项。UU 操作因 Mac 锁屏暂停；M1 继续开放。
+2026-09-23。已完成本地与 Windows Headless 验证，未增加真实 Windows IME 或系统 DPI 通过项。UU 解锁后已传包和启动原生窗口，但画面点击接口报 `noWindowsAvailable`；M1 继续开放。
 
 ## 修复及证据
 
@@ -24,4 +24,14 @@
 
 脚本为 `experiments/windows/text-selection-regression/run-matrix.py`，随私有包放在 `CompositorTest/AvaloniaImeMatrix/` 下。它复制既有 R9 到新结果目录，只在副本替换输入测试程序集；不覆盖旧版应用和证据。正常关闭窗口后才完成归档。
 
-固定源码 `a869a69a02dd4c78c483a31dc0165412d273e5c9` 的 Windows x64 包已生成，29 个沿用依赖与 R9 摘要一致，102 个样本/清单文件已本地核对。包身份见 [package.json](package.json)，尚未传输或在 Windows 执行。解压到 `CompositorTest` 后入口为 `python .\AvaloniaImeMatrix\run-matrix.py`；需等待自动回归结束和唯一标题的原生窗口出现，再进行人工观察。
+固定源码 `a869a69a02dd4c78c483a31dc0165412d273e5c9` 的 Windows x64 包已生成，29 个沿用依赖与 R9 摘要一致，102 个样本/清单文件已本地核对。包身份见 [package.json](package.json)，其中保留打包时尚未传输或在 Windows 执行的状态；后续实测见下节。解压到 `CompositorTest` 后入口为 `python .\AvaloniaImeMatrix\run-matrix.py`；需等待自动回归结束和唯一标题的原生窗口出现，再进行人工观察。
+
+## Windows 自动回归实测与原生窗口待测
+
+随后 UU 恢复可用，包已传至原测试主机，PowerShell 显示的 ZIP SHA-256 与上述包清单一致。运行目录为 `C:\Users\Administrator\Desktop\CompositorTest\avalonia-ime-matrix-20260923-185914`。基础文件、样本与载荷身份校验通过后，运行库信息、实际窗口 Headless、192 项选择、40 项 IME client 取消、24 项页签模拟依次退出 0。实际运行库为 .NET 10.0.12 x64，DLL 摘要为 `55909cba56a66a4a2d38eafa28351d2739a3882aadcd39c747d473a6e970aa1a`。
+
+通过 UU 取回完整的 384 张选择 PNG，独立解码并逐项重算变化像素数，全部与报告一致；192 个变换组合无缺项。精确选区、替换、撤销/重做均通过。实际原型窗口 Headless PID 40744，两次鼠标导出保留正向/反向“中文”选区，状态和两对预览/导出精确；报告明确 `windowsExecuted=true, nativeWindow=false`。
+
+原生窗口 PID 40532 已启动，标题包含 `native-20260923-185914`。此时 UU 画面坐标点击报 `noWindowsAvailable`，退出全屏及重新选择显示屏后仍失败；终端和文件传输正常。已请求用户恢复远控画面焦点。没有将无法确认送达的操作记为输入通过，也没有重启同一测试进程。
+
+独立复核见 [windows-headless-review.json](windows-headless-review.json)，原始摘要及运行日志见 [windows-headless](windows-headless/identity.json)。共 397 个已取回文件另存检查点 ZIP，SHA-256 为 `a8173aeb949305ad20370ce259b357f82a8f95ec5ef63e9c8c51d98f78373cff`，CRC 检查通过。该检查点保存已经结束的自动测试，`identity.json` 中原生进程退出码仍为 null；它不是正常关闭后的最终运行归档。待恢复画面操作后继续现有窗口的真实 IME/DPI 检查，再关闭、取回最终报告。

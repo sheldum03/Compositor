@@ -1,0 +1,29 @@
+{
+  "status": "Windows Headless regressions independently passed; native observations pending",
+  "sourceCommit": "a869a69a02dd4c78c483a31dc0165412d273e5c9",
+  "dllSha256": "55909cba56a66a4a2d38eafa28351d2739a3882aadcd39c747d473a6e970aa1a",
+  "windowsExecuted": true,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "runtime": "Microsoft.NETCore.App 10.0.12 x64",
+  "selectionCombinations": 192,
+  "independentlyDecodedSelectionImages": 384,
+  "imeClientCancelCases": 40,
+  "imeClientTabCases": 24,
+  "windowMouseSelectionDirections": 2,
+  "exactPreviewExportPairs": 2,
+  "windowReportCorrectlyLabeledHeadless": true,
+  "nativeImeAccepted": false,
+  "systemDpiAccepted": false,
+  "nativeProcessIdAtCheckpoint": 40532,
+  "nativeExitAtCheckpoint": null,
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-ime-matrix-20260923/windows-headless-checkpoint.zip",
+  "archiveSha256": "a8173aeb949305ad20370ce259b357f82a8f95ec5ef63e9c8c51d98f78373cff",
+  "archiveBytes": 1885409,
+  "archiveFiles": 397,
+  "limitations": [
+    "Checkpoint includes completed automatic tests only, not a final closed-window run archive",
+    "Native window still open; no native IME interaction accepted",
+    "Headless renderScaling is not evidence of physical system DPI",
+    "Remote capture/click error noWindowsAvailable prevented native pointer tests"
+  ]
+}
