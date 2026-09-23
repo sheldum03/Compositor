@@ -1,0 +1,166 @@
+[
+  {
+    "package": "Avalonia",
+    "version": "11.3.22",
+    "assetCount": 11,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Angle.Windows.Natives",
+    "version": "2.1.25547.20250602",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia.Angle.Windows.Natives/LICENSE"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Desktop",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.FreeDesktop",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Headless",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Native",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Remote.Protocol",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Skia",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Themes.Simple",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.Win32",
+    "version": "11.3.22",
+    "assetCount": 2,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Avalonia.X11",
+    "version": "11.3.22",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Avalonia/licence.md",
+      "Licenses/Avalonia/NOTICE.md"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "HarfBuzzSharp",
+    "version": "8.3.1.1",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/HarfBuzzSharp/LICENSE.txt"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "HarfBuzzSharp.NativeAssets.Win32",
+    "version": "8.3.1.1",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/HarfBuzzSharp.NativeAssets.Win32/LICENSE.txt",
+      "Licenses/HarfBuzzSharp.NativeAssets.Win32/THIRD-PARTY-NOTICES.txt"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "MicroCom.Runtime",
+    "version": "0.11.0",
+    "assetCount": 1,
+    "notices": [],
+    "identityGap": "NuGet metadata has no source commit; historical repository license is kept separately, not matched to this binary"
+  },
+  {
+    "package": "SkiaSharp",
+    "version": "2.88.9",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/SkiaSharp/LICENSE.txt",
+      "Licenses/SkiaSharp/THIRD-PARTY-NOTICES.txt"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "SkiaSharp.NativeAssets.Win32",
+    "version": "2.88.9",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/SkiaSharp.NativeAssets.Win32/LICENSE.txt",
+      "Licenses/SkiaSharp.NativeAssets.Win32/THIRD-PARTY-NOTICES.txt"
+    ],
+    "identityGap": null
+  },
+  {
+    "package": "Tmds.DBus.Protocol",
+    "version": "0.21.3",
+    "assetCount": 1,
+    "notices": [
+      "Licenses/Tmds.DBus.Protocol/COPYING"
+    ],
+    "identityGap": null
+  }
+]

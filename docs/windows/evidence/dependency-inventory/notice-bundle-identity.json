@@ -1,0 +1,14 @@
+{
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/CompositorProbeNotices-20260923.zip",
+  "bytes": 141617,
+  "sha256": "fac23abf0292f18e3b8b5904d1ea3a9c75a45b1561197936209f48ca3dca3491",
+  "runtimePackageCount": 17,
+  "packagesWithMatchedNotices": 16,
+  "unresolvedRuntimePackages": [
+    "MicroCom.Runtime"
+  ],
+  "sourceDocuments": 5,
+  "sourceDocumentsWithNuspecCommit": 4,
+  "windowsExecuted": false,
+  "releaseAccepted": false
+}

@@ -1,0 +1,45 @@
+{
+  "status": "static PE import/export inventory; not a loader or redistribution acceptance",
+  "dllSha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "bytes": 78848,
+  "importLibraries": [
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-private-l1-1-0.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "KERNEL32.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll"
+  ],
+  "exports": [
+    "adjust_gradient_map",
+    "adjust_grain",
+    "brush_alpha_bounds",
+    "compositor_free",
+    "compositor_heal_bounds",
+    "compositor_wand_mask",
+    "content_fill",
+    "heal_coverage_bounds",
+    "layer_extract_alpha",
+    "layer_restore_alpha",
+    "layer_unpremultiply_opaque",
+    "lens_distort",
+    "levels_apply",
+    "levels_histogram",
+    "noise_add",
+    "rgba_clamp_premultiplied",
+    "spot_heal",
+    "wand_mask",
+    "wand_trace"
+  ],
+  "matchesOriginalWindowsLlvmReadobj": true,
+  "delayedImportDirectoryPresent": false,
+  "compilerObservation": "clang version 23.1.1 (https://github.com/llvm/llvm-project.git 6dfe1677ab8dffbc6ec13d53a1e0215d75147689)\nTarget: x86_64-w64-windows-gnu\nThread model: posix\nInstalledDir: C:/Users/Administrator/Desktop/CompositorTest/tools/llvm-mingw-20260908-ucrt-x86_64/bin\nConfiguration file: C:/Users/Administrator/Desktop/CompositorTest/tools/llvm-mingw-20260908-ucrt-x86_64/bin/x86_64-w64-windows-gnu.cfg",
+  "inspectionTool": "Apple LLVM version 21.0.0\n  Optimized build.\n\n\n  Registered Targets:\n    aarch64    - AArch64 (little endian)\n    aarch64_32 - AArch64 (little endian ILP32)\n    aarch64_be - AArch64 (big endian)\n    arm        - ARM\n    arm64      - ARM64 (little endian)\n    arm64_32   - ARM64 (little endian ILP32)\n    armeb      - ARM (big endian)\n    thumb      - Thumb\n    thumbeb    - Thumb (big endian)\n    x86        - 32-bit X86: Pentium-Pro and above\n    x86-64     - 64-bit X86: EM64T and AMD64",
+  "limits": [
+    "Static import table does not prove absence of all dynamic loads or embedded runtime code",
+    "Compiler runtime notices and final production toolchain remain to be inventoried",
+    "No new Windows execution or clean-machine test"
+  ],
+  "windowsExecuted": false
+}

@@ -1,0 +1,19 @@
+{
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/CompositorRuntimeInventory-20260923.zip",
+  "bytes": 286532,
+  "sha256": "c3da8db886a4326d4a499e11c83af537500820e45e7a40ba43e590b404bf616c",
+  "runtimeFiles": 193,
+  "runtimeBinaryArchiveIncluded": false,
+  "checks": [
+    "official SHA-512 match",
+    "ZIP CRC",
+    "193 files match after local extraction",
+    "modified dotnet.exe rejected",
+    "missing dotnet.exe rejected",
+    "unexpected file rejected",
+    "existing report refused"
+  ],
+  "windowsExecuted": false,
+  "remoteInstalledFilesVerified": false,
+  "releaseAccepted": false
+}
