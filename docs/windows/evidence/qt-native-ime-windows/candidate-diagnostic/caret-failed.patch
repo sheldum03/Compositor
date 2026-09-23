@@ -1,0 +1,27 @@
+diff --git a/experiments/windows/qt/text_probe.cpp b/experiments/windows/qt/text_probe.cpp
+index 43d557c..cbd2c96 100644
+--- a/experiments/windows/qt/text_probe.cpp
++++ b/experiments/windows/qt/text_probe.cpp
+@@ -14,6 +14,7 @@
+ #include <QGraphicsTextItem>
+ #include <QGraphicsView>
+ #include <QInputMethodEvent>
++#include <QInputMethod>
+ #include <QJsonArray>
+ #include <QJsonDocument>
+ #include <QPainter>
+@@ -35,6 +36,14 @@ public:
+     using QGraphicsTextItem::inputMethodQuery;
+     int draws = 0, preeditEvents = 0, commitEvents = 0;
+     bool preeditActive = false;
++#ifdef Q_OS_WIN
++    void focusInEvent(QFocusEvent *event) override {
++        QGraphicsTextItem::focusInEvent(event); QGuiApplication::inputMethod()->show();
++    }
++    void focusOutEvent(QFocusEvent *event) override {
++        QGraphicsTextItem::focusOutEvent(event); QGuiApplication::inputMethod()->hide();
++    }
++#endif
+     void inputMethodEvent(QInputMethodEvent *event) override {
+         const bool commits = !event->commitString().isEmpty() || event->replacementLength() != 0;
+         if (!compositionSelection.isNull() && (commits || event->preeditString().isEmpty())) {

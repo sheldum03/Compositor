@@ -1,0 +1,51 @@
+diff --git a/experiments/windows/qt/CMakeLists.txt b/experiments/windows/qt/CMakeLists.txt
+index 3ad978f..8cafcb8 100644
+--- a/experiments/windows/qt/CMakeLists.txt
++++ b/experiments/windows/qt/CMakeLists.txt
+@@ -7,7 +7,7 @@ add_subdirectory(../native native)
+ add_executable(qt_probe probe.cpp scene.cpp composite.cpp brush.cpp brush_probe.cpp brush_performance.cpp text_probe.cpp window.cpp)
+ target_link_libraries(qt_probe PRIVATE Qt6::Widgets compositor_native)
+ if(WIN32)
+-    target_link_libraries(qt_probe PRIVATE psapi)
++    target_link_libraries(qt_probe PRIVATE psapi imm32)
+ endif()
+ if(MSVC)
+     target_compile_options(qt_probe PRIVATE /W4 /WX /utf-8)
+diff --git a/experiments/windows/qt/text_probe.cpp b/experiments/windows/qt/text_probe.cpp
+index 43d557c..fb1572c 100644
+--- a/experiments/windows/qt/text_probe.cpp
++++ b/experiments/windows/qt/text_probe.cpp
+@@ -14,6 +14,12 @@
+ #include <QGraphicsTextItem>
+ #include <QGraphicsView>
+ #include <QInputMethodEvent>
++#include <QInputMethod>
++#ifdef Q_OS_WIN
++#include <QWindow>
++#include <windows.h>
++#include <imm.h>
++#endif
+ #include <QJsonArray>
+ #include <QJsonDocument>
+ #include <QPainter>
+@@ -63,7 +69,19 @@ public:
+ };
+ class TextView final : public QGraphicsView {
+ public:
+-    using QGraphicsView::QGraphicsView;
++    explicit TextView(QGraphicsScene *scene, QWidget *parent = nullptr) : QGraphicsView(scene, parent) {
++#ifdef Q_OS_WIN
++        QObject::connect(QGuiApplication::inputMethod(), &QInputMethod::cursorRectangleChanged, this, [this] {
++            if (!hasFocus()) return;
++            auto window = QGuiApplication::focusWindow(); if (!window) return;
++            auto hwnd = reinterpret_cast<HWND>(window->winId()); auto context = ImmGetContext(hwnd); if (!context) return;
++            auto rect = QGuiApplication::inputMethod()->cursorRectangle(); auto ratio = window->devicePixelRatio();
++            CANDIDATEFORM candidate{}; candidate.dwStyle = CFS_CANDIDATEPOS;
++            candidate.ptCurrentPos = {LONG(qRound(rect.x() * ratio)), LONG(qRound(rect.bottom() * ratio))};
++            ImmSetCandidateWindow(context, &candidate); ImmReleaseContext(hwnd, context);
++        });
++#endif
++    }
+     using QGraphicsView::inputMethodQuery;
+ };
+ void verify(const QString &root) {
