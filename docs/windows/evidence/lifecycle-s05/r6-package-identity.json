@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "e02af34ceb2c16777e698b2e03a4f6c643021037",
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-idle-r6-preparation/CompositorS05IdleR6.zip",
+  "bytes": 13868966,
+  "sha256": "52cdf389d686ea06d70ff690adc7fdedc2f7cce78ce4393dfefee1b11793478a",
+  "dllSha256": "2ccf8ba6615f9d9389385610a17e4b70327095962a0f6c5e3923fbad3226508e",
+  "baseDllSha256": "769fd3bd947b712291225d680c7e3040932cf7887e64ecbf2a49d00295f00c53",
+  "checkedDependencies": 29,
+  "windowsExecuted": false,
+  "installerReconstructionChecked": true,
+  "overwriteRefused": true
+}
