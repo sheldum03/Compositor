@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-23",
+  "scope": "UU direct GUI observations, raw new exports not yet retrieved",
+  "window": "Compositor Qt — Windows feasibility probe",
+  "originalOutput": "native-input-20260922-175634/qt-window",
+  "observedActions": [
+    "UU full-screen restored previously blank lower remote desktop; no Windows resolution or DPI changed",
+    "Ctrl+Z removed old literal zho; original displayed text restored; Export + check clicked",
+    "English zhongwen attempt undone; taskbar IME indicator switched to Chinese mode",
+    "Real Microsoft Pinyin preedit/candidate shown after zhongwen; Esc restored original; export clicked",
+    "Second zhongwen then Space inserted Chinese text; export clicked",
+    "Ctrl+Z restored original; export clicked",
+    "Ctrl+Y restored appended Chinese text; export clicked",
+    "Rotation 30, Flip X checked, Scale 1.25 visibly applied"
+  ],
+  "candidatePlacement": "Candidate panel appeared to the right of composing text after wrap; exact placement not accepted",
+  "interruption": "Mac locked during next export/selection tool call; partial execution of that call unknown",
+  "doNotRestartWindow": true,
+  "newRawEvidenceIndependentlyReviewed": false,
+  "nativeImeAccepted": false
+}
