@@ -1,6 +1,6 @@
 # 窗口生命周期与 S05 执行记录（2026-09-22）
 
-R8 原始 Windows 结果已取回并独立复核：900 次编辑及 18 张图像保持精确，分配估计下降 25.17%，采样专用内存最大值降至 556.88 MiB；资源稳定性仍未自动放行。见 [R8 实测](windows-pixels-r8-followup.md)。R9 笔刷原始瓦片只读共享优化已有本地追加分配约降 39.8% 的证据，首次 Windows 冻结图回归失败已定位为 Mac 基准的平台不匹配；优化前、R8、R9 的 Windows 输出精确一致。新增旧版生成的 Windows 基准后完整回归通过，两轮 S02 数值复核均未通过，S05 最终状态因再次锁屏待读取，见 [当前状态](r9-windows-running.md) 与 [基准诊断](r9-windows-baseline-diagnosis.md)。见 [R9 准备](r9-readonly-brush-preparation.md)。
+R8 原始 Windows 结果已取回并独立复核：900 次编辑及 18 张图像保持精确，分配估计下降 25.17%，采样专用内存最大值降至 556.88 MiB；资源稳定性仍未自动放行。见 [R8 实测](windows-pixels-r8-followup.md)。R9 笔刷原始瓦片只读共享优化已有本地追加分配约降 39.8% 的证据，首次 Windows 冻结图回归失败已定位为 Mac 基准的平台不匹配；优化前、R8、R9 的 Windows 输出精确一致。新增旧版生成的 Windows 基准后完整回归通过，R9 原始结果已全部取回：两轮 S02 更新延迟未通过，S05 正确性通过、分配减少 26.81%，但空闲末尾占用更高，资源稳定性仍开放，见 [实机复核](r9-windows-followup.md) 与 [基准诊断](r9-windows-baseline-diagnosis.md)。见 [R9 准备](r9-readonly-brush-preparation.md)。
 
 R7 已在 Windows 完成并独立复核：报告流式写出后，总分配估计下降 24.36%、末尾空闲专用内存降至 768.53 MiB；采样峰值仍达 1204.20 MiB，资源稳定性未放行。见 [R7 优化与同机复测](windows-report-r7-followup.md)。
 

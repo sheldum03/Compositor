@@ -1,5 +1,7 @@
 # R9 Windows 当前执行状态（2026-09-23）
 
+**已完成并取回原始结果：S05 原生/复核退出 0，正确性独立通过；两轮 S02 的更新 P95 未通过，详见 [最终复核](r9-windows-followup.md)。以下保留执行中断时的历史记录。**
+
 原执行根目录：`C:\Users\Administrator\Desktop\CompositorTest\brush-source-r9b-20260923-141734`。使用 R9 原 DLL、优化前源码的 Windows 基准及 [后续包](r9-windows-followup-identity.json)，基准修正原因见 [诊断](r9-windows-baseline-diagnosis.md)。
 
 | 阶段 | 原 PID | 已观察结果 |

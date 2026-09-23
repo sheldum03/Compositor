@@ -1,0 +1,389 @@
+{
+  "previous-pass": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/s02-prescale-20260922-154152/s02-prescale-20260922-154152/results/report.json",
+    "renderScaling": 1.5,
+    "clientWidth": 1024,
+    "clientHeight": 1040,
+    "privatePeak": 877395968,
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "frames": 3600,
+        "overBudget": 124,
+        "phases": {
+          "AppendMilliseconds": {
+            "p95": 1.931,
+            "mean": 1.2999329444444445
+          },
+          "PaintMilliseconds": {
+            "p95": 1.5918,
+            "mean": 1.0620758333333333
+          },
+          "UpdateToCanvasLeaseReleasedMilliseconds": {
+            "p95": 10.9458,
+            "mean": 9.70162461111111
+          },
+          "NativePixelCopyBytes": {
+            "p95": 921600,
+            "mean": 678297.6
+          },
+          "RequestToRenderMilliseconds": {
+            "p95": 8.7083,
+            "mean": 7.284387611111111
+          },
+          "CanvasAcquireMilliseconds": {
+            "p95": 0.0019,
+            "mean": 0.001021138888888889
+          },
+          "CanvasReleaseMilliseconds": {
+            "p95": 0.0019,
+            "mean": 0.053420444444444444
+          },
+          "RequestToSceneMilliseconds": {
+            "p95": 0.0562,
+            "mean": 0.034096416666666664
+          },
+          "SceneToRenderMilliseconds": {
+            "p95": 8.67,
+            "mean": 7.250291194444444
+          }
+        },
+        "overBudgetMeans": {
+          "AppendMilliseconds": 1.3471943548387098,
+          "PaintMilliseconds": 1.2035677419354838,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.63496129032258,
+          "NativePixelCopyBytes": 670092.3870967742,
+          "RequestToRenderMilliseconds": 21.566131451612904,
+          "CanvasAcquireMilliseconds": 0.000982258064516129,
+          "CanvasReleaseMilliseconds": 1.5167919354838708,
+          "RequestToSceneMilliseconds": 0.037050806451612905,
+          "SceneToRenderMilliseconds": 21.52908064516129
+        },
+        "gcCollections": [
+          40,
+          40,
+          13
+        ],
+        "commitP95": 10.3593
+      },
+      {
+        "scenario": "existing",
+        "frames": 3600,
+        "overBudget": 147,
+        "phases": {
+          "AppendMilliseconds": {
+            "p95": 2.4518,
+            "mean": 1.5481900833333333
+          },
+          "PaintMilliseconds": {
+            "p95": 2.0183,
+            "mean": 1.4106049722222223
+          },
+          "UpdateToCanvasLeaseReleasedMilliseconds": {
+            "p95": 11.3822,
+            "mean": 9.937894583333334
+          },
+          "NativePixelCopyBytes": {
+            "p95": 921600,
+            "mean": 678297.6
+          },
+          "RequestToRenderMilliseconds": {
+            "p95": 8.664,
+            "mean": 6.914406583333333
+          },
+          "CanvasAcquireMilliseconds": {
+            "p95": 0.0018,
+            "mean": 0.0009899166666666667
+          },
+          "CanvasReleaseMilliseconds": {
+            "p95": 0.002,
+            "mean": 0.06338113888888888
+          },
+          "RequestToSceneMilliseconds": {
+            "p95": 0.0581,
+            "mean": 0.034827277777777776
+          },
+          "SceneToRenderMilliseconds": {
+            "p95": 8.6335,
+            "mean": 6.879579305555556
+          }
+        },
+        "overBudgetMeans": {
+          "AppendMilliseconds": 1.859504761904762,
+          "PaintMilliseconds": 1.396312925170068,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 25.084102721088435,
+          "NativePixelCopyBytes": 734270.693877551,
+          "RequestToRenderMilliseconds": 20.304261904761905,
+          "CanvasAcquireMilliseconds": 0.0010503401360544217,
+          "CanvasReleaseMilliseconds": 1.5226061224489795,
+          "RequestToSceneMilliseconds": 0.048251020408163266,
+          "SceneToRenderMilliseconds": 20.256010884353742
+        },
+        "gcCollections": [
+          38,
+          34,
+          14
+        ],
+        "commitP95": 10.2135
+      }
+    ]
+  },
+  "R9-first": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/brush-r9b-evidence/raw/s02-first/run/report.json",
+    "renderScaling": 1.5,
+    "clientWidth": 1024,
+    "clientHeight": 1040,
+    "privatePeak": 701734912,
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "frames": 3600,
+        "overBudget": 190,
+        "phases": {
+          "AppendMilliseconds": {
+            "p95": 1.442,
+            "mean": 1.1225940555555556
+          },
+          "PaintMilliseconds": {
+            "p95": 1.7252,
+            "mean": 1.0905085555555556
+          },
+          "UpdateToCanvasLeaseReleasedMilliseconds": {
+            "p95": 19.9141,
+            "mean": 9.414393972222221
+          },
+          "NativePixelCopyBytes": {
+            "p95": 921600,
+            "mean": 678297.6
+          },
+          "RequestToRenderMilliseconds": {
+            "p95": 15.8345,
+            "mean": 7.137072055555556
+          },
+          "CanvasAcquireMilliseconds": {
+            "p95": 0.0024,
+            "mean": 0.0013386388888888888
+          },
+          "CanvasReleaseMilliseconds": {
+            "p95": 0.0017,
+            "mean": 0.06255127777777778
+          },
+          "RequestToSceneMilliseconds": {
+            "p95": 0.0641,
+            "mean": 0.03484263888888889
+          },
+          "SceneToRenderMilliseconds": {
+            "p95": 15.7934,
+            "mean": 7.102229416666667
+          }
+        },
+        "overBudgetMeans": {
+          "AppendMilliseconds": 1.2880352631578946,
+          "PaintMilliseconds": 1.21438,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 24.48842789473684,
+          "NativePixelCopyBytes": 689356.8,
+          "RequestToRenderMilliseconds": 20.817983157894737,
+          "CanvasAcquireMilliseconds": 0.0013563157894736842,
+          "CanvasReleaseMilliseconds": 1.1663494736842106,
+          "RequestToSceneMilliseconds": 0.03956421052631579,
+          "SceneToRenderMilliseconds": 20.778418947368422
+        },
+        "gcCollections": [
+          39,
+          38,
+          12
+        ],
+        "commitP95": 11.6361
+      },
+      {
+        "scenario": "existing",
+        "frames": 3600,
+        "overBudget": 205,
+        "phases": {
+          "AppendMilliseconds": {
+            "p95": 2.5015,
+            "mean": 1.4326655555555556
+          },
+          "PaintMilliseconds": {
+            "p95": 2.0917,
+            "mean": 1.4525515277777779
+          },
+          "UpdateToCanvasLeaseReleasedMilliseconds": {
+            "p95": 19.3063,
+            "mean": 9.5969345
+          },
+          "NativePixelCopyBytes": {
+            "p95": 921600,
+            "mean": 678297.6
+          },
+          "RequestToRenderMilliseconds": {
+            "p95": 15.4744,
+            "mean": 6.640384277777778
+          },
+          "CanvasAcquireMilliseconds": {
+            "p95": 0.0022,
+            "mean": 0.0013365555555555555
+          },
+          "CanvasReleaseMilliseconds": {
+            "p95": 0.0017,
+            "mean": 0.06964502777777777
+          },
+          "RequestToSceneMilliseconds": {
+            "p95": 0.0641,
+            "mean": 0.03501041666666667
+          },
+          "SceneToRenderMilliseconds": {
+            "p95": 15.4304,
+            "mean": 6.6053738611111115
+          }
+        },
+        "overBudgetMeans": {
+          "AppendMilliseconds": 1.5799370731707316,
+          "PaintMilliseconds": 1.4885946341463414,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.95747268292683,
+          "NativePixelCopyBytes": 691784.4292682927,
+          "RequestToRenderMilliseconds": 19.681870731707317,
+          "CanvasAcquireMilliseconds": 0.0014595121951219512,
+          "CanvasReleaseMilliseconds": 1.2052146341463414,
+          "RequestToSceneMilliseconds": 0.06387268292682927,
+          "SceneToRenderMilliseconds": 19.61799804878049
+        },
+        "gcCollections": [
+          38,
+          38,
+          11
+        ],
+        "commitP95": 14.0142
+      }
+    ]
+  },
+  "R9-repeat": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/brush-r9b-evidence/raw/s02-repeat/run/report.json",
+    "renderScaling": 1.5,
+    "clientWidth": 1024,
+    "clientHeight": 1040,
+    "privatePeak": 717910016,
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "frames": 3600,
+        "overBudget": 175,
+        "phases": {
+          "AppendMilliseconds": {
+            "p95": 1.4207,
+            "mean": 1.1426069444444444
+          },
+          "PaintMilliseconds": {
+            "p95": 1.7214,
+            "mean": 1.0974834722222222
+          },
+          "UpdateToCanvasLeaseReleasedMilliseconds": {
+            "p95": 13.8939,
+            "mean": 9.230282972222222
+          },
+          "NativePixelCopyBytes": {
+            "p95": 921600,
+            "mean": 678297.6
+          },
+          "RequestToRenderMilliseconds": {
+            "p95": 11.7718,
+            "mean": 6.935942222222222
+          },
+          "CanvasAcquireMilliseconds": {
+            "p95": 0.002,
+            "mean": 0.0009715277777777778
+          },
+          "CanvasReleaseMilliseconds": {
+            "p95": 0.002,
+            "mean": 0.05290452777777778
+          },
+          "RequestToSceneMilliseconds": {
+            "p95": 0.0662,
+            "mean": 0.03653744444444444
+          },
+          "SceneToRenderMilliseconds": {
+            "p95": 11.732,
+            "mean": 6.899404777777778
+          }
+        },
+        "overBudgetMeans": {
+          "AppendMilliseconds": 1.3329902857142857,
+          "PaintMilliseconds": 1.1193268571428572,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 24.23418685714286,
+          "NativePixelCopyBytes": 694096.4571428571,
+          "RequestToRenderMilliseconds": 20.715965142857144,
+          "CanvasAcquireMilliseconds": 0.0010417142857142858,
+          "CanvasReleaseMilliseconds": 1.0643782857142858,
+          "RequestToSceneMilliseconds": 0.040576,
+          "SceneToRenderMilliseconds": 20.675389142857142
+        },
+        "gcCollections": [
+          38,
+          38,
+          11
+        ],
+        "commitP95": 9.9157
+      },
+      {
+        "scenario": "existing",
+        "frames": 3600,
+        "overBudget": 214,
+        "phases": {
+          "AppendMilliseconds": {
+            "p95": 2.4547,
+            "mean": 1.4233759722222221
+          },
+          "PaintMilliseconds": {
+            "p95": 2.0703,
+            "mean": 1.4406148611111111
+          },
+          "UpdateToCanvasLeaseReleasedMilliseconds": {
+            "p95": 19.5135,
+            "mean": 9.532748
+          },
+          "NativePixelCopyBytes": {
+            "p95": 921600,
+            "mean": 678297.6
+          },
+          "RequestToRenderMilliseconds": {
+            "p95": 16.0622,
+            "mean": 6.603186166666666
+          },
+          "CanvasAcquireMilliseconds": {
+            "p95": 0.0017,
+            "mean": 0.0009484444444444445
+          },
+          "CanvasReleaseMilliseconds": {
+            "p95": 0.002,
+            "mean": 0.06422283333333333
+          },
+          "RequestToSceneMilliseconds": {
+            "p95": 0.0664,
+            "mean": 0.03682141666666667
+          },
+          "SceneToRenderMilliseconds": {
+            "p95": 16.0139,
+            "mean": 6.56636475
+          }
+        },
+        "overBudgetMeans": {
+          "AppendMilliseconds": 1.6599359813084111,
+          "PaintMilliseconds": 1.5002070093457944,
+          "UpdateToCanvasLeaseReleasedMilliseconds": 23.773107476635513,
+          "NativePixelCopyBytes": 710751.7009345795,
+          "RequestToRenderMilliseconds": 19.551294859813083,
+          "CanvasAcquireMilliseconds": 0.0010196261682242991,
+          "CanvasReleaseMilliseconds": 1.060207476635514,
+          "RequestToSceneMilliseconds": 0.04893130841121495,
+          "SceneToRenderMilliseconds": 19.50236355140187
+        },
+        "gcCollections": [
+          36,
+          34,
+          10
+        ],
+        "commitP95": 10.8819
+      }
+    ]
+  }
+}

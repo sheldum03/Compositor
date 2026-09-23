@@ -1,0 +1,55 @@
+{
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s02-current-controls/S02CurrentControls.zip",
+  "bytes": 4452,
+  "sha256": "49a349a92cfa9ba865980faca4eea3c74427929d275cf6a1ee8bc875429a664e",
+  "zipCrcPassed": true,
+  "nonWindowsRefused": true,
+  "windowsExecuted": false,
+  "manifest": {
+    "dependencies": {
+      "Avalonia.Remote.Protocol.dll": "bfeae2db167106578d989b05a7c3081e433b0b22757015689e70ee6da01afd08",
+      "Tmds.DBus.Protocol.dll": "feb2ec8ded9c8c786eaaf91623bdb58f32a9b552497c02e6828b177140a3b118",
+      "Avalonia.Markup.Xaml.dll": "83e52184a26289ccad19ef658931d38e56a24c8493253bf6c85f8097aa26d71f",
+      "Avalonia.Skia.dll": "fd7a05ee6d5c46571b455c9cdb7a38325f58a5a7a49c9cb1283d4fbcc63ad31e",
+      "Avalonia.Native.dll": "adcc965298df1b901793a20dd97cecd222bda3ebb8304e67f1ce16058e6b7de8",
+      "Avalonia.Markup.dll": "e7ec0a01631ec70b48a11f049d9ee6d7ed5d41fdadc09671d9be3d96c39896c4",
+      "Avalonia.dll": "3098925ae76f9cd96238dd80323a537928ca4c36b997e9cb91983389f53d6250",
+      "SkiaSharp.dll": "17ee1284313749f73a5cf5f309318d831741a8d6d397c998c5fc6485843c28bb",
+      "Avalonia.OpenGL.dll": "f962ab7f1a5f967e526e81b4e7194789957ca9aad5d7af92d08484fe2969027e",
+      "av_libglesv2.dll": "9b203e40323b49dad29546a52b8b67d200bba8ff4cab9709a79cede23ba847d4",
+      "libHarfBuzzSharp.dll": "eb76238c9e8e41d44b5a5b18167c4c5b39ca5db4277af5dbe92d730f0fc14a7d",
+      "Avalonia.Vulkan.dll": "3af1944812eeb4ae41407e0b4e3aad655ba3b20cc4f3d6b17438bfba1e20a391",
+      "Avalonia.Desktop.dll": "9436cfee6fcb4ed55576235b18fac1bef66b312ff8f2bea410ef67b39c60f7b0",
+      "Avalonia.Metal.dll": "3252c96aaf54a8d26b4cc1f0d5adb05a30dc4172426601c0bcde6981f7ac9618",
+      "HarfBuzzSharp.dll": "951fdc1c6db0bad84ae9329297dec0fcd38e1105ee477479ec66b8900e2f3bb5",
+      "Avalonia.Win32.Automation.dll": "0b339e393afd48855feafade4aca93521b2d5f48db82193e532e3627abd122d2",
+      "Avalonia.MicroCom.dll": "1b42462c80577d3ef40af2b6dd864147eb014877f9d62756c32df11335550835",
+      "Avalonia.Controls.dll": "7443c62f26877dbdb4d6344a80da0073581de81ff41f312cd89e303f8ad0d818",
+      "Avalonia.DesignerSupport.dll": "085ff03fc21d5aac324334d7cc072aa8a366a6b7f43dd6e61142c4385122c088",
+      "libSkiaSharp.dll": "9a0d95e8caaa852c70d085af6a40a744242172ad9ea3fd6bc7599875a8a1dbcd",
+      "Avalonia.Themes.Simple.dll": "e5b4063374d7259e419710df92bc1de402c42d3a8434b6cf470b883f1bf6c4d4",
+      "Avalonia.Win32.dll": "60849b34f83b36679f77b431af056306f20ba4d82aecfe2a2fae50a4798b9487",
+      "Avalonia.X11.dll": "3f36729c3af81ee34b165b64a9ec43ad10f305881d67aa596757ce98f002d12e",
+      "Avalonia.Base.dll": "499fa3bc5fc67c68a3fe7878a41d1a999e1e1d0a803c4720e6bde7af9d4b503c",
+      "Avalonia.Dialogs.dll": "0e5cdb7bfc305617cbafc0fc3f85aef22befebdcf715fb3ce789f9bd797523cf",
+      "MicroCom.Runtime.dll": "59839e18e46b06ab23b633944ae3c3b552a300c5da389da870dfa980bcef93c1",
+      "Avalonia.FreeDesktop.dll": "2df5e3dbee6e92e971559367e26874763151f0ecd328230f4245374c959f54a0",
+      "Avalonia.Headless.dll": "dfd0d77b37ff8548c1f3770a0e711f1da12fae9f0ff3785be98d10d7a55caee6",
+      "Licenses/SourceHanSans-OFL.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2"
+    },
+    "cases": [
+      {
+        "name": "r8",
+        "app": "s02-lifecycle-r8-app",
+        "sourceCommit": "459f732ba91165ff749813da0c6f3fb4e440a9f9",
+        "dllSha256": "e8180a3af4bcfe63163f80b1b335774da10e031ff244c37a0f50df5565ac5986"
+      },
+      {
+        "name": "previous-pass",
+        "app": "s02-prescale-app",
+        "dllSha256": "0ba6a708a40c217b9f61444a259842cc44398408484fcb6382d765129d8d53ed",
+        "identityEvidence": "docs/windows/evidence/s02-optimization/s02-prescale-package.json"
+      }
+    ]
+  }
+}
