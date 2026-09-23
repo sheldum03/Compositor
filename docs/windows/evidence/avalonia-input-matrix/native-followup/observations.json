@@ -1,0 +1,56 @@
+{
+  "date": "2026-09-23",
+  "transport": "CUA -> UU -> Windows",
+  "nativeDragAccepted": false,
+  "systemTextboxControl": {
+    "application": "Windows Run dialog",
+    "initialText": "abcdefghij",
+    "dragCoordinates": [
+      [
+        42,
+        688
+      ],
+      [
+        75,
+        688
+      ]
+    ],
+    "visibleHighlight": false,
+    "typedAfterDrag": "1",
+    "observedResult": "original text remained, 1 appended",
+    "keyboardControl": "Ctrl+A then 1 replaced content",
+    "executedRunCommand": false,
+    "cleanup": "Escape closed dialog",
+    "interpretation": "Remote drag failure reproduced outside Compositor; app-specific cause is not established.",
+    "evidenceLimit": "Screenshots in conversation only; no independent selection-state extraction."
+  },
+  "events": [
+    {
+      "kind": "transfer-interruption",
+      "detail": "Closed transfer window before completion; paused at 55%, Windows Get-FileHash reported file missing. Resumed upload."
+    },
+    {
+      "kind": "transfer-retry",
+      "detail": "UU reported file information changed; local source digest unchanged. Sent identical archive as NativeFollowup.zip in a new transfer."
+    },
+    {
+      "kind": "delta-delivery",
+      "file": "NativeFollowupDelta.zip",
+      "bytes": 7564,
+      "sha256": "8c8b4faa895f37b992e7fcd7a60e7019fcc41a4fbd06a27bbd293a657ed1392b",
+      "windowsHashObserved": true
+    },
+    {
+      "kind": "native-start",
+      "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-224035",
+      "runtimePid": 49608,
+      "nativePid": 42996,
+      "verifiedFiles": true,
+      "exitCode": null
+    },
+    {
+      "kind": "blocked",
+      "detail": "CUA explicitly reported Mac locked; automatic unlock failed. Native tests not yet performed, window retained."
+    }
+  ]
+}

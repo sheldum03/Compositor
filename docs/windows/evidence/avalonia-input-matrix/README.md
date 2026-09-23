@@ -66,3 +66,13 @@ UU 的“窗口”菜单执行窗口缩放后，坐标点击恢复；双击唯�
 结果见 [review.json](native-final/review.json)、[逐步观察](native-final/observations.json)、[58 份状态汇总](native-final/text-states.json)、[最终窗口报告](native-final/window-report.json)。[复核脚本](native-final/review-native.py)在报告所列本地 artifact 目录运行，依赖 Pillow/NumPy；该目录保留 ZIP、原始解压结果及观察记录。
 
 最终 ZIP 为 `avalonia-ime-matrix-20260923-185914.zip`，3,868,609 字节，SHA-256 `2a4e476c2f7c42f451a99f2293ba4b6a2759cd6d3bb99af5e620c4b507ec3e8b`。最初从终端换行转录摘要漏了两个字符，本地断言拒绝；重新在 Windows 执行 `Get-FileHash` 后完整摘要与本地一致。随后 CRC、579 个文件摘要、6 个退出码 0 和空 stderr 均核验通过。原生窗口已正常关闭，最终归档替代“进程仍在运行”的检查点状态；原始检查点保留。
+
+## 原生补测准备与系统文本框对照
+
+同日通过 CUA→UU 在 Windows“运行”对话框填入 `abcdefghij`（未执行），拖动后没有高亮，输入 `1` 后原文字仍在、数字追加；同一文本框用 Ctrl+A 再输入 `1` 可以替换。最后按 Esc 关闭。这说明拖选失败也发生在系统文本框，支持远控事件传递不完整的解释，尚不能据此定位 Compositor 缺陷或证明原型拖选通过。截图仅在会话工具输出中，未提取系统文本框的机器可读选区。见[操作记录](native-followup/observations.json)。
+
+入口新增 `--native-only`，保留全部文件校验、运行库记录、独立应用副本、唯一窗口标题及正常关闭后的归档；只跳过四组已完成的自动回归，并在身份报告写明运行模式。应用 DLL 仍为 `55909cba…`，没有修改文字处理代码。Python 语法、参数帮助和差异检查通过；Windows 已实际通过校验并启动 runtime / native 两个进程。
+
+完整包上传两次暂停，第一次恢复时报“文件信息变更，无法断点续传”，本地摘要复核未变。最终只上传 7,564 字节的 `NativeFollowupDelta.zip`（SHA-256 `8c8b4faa895f37b992e7fcd7a60e7019fcc41a4fbd06a27bbd293a657ed1392b`），Windows `Get-FileHash` 一致；复制旧 `AvaloniaImeMatrix` 到新 `AvaloniaImeFollowup`，再将脚本／清单／README 补丁解压到新副本。所有载荷仍由新清单逐项验证。[完整包身份](native-followup/package.json)保留准备时未执行状态，不把失败上传记为完整包交付。
+
+实际启动命令为 `python AvaloniaImeFollowup/run-matrix.py --native-only`，输出目录 `C:\Users\Administrator\Desktop\CompositorTest\avalonia-ime-matrix-20260923-224035`，runtime PID 49608，原生 PID 42996。随后工具明确报告 Mac 锁屏且自动解锁失败，窗口保留；本轮反向选区、焦点切换和小视口尚未执行，也没有最终退出码或结果归档。恢复后继续同一窗口，不重新启动或重复已有自动测试。

@@ -59,6 +59,12 @@ python .\runtime-inventory-kit\verify-runtime-inventory.py .\runtime-inventory-k
 
 即使文件一致，也只证明安装字节对应官方归档，不替代干净普通用户启动、最终加载模块检查或发行验收。
 
+## MicroCom 官方包与候选源码补核
+
+2026-09-23 从 NuGet 官方 flat-container 重新取得 `MicroCom.Runtime 0.11.0`：28,122 字节，SHA-256 `55dc293f97ec725bcda89ba9a5a3afc04c2fda87e7008e594b3d95f9411d2c5d`，与原盘点缓存包逐字节相同。使用 .NET SDK 10.0.401 执行 `dotnet nuget verify official.nupkg --all` 退出 0，报告 NuGet.org Repository 签名，规范化内容哈希与项目锁文件一致。此项补齐该包的官方来源、签名和锁文件哈希核查，不追溯声称最初盘点已经验证签名。
+
+上游 [7e773759 提交](https://github.com/kekekeks/MicroCom/commit/7e773759cfc1012a5d080d4129c4718a662884b0) 将版本从 0.10.5 改为 0.11.0，并开启强名称签名。它是可进一步核对的候选源码，不是已证明的二进制构建提交；包中没有源码提交号，DLL 的 CodeView 记录仅指向构建者本地 PDB 路径，也未发现嵌入式 PDB。保留此前精确源码身份未核实状态，D-07 不自动关闭。见[核查记录](microcom-source-followup/review.json)和原始 GitHub API 响应。
+
 ## 复现与检查
 
 使用 [盘点脚本](../../../../scripts/windows/inventory-probe-dependencies.py)：
