@@ -1,0 +1,27 @@
+{
+  "scope": "Read-only observations after S02; does not establish conditions during preceding measurements",
+  "observations": [
+    {
+      "file": "host-observation-20260923-151503.json",
+      "bytes": 1838,
+      "sha256": "03c111520ec6b7b090c66819ba71ddbfcf15474033537e146122535daebf6691",
+      "consoleHashMatched": true
+    },
+    {
+      "file": "language-observation-20260923-152328.json",
+      "bytes": 746,
+      "sha256": "c25dd9bfd9ed5a43cf2ee594c6fad69ca29e89981c7ba73500bb3f85b44f3fa6",
+      "consoleHashMatched": true
+    }
+  ],
+  "scripts": [
+    {
+      "file": "observe.ps1",
+      "sha256": "eb0a8df80bfc901b8873310c7d6dd6df131220920b1f18f442e341d27012975c"
+    },
+    {
+      "file": "languages.ps1",
+      "sha256": "2a17e331ebb994b8dee4657a1b2db3c45621bc6ec9e8a55004a0c4fad89d68b8"
+    }
+  ]
+}

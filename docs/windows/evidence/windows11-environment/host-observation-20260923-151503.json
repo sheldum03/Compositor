@@ -1,0 +1,45 @@
+﻿{
+    "utc":  "2026-09-23T07:15:03.9493391Z",
+    "scope":  "Read-only post-run environment observation; does not prove identical conditions during previous measurements",
+    "os":  {
+               "Caption":  "Microsoft Windows 11 专业版",
+               "Version":  "10.0.26200",
+               "BuildNumber":  "26200"
+           },
+    "cpu":  [
+                {
+                    "Name":  "13th Gen Intel(R) Core(TM) i9-13900",
+                    "NumberOfCores":  24,
+                    "NumberOfLogicalProcessors":  32
+                }
+            ],
+    "system":  {
+                   "Manufacturer":  "ASUSTeK COMPUTER INC.",
+                   "Model":  "ASUSPROART PD500TE_PD500TE",
+                   "TotalPhysicalMemory":  68413370368,
+                   "HypervisorPresent":  true
+               },
+    "video":  [
+                  {
+                      "Name":  "GameViewer Virtual Display Adapter",
+                      "DriverVersion":  "15.6.5.199",
+                      "CurrentHorizontalResolution":  null,
+                      "CurrentVerticalResolution":  null,
+                      "CurrentRefreshRate":  null
+                  },
+                  {
+                      "Name":  "NVIDIA GeForce RTX 4090 D",
+                      "DriverVersion":  "32.0.15.9186",
+                      "CurrentHorizontalResolution":  3840,
+                      "CurrentVerticalResolution":  2160,
+                      "CurrentRefreshRate":  59
+                  }
+              ],
+    "languages":  [
+                      {
+                          "LanguageTag":  null,
+                          "InputMethodTips":  null
+                      }
+                  ],
+    "powerScheme":  "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)"
+}
