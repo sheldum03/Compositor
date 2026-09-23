@@ -1,4 +1,5 @@
 """Run a verified private input test kit; native observations require separate review."""
+import argparse
 import datetime
 import hashlib
 import json
@@ -16,6 +17,10 @@ def sha(path):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--native-only", action="store_true",
+                        help="Skip completed automated regressions; still verify all files and archive a new native session")
+    args = parser.parse_args()
     if sys.platform != "win32":
         raise SystemExit("Actual Windows required")
     kit = Path(__file__).resolve().parent
@@ -39,7 +44,8 @@ def main():
     identity = {"sourceCommit": manifest["sourceCommit"], "platform": platform.platform(),
                 "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "manifestSha256": sha(kit / "manifest.json"), "processes": [],
-                "nativeImeAccepted": False, "systemDpiAccepted": False}
+                "nativeImeAccepted": False, "systemDpiAccepted": False,
+                "runMode": "native-only" if args.native_only else "full-matrix"}
 
     def save():
         (out / "identity.json").write_text(json.dumps(identity, indent=2) + "\n")
@@ -64,11 +70,12 @@ def main():
         identity["dllSha256"] = sha(app / "Compositor.AvaloniaProbe.dll")
         save()
         run("runtime", ["--info"])
-        regression = app / "Regression.dll"
-        run("window-check", [regression, "--window-matrix", fixtures, out / "window-check", native])
-        run("selection", [regression, out / "selection"])
-        run("ime-cancel", [regression, "--ime-cancel"])
-        run("ime-tabs", [regression, "--ime-tabs"])
+        if not args.native_only:
+            regression = app / "Regression.dll"
+            run("window-check", [regression, "--window-matrix", fixtures, out / "window-check", native])
+            run("selection", [regression, out / "selection"])
+            run("ime-cancel", [regression, "--ime-cancel"])
+            run("ime-tabs", [regression, "--ime-tabs"])
         window = out / ("native-" + stamp)
         run("native", [app / "Compositor.AvaloniaProbe.dll", "--window", fixtures, window, native])
         report = json.loads((window / "window-report.json").read_text(encoding="utf-8-sig"))
