@@ -1,0 +1,537 @@
+{
+  "scenario": "S05-core-only-control",
+  "windowsExecuted": true,
+  "elapsedSeconds": 213.1151999,
+  "baseline": {
+    "PrivateMemorySize64": 12750848,
+    "WorkingSet64": 34852864,
+    "ManagedBytes": 675800,
+    "TotalCommittedBytes": 0,
+    "HeapSizeBytes": 0,
+    "FragmentedBytes": 0,
+    "Gen2Collections": 0,
+    "TotalAllocatedBytes": 673952,
+    "Handles": 345
+  },
+  "samples": [
+    {
+      "round": 0,
+      "afterClose": {
+        "PrivateMemorySize64": 172818432,
+        "WorkingSet64": 198836224,
+        "ManagedBytes": 125503008,
+        "TotalCommittedBytes": 153960448,
+        "HeapSizeBytes": 134022032,
+        "FragmentedBytes": 9193776,
+        "Gen2Collections": 6,
+        "TotalAllocatedBytes": 263344192,
+        "Handles": 367
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 1,
+      "afterClose": {
+        "PrivateMemorySize64": 206553088,
+        "WorkingSet64": 232824832,
+        "ManagedBytes": 137872488,
+        "TotalCommittedBytes": 186126336,
+        "HeapSizeBytes": 133384104,
+        "FragmentedBytes": 1176200,
+        "Gen2Collections": 9,
+        "TotalAllocatedBytes": 526003168,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 2,
+      "afterClose": {
+        "PrivateMemorySize64": 190590976,
+        "WorkingSet64": 216977408,
+        "ManagedBytes": 117221480,
+        "TotalCommittedBytes": 171773952,
+        "HeapSizeBytes": 153536328,
+        "FragmentedBytes": 49417432,
+        "Gen2Collections": 14,
+        "TotalAllocatedBytes": 788664304,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 3,
+      "afterClose": {
+        "PrivateMemorySize64": 198565888,
+        "WorkingSet64": 224915456,
+        "ManagedBytes": 164091408,
+        "TotalCommittedBytes": 178540544,
+        "HeapSizeBytes": 158416280,
+        "FragmentedBytes": 15074096,
+        "Gen2Collections": 16,
+        "TotalAllocatedBytes": 1051321696,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 4,
+      "afterClose": {
+        "PrivateMemorySize64": 254517248,
+        "WorkingSet64": 280711168,
+        "ManagedBytes": 117141792,
+        "TotalCommittedBytes": 235040768,
+        "HeapSizeBytes": 182850248,
+        "FragmentedBytes": 85367816,
+        "Gen2Collections": 19,
+        "TotalAllocatedBytes": 1313966456,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 5,
+      "afterClose": {
+        "PrivateMemorySize64": 263172096,
+        "WorkingSet64": 289570816,
+        "ManagedBytes": 162955112,
+        "TotalCommittedBytes": 243695616,
+        "HeapSizeBytes": 190433048,
+        "FragmentedBytes": 62268032,
+        "Gen2Collections": 21,
+        "TotalAllocatedBytes": 1576611656,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 6,
+      "afterClose": {
+        "PrivateMemorySize64": 279203840,
+        "WorkingSet64": 304992256,
+        "ManagedBytes": 165763616,
+        "TotalCommittedBytes": 259031040,
+        "HeapSizeBytes": 239054224,
+        "FragmentedBytes": 115756200,
+        "Gen2Collections": 23,
+        "TotalAllocatedBytes": 1839267176,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 7,
+      "afterClose": {
+        "PrivateMemorySize64": 275181568,
+        "WorkingSet64": 301010944,
+        "ManagedBytes": 173544000,
+        "TotalCommittedBytes": 218001408,
+        "HeapSizeBytes": 124652640,
+        "FragmentedBytes": 912536,
+        "Gen2Collections": 25,
+        "TotalAllocatedBytes": 2101913016,
+        "Handles": 368
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 8,
+      "afterClose": {
+        "PrivateMemorySize64": 281169920,
+        "WorkingSet64": 307019776,
+        "ManagedBytes": 149199040,
+        "TotalCommittedBytes": 244084736,
+        "HeapSizeBytes": 118080480,
+        "FragmentedBytes": 26079840,
+        "Gen2Collections": 28,
+        "TotalAllocatedBytes": 2364560336,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 9,
+      "afterClose": {
+        "PrivateMemorySize64": 192561152,
+        "WorkingSet64": 218812416,
+        "ManagedBytes": 121022664,
+        "TotalCommittedBytes": 173346816,
+        "HeapSizeBytes": 162184000,
+        "FragmentedBytes": 66497600,
+        "Gen2Collections": 33,
+        "TotalAllocatedBytes": 2627225464,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 10,
+      "afterClose": {
+        "PrivateMemorySize64": 198742016,
+        "WorkingSet64": 224952320,
+        "ManagedBytes": 175237568,
+        "TotalCommittedBytes": 178331648,
+        "HeapSizeBytes": 158096096,
+        "FragmentedBytes": 55185192,
+        "Gen2Collections": 35,
+        "TotalAllocatedBytes": 2889864576,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 11,
+      "afterClose": {
+        "PrivateMemorySize64": 254562304,
+        "WorkingSet64": 280584192,
+        "ManagedBytes": 117495344,
+        "TotalCommittedBytes": 234700800,
+        "HeapSizeBytes": 194682424,
+        "FragmentedBytes": 96850608,
+        "Gen2Collections": 38,
+        "TotalAllocatedBytes": 3152516976,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 12,
+      "afterClose": {
+        "PrivateMemorySize64": 263630848,
+        "WorkingSet64": 289751040,
+        "ManagedBytes": 156153280,
+        "TotalCommittedBytes": 243748864,
+        "HeapSizeBytes": 191017408,
+        "FragmentedBytes": 37362552,
+        "Gen2Collections": 40,
+        "TotalAllocatedBytes": 3415159784,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 13,
+      "afterClose": {
+        "PrivateMemorySize64": 279982080,
+        "WorkingSet64": 305876992,
+        "ManagedBytes": 158396240,
+        "TotalCommittedBytes": 259809280,
+        "HeapSizeBytes": 239039536,
+        "FragmentedBytes": 89801952,
+        "Gen2Collections": 42,
+        "TotalAllocatedBytes": 3677807888,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 14,
+      "afterClose": {
+        "PrivateMemorySize64": 275517440,
+        "WorkingSet64": 301424640,
+        "ManagedBytes": 166060072,
+        "TotalCommittedBytes": 244211712,
+        "HeapSizeBytes": 150444568,
+        "FragmentedBytes": 915992,
+        "Gen2Collections": 44,
+        "TotalAllocatedBytes": 3940451680,
+        "Handles": 365
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 15,
+      "afterClose": {
+        "PrivateMemorySize64": 281567232,
+        "WorkingSet64": 307539968,
+        "ManagedBytes": 141749824,
+        "TotalCommittedBytes": 245387264,
+        "HeapSizeBytes": 119009024,
+        "FragmentedBytes": 912056,
+        "Gen2Collections": 47,
+        "TotalAllocatedBytes": 4203106976,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 16,
+      "afterClose": {
+        "PrivateMemorySize64": 189812736,
+        "WorkingSet64": 216166400,
+        "ManagedBytes": 120047560,
+        "TotalCommittedBytes": 170590208,
+        "HeapSizeBytes": 154863144,
+        "FragmentedBytes": 60025408,
+        "Gen2Collections": 52,
+        "TotalAllocatedBytes": 4465765312,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 17,
+      "afterClose": {
+        "PrivateMemorySize64": 198832128,
+        "WorkingSet64": 225058816,
+        "ManagedBytes": 168057616,
+        "TotalCommittedBytes": 178409472,
+        "HeapSizeBytes": 158305176,
+        "FragmentedBytes": 29230968,
+        "Gen2Collections": 54,
+        "TotalAllocatedBytes": 4728400448,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 18,
+      "afterClose": {
+        "PrivateMemorySize64": 254783488,
+        "WorkingSet64": 280829952,
+        "ManagedBytes": 117439632,
+        "TotalCommittedBytes": 234909696,
+        "HeapSizeBytes": 186937824,
+        "FragmentedBytes": 89157432,
+        "Gen2Collections": 57,
+        "TotalAllocatedBytes": 4991048456,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 19,
+      "afterClose": {
+        "PrivateMemorySize64": 264245248,
+        "WorkingSet64": 290488320,
+        "ManagedBytes": 167047176,
+        "TotalCommittedBytes": 244350976,
+        "HeapSizeBytes": 190459960,
+        "FragmentedBytes": 76687104,
+        "Gen2Collections": 59,
+        "TotalAllocatedBytes": 5253695024,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 20,
+      "afterClose": {
+        "PrivateMemorySize64": 279744512,
+        "WorkingSet64": 305778688,
+        "ManagedBytes": 169716256,
+        "TotalCommittedBytes": 259559424,
+        "HeapSizeBytes": 239015712,
+        "FragmentedBytes": 129913176,
+        "Gen2Collections": 61,
+        "TotalAllocatedBytes": 5516347928,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 21,
+      "afterClose": {
+        "PrivateMemorySize64": 275279872,
+        "WorkingSet64": 301338624,
+        "ManagedBytes": 177356000,
+        "TotalCommittedBytes": 208044032,
+        "HeapSizeBytes": 114256488,
+        "FragmentedBytes": 4843688,
+        "Gen2Collections": 63,
+        "TotalAllocatedBytes": 5778993384,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 22,
+      "afterClose": {
+        "PrivateMemorySize64": 281358336,
+        "WorkingSet64": 307372032,
+        "ManagedBytes": 153018464,
+        "TotalCommittedBytes": 244224000,
+        "HeapSizeBytes": 117975672,
+        "FragmentedBytes": 39974648,
+        "Gen2Collections": 66,
+        "TotalAllocatedBytes": 6041642656,
+        "Handles": 366
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 23,
+      "afterClose": {
+        "PrivateMemorySize64": 192565248,
+        "WorkingSet64": 219017216,
+        "ManagedBytes": 113434112,
+        "TotalCommittedBytes": 173412352,
+        "HeapSizeBytes": 153248040,
+        "FragmentedBytes": 40241736,
+        "Gen2Collections": 71,
+        "TotalAllocatedBytes": 6304307560,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 24,
+      "afterClose": {
+        "PrivateMemorySize64": 198418432,
+        "WorkingSet64": 224817152,
+        "ManagedBytes": 160677240,
+        "TotalCommittedBytes": 178069504,
+        "HeapSizeBytes": 158494200,
+        "FragmentedBytes": 3014576,
+        "Gen2Collections": 73,
+        "TotalAllocatedBytes": 6566948288,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 25,
+      "afterClose": {
+        "PrivateMemorySize64": 254107648,
+        "WorkingSet64": 280330240,
+        "ManagedBytes": 114811576,
+        "TotalCommittedBytes": 234307584,
+        "HeapSizeBytes": 181278848,
+        "FragmentedBytes": 77997352,
+        "Gen2Collections": 76,
+        "TotalAllocatedBytes": 6829598936,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    },
+    {
+      "round": 26,
+      "afterClose": {
+        "PrivateMemorySize64": 263782400,
+        "WorkingSet64": 290082816,
+        "ManagedBytes": 159573056,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092237504,
+        "Handles": 364
+      },
+      "retainedDocuments": 1
+    }
+  ],
+  "idle": [
+    {
+      "seconds": 0,
+      "resources": {
+        "PrivateMemorySize64": 263782400,
+        "WorkingSet64": 290082816,
+        "ManagedBytes": 159581280,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092245704,
+        "Handles": 364
+      }
+    },
+    {
+      "seconds": 10,
+      "resources": {
+        "PrivateMemorySize64": 263782400,
+        "WorkingSet64": 290082816,
+        "ManagedBytes": 159581280,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092245704,
+        "Handles": 364
+      }
+    },
+    {
+      "seconds": 20,
+      "resources": {
+        "PrivateMemorySize64": 263774208,
+        "WorkingSet64": 290144256,
+        "ManagedBytes": 159589504,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092253904,
+        "Handles": 364
+      }
+    },
+    {
+      "seconds": 30,
+      "resources": {
+        "PrivateMemorySize64": 264667136,
+        "WorkingSet64": 290553856,
+        "ManagedBytes": 159597728,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092260096,
+        "Handles": 362
+      }
+    },
+    {
+      "seconds": 40,
+      "resources": {
+        "PrivateMemorySize64": 264667136,
+        "WorkingSet64": 290455552,
+        "ManagedBytes": 159605888,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092268256,
+        "Handles": 362
+      }
+    },
+    {
+      "seconds": 50,
+      "resources": {
+        "PrivateMemorySize64": 264667136,
+        "WorkingSet64": 290455552,
+        "ManagedBytes": 159605888,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092268256,
+        "Handles": 362
+      }
+    },
+    {
+      "seconds": 60,
+      "resources": {
+        "PrivateMemorySize64": 264667136,
+        "WorkingSet64": 290455552,
+        "ManagedBytes": 159605888,
+        "TotalCommittedBytes": 243961856,
+        "HeapSizeBytes": 190550632,
+        "FragmentedBytes": 49946472,
+        "Gen2Collections": 78,
+        "TotalAllocatedBytes": 7092268256,
+        "Handles": 362
+      }
+    }
+  ],
+  "afterDiagnosticCollection": {
+    "PrivateMemorySize64": 230563840,
+    "WorkingSet64": 257310720,
+    "ManagedBytes": 304448,
+    "TotalCommittedBytes": 210796544,
+    "HeapSizeBytes": 299944,
+    "FragmentedBytes": 3720,
+    "Gen2Collections": 80,
+    "TotalAllocatedBytes": 7092275656,
+    "Handles": 365
+  },
+  "retainedDocuments": 0,
+  "resourceAccepted": false,
+  "scope": "Same actual brush/history code and 27x100 edits. No window, rendering, PNG export/readback, or retained frame records. Separate diagnostic process; not S05 acceptance."
+}

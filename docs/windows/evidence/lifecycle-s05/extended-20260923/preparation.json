@@ -1,0 +1,19 @@
+{
+  "baseSourceCommit": "f1ac69a",
+  "diagnosticPatchSha256": "e05d2901ef052ea873f16ee49e13119b3e5dc4d86c35858089d63f4e7d38ea63",
+  "windowsDllSha256": "557e793c2442122450ad994ea1e88aa3535295405b01e290caa40b47ad94dce6",
+  "package": {
+    "name": "S05Extended.zip",
+    "bytes": 13872358,
+    "sha256": "5d4887baa9479fd123afb4dbee8741da98df0260281e119c43947db8168c1f88"
+  },
+  "localReportSha256": "e8c9494baaafc68eba827b603464d769aa7446ebe782222b007386c0d7cb6a9e",
+  "localCorrectnessPassed": true,
+  "localExactDecodedImages": 54,
+  "windowsLaunch": {
+    "pid": 40896,
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\s05-extended-20260923-180340"
+  },
+  "resourceAccepted": false,
+  "diagnosticCommit": "687f0f745d257a16e92493e5f39b12324cbd2990"
+}

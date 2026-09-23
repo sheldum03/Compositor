@@ -1,0 +1,27 @@
+[
+  {
+    "case": "missing-frame",
+    "exitCode": 1,
+    "error": "AssertionError"
+  },
+  {
+    "case": "unexpected-collection",
+    "exitCode": 1,
+    "error": "AssertionError: Unexpected forced GC between rounds"
+  },
+  {
+    "case": "short-idle",
+    "exitCode": 1,
+    "error": "AssertionError: Idle observation too short"
+  },
+  {
+    "case": "retained-document",
+    "exitCode": 1,
+    "error": "AssertionError"
+  },
+  {
+    "case": "wrong-round-count",
+    "exitCode": 1,
+    "error": "AssertionError"
+  }
+]

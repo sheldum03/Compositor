@@ -1,0 +1,25 @@
+{
+  "operation": "CRLF to LF only in repository copies; values unchanged; original ZIPs and extracted raw evidence untouched",
+  "files": [
+    {
+      "path": "windows-identity.json",
+      "rawSha256": "ecd1479c11ad60acdaa439c2a4a74e6ae1a071ed374b229286a259417a6952f3",
+      "repositorySha256": "a0d76ef2173cea002248fbc49eadc70193573bd7afb11b9d05d26e1f1440e3c5"
+    },
+    {
+      "path": "windows-files.json",
+      "rawSha256": "6bb68bd85a4c0393a5a912af15027ed5106c608ace688fd46e4482c255f71254",
+      "repositorySha256": "d3533ad66f24fdf3442d2f5e94057a654a1a9d851ef282033acb5e54eabc77ce"
+    },
+    {
+      "path": "core-control/windows-report.json",
+      "rawSha256": "cb3d7fe9668c2eecaf700bde4d4d76b1bae2a396623000210a7c699e5b6e7038",
+      "repositorySha256": "5558d790bb3e7eb868430f185b998cda7b5710f70dc498455b7d76d9e0104b7f"
+    },
+    {
+      "path": "core-control/windows-identity.json",
+      "rawSha256": "5bdf1c3e90b53a13378f541769e2e59b965dd70dc69beddf3f2c1d4cf53b915e",
+      "repositorySha256": "035b4d18f8524b1bea5cbd95777e9861f60826aa3372af0429a7f754fb14d615"
+    }
+  ]
+}

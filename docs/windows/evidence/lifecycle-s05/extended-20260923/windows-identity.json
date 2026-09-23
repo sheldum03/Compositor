@@ -1,0 +1,12 @@
+{
+  "baseSourceCommit": "f1ac69a7657bc42245feeda6d494ba4f1cb19406",
+  "diagnosticPatchSha256": "e05d2901ef052ea873f16ee49e13119b3e5dc4d86c35858089d63f4e7d38ea63",
+  "dllSha256": "557e793c2442122450ad994ea1e88aa3535295405b01e290caa40b47ad94dce6",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "utc": "2026-09-23T10:03:40.707916+00:00",
+  "nativeExit": 0,
+  "reviewExit": 0,
+  "resourceAccepted": false,
+  "gcEnvironment": {},
+  "pid": 40896
+}
