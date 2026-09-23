@@ -23,3 +23,5 @@
 5. 正常关闭新窗口并取回结果 → 核对退出码、窗口 PID、全部文件摘要与原始事件；逐对复核预览/导出，单独评审原生观察。测试脚本不会自动将 `nativeImeAccepted` 或 `systemDpiAccepted` 设为 true。
 
 脚本为 `experiments/windows/text-selection-regression/run-matrix.py`，随私有包放在 `CompositorTest/AvaloniaImeMatrix/` 下。它复制既有 R9 到新结果目录，只在副本替换输入测试程序集；不覆盖旧版应用和证据。正常关闭窗口后才完成归档。
+
+固定源码 `a869a69a02dd4c78c483a31dc0165412d273e5c9` 的 Windows x64 包已生成，29 个沿用依赖与 R9 摘要一致，102 个样本/清单文件已本地核对。包身份见 [package.json](package.json)，尚未传输或在 Windows 执行。解压到 `CompositorTest` 后入口为 `python .\AvaloniaImeMatrix\run-matrix.py`；需等待自动回归结束和唯一标题的原生窗口出现，再进行人工观察。

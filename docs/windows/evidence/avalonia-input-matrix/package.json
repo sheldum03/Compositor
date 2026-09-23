@@ -1,0 +1,15 @@
+{
+  "status": "prepared; not transferred or Windows executed",
+  "sourceCommit": "a869a69a02dd4c78c483a31dc0165412d273e5c9",
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-ime-matrix-20260923/AvaloniaImeMatrix.zip",
+  "archiveSha256": "3a98ccb4f6eba2eb93eca0de07860ed767387cbfb629ac76f63f4b8f223ce437",
+  "archiveBytes": 13905150,
+  "probeDllSha256": "55909cba56a66a4a2d38eafa28351d2739a3882aadcd39c747d473a6e970aa1a",
+  "regressionDllSha256": "338c2f0a0dae519df790835d039b4dfe793698e29aaf0eeb31a5dddb2c7777cc",
+  "manifestSha256": "e0d706f49237009d5b1ad340c9101bcf822cb89d35189910c5614a9cad379134",
+  "runtimeDependenciesMatched": 29,
+  "verifiedFixtureFiles": 102,
+  "windowsExecuted": false,
+  "nativeImeAccepted": false,
+  "systemDpiAccepted": false
+}
