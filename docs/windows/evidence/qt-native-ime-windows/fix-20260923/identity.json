@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "e1328e14e958e7bfa772be3c14b0e2fcb1883b72",
+  "exeSha256": "3d06ab384242609cdede03900803d992f725c767c4ac2ee35790e85a186b2263",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "utc": "2026-09-23T09:05:18.241735+00:00",
+  "results": [
+    {
+      "stage": "synthetic",
+      "pid": 45324,
+      "exitCode": 0
+    },
+    {
+      "stage": "text",
+      "pid": 48100,
+      "exitCode": 0
+    },
+    {
+      "stage": "native",
+      "pid": 21812,
+      "exitCode": 0
+    }
+  ],
+  "nativeImeAccepted": false
+}
