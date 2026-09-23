@@ -17,21 +17,22 @@ var assembly=Assembly.Load("Compositor.AvaloniaProbe");
 var factory=assembly.GetType("TextProbe")!.GetMethod("Editor",BindingFlags.NonPublic|BindingFlags.Static)!;
 if (args[0] == "--ime-cancel") return ImeCancelRegression.Run(assembly, factory);
 if (args[0] == "--ime-tabs") return ImeTabRegression.Run(assembly, factory);
+if (args[0] == "--window-matrix") return WindowTextRegression.Run(assembly, args[1], args[2], args[3]);
 string output=Path.GetFullPath(args[0]);
 Directory.CreateDirectory(output);
 int failed=0;
-foreach(var suffix in new[]{" English",""}) foreach(var zoom in new[]{1d,.5,1.5}) foreach(var flipped in new[]{false,true}) foreach(var angle in new[]{0d,13d}) foreach(var reverse in new[]{false,true}) {
+foreach(var suffix in new[]{" English",""}) foreach(var zoom in new[]{1d,.5,1.5}) foreach(var flipped in new[]{false,true}) foreach(var flippedY in new[]{false,true}) foreach(var stretchX in new[]{1d,.75}) foreach(var angle in new[]{0d,13d}) foreach(var reverse in new[]{false,true}) {
     var presenter=(TextPresenter)Activator.CreateInstance(assembly.GetType("SpacedTextPresenter")!, new object[]{420d,3d})!;
     var family=new FontFamily("avares://Compositor.AvaloniaProbe/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC");
     var editor=(TextBox)factory.Invoke(null,new object[]{presenter,family,"中文 测试"+suffix,24d,1.25d,TextAlignment.Left,Brushes.DarkBlue})!;
     editor.IsUndoEnabled=true;
     editor.Width=420; editor.Height=260; editor.Opacity=.65; editor.ClipToBounds=false;
     editor.RenderTransformOrigin=new RelativePoint(0,0,RelativeUnit.Absolute);
-    editor.RenderTransform=new MatrixTransform(Matrix.CreateTranslation(-210,-130)*Matrix.CreateScale(flipped?-zoom:zoom,zoom)*Matrix.CreateRotation(angle*Math.PI/180)*Matrix.CreateTranslation(380,260));
+    editor.RenderTransform=new MatrixTransform(Matrix.CreateTranslation(-210,-130)*Matrix.CreateScale((flipped?-zoom:zoom)*stretchX,flippedY?-zoom:zoom)*Matrix.CreateRotation(angle*Math.PI/180)*Matrix.CreateTranslation(380,260));
     var canvas=new Canvas{Width=760,Height=520,Background=Brushes.White}; canvas.Children.Add(editor);
     var window=new Window{Width=760,Height=520,Content=canvas}; window.Show(); editor.Focus(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
     presenter.CaretBrush=Brushes.Transparent;
-    string prefix=Path.Combine(output,$"tail{suffix.Length}-z{zoom}-flip{flipped}-angle{angle}-reverse{reverse}");
+    string prefix=Path.Combine(output,$"tail{suffix.Length}-z{zoom}-flip{flipped}-flipY{flippedY}-stretch{stretchX}-angle{angle}-reverse{reverse}");
     void Save(string suffix) { Dispatcher.UIThread.RunJobs(); using var target=new RenderTargetBitmap(new PixelSize(760,520),new Vector(96,96)); target.Render(canvas); target.Save(prefix+suffix+".png"); }
     Save("-before");
     var a=presenter.TextLayout.HitTestTextPosition(3); var b=presenter.TextLayout.HitTestTextPosition(5);
@@ -53,7 +54,7 @@ foreach(var suffix in new[]{" English",""}) foreach(var zoom in new[]{1d,.5,1.5}
     bool undone=editor.Text=="中文 测试"+suffix;
     editor.Redo();
     bool redone=editor.Text=="中文 1"+suffix;
-    Console.WriteLine(JsonSerializer.Serialize(new{suffix,zoom,flipped,angle,reverse,selected,replaced,undone,redone,changed,selectedText,selectionStart,selectionEnd}));
+    Console.WriteLine(JsonSerializer.Serialize(new{suffix,zoom,flipped,flippedY,stretchX,angle,reverse,selected,replaced,undone,redone,changed,selectedText,selectionStart,selectionEnd}));
     if(!selected || !replaced || !undone || !redone || changed==0)failed++;
     window.Close();
 }

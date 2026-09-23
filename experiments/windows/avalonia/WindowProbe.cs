@@ -38,6 +38,7 @@ internal static class WindowProbe
     private sealed class ProbeWindow : Window
     {
         private readonly string fixtures, output, native;
+        private readonly bool nativeWindow;
         private readonly ConcurrentQueue<object> events = new();
         private readonly TextBlock status = new() { Text = "请选择文字、笔刷或合成页进行测试。", TextWrapping = TextWrapping.Wrap };
         private readonly object sceneGate = new();
@@ -48,13 +49,14 @@ internal static class WindowProbe
         private readonly TextBox editor;
         private bool closed, compositionThreadRecorded;
         private int saveIndex, preeditEvents, textInputEvents;
-        private double angle = 13, zoom = 1;
-        private bool flipped;
+        private double angle = 13, zoom = 1, stretchX = 1;
+        private bool flipped, flippedY;
 
-        internal ProbeWindow(string fixtures, string output, string native)
+        internal ProbeWindow(string fixtures, string output, string native, bool nativeWindow = true)
         {
             this.fixtures = fixtures; this.output = output; this.native = native;
-            Title = "Compositor — Windows 原型验证";
+            this.nativeWindow = nativeWindow;
+            Title = "Compositor — Windows 原型验证 · " + Path.GetFileName(output);
             Width = 1000; Height = 880; MinWidth = 700; MinHeight = 520;
             scene = FixtureScene.Read(Path.Combine(fixtures, "F04.comp"));
             brush = new WindowBrushView(Record); brush.Initialize();
@@ -63,6 +65,7 @@ internal static class WindowProbe
                 new SolidColorBrush(Color.FromArgb(204, 38, 102, 179)));
             editor.Width = 420; editor.Height = 260; editor.Opacity = 0.65;
             editor.IsUndoEnabled = true; editor.ClipToBounds = false;
+            editor.ClearSelectionOnLostFocus = false;
             editor.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Absolute);
             textCanvas.Children.Add(editor);
             RenderOptions.SetTextRenderingMode(textCanvas, TextRenderingMode.Antialias);
@@ -99,7 +102,7 @@ internal static class WindowProbe
             Content = layout;
             Opened += (_, _) =>
             {
-                Record("native-window-opened", new { platform = Environment.OSVersion.ToString(), scaling = RenderScaling });
+                Record(nativeWindow ? "native-window-opened" : "headless-window-opened", new { platform = Environment.OSVersion.ToString(), scaling = RenderScaling });
                 editor.Focus(); SaveReport();
             };
             ScalingChanged += (_, _) => { Record("display-scaling", RenderScaling); SaveReport(); };
@@ -107,7 +110,7 @@ internal static class WindowProbe
             {
                 brush.Close();
                 lock (sceneGate) { closed = true; scene.Dispose(); }
-                Record("native-window-closed", null); SaveReport();
+                Record(nativeWindow ? "native-window-closed" : "headless-window-closed", null); SaveReport();
             };
         }
 
@@ -122,7 +125,9 @@ internal static class WindowProbe
             var toolbar = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
             toolbar.Children.Add(Button("旋转 0° / 13°", () => { angle = angle == 0 ? 13 : 0; TransformText(); }));
             toolbar.Children.Add(Button("水平翻转", () => { flipped = !flipped; TransformText(); }));
+            toolbar.Children.Add(Button("垂直翻转", () => { flippedY = !flippedY; TransformText(); }));
             toolbar.Children.Add(Button("缩放 50% / 100% / 150%", () => { zoom = zoom == 1 ? 1.5 : zoom == 1.5 ? 0.5 : 1; TransformText(); }));
+            toolbar.Children.Add(Button("非等比缩放", () => { stretchX = stretchX == 1 ? .75 : 1; TransformText(); }));
             toolbar.Children.Add(Button("导出并校验", SaveText));
             return new StackPanel { Spacing = 12, Children = { toolbar,
                 new TextBlock { Text = "点击文字输入。测试拼音候选、Esc 取消、Enter 确认、Ctrl+Z 撤销，再改变变换重试。", TextWrapping = TextWrapping.Wrap },
@@ -176,10 +181,18 @@ internal static class WindowProbe
         private void TransformText()
         {
             editor.RenderTransform = new MatrixTransform(Matrix.CreateTranslation(-210, -130)
-                * Matrix.CreateScale(flipped ? -zoom : zoom, zoom) * Matrix.CreateRotation(angle * Math.PI / 180)
+                * Matrix.CreateScale((flipped ? -zoom : zoom) * stretchX, flippedY ? -zoom : zoom) * Matrix.CreateRotation(angle * Math.PI / 180)
                 * Matrix.CreateTranslation(380, 260));
-            Record("text-transform", new { angle, zoom, flipped });
+            Record("text-transform", new { angle, zoom, flipped, flippedY, stretchX });
         }
+
+        private object TextState() => new
+        {
+            text = editor.Text, selectedText = editor.SelectedText,
+            caretIndex = editor.CaretIndex, selectionStart = editor.SelectionStart, selectionEnd = editor.SelectionEnd,
+            preedit = presenter.PreeditText, angle, zoom, flipX = flipped, flipY = flippedY, stretchX,
+            renderScaling = RenderScaling, nativePreeditChanges = preeditEvents, textInputEvents
+        };
 
         private void SaveText()
         {
@@ -207,6 +220,7 @@ internal static class WindowProbe
                 if (difference.DifferentPixels != 0) throw new InvalidDataException("文字预览和导出不一致，请保留输出文件。");
             }
             finally { presenter.CaretBrush = caret; presenter.SelectionBrush = selection; presenter.SelectionForegroundBrush = foreground; }
+            File.WriteAllText(Path.Combine(save, "text-state.json"), JsonSerializer.Serialize(TextState(), new JsonSerializerOptions { WriteIndented = true }) + "\n");
         }
 
         private Button Button(string label, Action action)
@@ -233,11 +247,12 @@ internal static class WindowProbe
         });
         private void SaveReport() => File.WriteAllText(Path.Combine(output, "window-report.json"), JsonSerializer.Serialize(new
         {
-            status = "native-window observations; manual IME/DPI/visual acceptance required",
-            windowsExecuted = OperatingSystem.IsWindows(), nativeWindow = true, requestedRendering = "Software",
+            status = nativeWindow ? "native-window observations; manual IME/DPI/visual acceptance required" : "headless preparation; not native IME or system DPI acceptance",
+            processId = Environment.ProcessId, title = Title,
+            windowsExecuted = OperatingSystem.IsWindows(), nativeWindow, requestedRendering = nativeWindow ? "Software" : "Headless Skia",
             nativeLibrarySha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(native))).ToLowerInvariant(),
             nativePreeditChanges = preeditEvents, textInputEvents, injectedInputMethodCalls = 0,
-            renderScaling = RenderScaling, events = events.ToArray()
+            renderScaling = RenderScaling, textState = TextState(), events = events.ToArray()
         }, new JsonSerializerOptions { WriteIndented = true }) + "\n");
     }
 }
