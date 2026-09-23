@@ -83,18 +83,22 @@ internal static partial class BrushPerformanceProbe
             var rounds = new List<object>(); var releasedDocuments = new List<WeakReference>();
             var idleSamples = new List<IdleSample>();
             var baseline = Resources(); var elapsed = Stopwatch.StartNew();
-            void SaveLong() => File.WriteAllText(Path.Combine(output, "report.json"), JsonSerializer.Serialize(new
+            void SaveLong()
             {
-                scenario = idleDiagnostic ? "S05-idle-diagnostic" : roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
-                windowClosed = WindowClosed, renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
-                workload = $"4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; {roundCount} rounds",
-                baseline, rounds, elapsedMilliseconds = elapsed.Elapsed.TotalMilliseconds, trials,
-                idleSamples, idleObservationSeconds = idleDiagnostic ? 60 : 0,
-                resourceDiagnosticsVersion = idleDiagnostic ? 3 : 2, serverGc = System.Runtime.GCSettings.IsServerGC,
-                runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
-                resourceAccepted = false,
-                notes = "Native software canvas callbacks; synthetic input. All natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
-            }, new JsonSerializerOptions { WriteIndented = true }));
+                using var stream = File.Create(Path.Combine(output, "report.json"));
+                JsonSerializer.Serialize(stream, new
+                {
+                    scenario = idleDiagnostic ? "S05-idle-diagnostic" : roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
+                    windowClosed = WindowClosed, renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
+                    workload = $"4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; {roundCount} rounds",
+                    baseline, rounds, elapsedMilliseconds = elapsed.Elapsed.TotalMilliseconds, trials,
+                    idleSamples, idleObservationSeconds = idleDiagnostic ? 60 : 0,
+                    resourceDiagnosticsVersion = idleDiagnostic ? 3 : 2, serverGc = System.Runtime.GCSettings.IsServerGC,
+                    runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
+                    resourceAccepted = false,
+                    notes = "Native software canvas callbacks; synthetic input. All natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review."
+                }, new JsonSerializerOptions { WriteIndented = true });
+            }
             try
             {
                 if (nativeWindow && (TopLevel.GetTopLevel(View) is not { } top || top.ClientSize.Width < 1000 || top.ClientSize.Height < 1000))

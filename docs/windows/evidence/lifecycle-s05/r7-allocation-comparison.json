@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "writes": 100,
+    "reportAllocatedBytes": 1061944608,
+    "cumulativeWrittenBytes": 505273793,
+    "reportWriteMilliseconds": 1124.4643000000003,
+    "elapsedMilliseconds": 67663.0524,
+    "approxTotalAllocatedBeforeFinalTwoReports": 5520310000,
+    "reportAllocatedBeforeFinalTwoReports": 1022362224,
+    "approxOtherAllocatedBeforeFinalTwoReports": 4497947776,
+    "runtime": ".NET 10.0.12"
+  },
+  "candidate": {
+    "writes": 100,
+    "reportAllocatedBytes": 17444128,
+    "cumulativeWrittenBytes": 504161997,
+    "reportWriteMilliseconds": 915.6284999999997,
+    "elapsedMilliseconds": 66795.4204,
+    "approxTotalAllocatedBeforeFinalTwoReports": 4515365768,
+    "reportAllocatedBeforeFinalTwoReports": 17076952,
+    "approxOtherAllocatedBeforeFinalTwoReports": 4498288816,
+    "runtime": ".NET 10.0.12"
+  },
+  "reportAllocationReductionPercent": 98.35734106387591,
+  "scope": "macOS headless diagnostic, actual SaveLong call sites; synchronous thread allocations measured around report writing; no Windows resource acceptance",
+  "equivalentWritesChecked": 34
+}
