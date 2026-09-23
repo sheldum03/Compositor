@@ -17,3 +17,10 @@ Packed destination blending additionally checks all 256×256 source-alpha/destin
 Tail-backup allocation is limited to 4 MiB for 32 updates in a warmed region (the previous implementation allocated 33,590,744 bytes). Cached and uncached previews are compared at 12.5%, 25%, 37.5%, 50%, 100%, 150% and 17.5%, revisiting 37.5% after cache changes, with zero, positive integer, negative and fractional translations. The 960 comparisons include all existing diameter/opacity/background combinations. Device-sized cache entries preserve the original sampling matrix; moving a tile to local coordinates can change nearest-sample rounding at 37.5%.
 
 The fixed S05 100-stroke trace also checks that active updates and commits leave every source snapshot unchanged, then validates every undo/redo digest. Append allocations must stay below twice the committed pixel payload: enough for mutable RGBA plus coverage/tail masks, but not an extra full immutable-source copy. The previous implementation fails this bound (256,841,864 B versus 204,472,320 B); read-only source sharing uses 154,561,480 B locally. This allocation regression does not replace native Windows S02/S05 acceptance.
+
+
+## Windows x64 baseline
+
+On Windows, pass `experiments/windows/brush-update-regression/baseline.windows-x64.json` explicitly. It was captured from the **pre-optimization** brush sources at `e6bcc9f`, not from the candidate, on Windows 11 x64 / .NET 10.0.12 / SkiaSharp 2.88.9. The original, R8 (`459f732`) and R9 (`df3a903`) uncached outputs all have the same 264 hashes and decoded PNG pixels on that machine; the full R9 cached regression capture also matches those original Windows hashes. The same three source variants on macOS match the existing `baseline.json` exactly.
+
+Using the Mac baseline on Windows fails for 261 images, including the original implementation. Retain both platform baselines. This establishes same-platform optimization regression only; it does not approve the observed Mac/Windows rendering differences or change any tolerance. See [Windows differential evidence](../../../docs/windows/evidence/lifecycle-s05/r9-windows-baseline-diagnosis.md).
