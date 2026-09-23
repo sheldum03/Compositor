@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "allocation": {
+    "width": 4000,
+    "height": 4000,
+    "allocatedBytes": 5896,
+    "budgetBytes": 1048576
+  },
+  "heatmapExact": true,
+  "largeFixtureExact": true
+}

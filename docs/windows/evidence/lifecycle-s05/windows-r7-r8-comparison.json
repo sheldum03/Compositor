@@ -1,0 +1,53 @@
+{
+  "R7": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-report-r7-evidence/raw/run/report.json",
+    "elapsedMilliseconds": 414991.919,
+    "runtime": ".NET 10.0.12",
+    "serverGc": false,
+    "renderScaling": 1.5,
+    "postClosePrivateMiB": [
+      386.3125,
+      336.98828125,
+      768.05859375,
+      1187.04296875,
+      354.25,
+      770.73828125,
+      1189.11328125,
+      353.80078125,
+      770.9375
+    ],
+    "idleInitialPrivateMiB": 770.9375,
+    "idleFinalPrivateMiB": 768.52734375,
+    "finalPrivateMiB": 676.48828125,
+    "finalManagedMiB": 3.2146987915039062,
+    "finalCommittedMiB": 380.9453125,
+    "totalAllocatedBeforeLastTwoReports": 4586354672,
+    "retainedDocuments": 0
+  },
+  "R8": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-pixels-r8-evidence/raw/run/report.json",
+    "elapsedMilliseconds": 414454.7318,
+    "runtime": ".NET 10.0.12",
+    "serverGc": false,
+    "renderScaling": 1.5,
+    "postClosePrivateMiB": [
+      263.390625,
+      394.17578125,
+      428.15625,
+      360.80859375,
+      451.3203125,
+      409.38671875,
+      433.43359375,
+      538.39453125,
+      264.59765625
+    ],
+    "idleInitialPrivateMiB": 264.59765625,
+    "idleFinalPrivateMiB": 262.45703125,
+    "finalPrivateMiB": 166.625,
+    "finalManagedMiB": 3.2078018188476562,
+    "finalCommittedMiB": 125.96484375,
+    "totalAllocatedBeforeLastTwoReports": 3432152256,
+    "retainedDocuments": 0
+  },
+  "scope": "Same Windows machine and nine-round + 60-second idle workload; one run per version. Probe pixel-comparison allocation change, no production resource acceptance."
+}

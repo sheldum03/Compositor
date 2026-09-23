@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "images": 18,
+  "results": [
+    {
+      "path": "run/round-0/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-0/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-1/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-1/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-2/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-2/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-3/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-3/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-4/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-4/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-5/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-5/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-6/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-6/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-7/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-7/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-8/final.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "run/round-8/reopened.png",
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    }
+  ]
+}
