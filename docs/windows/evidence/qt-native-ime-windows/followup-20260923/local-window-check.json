@@ -1,0 +1,111 @@
+{
+    "brushEvents": [
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 6.461166
+        },
+        {
+            "error": "",
+            "event": "append",
+            "milliseconds": 35.677916
+        },
+        {
+            "event": "cancel"
+        },
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 5.74125
+        },
+        {
+            "error": "",
+            "event": "append",
+            "milliseconds": 35.22575
+        },
+        {
+            "error": "",
+            "event": "release-commit",
+            "milliseconds": 71.223458
+        },
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 5.826792
+        },
+        {
+            "event": "cancel"
+        }
+    ],
+    "brushFailure": "",
+    "brushPaints": 1,
+    "checks": {
+        "brush": {
+            "cancelReleaseUndoRedoDeactivate": "passed",
+            "nonopaqueWidgetPixels": 0,
+            "syntheticPointerEvents": true
+        },
+        "text": {
+            "cancelCommitUndoRedo": "passed",
+            "nativeImeAccepted": false,
+            "replaceAllColorPreserved": true,
+            "selectedCancelCycles": 100,
+            "selectedCancelPreservesRedo": true,
+            "selectedCompositionCases": 4,
+            "syntheticInput": true
+        }
+    },
+    "errors": [
+    ],
+    "nativeImeAccepted": false,
+    "os": "macOS Tahoe (26.5.1)",
+    "platformPlugin": "offscreen",
+    "previewBuffer": "one viewport-sized premultiplied image at device pixel ratio, SourceOver on white; no full 4K preview export",
+    "productAccepted": false,
+    "qt": "6.11.2",
+    "saves": [
+        {
+            "commitEventsObserved": 6,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "/tmp/qt-ime-selected-matrix-20260923/001-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 106,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 6,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "/tmp/qt-ime-selected-matrix-20260923/002-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 106,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "directory": "/tmp/qt-ime-selected-matrix-20260923/003-brush",
+            "kind": "brush",
+            "project": "/tmp/qt-ime-selected-matrix-20260923/003-brush/brush.comp",
+            "undoCount": 1
+        },
+        {
+            "directory": "/tmp/qt-ime-selected-matrix-20260923/004-F04",
+            "kind": "composition",
+            "project": "/tmp/qt-ime-selected-matrix-20260923/004-F04/F04.comp"
+        }
+    ],
+    "syntheticCheckMode": true,
+    "windowsExecuted": false
+}

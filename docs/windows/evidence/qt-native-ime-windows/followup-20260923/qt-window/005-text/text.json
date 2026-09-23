@@ -1,0 +1,13 @@
+{
+    "commitEventsObserved": 2,
+    "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+    "nativeImeAccepted": false,
+    "preeditEventsObserved": 34,
+    "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumAlphaError": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "PixelsWithErrorAbove1": 0
+    }
+}

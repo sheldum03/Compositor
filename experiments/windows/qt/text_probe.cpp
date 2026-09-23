@@ -30,11 +30,28 @@
 
 namespace {
 class TextItem final : public QGraphicsTextItem {
+    QTextCursor compositionSelection;
 public:
     using QGraphicsTextItem::inputMethodQuery;
     int draws = 0, preeditEvents = 0, commitEvents = 0;
     bool preeditActive = false;
     void inputMethodEvent(QInputMethodEvent *event) override {
+        const bool commits = !event->commitString().isEmpty() || event->replacementLength() != 0;
+        if (!compositionSelection.isNull() && (commits || event->preeditString().isEmpty())) {
+            // Qt removes a selection at preedit start. Keep that edit off the real history.
+            QInputMethodEvent clear; QGraphicsTextItem::inputMethodEvent(&clear);
+            auto temporary = document();
+            setDocument(compositionSelection.document()); setTextCursor(compositionSelection);
+            compositionSelection = QTextCursor(); delete temporary;
+            if (!commits) { preeditActive = false; event->accept(); return; }
+        }
+        if (compositionSelection.isNull() && !commits && !event->preeditString().isEmpty() && textCursor().hasSelection()) {
+            compositionSelection = textCursor();
+            document()->setParent(this);
+            auto temporary = document()->clone(this); setDocument(temporary);
+            QTextCursor cursor(temporary); cursor.setPosition(compositionSelection.anchor());
+            cursor.setPosition(compositionSelection.position(), QTextCursor::KeepAnchor); setTextCursor(cursor);
+        }
         preeditActive = !event->preeditString().isEmpty();
         if (preeditActive) ++preeditEvents;
         if (!event->commitString().isEmpty()) ++commitEvents;
@@ -272,6 +289,31 @@ QJsonObject WindowText::inputCheck() {
     require(rejected && !QFileInfo::exists(temporary.path() + "/preedit"), "Reject active preedit export without partial output");
     QInputMethodEvent cancel; scene->sendEvent(text, &cancel);
     require(!text->preeditActive && text->toPlainText() == original && !text->document()->isUndoAvailable(), "Window canceled IME preserves text/history");
+    cursor = text->textCursor(); cursor.setPosition(0); cursor.setPosition(2, QTextCursor::KeepAnchor); text->setTextCursor(cursor);
+    QInputMethodEvent selectedPreedit("ceshi", {{QInputMethodEvent::Cursor, 5, 1, {}}}); scene->sendEvent(text, &selectedPreedit);
+    scene->sendEvent(text, &cancel);
+    require(text->toPlainText() == original && !text->document()->isUndoAvailable(), "Canceling selected IME replacement preserves original text and history");
+    auto document = text->document(); auto originalHtml = document->toHtml();
+    auto originalPixels = exportImage(*text, {900, 600});
+    for (const auto range : {QPair<int, int>{0, 2}, {2, 0}, {0, int(original.size())}, {int(original.size()) - 2, int(original.size())}}) {
+        cursor = text->textCursor(); cursor.setPosition(range.first); cursor.setPosition(range.second, QTextCursor::KeepAnchor); text->setTextCursor(cursor);
+        scene->sendEvent(text, &selectedPreedit);
+        QInputMethodEvent selectedCommit; selectedCommit.setCommitString("替换"); scene->sendEvent(text, &selectedCommit);
+        auto expected = original; expected.replace(std::min(range.first, range.second), std::abs(range.first - range.second), "替换");
+        require(text->document() == document && text->toPlainText() == expected, "Selected composition commits one replacement to original document");
+        document->undo(); require(text->toPlainText() == original && !document->isUndoAvailable() && document->isRedoAvailable(), "One undo restores selection replacement");
+        cursor = text->textCursor(); cursor.setPosition(range.first); cursor.setPosition(range.second, QTextCursor::KeepAnchor); text->setTextCursor(cursor);
+        for (int repeat = 0; repeat < 25; ++repeat) {
+            scene->sendEvent(text, &selectedPreedit); scene->sendEvent(text, &cancel);
+            require(text->document() == document && document->toHtml() == originalHtml &&
+                text->textCursor().anchor() == range.first && text->textCursor().position() == range.second &&
+                !document->isUndoAvailable() && document->isRedoAvailable(), "Repeated selected cancel preserves rich text, selection and redo history");
+        }
+        require(exact(exportImage(*text, {900, 600}), originalPixels), "Selected cancellation preserves exact export pixels");
+        document->redo(); require(text->toPlainText() == expected, "Cancel does not destroy previous redo");
+        document->undo(); document->clearUndoRedoStacks();
+    }
+    cursor = text->textCursor(); cursor.setPosition(2); text->setTextCursor(cursor);
     QInputMethodEvent commit; commit.setCommitString(QString::fromUtf8("测试")); scene->sendEvent(text, &commit);
     require(text->toPlainText() != original, "Window IME commit changes text");
     text->document()->undo(); require(text->toPlainText() == original, "Window text undo");
@@ -287,5 +329,6 @@ QJsonObject WindowText::inputCheck() {
     require(bluePixels > 0, "Replacing all text must preserve the blue text color");
     text->document()->undo(); require(text->toPlainText() == original, "Full replacement undo");
     cursor = text->textCursor(); cursor.setPosition(0); cursor.setPosition(2, QTextCursor::KeepAnchor); text->setTextCursor(cursor);
-    return {{"syntheticInput", true}, {"nativeImeAccepted", false}, {"cancelCommitUndoRedo", "passed"}, {"replaceAllColorPreserved", true}};
+    return {{"syntheticInput", true}, {"nativeImeAccepted", false}, {"cancelCommitUndoRedo", "passed"},
+        {"selectedCompositionCases", 4}, {"selectedCancelCycles", 100}, {"selectedCancelPreservesRedo", true}, {"replaceAllColorPreserved", true}};
 }
