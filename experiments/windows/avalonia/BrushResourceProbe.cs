@@ -88,7 +88,7 @@ internal static partial class BrushPerformanceProbe
                 using var stream = File.Create(Path.Combine(output, "report.json"));
                 JsonSerializer.Serialize(stream, new
                 {
-                    scenario = idleDiagnostic ? "S05-idle-diagnostic" : roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
+                    scenario = roundCount == 27 ? "S05-extended-diagnostic" : idleDiagnostic ? "S05-idle-diagnostic" : roundCount == 3 ? "S05" : "S05-soak-diagnostic", expectedRounds = roundCount, completed = Passed, error, windowsExecuted = OperatingSystem.IsWindows(), nativeWindow,
                     windowClosed = WindowClosed, renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
                     workload = $"4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; {roundCount} rounds",
                     baseline, rounds, elapsedMilliseconds = elapsed.Elapsed.TotalMilliseconds, trials,

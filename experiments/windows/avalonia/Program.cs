@@ -13,10 +13,11 @@ internal static class Program
     private static void Main(string[] args)
     {
         bool s02Small = args.Length == 4 && args[0] == "--s02-small-window";
-        bool s05Window = args.Length == 4 && (args[0] == "--s05-window" || args[0] == "--s05-soak-window" || args[0] == "--s05-idle-window");
-        bool s05Check = args.Length == 4 && (args[0] == "--s05-check" || args[0] == "--s05-soak-check" || args[0] == "--s05-idle-check");
-        bool resourceIdle = (s05Window || s05Check) && args[0].Contains("-idle-");
-        int resourceRounds = s05Window || s05Check ? (args[0].Contains("-soak-") || resourceIdle ? 9 : 3) : 0;
+        bool s05Window = args.Length == 4 && (args[0] == "--s05-window" || args[0] == "--s05-soak-window" || args[0] == "--s05-idle-window" || args[0] == "--s05-extended-window");
+        bool s05Check = args.Length == 4 && (args[0] == "--s05-check" || args[0] == "--s05-soak-check" || args[0] == "--s05-idle-check" || args[0] == "--s05-extended-check");
+        bool resourceExtended = (s05Window || s05Check) && args[0].Contains("-extended-");
+        bool resourceIdle = resourceExtended || ((s05Window || s05Check) && args[0].Contains("-idle-"));
+        int resourceRounds = resourceExtended ? 27 : s05Window || s05Check ? (args[0].Contains("-soak-") || resourceIdle ? 9 : 3) : 0;
         bool s02Window = args.Length == 4 && args[0] == "--s02-window";
         bool s02Check = args.Length == 4 && args[0] == "--s02-check";
         bool window = args.Length == 4 && args[0] == "--window";
@@ -25,7 +26,7 @@ internal static class Program
         bool verifyText = args.Length == 4 && args[0] == "--verify-text-output";
         bool text = args.Length == 4 && (args[0] == "--text" || diagnostics);
         if (brush || text || verifyText || window || s02Window || s02Small || s05Window || s05Check || s02Check) args = args[1..];
-        Check(args.Length == 3, "Usage: probe [--s02-window|--s02-small-window|--s05-window|--s05-check|--s05-soak-window|--s05-soak-check|--s05-idle-window|--s05-idle-check|--s02-check|--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
+        Check(args.Length == 3, "Usage: probe [--s02-window|--s02-small-window|--s05-window|--s05-check|--s05-soak-window|--s05-soak-check|--s05-idle-window|--s05-idle-check|--s05-extended-window|--s05-extended-check|--s02-check|--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
         string fixtures = Path.GetFullPath(args[0]), output = Path.GetFullPath(args[1]);
         string nativePath = Path.GetFullPath(args[2]);
         var library = NativeLibrary.Load(nativePath);
