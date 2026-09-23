@@ -18,8 +18,8 @@
 
 | 项目 | 当前证据 | 尚缺 |
 | --- | --- | --- |
-| Windows 11 x64 实体机 | Build 26200、i9-13900、64 GB、4090D；当前软件后端 | 此配置不能代表集显或 GPU 后端性能 |
-| 中文输入法 | 当前语言清单只启用 zh-Hans-CN 微软拼音；既有用户操作反馈 | 另一种常用中文输入法的明确版本和原生结果 |
+| Windows 11 x64 实体机 | Build 26200、i9-13900、64 GB、4090D；当前软件后端；已补采驱动/显示/电源记录 | 此配置不能代表集显或 GPU 后端性能 |
+| 中文输入法 | 2026-09-23 显式枚举确认当前用户只启用 zh-Hans-CN 微软拼音；既有用户操作反馈 | 另一种常用中文输入法的明确版本和原生结果 |
 | DPI / 显示器 | 当前原生 150%，部分缩放/翻转用户反馈 | 100/200%、跨屏、候选位置完整矩阵 |
 | 输入设备 | 已有物理拖选反馈；远程自动拖动曾只产生点 | 连续物理鼠标路径、数位笔基础输入；OS 注入单独标注 |
 | 参考与干净环境 | 已有 Server 2022 轻量节点部分构建/CPU 证据 | 普通集显实机、干净 Windows 普通用户安装/离线/卸载；Server 不代替 |
@@ -41,6 +41,8 @@ S05 R7 已移除完整报告字符串的额外分配并在同机复测：正确�
 R8 原始结果已取回并独立复核：九轮正确性和 18 张图像精确一致，分配估计下降 25.17%，采样专用内存最大值降至 556.88 MiB、60 秒空闲末尾为 262.46 MiB；资源稳定性仍开放。见 [R8 实测](evidence/lifecycle-s05/windows-pixels-r8-followup.md)。R9 已让笔刷只读共享源瓦片，本地追加分配约减少 39.8%，冻结图与九轮正确性通过；首次 Windows 冻结图回归失败已定位为使用了 Mac 基准；优化前三版 Windows 输出精确一致。采用优化前源码的 Windows 基准后完整回归通过，后续两轮 S02 的更新 P95 均未通过；S05 原始结果已独立复核，正确性通过、分配减少 26.81%，但末尾空闲占用更高，资源稳定性仍开放。原 R8 和此前通过版的同环境控制均已独立通过，已有层 P95 为 11.2789/10.9290 ms，后续交替对照 R9/R8/R9 三轮全部通过，R9 已有层 P95 为 11.2115/10.9164 ms，同一 DLL 能达标但波动原因未定，见 [交替对照](evidence/lifecycle-s05/r9-s02-aba-followup.md)与 [控制结果](evidence/lifecycle-s05/r9-s02-controls-followup.md)，见 [实机复核](evidence/lifecycle-s05/r9-windows-followup.md) 与 [诊断记录](evidence/lifecycle-s05/r9-windows-baseline-diagnosis.md)，不沿用旧 DLL 的性能通过结论。见 [R9 准备](evidence/lifecycle-s05/r9-readonly-brush-preparation.md)。
 
 Qt 同条件 S02 测试能力已补齐：100% 不透明度、空层/已有层各 30 笔及逐帧原始数据；本地 100%/150% 缩放、生命周期、像素和 sanitizer 检查通过，Windows 原生两轮及原始图像已独立复核，提交/内存通过，更新 P95 25–28 ms 未通过 16.7 ms；PNG 与 Mac Qt 最大差 1，alpha 精确。两框架的计时终点分别标注，不直接用局部绘制耗时排名。见 [Qt S02 实机结果](evidence/qt-s02-windows/README.md)。
+
+2026-09-23 已补充 [实机环境报告](evidence/windows11-environment/README.md)：驱动 32.0.15.9186、当前平衡电源方案和单一微软拼音配置；此为性能运行后的观察，不倒推历史条件。实际 `pinvoke-test/runtime` 的 193 个文件已逐项匹配官方 .NET 10.0.12 win-x64 清单，见 [运行库复核](evidence/dependency-inventory/dotnet-runtime-windows-review.json)。普通集显、第二输入法与干净机覆盖仍缺。随后 Qt 桌面操作因 Mac 再次锁屏而中断，未增加原生输入通过项。
 
 ## 决策闭合条件
 
