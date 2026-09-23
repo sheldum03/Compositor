@@ -1,0 +1,239 @@
+{
+  "before": {
+    "meanPhaseAllocatedBytes": {
+      "redo-and-digest": 704528,
+      "editing-and-checkpoints": 371462138.6666667,
+      "export": 111840,
+      "save-and-reopen": 616581.3333333334,
+      "undo-and-digest": 692576,
+      "reopened-export": 2893.3333333333335,
+      "pixel-comparison": 128010600
+    },
+    "rows": [
+      {
+        "round": 0,
+        "phase": "editing-and-checkpoints",
+        "allocatedBytes": 371875832
+      },
+      {
+        "round": 0,
+        "phase": "undo-and-digest",
+        "allocatedBytes": 692576
+      },
+      {
+        "round": 0,
+        "phase": "redo-and-digest",
+        "allocatedBytes": 704528
+      },
+      {
+        "round": 0,
+        "phase": "export",
+        "allocatedBytes": 201408
+      },
+      {
+        "round": 0,
+        "phase": "save-and-reopen",
+        "allocatedBytes": 620736
+      },
+      {
+        "round": 0,
+        "phase": "reopened-export",
+        "allocatedBytes": 2984
+      },
+      {
+        "round": 0,
+        "phase": "pixel-comparison",
+        "allocatedBytes": 128011008
+      },
+      {
+        "round": 1,
+        "phase": "editing-and-checkpoints",
+        "allocatedBytes": 371271040
+      },
+      {
+        "round": 1,
+        "phase": "undo-and-digest",
+        "allocatedBytes": 692576
+      },
+      {
+        "round": 1,
+        "phase": "redo-and-digest",
+        "allocatedBytes": 704528
+      },
+      {
+        "round": 1,
+        "phase": "export",
+        "allocatedBytes": 67008
+      },
+      {
+        "round": 1,
+        "phase": "save-and-reopen",
+        "allocatedBytes": 614504
+      },
+      {
+        "round": 1,
+        "phase": "reopened-export",
+        "allocatedBytes": 2848
+      },
+      {
+        "round": 1,
+        "phase": "pixel-comparison",
+        "allocatedBytes": 128010888
+      },
+      {
+        "round": 2,
+        "phase": "editing-and-checkpoints",
+        "allocatedBytes": 371239544
+      },
+      {
+        "round": 2,
+        "phase": "undo-and-digest",
+        "allocatedBytes": 692576
+      },
+      {
+        "round": 2,
+        "phase": "redo-and-digest",
+        "allocatedBytes": 704528
+      },
+      {
+        "round": 2,
+        "phase": "export",
+        "allocatedBytes": 67104
+      },
+      {
+        "round": 2,
+        "phase": "save-and-reopen",
+        "allocatedBytes": 614504
+      },
+      {
+        "round": 2,
+        "phase": "reopened-export",
+        "allocatedBytes": 2848
+      },
+      {
+        "round": 2,
+        "phase": "pixel-comparison",
+        "allocatedBytes": 128009904
+      }
+    ]
+  },
+  "after": {
+    "meanPhaseAllocatedBytes": {
+      "redo-and-digest": 704528,
+      "editing-and-checkpoints": 371726061.3333333,
+      "export": 111880,
+      "save-and-reopen": 616685.3333333334,
+      "undo-and-digest": 692576,
+      "reopened-export": 2909.3333333333335,
+      "pixel-comparison": 5416
+    },
+    "rows": [
+      {
+        "round": 0,
+        "phase": "editing-and-checkpoints",
+        "allocatedBytes": 371868768
+      },
+      {
+        "round": 0,
+        "phase": "undo-and-digest",
+        "allocatedBytes": 692576
+      },
+      {
+        "round": 0,
+        "phase": "redo-and-digest",
+        "allocatedBytes": 704528
+      },
+      {
+        "round": 0,
+        "phase": "export",
+        "allocatedBytes": 201480
+      },
+      {
+        "round": 0,
+        "phase": "save-and-reopen",
+        "allocatedBytes": 620840
+      },
+      {
+        "round": 0,
+        "phase": "reopened-export",
+        "allocatedBytes": 3000
+      },
+      {
+        "round": 0,
+        "phase": "pixel-comparison",
+        "allocatedBytes": 5480
+      },
+      {
+        "round": 1,
+        "phase": "editing-and-checkpoints",
+        "allocatedBytes": 371447480
+      },
+      {
+        "round": 1,
+        "phase": "undo-and-digest",
+        "allocatedBytes": 692576
+      },
+      {
+        "round": 1,
+        "phase": "redo-and-digest",
+        "allocatedBytes": 704528
+      },
+      {
+        "round": 1,
+        "phase": "export",
+        "allocatedBytes": 67032
+      },
+      {
+        "round": 1,
+        "phase": "save-and-reopen",
+        "allocatedBytes": 614608
+      },
+      {
+        "round": 1,
+        "phase": "reopened-export",
+        "allocatedBytes": 2864
+      },
+      {
+        "round": 1,
+        "phase": "pixel-comparison",
+        "allocatedBytes": 5384
+      },
+      {
+        "round": 2,
+        "phase": "editing-and-checkpoints",
+        "allocatedBytes": 371861936
+      },
+      {
+        "round": 2,
+        "phase": "undo-and-digest",
+        "allocatedBytes": 692576
+      },
+      {
+        "round": 2,
+        "phase": "redo-and-digest",
+        "allocatedBytes": 704528
+      },
+      {
+        "round": 2,
+        "phase": "export",
+        "allocatedBytes": 67128
+      },
+      {
+        "round": 2,
+        "phase": "save-and-reopen",
+        "allocatedBytes": 614608
+      },
+      {
+        "round": 2,
+        "phase": "reopened-export",
+        "allocatedBytes": 2864
+      },
+      {
+        "round": 2,
+        "phase": "pixel-comparison",
+        "allocatedBytes": 5384
+      }
+    ]
+  },
+  "scope": "Mac arm64, .NET 10.0.12; process-wide managed allocation counters around actual phases, including small measurement overhead. No native or Windows resource acceptance."
+}

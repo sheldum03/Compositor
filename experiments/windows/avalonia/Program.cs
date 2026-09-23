@@ -252,7 +252,14 @@ internal static class Program
         Check(firstCodec.Info.Width == secondCodec.Info.Width && firstCodec.Info.Height == secondCodec.Info.Height,
             "Image dimensions must match");
         using var difference = heatmap is null ? null : new SKBitmap(firstCodec.Info.Width, firstCodec.Info.Height);
-        byte[] a = Pixels(first), b = Pixels(second);
+        using var srgb = SKColorSpace.CreateSrgb();
+        var info = new SKImageInfo(firstCodec.Info.Width, firstCodec.Info.Height,
+            SKColorType.Rgba8888, SKAlphaType.Premul, srgb);
+        using var firstBitmap = new SKBitmap(info);
+        using var secondBitmap = new SKBitmap(info);
+        Check(firstCodec.GetPixels(info, firstBitmap.GetPixels()) == SKCodecResult.Success, "PNG decode failed");
+        Check(secondCodec.GetPixels(info, secondBitmap.GetPixels()) == SKCodecResult.Success, "PNG decode failed");
+        ReadOnlySpan<byte> a = firstBitmap.GetPixelSpan(), b = secondBitmap.GetPixelSpan();
         long sum = 0;
         int different = 0, maximum = 0, alphaMaximum = 0, above1 = 0;
         for (int pixel = 0; pixel < a.Length; pixel += 4)
