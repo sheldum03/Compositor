@@ -16,7 +16,7 @@
     "exitCode": 28,
     "message": "Connection timed out after 10835 milliseconds"
   },
-  "sdkDownloadStatus": "partial local download; not yet SHA-512 verified or transferred",
+  "sdkDownloadStatus": "complete on Mac; official SHA-512 and ZIP CRC verified; not transferred or run on Windows",
   "localLockUnchanged": true,
   "windowsBuildExecuted": false
 }
