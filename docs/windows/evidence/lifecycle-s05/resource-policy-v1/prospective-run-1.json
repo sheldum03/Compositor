@@ -1,5 +1,5 @@
 {
-  "status": "started; final archive not retrieved",
+  "status": "running; final archive not retrieved",
   "policyCommit": "985c43f",
   "policySha256": "9cd6f46733166a02b50319e7887771357332138c760d94e96d33f4b3d7fce448",
   "evaluatorSha256": "bdafbf412e0004beb1b9f80f6ea24a83a783fe83d632923b651290b94261bfee",
@@ -10,5 +10,15 @@
   "sourceOfObservation": "UU session2 displayed RUNNING 27 ROUNDS after runner identity checks",
   "nativeExit": null,
   "resourceAccepted": false,
-  "limitations": "The existing native IME follow-up process 42996 remains open. This is per-process S05 resource evidence, not S02 latency acceptance. Preserve the running process; do not restart based on a polling failure."
+  "limitations": "The existing native IME follow-up process 42996 remains open. This is per-process S05 resource evidence, not S02 latency acceptance. Preserve the running process; do not restart based on a polling failure.",
+  "progressObservation": {
+    "source": "UU independent session3: Get-Process and read-only Python JSON query",
+    "pidObserved": 48672,
+    "processHandles": 545,
+    "processCpuSeconds": 109.47,
+    "reportCompleted": false,
+    "completedRounds": 7,
+    "trialRecords": 760,
+    "scope": "Separate observations; process metrics and report counts are not an atomic snapshot. Screenshot outputs are in the conversation only."
+  }
 }
