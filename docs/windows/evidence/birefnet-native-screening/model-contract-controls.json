@@ -1,0 +1,14 @@
+[
+  {
+    "case": "birefnet-rejects-u2net",
+    "exitCode": 1,
+    "error": "Fixed model IO counts",
+    "noPredictionPublished": true
+  },
+  {
+    "case": "u2net-rejects-birefnet",
+    "exitCode": 1,
+    "error": "Fixed model IO counts",
+    "noPredictionPublished": true
+  }
+]

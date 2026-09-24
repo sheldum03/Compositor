@@ -1,5 +1,17 @@
 # Native model inference — W-009 preparation
 
+2026-09-24: a separate `birefnet_probe` target now validates the pinned official BiRefNet Lite candidate with native ONNX Runtime 1.30.0. Mac image processing, active cancellation/recovery, wrong-model rejection, unchanged U2NetP predictions and actual editable-project readback passed. Both CMake targets were built and executed. This candidate has not run on Windows; see [native evidence](../../../docs/windows/evidence/birefnet-native-screening/README.md) for exact environments and limitations.
+
+After verifying/extracting the SDK and building as below, run this separate candidate with a new output directory:
+
+```sh
+python3 experiments/windows/ai/screen-birefnet.py \
+  <VERIFIED_BIREFNET_ONNX> <VERIFIED_ASTRONAUT_PNG> \
+  <BUILD>/birefnet_probe <NEW_OUTPUT>
+```
+
+The model is fixed by the [source record](../../../docs/windows/evidence/birefnet-source-screening/source-review.json). This harness uses NumPy/Pillow for preprocessing and runs the native executable; it does not require Python ONNX Runtime. It requires 1024×1024 RGB input and one logits output, applies sigmoid, and writes `logits.f32`, a Gray8 mask and a separate-image/mask project. Use `review-active-cancel.py <native-output> --birefnet` for its cancellation evidence. U2NetP continues to use the existing commands and contract below.
+
 2026-09-23 update: the unchanged full `screen.py` image harness now passed on Windows 11 using a private, isolated inspection runtime. The resulting Gray8 mask, separate image/mask project and Unicode prediction were independently verified; the actual Mac reader/exporter passed the Windows-generated project's editable-mask and save/reopen test (1 passed, 0 skipped). See [Windows image pipeline evidence](../../../docs/windows/evidence/ai-image-windows/README.md). Historical preparation-only statements below describe their original runs; this does not settle model quality, exact weight authorization, production UI or clean-machine distribution.
 
 A real U2NetP ONNX model now runs locally through ONNX Runtime's C++ CPU API and produces a separate editable Gray8 layer mask. This is one Mac-host feasibility sample, not a model selection, Windows execution, quality gate or redistribution approval. HEIC screening remains a separate W-009 item. No Qt/Avalonia production direction is selected by this experiment.

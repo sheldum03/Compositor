@@ -1,0 +1,64 @@
+{
+  "windowsExecuted": false,
+  "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "modelSha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+  "inputImageSha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+  "inputTensorSha256": "effc561159d2142bb0cc325e72d6fbc414f5691022305c00fd5da3b127dfadbe",
+  "probeSha256": "28fb67b5aed7364314abfd4664a752d0a09391dca5c394db557be057313919a8",
+  "native": {
+    "onnxruntime": "1.30.0",
+    "execution": "CPU default; one intra/inter-op thread; sequential",
+    "imageSide": 1024,
+    "outputCount": 1,
+    "outputSemantics": "logits",
+    "sessionLoadMilliseconds": 1337.398083,
+    "inferenceMilliseconds": [
+      10041.132709,
+      9669.977208,
+      9398.957417
+    ],
+    "outputMinimum": -19.4603481293,
+    "outputMaximum": 25.2114620209,
+    "repeatedPredictionsExact": true,
+    "preTerminatedRunRejected": true,
+    "sessionRecovered": true,
+    "activeInferenceCancellationTested": true
+  },
+  "profileKernelProviders": {
+    "CPUExecutionProvider": 15624
+  },
+  "cancellation": {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 9,
+    "recoveredRunKernelEvents": 3906,
+    "cancelToJoinMilliseconds": 75.468958,
+    "recoveredPredictionSha256": "87c2556501859c509ec37ca50715d08493b9823f25fab0a98766bc3af3cfeb71",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  "failureChecks": [
+    {
+      "case": "short-input",
+      "exitCode": 1,
+      "noPredictionPublished": true,
+      "error": "Exact input tensor size\n"
+    },
+    {
+      "case": "nan-input",
+      "exitCode": 1,
+      "noPredictionPublished": true,
+      "error": "Finite input tensor\n"
+    },
+    {
+      "case": "invalid-model",
+      "exitCode": 1,
+      "noPredictionPublished": true,
+      "error": "2026-09-24 11:20:03.588 birefnet_probe[49875:3366611] 2026-09-24 11:20:03.588552 [E:onnxruntime:, inference_session.cc:4229 EndProfiling] Could not write a profile because no model was loaded.\nLoad model from /Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-native-20260924/screening/invalid.onnx failed:Protobuf parsing failed.\n"
+    }
+  ],
+  "existingOutputPreserved": true,
+  "maskSha256": "174775d01503333ade587a37bdb1facd661ca7e50f9cdfaa70483373450b23fc",
+  "logitsSha256": "87c2556501859c509ec37ca50715d08493b9823f25fab0a98766bc3af3cfeb71",
+  "scope": "Fixed-image native feasibility; no quality, production transaction or release acceptance"
+}

@@ -65,6 +65,8 @@ Qt 同条件 S02 测试能力已补齐：100% 不透明度、空层/已有层各
 
 模型来源候选补充：已固定作者官方发布的 BiRefNet Lite ONNX 资产及 MIT 模型卡/发布标签原文，并在 Mac CPU 完成单图冒烟。其 1024×1024 单 logits 输出不同于现有 U2NetP 契约；需要新的 native 1.30.0 / Windows 检查，不沿用旧模型推理或许可结论。见 [来源与本地筛查](evidence/birefnet-source-screening/README.md)。
 
+该候选随后完成 [native 1.30.0 本地检查](evidence/birefnet-native-screening/README.md)：直接编译及 CMake Release 两个目标均运行通过，活动推理取消有真实算子证据、同会话恢复预测一致；错误数据与互换模型被拒绝。U2NetP 修改前后预测精确相同，BiRefNet 蒙版工程的实际 Mac 编辑/保存重开测试通过。Windows 执行、质量与分发决定仍开放，未据此关闭 M1。
+
 以上为 [technical-design.md](technical-design.md) 的决策状态评审，不自动修改已确认或未确认决策。
 
 ## 生产推进顺序

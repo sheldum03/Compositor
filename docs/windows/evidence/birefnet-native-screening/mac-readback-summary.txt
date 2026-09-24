@@ -1,0 +1,10 @@
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Compositor.xcodeproj -scheme Compositor -configuration Debug -destination platform=macOS -disableAutomaticPackageResolution -parallel-testing-enabled NO -testLanguage en -testRegion US "-only-testing:CompositorTests/WindowsFixtureTests/aiMaskPackageRetainsEditableCoverage()" -resultBundlePath /Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-native-20260924/mac-readback.xcresult CODE_SIGNING_ALLOWED=NO test
+	/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-native-20260924/mac-readback.xcresult
+◇ Test run started.
+◇ Suite WindowsFixtureTests started.
+◇ Test aiMaskPackageRetainsEditableCoverage() started.
+✔ Test aiMaskPackageRetainsEditableCoverage() passed after 0.108 seconds.
+✔ Suite WindowsFixtureTests passed after 0.108 seconds.
+✔ Test run with 1 test in 1 suite passed after 0.108 seconds.
+	/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-native-20260924/mac-readback.xcresult
+** TEST SUCCEEDED **

@@ -1,0 +1,21 @@
+{
+  "baselineCommit": "febf508",
+  "modelSha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+  "inputSha256": "d085f68b79a2a856160a0ea207180658a3d58da7d77feaca7b1fffcca4136951",
+  "rawPredictionsExact": true,
+  "runs": [
+    {
+      "name": "u2net-before",
+      "exitCode": 0,
+      "predictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+      "binarySha256": "8ed2bdda90b52a0a09e311520543637d91c9136c011ce4e09b969cbcd34501d8"
+    },
+    {
+      "name": "u2net-after",
+      "exitCode": 0,
+      "predictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+      "binarySha256": "d208e12ea057c59692f3500fedecba22e2291147fc0c9d0fffd44ca52fd402bf"
+    }
+  ],
+  "windowsExecuted": false
+}

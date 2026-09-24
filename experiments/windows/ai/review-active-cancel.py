@@ -7,6 +7,7 @@ from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument('output', type=Path)
+parser.add_argument('--birefnet', action='store_true', help='Validate the fixed 1024px single-logits candidate')
 args = parser.parse_args()
 root = args.output
 inference = json.loads((root / 'inference.json').read_text())
@@ -27,8 +28,11 @@ for run in runs:
     assert kernels, 'No actual kernel work observed within inference'
     assert all(e.get('args', {}).get('provider') == 'CPUExecutionProvider' for e in kernels)
     counts.append(len(kernels))
-baseline = (root / 'mask.f32').read_bytes()
-assert len(baseline) == 320 * 320 * 4
+if args.birefnet:
+    assert inference['imageSide'] == 1024 and inference['outputCount'] == 1
+    assert inference['outputSemantics'] == 'logits'
+baseline = (root / ('logits.f32' if args.birefnet else 'mask.f32')).read_bytes()
+assert len(baseline) == (1024 if args.birefnet else 320) ** 2 * 4
 assert baseline == (root / 'active-recovered.f32').read_bytes(), 'Recovery changed output'
 print(json.dumps(dict(activeCancellationEvidencePassed=True,
     host=platform.platform(), windowsExecuted=platform.system() == 'Windows',
