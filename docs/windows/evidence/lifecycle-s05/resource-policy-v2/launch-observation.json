@@ -1,0 +1,18 @@
+{
+  "policyCommit": "8a4d1d8",
+  "runnerSha256VerifiedInWindows": "5521d1102eb04f7ca1d0c289bf81771d4b0b11e4ed27ae2583d050bdf4af0044",
+  "command": "python s05-extended-kit/run.py",
+  "session": "UU session2",
+  "status": "launch delivery unconfirmed; Mac locked during tool call",
+  "pid": null,
+  "outputDirectory": null,
+  "windowsRunAccepted": false,
+  "resourceAccepted": false,
+  "recovery": "Read existing session and inspect live process before sending any launch command. Do not restart on observation failure.",
+  "observations": [
+    "Existing session2 showed previous clean build completed and a PowerShell prompt.",
+    "Get-FileHash on the S05 runner matched the fixed runner.",
+    "CUA reported Mac locked and automatic unlock failed when sending the launch command.",
+    "A later read-only UI-state check still reported Mac locked."
+  ]
+}

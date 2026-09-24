@@ -61,6 +61,8 @@ Qt 同条件 S02 测试能力已补齐：100% 不透明度、空层/已有层各
 
 首个前瞻运行随后完成：正确性与 54 张图像通过，但 v1 资源规则失败（后九轮上限增加 55.91 MiB）；资源未放行。后段仍低于预热期间既有上限，需审查区间波动与持续增长的区分，详见[首轮复核](evidence/lifecycle-s05/resource-policy-v1/run-1/README.md)。随后完成了[真实 Windows 离线源码构建与回归](evidence/clean-source-build-20260924/README.md)：固定 SDK、空包缓存、锁定恢复及 Release 构建通过；合成/笔刷/文字检查、67 对图像独立复核和两项实际 Mac 工程读回均通过。此项不替代 S02、原生 IME、资源验收或生产发布。
 
+2026-09-24 规则审查补充：固定周期的合成样本暴露 v1 上限检查的分段相位敏感性。已固定 [v2 提案](s05-resource-policy-v2.md)，仅改变历史高水位参照区间，保留原预算和最低占用检查；35 项控制通过。旧实机数据只作校准。尝试启动新长测时 Mac 锁屏，指令送达及新 PID 未确认；恢复后先检查原会话，不能把此次操作记为新的 Windows 通过。见 [v2 证据](evidence/lifecycle-s05/resource-policy-v2/README.md)。
+
 以上为 [technical-design.md](technical-design.md) 的决策状态评审，不自动修改已确认或未确认决策。
 
 ## 生产推进顺序
