@@ -67,6 +67,8 @@ Qt 同条件 S02 测试能力已补齐：100% 不透明度、空层/已有层各
 
 该候选随后完成 [native 1.30.0 本地检查](evidence/birefnet-native-screening/README.md)：直接编译及 CMake Release 两个目标均运行通过，活动推理取消有真实算子证据、同会话恢复预测一致；错误数据与互换模型被拒绝。U2NetP 修改前后预测精确相同，BiRefNet 蒙版工程的实际 Mac 编辑/保存重开测试通过。Windows 执行、质量与分发决定仍开放，未据此关闭 M1。
 
+S05 v2 第一轮前瞻运行已完成独立复核：27 轮正确性、54 张图像和七项候选资源检查全部通过，采样专用内存最大约 592.26 MiB，最终旧文档弱引用为零。规则与应用没有临时调整；历史 v1 失败保留。第二个独立进程已启动，完成及复核待确认，资源评审、D-06 和 M1 仍开放。见 [第一轮原始归档复核](evidence/lifecycle-s05/resource-policy-v2/run-1/README.md)。
+
 已进一步生成 [BiRefNet Windows x64 私有运行包](evidence/birefnet-windows-preparation/README.md)：两目标交叉构建、241 个包内导入符号、40 文件包完整性及隔离检查环境通过；Mac 适配的完整成功/失败归档已验证。UU 仍锁屏，未上传或执行该包；该记录不增加 Windows 通过项。
 
 以上为 [technical-design.md](technical-design.md) 的决策状态评审，不自动修改已确认或未确认决策。

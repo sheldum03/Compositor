@@ -1,0 +1,8 @@
+{
+  "newWindowsRun": false,
+  "historicalArchivePositiveControl": true,
+  "wrongArchiveHashRejectedBeforeOutput": true,
+  "changedMemberRejectedBeforeExtraction": true,
+  "helperSha256": "e01d60b258356f7a6d127688cacf4315d6bd26a7c0017e28441dcd88615afae5",
+  "note": "Historical v1 run is a helper control only, not a new v2 prospective run."
+}
