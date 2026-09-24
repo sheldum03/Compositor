@@ -63,6 +63,8 @@ Qt 同条件 S02 测试能力已补齐：100% 不透明度、空层/已有层各
 
 2026-09-24 规则审查补充：固定周期的合成样本暴露 v1 上限检查的分段相位敏感性。已固定 [v2 提案](s05-resource-policy-v2.md)，仅改变历史高水位参照区间，保留原预算和最低占用检查；35 项控制通过。旧实机数据只作校准。尝试启动新长测时 Mac 锁屏，指令送达及新 PID 未确认；恢复后先检查原会话，不能把此次操作记为新的 Windows 通过。见 [v2 证据](evidence/lifecycle-s05/resource-policy-v2/README.md)。
 
+模型来源候选补充：已固定作者官方发布的 BiRefNet Lite ONNX 资产及 MIT 模型卡/发布标签原文，并在 Mac CPU 完成单图冒烟。其 1024×1024 单 logits 输出不同于现有 U2NetP 契约；需要新的 native 1.30.0 / Windows 检查，不沿用旧模型推理或许可结论。见 [来源与本地筛查](evidence/birefnet-source-screening/README.md)。
+
 以上为 [technical-design.md](technical-design.md) 的决策状态评审，不自动修改已确认或未确认决策。
 
 ## 生产推进顺序
