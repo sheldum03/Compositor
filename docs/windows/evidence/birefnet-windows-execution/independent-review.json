@@ -1,0 +1,68 @@
+{
+  "windowsExecutionRecorded": true,
+  "archiveSha256": "ea0c466bc53971da2de280b6e408fecae12accfa533ea6d31e491b2a615bedaf",
+  "archiveBytes": 13988393,
+  "inputTensorRecomputedExact": true,
+  "maskRecomputedExact": true,
+  "cutoutRgbPreservedAlphaEqualsMask": true,
+  "separateImageAndMaskAssetsExact": true,
+  "cancellation": {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 23,
+    "recoveredRunKernelEvents": 3927,
+    "cancelToJoinMilliseconds": 4.747,
+    "recoveredPredictionSha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  "providers": {
+    "CPUExecutionProvider": 15708
+  },
+  "native": {
+    "onnxruntime": "1.30.0",
+    "execution": "CPU default; one intra/inter-op thread; sequential",
+    "imageSide": 1024,
+    "outputCount": 1,
+    "outputSemantics": "logits",
+    "sessionLoadMilliseconds": 2463.3816,
+    "inferenceMilliseconds": [
+      17210.074,
+      16499.7245,
+      14770.7294
+    ],
+    "outputMinimum": -19.460357666,
+    "outputMaximum": 25.2119827271,
+    "repeatedPredictionsExact": true,
+    "preTerminatedRunRejected": true,
+    "sessionRecovered": true,
+    "activeInferenceCancellationTested": true
+  },
+  "rawPredictionSha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+  "maskPixelsSha256": "3125a922bc8a153ae15fed06a11f60de3a6b7c9259c92656cae19deadb388fc8",
+  "scope": "Independent fixed-image archive review; actual Mac reader, quality, product UI and release are separate.",
+  "rawFileHashes": {
+    "execution.json": "5fd7f01cfd53a9fbe1f78da1a73ec0b803447b866a7a21dbb48253f2e377789f",
+    "launch.json": "f993e0753386e21fd6bf7c3a6d0075afc9b4222a59bc387bbb7e0a7138435851",
+    "screening/cancellation-review.json": "c9091b70d2c95324c13f472f9cf41f62c331b731b3310c048b8a72db27e21fe9",
+    "screening/cutout.png": "d5c9750698bfe6d87fc8c4ef00a3d85212092feccdd119888657c7a378d3e04a",
+    "screening/input.f32": "effc561159d2142bb0cc325e72d6fbc414f5691022305c00fd5da3b127dfadbe",
+    "screening/invalid-model/cpu-profile_2026-09-24_16-01-27_538.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "screening/mask.png": "1efc2c0081d83bcc98c67f9367edbf2ab954f4126799b2b4364da60f922455aa",
+    "screening/nan.f32": "f895eb556a69a8819d8212a1a223e759e2b97a3162eed7fb3ddd7e339d7c4a3b",
+    "screening/native/active-cancellation.json": "f37f9e08d30cb562adfb8701d9f94105c2fb9338488daff3991b9dccefb951d9",
+    "screening/native/active-profile_2026-09-24_16-01-04_358.json": "6b925ca8faeca2ca14b785f316330b3567fdec7cc95944ca6e85e88b11c9ff10",
+    "screening/native/active-recovered.f32": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+    "screening/native/cpu-profile_2026-09-24_15-59-57_640.json": "6fa929c6ac241c5c033a8c9eb23b9294a47f8863f2f11f5f3ccc7a7dbb9ddef8",
+    "screening/native/inference.json": "e52648916f8883cb78d171dfc57e1de9d7fc200361cdf5a03c85081ab63348af",
+    "screening/native/logits.f32": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+    "screening/native.log": "262bdaa0b4363fd57d7e334406801686423e862a3b776b5e89ac8592c014f7d8",
+    "screening/screening.json": "ea19c9987e42c0f628d981900b4907965c7a187671dfe8f7aae820367fcaafe4",
+    "screening/short.f32": "f9b0078b5df596d2ea19010c001bbd009e651de2c57e8fb7e355f31eb9d3f739",
+    "screening/subject.comp/images/00000000-0000-4000-9000-000000000021.mask.png": "1efc2c0081d83bcc98c67f9367edbf2ab954f4126799b2b4364da60f922455aa",
+    "screening/subject.comp/images/00000000-0000-4000-9000-000000000021.png": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+    "screening/subject.comp/manifest.json": "7b578ee388dbea60807b62154e60f622f809ddcb7eb093a0402d5514e0fa059b",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "ea19c9987e42c0f628d981900b4907965c7a187671dfe8f7aae820367fcaafe4"
+  }
+}

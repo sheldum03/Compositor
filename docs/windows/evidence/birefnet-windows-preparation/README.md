@@ -1,5 +1,7 @@
 # BiRefNet Windows x64 运行包准备（2026-09-24）
 
+后续进展：本包已完成 Windows 实际执行、独立像素/取消复核和 Mac 工程读回，见 [实机报告](../birefnet-windows-execution/README.md)。下文保留当时准备阶段的边界。
+
 **交叉构建、隔离环境解包、静态依赖和包完整性检查通过；未上传、未在 Windows 执行，M1 未关闭。** 接续[本地原生检查](../birefnet-native-screening/README.md)，准备将同一个官方候选送入实际 Windows 图像流程。
 
 ## 构建与依赖

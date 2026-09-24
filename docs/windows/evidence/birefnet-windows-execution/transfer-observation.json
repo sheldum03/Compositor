@@ -1,0 +1,10 @@
+{
+  "windowsKitSha256": "dc909088d0b68b59c0d8f6ab0d9121472c147c8082d843f3df4bb641920f4ce8",
+  "modelSha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+  "transferMethod": "UU file transfer, both exact rows observed sent",
+  "windowsGetFileHashMatched": true,
+  "destination": "C:/Users/Administrator/Desktop/CompositorTest",
+  "newKitDirectoryObservedAbsentBeforeExtraction": true,
+  "s05ProcessesCompletedBeforeLaunch": true,
+  "command": "python BiRefNetWindowsKit/run.py --model BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx"
+}

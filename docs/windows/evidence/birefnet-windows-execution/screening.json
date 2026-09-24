@@ -1,0 +1,64 @@
+{
+  "windowsExecuted": true,
+  "host": "Windows-10-10.0.26200-SP0",
+  "modelSha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+  "inputImageSha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+  "inputTensorSha256": "effc561159d2142bb0cc325e72d6fbc414f5691022305c00fd5da3b127dfadbe",
+  "probeSha256": "3b5277552c8e6dbf9f29663d4be5eb8cddf870720453df37a918a9c08b21e171",
+  "native": {
+    "onnxruntime": "1.30.0",
+    "execution": "CPU default; one intra/inter-op thread; sequential",
+    "imageSide": 1024,
+    "outputCount": 1,
+    "outputSemantics": "logits",
+    "sessionLoadMilliseconds": 2463.3816,
+    "inferenceMilliseconds": [
+      17210.074,
+      16499.7245,
+      14770.7294
+    ],
+    "outputMinimum": -19.460357666,
+    "outputMaximum": 25.2119827271,
+    "repeatedPredictionsExact": true,
+    "preTerminatedRunRejected": true,
+    "sessionRecovered": true,
+    "activeInferenceCancellationTested": true
+  },
+  "profileKernelProviders": {
+    "CPUExecutionProvider": 15708
+  },
+  "cancellation": {
+    "activeCancellationEvidencePassed": true,
+    "host": "Windows-10-10.0.26200-SP0",
+    "windowsExecuted": true,
+    "cancelledRunKernelEvents": 23,
+    "recoveredRunKernelEvents": 3927,
+    "cancelToJoinMilliseconds": 4.747,
+    "recoveredPredictionSha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  "failureChecks": [
+    {
+      "case": "short-input",
+      "exitCode": 1,
+      "noPredictionPublished": true,
+      "error": "Exact input tensor size\n"
+    },
+    {
+      "case": "nan-input",
+      "exitCode": 1,
+      "noPredictionPublished": true,
+      "error": "Finite input tensor\n"
+    },
+    {
+      "case": "invalid-model",
+      "exitCode": 1,
+      "noPredictionPublished": true,
+      "error": "\u001b[1;31m2026-09-24 16:01:27.5475838 [E:onnxruntime:, inference_session.cc:4229 onnxruntime::InferenceSession::EndProfiling] Could not write a profile because no model was loaded.\u001b[m\nLoad model from C:\\Users\\Administrator\\Desktop\\CompositorTest\\birefnet-image-20260924-155954\\screening\\invalid.onnx failed:Protobuf parsing failed.\n"
+    }
+  ],
+  "existingOutputPreserved": true,
+  "maskSha256": "1efc2c0081d83bcc98c67f9367edbf2ab954f4126799b2b4364da60f922455aa",
+  "logitsSha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+  "scope": "Fixed-image native feasibility; no quality, production transaction or release acceptance"
+}

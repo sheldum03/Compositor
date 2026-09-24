@@ -71,6 +71,8 @@ S05 v2 两轮前瞻运行均完成独立复核：各 27 轮正确性、合计 10
 
 已进一步生成 [BiRefNet Windows x64 私有运行包](evidence/birefnet-windows-preparation/README.md)：两目标交叉构建、241 个包内导入符号、40 文件包完整性及隔离检查环境通过；Mac 适配的完整成功/失败归档已验证。UU 仍锁屏，未上传或执行该包；该记录不增加 Windows 通过项。
 
+解锁后该包已完成 [BiRefNet Windows 原生执行与 Mac 读回](evidence/birefnet-windows-execution/README.md)：实际输入、预测、蒙版和工程资产独立复算通过；取消前有真实 CPU 运算，同会话恢复预测精确一致；真实 Mac reader 1 项通过、无跳过。已取得官方候选在两平台可用的单图证据。最终权重选择、分发决定、产品集成及质量/性能预算仍开放，不能据此直接关闭 M1 或 M6。
+
 以上为 [technical-design.md](technical-design.md) 的决策状态评审，不自动修改已确认或未确认决策。
 
 ## 生产推进顺序

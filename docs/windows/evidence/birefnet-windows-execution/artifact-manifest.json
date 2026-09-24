@@ -1,0 +1,137 @@
+{
+  "root": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-windows-execution-20260924",
+  "files": {
+    "review-results.py": {
+      "bytes": 5754,
+      "sha256": "c0348dafc7ce8cb6dc9e6f4f14dd1895f325b514e208cf3d355ac4bb60775e36"
+    },
+    "review-mac-control.py": {
+      "bytes": 5759,
+      "sha256": "3e2169f86ffaa8358c438dcc1941038899fccb43c80d1f1528f231fb4e3a847f"
+    },
+    "cross-platform-observations.json": {
+      "bytes": 408,
+      "sha256": "722ee30f33354cec3bf8c5402cdbb266671b0028fc23349c38c99be20240bbaa"
+    },
+    "review-preparation-controls.json": {
+      "bytes": 221,
+      "sha256": "9e6f9ddba2da42eda1eb1e88e055e35a959e972d2f20b9311d6efabd1201e274"
+    },
+    "transfer-observation.json": {
+      "bytes": 559,
+      "sha256": "86aef47a2a1156084f4cb35c54e47e0a4089aabf8d3b7a929da93fe2c927130b"
+    },
+    "mac-readback-summary.json": {
+      "bytes": 946,
+      "sha256": "7c7e87cad31a811c1b4e896b379addcb802d17e73ecaa246e1eccdc7c15b7a95"
+    },
+    "mac-readback.log": {
+      "bytes": 21872,
+      "sha256": "0667ca080e699526377c1e9b6a89e56622b1e2c9d7afee32ce944581612f3a28"
+    },
+    "mac-positive-control.log": {
+      "bytes": 1710,
+      "sha256": "f5f19f7dc477d26ffa8c894c10722f0687c2f38f7549f209486cc43d41bf9992"
+    },
+    "mac-readback-executed.log": {
+      "bytes": 16920,
+      "sha256": "9a90fb5ebb389ef013c53716346e2d45711f7a4fa6f8c9de66c0a267bcb9e2fd"
+    },
+    "windows-review.log": {
+      "bytes": 1700,
+      "sha256": "782d6f0186290ee054e2850d577af0bfe23f5ec26695ba4bf34bd369d51b7366"
+    },
+    "mac-rejection-control.log": {
+      "bytes": 414,
+      "sha256": "635405cf91578d12da097ad92cd65ed2d1c075d13c875e230742000746cbf556"
+    },
+    "windows-review/raw/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-review/raw/stdout.log": {
+      "bytes": 2654,
+      "sha256": "ea19c9987e42c0f628d981900b4907965c7a187671dfe8f7aae820367fcaafe4"
+    },
+    "windows-review/raw/launch.json": {
+      "bytes": 7306,
+      "sha256": "f993e0753386e21fd6bf7c3a6d0075afc9b4222a59bc387bbb7e0a7138435851"
+    },
+    "windows-review/raw/execution.json": {
+      "bytes": 7303,
+      "sha256": "5fd7f01cfd53a9fbe1f78da1a73ec0b803447b866a7a21dbb48253f2e377789f"
+    },
+    "windows-review/raw/screening/short.f32": {
+      "bytes": 5,
+      "sha256": "f9b0078b5df596d2ea19010c001bbd009e651de2c57e8fb7e355f31eb9d3f739"
+    },
+    "windows-review/raw/screening/cancellation-review.json": {
+      "bytes": 440,
+      "sha256": "c9091b70d2c95324c13f472f9cf41f62c331b731b3310c048b8a72db27e21fe9"
+    },
+    "windows-review/raw/screening/native.log": {
+      "bytes": 110,
+      "sha256": "262bdaa0b4363fd57d7e334406801686423e862a3b776b5e89ac8592c014f7d8"
+    },
+    "windows-review/raw/screening/screening.json": {
+      "bytes": 2654,
+      "sha256": "ea19c9987e42c0f628d981900b4907965c7a187671dfe8f7aae820367fcaafe4"
+    },
+    "windows-review/raw/screening/input.f32": {
+      "bytes": 12582912,
+      "sha256": "effc561159d2142bb0cc325e72d6fbc414f5691022305c00fd5da3b127dfadbe"
+    },
+    "windows-review/raw/screening/nan.f32": {
+      "bytes": 12582912,
+      "sha256": "f895eb556a69a8819d8212a1a223e759e2b97a3162eed7fb3ddd7e339d7c4a3b"
+    },
+    "windows-review/raw/screening/mask.png": {
+      "bytes": 7750,
+      "sha256": "1efc2c0081d83bcc98c67f9367edbf2ab954f4126799b2b4364da60f922455aa"
+    },
+    "windows-review/raw/screening/cutout.png": {
+      "bytes": 516615,
+      "sha256": "d5c9750698bfe6d87fc8c4ef00a3d85212092feccdd119888657c7a378d3e04a"
+    },
+    "windows-review/raw/screening/subject.comp/manifest.json": {
+      "bytes": 842,
+      "sha256": "7b578ee388dbea60807b62154e60f622f809ddcb7eb093a0402d5514e0fa059b"
+    },
+    "windows-review/raw/screening/native/cpu-profile_2026-09-24_15-59-57_640.json": {
+      "bytes": 11032615,
+      "sha256": "6fa929c6ac241c5c033a8c9eb23b9294a47f8863f2f11f5f3ccc7a7dbb9ddef8"
+    },
+    "windows-review/raw/screening/native/active-profile_2026-09-24_16-01-04_358.json": {
+      "bytes": 2769255,
+      "sha256": "6b925ca8faeca2ca14b785f316330b3567fdec7cc95944ca6e85e88b11c9ff10"
+    },
+    "windows-review/raw/screening/native/logits.f32": {
+      "bytes": 4194304,
+      "sha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d"
+    },
+    "windows-review/raw/screening/native/active-recovered.f32": {
+      "bytes": 4194304,
+      "sha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d"
+    },
+    "windows-review/raw/screening/native/inference.json": {
+      "bytes": 503,
+      "sha256": "e52648916f8883cb78d171dfc57e1de9d7fc200361cdf5a03c85081ab63348af"
+    },
+    "windows-review/raw/screening/native/active-cancellation.json": {
+      "bytes": 175,
+      "sha256": "f37f9e08d30cb562adfb8701d9f94105c2fb9338488daff3991b9dccefb951d9"
+    },
+    "windows-review/raw/screening/invalid-model/cpu-profile_2026-09-24_16-01-27_538.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-review/raw/screening/subject.comp/images/00000000-0000-4000-9000-000000000021.mask.png": {
+      "bytes": 7750,
+      "sha256": "1efc2c0081d83bcc98c67f9367edbf2ab954f4126799b2b4364da60f922455aa"
+    },
+    "windows-review/raw/screening/subject.comp/images/00000000-0000-4000-9000-000000000021.png": {
+      "bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5"
+    }
+  }
+}
