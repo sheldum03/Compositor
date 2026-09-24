@@ -1,0 +1,27 @@
+{
+  "policyCommit": "8a4d1d8",
+  "priorUnconfirmedLaunchResolved": "No new S05 process or output existed after unlock; original session prompt contained no launch",
+  "windowsOutput": "C:/Users/Administrator/Desktop/CompositorTest/s05-extended-20260924-142249",
+  "pid": 40220,
+  "run": 1,
+  "processObservedResponding": true,
+  "observedReopenedImages": 26,
+  "completed": false,
+  "resourceAccepted": false,
+  "observations": [
+    "Started through existing UU session2 after confirming zero matching active processes",
+    "Independent UU session3 observed MainWindowTitle Compositor S05 \u2013 27 rounds of 100 edits",
+    "No model inference or other heavy task started concurrently on Windows",
+    "Existing IME follow-up PID 42996 preserved"
+  ],
+  "observationUtc": "2026-09-24T06:43:38.389921+00:00",
+  "observationStatus": "Mac locked while querying original process; completion and archive unconfirmed",
+  "lastObservedCpuSeconds": 695.03125,
+  "observedIdentity": {
+    "nativeExit": null,
+    "reviewExit": null,
+    "gcEnvironment": {},
+    "dllSha256": "557e793c2442122450ad994ea1e88aa3535295405b01e290caa40b47ad94dce6"
+  },
+  "recovery": "Inspect PID 40220 and the existing output/ZIP; do not relaunch based on a failed observation"
+}
