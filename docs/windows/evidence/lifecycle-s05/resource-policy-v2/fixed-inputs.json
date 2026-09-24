@@ -1,0 +1,6 @@
+{
+  "docs/windows/s05-resource-policy-v2.md": "c75eeff61d20d84f0edf85530f70314ae9fedbffbf83cda5f59195fb336daba2",
+  "experiments/windows/avalonia/review-s05-resources-v2.py": "a4d6f40d8c5ca494a5e2e175d8d8d23b2c6feac3dd373e9de79c9efcffb2e8c5",
+  "experiments/windows/avalonia/review-s05-resources.py": "bdafbf412e0004beb1b9f80f6ea24a83a783fe83d632923b651290b94261bfee",
+  "experiments/windows/avalonia/check-s05-resource-v2-controls.py": "2b373fb9f042878fec5b04eb5de3a83af51e607ea26440e55d1052b670310994"
+}

@@ -1,0 +1,167 @@
+{
+  "sourceReportSha256": "2b923cc5b12443f8e9d0924f49a9149664d2a9b4a6506810b993b37056f6bf73",
+  "evaluatorSha256": "a4d6f40d8c5ca494a5e2e175d8d8d23b2c6feac3dd373e9de79c9efcffb2e8c5",
+  "controlsSha256": "2b373fb9f042878fec5b04eb5de3a83af51e607ea26440e55d1052b670310994",
+  "scope": "Synthetic rule controls, not Windows runtime or resource-acceptance evidence.",
+  "resourceAccepted": false,
+  "cases": [
+    {
+      "case": "bounded-cycle-phase-0",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-1",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-2",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-3",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-4",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-5",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-6",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-7",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-8",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-9",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-10",
+      "v2Passed": true,
+      "v1EnvelopePassed": true
+    },
+    {
+      "case": "bounded-cycle-phase-11",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-12",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-13",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-14",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-15",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-16",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "bounded-cycle-phase-17",
+      "v2Passed": true,
+      "v1EnvelopePassed": false
+    },
+    {
+      "case": "4 MiB per round accumulation",
+      "rejected": true
+    },
+    {
+      "case": "early spike cannot hide later accumulation",
+      "rejected": true
+    },
+    {
+      "case": "one retained 4K RGBA plane",
+      "rejected": true
+    },
+    {
+      "case": "new high-water excursion",
+      "rejected": true
+    },
+    {
+      "case": "warmup spike cannot escape budget",
+      "rejected": true
+    },
+    {
+      "case": "inclusive 32 MiB growth boundary",
+      "passed": true
+    },
+    {
+      "case": "one byte above floor boundary",
+      "rejected": true
+    },
+    {
+      "case": "one byte above upper boundary",
+      "rejected": true
+    },
+    {
+      "case": "trial budget overflow",
+      "rejected": true
+    },
+    {
+      "case": "handle accumulation",
+      "rejected": true
+    },
+    {
+      "case": "idle delayed growth",
+      "rejected": true
+    },
+    {
+      "case": "retained document",
+      "rejected": true
+    },
+    {
+      "case": "managed survivor budget",
+      "rejected": true
+    },
+    {
+      "case": "not Windows",
+      "rejected": true
+    },
+    {
+      "case": "incomplete",
+      "rejected": true
+    },
+    {
+      "case": "early forced GC",
+      "rejected": true
+    },
+    {
+      "case": "missing private bytes",
+      "rejected": true
+    }
+  ]
+}
