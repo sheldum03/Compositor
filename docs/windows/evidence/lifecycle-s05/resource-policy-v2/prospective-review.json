@@ -1,0 +1,40 @@
+{
+  "policy": "S05-resource-proposal-v2",
+  "policyCommit": "8a4d1d8",
+  "fixedPrototypeResourceChecksAccepted": true,
+  "fullS05ProductAcceptance": false,
+  "M1Accepted": false,
+  "runs": [
+    {
+      "name": "run-1",
+      "archiveSha256": "854049d9b1871e82d7428cfa37dede451d95b75ea7773468f9437b97b74ae440",
+      "reportSha256": "a24ac1eaeffc387b976c2a73f2200e35256a63104ea69c8af1b9a01ab9141642",
+      "pid": 40220,
+      "startedUtc": "2026-09-24T06:22:49.519278+00:00",
+      "sampledPrivatePeakBytes": 621027328,
+      "postWarmupFloorGrowthBytes": -10035200,
+      "newHighWaterGrowthBytes": -55885824,
+      "diagnosticManagedBytes": 7912472,
+      "retainedDocumentsAfterCollection": 0
+    },
+    {
+      "name": "run-2",
+      "archiveSha256": "fb4cca90b5281e7250ae8d31cac70b09b3d0923d347a5dc00e877ad6333e8a89",
+      "reportSha256": "ba61a1c6f9467954bbcc6cf9bdf105beca9cff5960678db50e4d8537c5009fd8",
+      "pid": 49860,
+      "startedUtc": "2026-09-24T07:32:30.138373+00:00",
+      "sampledPrivatePeakBytes": 570978304,
+      "postWarmupFloorGrowthBytes": 25616384,
+      "newHighWaterGrowthBytes": 5189632,
+      "diagnosticManagedBytes": 7911584,
+      "retainedDocumentsAfterCollection": 0
+    }
+  ],
+  "scope": "Two prospective independent Windows 11 processes, fixed 27-round R9 diagnostic workload; sampled private memory, handles, idle and final document reachability only",
+  "limitations": [
+    "Not continuous memory peak or VRAM",
+    "Not production workloads, other devices or physical input",
+    "Historical v1 failure retained; application and budgets not changed between v2 runs",
+    "Evaluator resourceAccepted=false remains unchanged; this separate review supplies scoped acceptance"
+  ]
+}
