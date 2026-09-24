@@ -1,0 +1,749 @@
+{
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "scenario": "S05-extended-diagnostic",
+  "elapsedSeconds": 1206.4618295,
+  "totalAllocatedBytesEstimate": 7531038392,
+  "sampledPrivatePeakBytes": 564539392,
+  "resourceAccepted": false,
+  "cohorts": [
+    {
+      "rounds": [
+        1,
+        9
+      ],
+      "PrivateBytes": [
+        269471744,
+        313266176,
+        323584000,
+        330846208,
+        377704448,
+        428404736,
+        457019392,
+        540708864,
+        535658496
+      ],
+      "ManagedBytes": [
+        155120880,
+        132304184,
+        184927128,
+        168197040,
+        161602152,
+        129679696,
+        339333376,
+        169399240,
+        162663712
+      ],
+      "LastGcCommittedBytes": [
+        124076032,
+        202633216,
+        173285376,
+        222416896,
+        247832576,
+        317472768,
+        324890624,
+        396623872,
+        397094912
+      ],
+      "LastGcHeapSizeBytes": [
+        109111744,
+        155669736,
+        125329152,
+        110110376,
+        126988624,
+        234793664,
+        292358784,
+        124154536,
+        124559400
+      ],
+      "Gen2Collections": [
+        7,
+        10,
+        12,
+        16,
+        18,
+        20,
+        20,
+        22,
+        24
+      ],
+      "Handles": [
+        548,
+        550,
+        542,
+        545,
+        550,
+        550,
+        550,
+        548,
+        556
+      ]
+    },
+    {
+      "rounds": [
+        10,
+        18
+      ],
+      "PrivateBytes": [
+        430862336,
+        474275840,
+        476745728,
+        389558272,
+        383291392,
+        475742208,
+        479150080,
+        391704576,
+        379924480
+      ],
+      "ManagedBytes": [
+        143333528,
+        349374240,
+        157919728,
+        160294552,
+        140287024,
+        344868296,
+        155370640,
+        157735160,
+        137710336
+      ],
+      "LastGcCommittedBytes": [
+        321114112,
+        344895488,
+        367284224,
+        260935680,
+        272080896,
+        347463680,
+        366473216,
+        270508032,
+        269975552
+      ],
+      "LastGcHeapSizeBytes": [
+        246559080,
+        316019664,
+        128542960,
+        132806840,
+        149242936,
+        325299464,
+        137875552,
+        143740160,
+        149887720
+      ],
+      "Gen2Collections": [
+        26,
+        26,
+        30,
+        32,
+        34,
+        34,
+        38,
+        40,
+        42
+      ],
+      "Handles": [
+        559,
+        554,
+        549,
+        548,
+        549,
+        546,
+        548,
+        548,
+        549
+      ]
+    },
+    {
+      "rounds": [
+        19,
+        27
+      ],
+      "PrivateBytes": [
+        472936448,
+        477728768,
+        401539072,
+        464732160,
+        537780224,
+        533016576,
+        450707456,
+        449507328,
+        376795136
+      ],
+      "ManagedBytes": [
+        342981464,
+        150910096,
+        127696832,
+        351532296,
+        190352408,
+        148537448,
+        130486104,
+        172715040,
+        158792032
+      ],
+      "LastGcCommittedBytes": [
+        358408192,
+        367460352,
+        289333248,
+        335147008,
+        380870656,
+        409542656,
+        340324352,
+        339984384,
+        267071488
+      ],
+      "LastGcHeapSizeBytes": [
+        337158424,
+        147325624,
+        161093104,
+        284853728,
+        125334896,
+        122523912,
+        260763520,
+        113732480,
+        146034600
+      ],
+      "Gen2Collections": [
+        42,
+        46,
+        48,
+        48,
+        50,
+        54,
+        55,
+        59,
+        61
+      ],
+      "Handles": [
+        546,
+        551,
+        551,
+        549,
+        540,
+        546,
+        551,
+        545,
+        549
+      ]
+    }
+  ],
+  "retainedDocumentsByRound": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    0
+  ],
+  "idleSamples": [
+    {
+      "ElapsedMilliseconds": 0,
+      "Resources": {
+        "PrivateBytes": 376795136,
+        "WorkingSetBytes": 438198272,
+        "ManagedBytes": 158792032,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 549,
+        "TotalAllocatedBytesEstimate": 7532577592,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    },
+    {
+      "ElapsedMilliseconds": 10008.8407,
+      "Resources": {
+        "PrivateBytes": 377380864,
+        "WorkingSetBytes": 438124544,
+        "ManagedBytes": 158800256,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 543,
+        "TotalAllocatedBytesEstimate": 7532585792,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    },
+    {
+      "ElapsedMilliseconds": 20028.9998,
+      "Resources": {
+        "PrivateBytes": 374796288,
+        "WorkingSetBytes": 437735424,
+        "ManagedBytes": 158808480,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 543,
+        "TotalAllocatedBytesEstimate": 7532593992,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    },
+    {
+      "ElapsedMilliseconds": 30054.0726,
+      "Resources": {
+        "PrivateBytes": 375361536,
+        "WorkingSetBytes": 438099968,
+        "ManagedBytes": 158816704,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 546,
+        "TotalAllocatedBytesEstimate": 7532602192,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    },
+    {
+      "ElapsedMilliseconds": 40077.5632,
+      "Resources": {
+        "PrivateBytes": 375365632,
+        "WorkingSetBytes": 438112256,
+        "ManagedBytes": 158824928,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 546,
+        "TotalAllocatedBytesEstimate": 7532610392,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    },
+    {
+      "ElapsedMilliseconds": 50097.8155,
+      "Resources": {
+        "PrivateBytes": 375357440,
+        "WorkingSetBytes": 438120448,
+        "ManagedBytes": 158833152,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 546,
+        "TotalAllocatedBytesEstimate": 7532618592,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    },
+    {
+      "ElapsedMilliseconds": 60112.0071,
+      "Resources": {
+        "PrivateBytes": 376909824,
+        "WorkingSetBytes": 439209984,
+        "ManagedBytes": 158841376,
+        "LastGcCommittedBytes": 267071488,
+        "LastGcFragmentedBytes": 43444944,
+        "Handles": 546,
+        "TotalAllocatedBytesEstimate": 7532626792,
+        "Gen0Collections": 167,
+        "Gen1Collections": 83,
+        "Gen2Collections": 61,
+        "LastGcIndex": 167,
+        "LastGcGeneration": 0,
+        "LastGcHeapSizeBytes": 146034600,
+        "LastGcPromotedBytes": 1056336,
+        "LastGcLohSizeAfterBytes": 134802664
+      },
+      "RetainedDocuments": 1
+    }
+  ],
+  "finalDiagnosticCollection": {
+    "PrivateBytes": 295084032,
+    "WorkingSetBytes": 357085184,
+    "ManagedBytes": 7912800,
+    "LastGcCommittedBytes": 248651776,
+    "LastGcFragmentedBytes": 184000,
+    "Handles": 543,
+    "TotalAllocatedBytesEstimate": 7532632856,
+    "Gen0Collections": 169,
+    "Gen1Collections": 85,
+    "Gen2Collections": 63,
+    "LastGcIndex": 169,
+    "LastGcGeneration": 2,
+    "LastGcHeapSizeBytes": 8080352,
+    "LastGcPromotedBytes": 7896376,
+    "LastGcLohSizeAfterBytes": 0
+  },
+  "decodedPixels": [
+    {
+      "path": "round-0/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-0/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-1/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-1/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-2/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-2/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-3/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-3/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-4/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-4/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-5/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-5/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-6/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-6/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-7/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-7/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-8/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-8/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-9/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-9/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-10/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-10/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-11/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-11/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-12/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-12/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-13/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-13/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-14/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-14/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-15/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-15/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-16/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-16/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-17/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-17/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-18/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-18/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-19/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-19/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-20/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-20/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-21/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-21/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-22/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-22/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-23/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-23/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-24/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-24/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-25/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-25/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-26/final.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "path": "round-26/reopened.png",
+      "width": 4000,
+      "height": 4000,
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    }
+  ],
+  "limitations": "GC snapshots and process samples are not simultaneous; their subtraction is not native-memory ownership. Diagnostic frame records remain retained. A finite run does not establish a universal bound or physical-input acceptance."
+}

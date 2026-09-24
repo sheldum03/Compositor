@@ -1,5 +1,5 @@
 {
-  "status": "running; final archive not retrieved",
+  "status": "completed and independently reviewed; correctness passed; candidate resource checks failed",
   "policyCommit": "985c43f",
   "policySha256": "9cd6f46733166a02b50319e7887771357332138c760d94e96d33f4b3d7fce448",
   "evaluatorSha256": "bdafbf412e0004beb1b9f80f6ea24a83a783fe83d632923b651290b94261bfee",
@@ -8,7 +8,7 @@
   "pid": 48672,
   "outputDirectory": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\s05-extended-20260924-100014",
   "sourceOfObservation": "UU session2 displayed RUNNING 27 ROUNDS after runner identity checks",
-  "nativeExit": null,
+  "nativeExit": 0,
   "resourceAccepted": false,
   "limitations": "The existing native IME follow-up process 42996 remains open. This is per-process S05 resource evidence, not S02 latency acceptance. Preserve the running process; do not restart based on a polling failure.",
   "progressObservation": {
@@ -20,5 +20,9 @@
     "completedRounds": 7,
     "trialRecords": 760,
     "scope": "Separate observations; process metrics and report counts are not an atomic snapshot. Screenshot outputs are in the conversation only."
-  }
+  },
+  "reviewExit": 0,
+  "candidateResourceReviewExit": 1,
+  "finalEvidence": "run-1/README.md",
+  "archiveSha256": "23532a8a0b8ba4584690e3ab179201a8bdc9b75c8f445e170bff6e9865e37312"
 }
