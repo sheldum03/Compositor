@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-24",
+  "transport": "CUA -> UU -> Windows",
+  "processId": 42996,
+  "windowTitleSuffix": "native-20260923-224035",
+  "originalWindowRetainedUntilNormalClose": true,
+  "systemTextboxControl": {
+    "textObserved": "1abcdefghij",
+    "selectionHighlight": false,
+    "executedRunCommand": false,
+    "cleanup": "Escape",
+    "interpretation": "Remote drag also failed in Windows Run textbox; not app-specific acceptance or failure"
+  },
+  "cases": [
+    {
+      "name": "reverse-prefix",
+      "exports": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "selectionKeys": "Ctrl+Home, Right twice, Shift+Left twice",
+      "pinyin": "ceshi",
+      "candidate": "测试",
+      "cancel": "Escape",
+      "commit": "Space",
+      "observedNativeCandidate": true
+    },
+    {
+      "name": "tab-return-reverse-all",
+      "exports": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "focus": "4K brush tab then text tab; no active preedit during tab switch",
+      "selectionKeys": "Ctrl+End, Ctrl+Shift+Home",
+      "observedNativeCandidate": true,
+      "cancel": "Escape",
+      "existingRedoPreserved": true
+    },
+    {
+      "name": "other-window-return",
+      "exports": [
+        11,
+        12
+      ],
+      "focus": "Win+R then Escape; no command executed, no active preedit during switch",
+      "selectionKeys": "Ctrl+End, Shift+Left twice",
+      "observedNativeCandidate": true,
+      "cancel": "Escape"
+    },
+    {
+      "name": "small-scrolled-viewport",
+      "exports": [
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "resize": "Restored window; Windows title context menu Size; keyboard resize until vertical scrollbar appeared",
+      "transform": "13 degrees, zoom 100%, flipX and flipY, horizontal stretch 75%, system DPI 150%",
+      "selectionKeys": "Ctrl+End, Ctrl+Shift+Home",
+      "observedNativeCandidate": true,
+      "cancel": "Escape",
+      "commit": "Space",
+      "scroll": "Scrolled to reach text and back to toolbar for export"
+    }
+  ],
+  "observations": [
+    "Original text restored before normal close",
+    "Candidate bars observed near active line in tool screenshots; no separate video or geometry measurements",
+    "Initial ceshi keys sent while export button focused had no text effect; refocused and recreated selection before actual candidate test",
+    "Alt+Space did not open system menu and later showed another assistant window; right-clicked title instead; no text entered into that window",
+    "First local hash assertion rejected a 63-character transcription missing one a; reread existing Windows Get-FileHash screenshot and confirmed full 64-character hash before extraction"
+  ],
+  "transfer": {
+    "exactRow": "avalonia-ime-matrix-20260923-224035.zip",
+    "status": "已接收",
+    "totalTransferred": 103,
+    "bytes": 716069,
+    "sha256": "56c1c08aa62822324fc5eab1bbbde1ffb29069ec97c7bdefbbaae120170ba36b"
+  },
+  "notAccepted": [
+    "Physical drag",
+    "Active-composition focus-loss semantics",
+    "Full IME/device/DPI matrix"
+  ]
+}
