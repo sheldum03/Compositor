@@ -1,0 +1,154 @@
+{
+  "sourceCommit": "58f2ca79fc501356a5fb668be1a7b29b9e6a99f4",
+  "archives": {
+    "AvaloniaSource.zip": "15eada3dac9e020ded7decff6674239c9af77049459ea4679ef44443caf1cd12",
+    "AvaloniaOfflineFeed.zip": "2f547b6c0c30f5b9a1ccfc8d196b39cc74f17b1bef112f9e060c539a04decf4b",
+    "dotnet-sdk-10.0.401-win-x64.zip": "c1b96dea223e1ab2af8a51187e0cc96338d14c68834be1656136be18953cea09"
+  },
+  "runnerSha256": "ea77862a3f9138a5ad2b845b56bc24f32741847a2679ed6f4dcea7f357678769",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "windowsExecuted": true,
+  "startedUtc": "2026-09-24T02:37:52.418449+00:00",
+  "emptyPackageCache": true,
+  "steps": [
+    {
+      "name": "sdk-info",
+      "command": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\sdk\\dotnet.exe",
+        "--info"
+      ],
+      "pid": 40740,
+      "exitCode": 0
+    },
+    {
+      "name": "restore",
+      "command": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\sdk\\dotnet.exe",
+        "restore",
+        "--locked-mode",
+        "--source",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\feed",
+        "-p:NuGetAudit=false",
+        "-p:UseAppHost=false"
+      ],
+      "pid": 51992,
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "command": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\sdk\\dotnet.exe",
+        "build",
+        "-c",
+        "Release",
+        "--no-restore",
+        "-p:UseAppHost=false"
+      ],
+      "pid": 9488,
+      "exitCode": 0
+    },
+    {
+      "name": "composite",
+      "command": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\sdk\\dotnet.exe",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\source\\experiments\\windows\\avalonia\\bin\\Release\\net10.0\\Compositor.AvaloniaProbe.dll",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\remote-suite\\fixtures",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\composite",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947\\compositor_native.dll"
+      ],
+      "pid": 51684,
+      "exitCode": 0
+    },
+    {
+      "name": "brush",
+      "command": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\sdk\\dotnet.exe",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\source\\experiments\\windows\\avalonia\\bin\\Release\\net10.0\\Compositor.AvaloniaProbe.dll",
+        "--brush",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\remote-suite\\fixtures\\brush",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\brush",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947\\compositor_native.dll"
+      ],
+      "pid": 47812,
+      "exitCode": 0
+    },
+    {
+      "name": "text",
+      "command": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\sdk\\dotnet.exe",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\source\\experiments\\windows\\avalonia\\bin\\Release\\net10.0\\Compositor.AvaloniaProbe.dll",
+        "--text",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\remote-suite\\fixtures\\extended",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\clean-source-build-20260924-103752\\text",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947\\compositor_native.dll"
+      ],
+      "pid": 48816,
+      "exitCode": 0
+    }
+  ],
+  "completed": true,
+  "error": null,
+  "nativeDllSha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "scope": "Managed source build and headless probes; not native IME, S02, installation or M1 acceptance",
+  "lockBeforeSha256": "127df275f2e66b6f97ae780dbda0a18e54a4b263788b7ba676ffb4151f88c95f",
+  "lockAfterSha256": "127df275f2e66b6f97ae780dbda0a18e54a4b263788b7ba676ffb4151f88c95f",
+  "buildAssets": {
+    "Avalonia.Base.dll": "499fa3bc5fc67c68a3fe7878a41d1a999e1e1d0a803c4720e6bde7af9d4b503c",
+    "Avalonia.Controls.dll": "7443c62f26877dbdb4d6344a80da0073581de81ff41f312cd89e303f8ad0d818",
+    "Avalonia.DesignerSupport.dll": "085ff03fc21d5aac324334d7cc072aa8a366a6b7f43dd6e61142c4385122c088",
+    "Avalonia.Desktop.dll": "9436cfee6fcb4ed55576235b18fac1bef66b312ff8f2bea410ef67b39c60f7b0",
+    "Avalonia.Dialogs.dll": "0e5cdb7bfc305617cbafc0fc3f85aef22befebdcf715fb3ce789f9bd797523cf",
+    "Avalonia.dll": "3098925ae76f9cd96238dd80323a537928ca4c36b997e9cb91983389f53d6250",
+    "Avalonia.FreeDesktop.dll": "2df5e3dbee6e92e971559367e26874763151f0ecd328230f4245374c959f54a0",
+    "Avalonia.Headless.dll": "dfd0d77b37ff8548c1f3770a0e711f1da12fae9f0ff3785be98d10d7a55caee6",
+    "Avalonia.Markup.dll": "e7ec0a01631ec70b48a11f049d9ee6d7ed5d41fdadc09671d9be3d96c39896c4",
+    "Avalonia.Markup.Xaml.dll": "83e52184a26289ccad19ef658931d38e56a24c8493253bf6c85f8097aa26d71f",
+    "Avalonia.Metal.dll": "3252c96aaf54a8d26b4cc1f0d5adb05a30dc4172426601c0bcde6981f7ac9618",
+    "Avalonia.MicroCom.dll": "1b42462c80577d3ef40af2b6dd864147eb014877f9d62756c32df11335550835",
+    "Avalonia.Native.dll": "adcc965298df1b901793a20dd97cecd222bda3ebb8304e67f1ce16058e6b7de8",
+    "Avalonia.OpenGL.dll": "f962ab7f1a5f967e526e81b4e7194789957ca9aad5d7af92d08484fe2969027e",
+    "Avalonia.Remote.Protocol.dll": "bfeae2db167106578d989b05a7c3081e433b0b22757015689e70ee6da01afd08",
+    "Avalonia.Skia.dll": "fd7a05ee6d5c46571b455c9cdb7a38325f58a5a7a49c9cb1283d4fbcc63ad31e",
+    "Avalonia.Themes.Simple.dll": "e5b4063374d7259e419710df92bc1de402c42d3a8434b6cf470b883f1bf6c4d4",
+    "Avalonia.Vulkan.dll": "3af1944812eeb4ae41407e0b4e3aad655ba3b20cc4f3d6b17438bfba1e20a391",
+    "Avalonia.Win32.Automation.dll": "0b339e393afd48855feafade4aca93521b2d5f48db82193e532e3627abd122d2",
+    "Avalonia.Win32.dll": "60849b34f83b36679f77b431af056306f20ba4d82aecfe2a2fae50a4798b9487",
+    "Avalonia.X11.dll": "3f36729c3af81ee34b165b64a9ec43ad10f305881d67aa596757ce98f002d12e",
+    "Compositor.AvaloniaProbe.deps.json": "33b3dea9fc5137c0727fdc5b78f278cc6eb4e2e6f0e9589266e29a5398fdc9ab",
+    "Compositor.AvaloniaProbe.dll": "515ebfee269f421e1cfad4dba8b67d3ef6b7ae1228b6e2be6f2ae197b0d1fe7b",
+    "Compositor.AvaloniaProbe.pdb": "9b18ab98eda4604629204dd4fce26361bb527f3ecd4c005eefcc7adc6858bf74",
+    "Compositor.AvaloniaProbe.runtimeconfig.json": "c230a317a54dd960bcbeb5f347f52e18dc665a26f7efda2159fced9a5ac7e097",
+    "HarfBuzzSharp.dll": "951fdc1c6db0bad84ae9329297dec0fcd38e1105ee477479ec66b8900e2f3bb5",
+    "Licenses\\SourceHanSans-OFL.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
+    "MicroCom.Runtime.dll": "59839e18e46b06ab23b633944ae3c3b552a300c5da389da870dfa980bcef93c1",
+    "runtimes\\linux-arm\\native\\libHarfBuzzSharp.so": "d19fc0b68ed5fda6f89879d75a432ca5339398b124423b25ecce3e14a2480c30",
+    "runtimes\\linux-arm\\native\\libSkiaSharp.so": "ec14c8123bd177c4438634a26703080327bdea52cfec1a6c50f05f0b3434359d",
+    "runtimes\\linux-arm64\\native\\libHarfBuzzSharp.so": "d9f2d50d113d438b2623b4a2a6dcc6a5cd8445947630734f3a5fe5843718625b",
+    "runtimes\\linux-arm64\\native\\libSkiaSharp.so": "c87c290b8179f095ea7495630cafc2829ec15f64e51a2dd2c03ef98099ea58b2",
+    "runtimes\\linux-loongarch64\\native\\libHarfBuzzSharp.so": "ce687b3775458840067f6735d7ef0d93b34d90f4d71bda17d4aa465cc50b496c",
+    "runtimes\\linux-musl-arm\\native\\libHarfBuzzSharp.so": "7bb1fab60a6e1394a5c4bde396a02496c211f7ae7978a7f6d0660890a6e5fc8b",
+    "runtimes\\linux-musl-arm64\\native\\libHarfBuzzSharp.so": "096e2c806b979312a7016d44d0d08e252fed622786448433295dc1801063968e",
+    "runtimes\\linux-musl-loongarch64\\native\\libHarfBuzzSharp.so": "9c78895b054eee211fbdb4d4785c5cf8e814f930bd33970f7e45f6187bb3fb0f",
+    "runtimes\\linux-musl-riscv64\\native\\libHarfBuzzSharp.so": "700a2e2b0852969cac16d290d60109f84520d1d44f65f1d0f0218a920e4fd4ce",
+    "runtimes\\linux-musl-x64\\native\\libHarfBuzzSharp.so": "5db6617b0c99b1377dcd1da4bbe5ec984312b852548cbd59be3d4bca8f057f66",
+    "runtimes\\linux-musl-x64\\native\\libSkiaSharp.so": "9e33543bb522862910adbd71d2fd4a1394ceb5c5a9aaea75106a7f16fe826314",
+    "runtimes\\linux-riscv64\\native\\libHarfBuzzSharp.so": "cd8b0e26363262c6683975196c6bb3337e55ac22961150753b74e609f5247a2d",
+    "runtimes\\linux-x64\\native\\libHarfBuzzSharp.so": "c952458933ea7f1ce66ade61fa32e708df7dfb2ab8bae77ed5ec06f49223a75c",
+    "runtimes\\linux-x64\\native\\libSkiaSharp.so": "a02cd03f1ebcbb972b811bd836caa02245de764a439794c5d5eebaf063baaa65",
+    "runtimes\\linux-x86\\native\\libHarfBuzzSharp.so": "d0aff4692b65ffe2a03c400e81a2bea96c2bd7257b58fabf50765731db6d5373",
+    "runtimes\\osx\\native\\libAvaloniaNative.dylib": "51a74868e785071b5c730022e09626cf25caf40de1cf36f153f0560527bb9410",
+    "runtimes\\osx\\native\\libHarfBuzzSharp.dylib": "bdfb4e1001ae1b24cff6e1ebe740e0bbf88e5bd2678aa8409cadfac960f09037",
+    "runtimes\\osx\\native\\libSkiaSharp.dylib": "169e3c792cd1d364e518c9d693d74580659569dff8bafb4719c7576a556bccc3",
+    "runtimes\\win-arm64\\native\\av_libglesv2.dll": "e1e7a9e9b4429739624fac5deb5fa11124b91b24819f941b0ab3652b305286ff",
+    "runtimes\\win-arm64\\native\\libHarfBuzzSharp.dll": "08bb823d84f12f1c54166c643ab6881601b8f0d6037c05a92345c53a52f7a7a5",
+    "runtimes\\win-arm64\\native\\libSkiaSharp.dll": "3e6a5a4ceb45d0e1003f070ae66e2b92e8cc6d5b8fd6e7fc890109f121bac46b",
+    "runtimes\\win-x64\\native\\av_libglesv2.dll": "9b203e40323b49dad29546a52b8b67d200bba8ff4cab9709a79cede23ba847d4",
+    "runtimes\\win-x64\\native\\libHarfBuzzSharp.dll": "eb76238c9e8e41d44b5a5b18167c4c5b39ca5db4277af5dbe92d730f0fc14a7d",
+    "runtimes\\win-x64\\native\\libSkiaSharp.dll": "9a0d95e8caaa852c70d085af6a40a744242172ad9ea3fd6bc7599875a8a1dbcd",
+    "runtimes\\win-x86\\native\\av_libglesv2.dll": "0707d1f54e86cda8cb69b00460bf18aabb6e9319b12ec42502dad977b63a33c0",
+    "runtimes\\win-x86\\native\\libHarfBuzzSharp.dll": "f2010ec6bffadf2238e7718bc48a3f5a8cdfa446806fe749ad5bf4f526e8ea95",
+    "runtimes\\win-x86\\native\\libSkiaSharp.dll": "57500c7bb65f8db8d2ee40cc8f9736d950789912f7b1ec33944dad6c472c0d99",
+    "SkiaSharp.dll": "17ee1284313749f73a5cf5f309318d831741a8d6d397c998c5fc6485843c28bb",
+    "Tmds.DBus.Protocol.dll": "feb2ec8ded9c8c786eaaf91623bdb58f32a9b552497c02e6828b177140a3b118"
+  }
+}
