@@ -9,6 +9,8 @@
 
 [校准输出](calibration.json)记录原始报告 SHA-256 和每项结果；[验证记录](validation.json)记录判定器 SHA-256 与各故障结果。没有修改历史报告或既有正确性判定器。
 
+故障控制已保存为[复现脚本](../../../../../experiments/windows/avalonia/check-s05-resource-controls.py)：`python experiments/windows/avalonia/check-s05-resource-controls.py <已归档的 27 轮 run/report.json>`。[再次执行的结果](reproduced-validation.json)与原 14 项记录逐字段相同，仅新增复现脚本摘要；规则及判定器未改。
+
 下一步固定此版规则，以同一已核验 Windows 诊断 DLL 启动两个独立进程，再核对原始归档、退出码、54 张图像和资源规则。若前瞻结果失败，保留失败并分析，不根据结果自动调宽门槛。规则通过也只支持固定 S05 场景，不能关闭全部设备/输入或 Windows 1.0 验收。
 
 首个前瞻运行已在规则提交 `985c43f` 后启动：Windows PID **48672**，输出 `s05-extended-20260924-100014`，见[启动记录](prospective-run-1.json)。UU 独立终端显示启动器已通过现有身份校验并进入 27 轮运行。最终退出码和归档尚未取得，第二个进程尚未启动；不得视为完成或失败，也不得因观察暂时中断重新启动。
