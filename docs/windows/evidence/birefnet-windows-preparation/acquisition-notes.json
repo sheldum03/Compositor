@@ -1,0 +1,6 @@
+{
+  "initialRangeDownload": "GitHub API returned 403 rate limit; partial archives were not extracted",
+  "toolchainVerifiedCache": "/tmp/compositor-qt-s02-cross/llvm-mingw-20260908-ucrt-macos-universal.tar.xz",
+  "toolchainBytes": 124244100,
+  "toolchainSha256": "d1dc5d1ecf3a3ced5ed5544c72f1acd0c8e84eb3024d520ecc6b143eec62a149"
+}

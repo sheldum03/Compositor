@@ -1,0 +1,264 @@
+{
+  "windowsExecuted": false,
+  "extractionPassed": true,
+  "embeddedBinaryArchitecture": "AMD64",
+  "embeddedBinaryCount": 59,
+  "existingOutputRejected": true,
+  "macExecutionGuardRejected": true,
+  "tamperedPayloadRejectedBeforeOutput": true,
+  "macAdaptedWrapperPassed": true,
+  "macAdaptationFirstAttempt": "Failed before native invocation because copied Mac binary lacked execute mode; failed archive retained, mode restored in adaptation only",
+  "macControlArchive": {
+    "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-windows-preparation-20260924/birefnet-image-20260924-113328.zip",
+    "bytes": 13966228,
+    "sha256": "8f42b475edea2ce4b55e230da9e2e94989225c00624078aa26069467de854416",
+    "error": null
+  },
+  "macControlPredictionExact": true,
+  "wrongModelControl": {
+    "windowsExecuted": false,
+    "adaptation": "Mac wrapper only; no Windows binary execution",
+    "wrongModelRejectedBeforeNative": true,
+    "errorArchivePreserved": true,
+    "exitCode": 1,
+    "archiveSha256": "22742c4354b589fc945157c40a0066d8f537efc0d5f5851e78a370c06b235299"
+  },
+  "peFiles": [
+    {
+      "path": "python/_uuid.pyd",
+      "sha256": "e6aa7f1637e211251c9d6f467203b2b6d85e5bc2d901699f2a55af637fa89250"
+    },
+    {
+      "path": "python/_msi.pyd",
+      "sha256": "0f876c25188d1dde26eb852251439a6ec8edc1bc921be026f819eeb8686db2af"
+    },
+    {
+      "path": "python/vcruntime140.dll",
+      "sha256": "4d292623516f65c80482081e62d5dadb759dc16e851de5db24c3cbb57b87db83"
+    },
+    {
+      "path": "python/_elementtree.pyd",
+      "sha256": "02e30b6a2bee5be5336e40a9c89575603051bde86f9c9cdc78b7fa7d9b7bd1f0"
+    },
+    {
+      "path": "python/_hashlib.pyd",
+      "sha256": "87dd0c858620287454fd6d31d52b6a48eddbb2a08e09e8b2d9fdb0b92200d766"
+    },
+    {
+      "path": "python/python3.dll",
+      "sha256": "db84bc052cfb121fe4db36242ba5f1d2c031b600ef5d8d752cf25b7c02b6bac6"
+    },
+    {
+      "path": "python/winsound.pyd",
+      "sha256": "b79c9bd9114b7f243f5a80ffd2de5c5942fc64ceec4a52a048bb4a07848b9239"
+    },
+    {
+      "path": "python/_ssl.pyd",
+      "sha256": "ba5388d6a6557d431e086734a3323621dc447f63ba299b0a815e5837cf869678"
+    },
+    {
+      "path": "python/python311.dll",
+      "sha256": "0817a2a657a24c0d5fbb60df56960f42fc66b3039d522ec952dab83e2d869364"
+    },
+    {
+      "path": "python/sqlite3.dll",
+      "sha256": "314bba62f4a1628b986afc94c09dc29cdaf08210eae469440fbf46bcdb86d3fd"
+    },
+    {
+      "path": "python/_overlapped.pyd",
+      "sha256": "ca106e4dfdeafeabf9e98956d3d8d0cb73e109f1a96f1a7e35bc47dbd7c7e164"
+    },
+    {
+      "path": "python/libcrypto-3.dll",
+      "sha256": "05fe080eab7fc535c51e10c1bd76a2f3e6217f9c91a25034774588881c3f99de"
+    },
+    {
+      "path": "python/pythonw.exe",
+      "sha256": "d5355e1de2a5195dccb1ba524b146aa7705be71af18d876819756838251b37b3"
+    },
+    {
+      "path": "python/_zoneinfo.pyd",
+      "sha256": "7e7b4157e401f8281fd85b68f2e21c828bf739c91416b2824dd22cb385eef819"
+    },
+    {
+      "path": "python/_asyncio.pyd",
+      "sha256": "746bc8fa88282afe19dc60e426cc0a75bea3bd137cca06a0b57a30bd31459403"
+    },
+    {
+      "path": "python/python.exe",
+      "sha256": "5f7b89a612c9b8af1d6456cdfcd1dbe5ca630849e79aebced9bee9a6694952ec"
+    },
+    {
+      "path": "python/_lzma.pyd",
+      "sha256": "f5e01b516c2c23035f7703e23569dec26c5616c05a929b2580ae474a5c6722c5"
+    },
+    {
+      "path": "python/libffi-8.dll",
+      "sha256": "eff52743773eb550fcc6ce3efc37c85724502233b6b002a35496d828bd7b280a"
+    },
+    {
+      "path": "python/_multiprocessing.pyd",
+      "sha256": "975c1947798e3c39898c86675ca1eb68249f77361f41f172f9800275227213b9"
+    },
+    {
+      "path": "python/pyexpat.pyd",
+      "sha256": "c7c7564f7f874fb660a46384980a2cf28bc3e245ca83628a197ccf861eab5560"
+    },
+    {
+      "path": "python/vcruntime140_1.dll",
+      "sha256": "a113f192195f245f17389e6ecbed8005990bcb2476ddad33f7c4c6c86327afe5"
+    },
+    {
+      "path": "python/libssl-3.dll",
+      "sha256": "2e9fbcd8f7fdc13a5179533239811456554f2b3aa2fb10e1b17be0df81c79006"
+    },
+    {
+      "path": "python/_sqlite3.pyd",
+      "sha256": "ff6a2a2f38b21b7784f97d604c99961d8c07ef455f7908110a4e893835d42b76"
+    },
+    {
+      "path": "python/_queue.pyd",
+      "sha256": "3f8e7e6aa13b417acc78b63434fb1144e6319a010a9fc376c54d6e69b638fe4c"
+    },
+    {
+      "path": "python/_socket.pyd",
+      "sha256": "a19e3c7c03ef1b5625790b1c9c42594909311ab6df540fbf43c6aa93300ab166"
+    },
+    {
+      "path": "python/_ctypes.pyd",
+      "sha256": "c148292328f0aab7863af82f54f613961e7cb95b7215f7a81cafaf45bd4c42b7"
+    },
+    {
+      "path": "python/_bz2.pyd",
+      "sha256": "00b8ca9a338d2b47285c9e56d6d893db2a999b47216756f18439997fb80a56e3"
+    },
+    {
+      "path": "python/select.pyd",
+      "sha256": "bae0974390945520eb99ab32486c6a964691f8f4a028ac408d98fa8fb0db7d90"
+    },
+    {
+      "path": "python/_decimal.pyd",
+      "sha256": "980a63f2b39cf16910f44384398e25f24482346a482addb00de42555b17d4278"
+    },
+    {
+      "path": "python/unicodedata.pyd",
+      "sha256": "37c68617fa02a2cadced17ef724e2d450ef12a8a37215da789a4679fde1c5c02"
+    },
+    {
+      "path": "python/site-packages/numpy.libs/msvcp140-23ebcc0b37c8e3d074511f362feac48b.dll",
+      "sha256": "32e6c8100bd62e7a91f50996c2a59692dc796b6f140a2dfa4de313ca43d4c748"
+    },
+    {
+      "path": "python/site-packages/numpy.libs/libscipy_openblas64_-caad452230ae4ddb57899b8b3a33c55c.dll",
+      "sha256": "44629a7d27806ea076daeae8e829b0cfbdec9e25099561a19af8e5910bd635c5"
+    },
+    {
+      "path": "python/site-packages/PIL/_imaging.cp311-win_amd64.pyd",
+      "sha256": "676e119107b4787c79532c97a0aaa7fbfc891bd267fdbaf5b2888e3b68f0f29f"
+    },
+    {
+      "path": "python/site-packages/PIL/_imagingmath.cp311-win_amd64.pyd",
+      "sha256": "5a08f071d2a02ebbf496b4d241bd70a5eeafa55e50ba0d4cb50119de1e200db8"
+    },
+    {
+      "path": "python/site-packages/PIL/_imagingmorph.cp311-win_amd64.pyd",
+      "sha256": "462fdc2225b3a95ae0f4e3ab08dae8bccc881d7740b0b83ceb71b2a609ccc710"
+    },
+    {
+      "path": "python/site-packages/PIL/_imagingtk.cp311-win_amd64.pyd",
+      "sha256": "48a6faf30238ae3b1d214382accd68ff5b531c290c1f6cbc1a56b992283bbad1"
+    },
+    {
+      "path": "python/site-packages/PIL/_avif.cp311-win_amd64.pyd",
+      "sha256": "6e4f728eded394ce9a40f45b8be5bbae4c1064d7d54ee332934bd93d49f4e17a"
+    },
+    {
+      "path": "python/site-packages/PIL/_imagingcms.cp311-win_amd64.pyd",
+      "sha256": "237e9114548da487f9393cc31ae91b1d994fdb69cea6dbfa39691b27832580fa"
+    },
+    {
+      "path": "python/site-packages/PIL/_webp.cp311-win_amd64.pyd",
+      "sha256": "003ebc94ae4623de180ab0f9c52e750d587a60625bab9b88b5a12c8f84e518e5"
+    },
+    {
+      "path": "python/site-packages/PIL/_imagingft.cp311-win_amd64.pyd",
+      "sha256": "af42dea833bbd4a1f6d908a3e2c27a4bcee04bac4bc345702d1bec82d1f57569"
+    },
+    {
+      "path": "python/site-packages/numpy/linalg/_umath_linalg.cp311-win_amd64.pyd",
+      "sha256": "f531d517d6273070de559387a1c58b5880e5c105e8ee2fff7cd76f6832bee64b"
+    },
+    {
+      "path": "python/site-packages/numpy/linalg/lapack_lite.cp311-win_amd64.pyd",
+      "sha256": "d700db5a690ab47dbc0622abd0fcb2e2a39f183d953ffc013d72604e6d07607a"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_umath_tests.cp311-win_amd64.pyd",
+      "sha256": "eeb7751292842593a706c3f0ba8a6a86f6ede31809e104f37e5de659f6a57abe"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_rational_tests.cp311-win_amd64.pyd",
+      "sha256": "327c9546c6ddc7016c4bde342858a34d196269984457b109d94eecf4fdbf53bf"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_multiarray_umath.cp311-win_amd64.pyd",
+      "sha256": "0c1a9bba511d50dbca6d37b324cf2352f0cea3e4eb8be50de6cf52661adf06c9"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_operand_flag_tests.cp311-win_amd64.pyd",
+      "sha256": "853c5344746eab03e4499a1f788fe04b128e627fa4a29e89e96d40a1df29d127"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_multiarray_tests.cp311-win_amd64.pyd",
+      "sha256": "37852ec302425df64ff8a1ec546eeb58ba5bebb52a70721b552f27ba1002cb5b"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_struct_ufunc_tests.cp311-win_amd64.pyd",
+      "sha256": "a3aa302ae82cc5d072110e50e607f0b2eec0df598eb30b9b2052f97d4cc79c30"
+    },
+    {
+      "path": "python/site-packages/numpy/_core/_simd.cp311-win_amd64.pyd",
+      "sha256": "0c819a866387da128cb8ce4b899fa98b57ef696b5da00667a9c080f23ef3f89b"
+    },
+    {
+      "path": "python/site-packages/numpy/fft/_pocketfft_umath.cp311-win_amd64.pyd",
+      "sha256": "a5156546b83adab33b59fedb9b5c61e06e285ecb4d8840b1091ff9386e5744c5"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_bounded_integers.cp311-win_amd64.pyd",
+      "sha256": "7f0c0f662194a9c0e5973c80058b0e5794e30a4df6bcb77d86651dc3916becdf"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_pcg64.cp311-win_amd64.pyd",
+      "sha256": "2e6c076d95f2e398f8e873279fc5db3414862f614ae1bdd9784871438a11c028"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_sfc64.cp311-win_amd64.pyd",
+      "sha256": "c8f2c3d5b8a0ed48334ab3b7695033d8261bfca9115360561949ea479d0d91d6"
+    },
+    {
+      "path": "python/site-packages/numpy/random/mtrand.cp311-win_amd64.pyd",
+      "sha256": "328f27127c30c126305e2e39d2b91b0e11c9cbaa1bfcfad1c8ab2283c2c8ede6"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_mt19937.cp311-win_amd64.pyd",
+      "sha256": "d74b9c86d23b21ef76dc566c6cfd43e6e8a648aa89fb6f131634492559f9c020"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_common.cp311-win_amd64.pyd",
+      "sha256": "62e4c16331ce9b63aca7713fa5fd36d17a787b1f5fd67fdb0cc557d6fc957d41"
+    },
+    {
+      "path": "python/site-packages/numpy/random/bit_generator.cp311-win_amd64.pyd",
+      "sha256": "b034ac4f78c6c54edb3df0747174c54e9314a40a333e51bc925c52b272ee5947"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_philox.cp311-win_amd64.pyd",
+      "sha256": "69f01a670493f5f97c1cf4de4055a315bcd05e42e9f11b14c8c7dd867b36db04"
+    },
+    {
+      "path": "python/site-packages/numpy/random/_generator.cp311-win_amd64.pyd",
+      "sha256": "b893f1f40a8d9c2aeb10e7ee971a8a237f3be4e131ae58da6c9bbf4ee90416fa"
+    }
+  ]
+}

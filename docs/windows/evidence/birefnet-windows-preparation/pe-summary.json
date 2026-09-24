@@ -1,0 +1,64 @@
+{
+  "windowsExecuted": false,
+  "bundledImportSymbolsResolved": 241,
+  "onnxruntimeOrdinal1": "OrtGetApiBase",
+  "runtimeDllsExactAgainstPreviouslyExecutedKit": true,
+  "externalImports": [
+    "ADVAPI32.dll",
+    "KERNEL32.dll",
+    "MSVCP140.dll",
+    "MSVCP140_1.dll",
+    "SETUPAPI.dll",
+    "SHELL32.dll",
+    "VCRUNTIME140.dll",
+    "VCRUNTIME140_1.dll",
+    "api-ms-win-core-path-l1-1-0.dll",
+    "api-ms-win-crt-convert-l1-1-0.dll",
+    "api-ms-win-crt-environment-l1-1-0.dll",
+    "api-ms-win-crt-filesystem-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "api-ms-win-crt-locale-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-multibyte-l1-1-0.dll",
+    "api-ms-win-crt-private-l1-1-0.dll",
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "api-ms-win-crt-time-l1-1-0.dll",
+    "api-ms-win-crt-utility-l1-1-0.dll",
+    "dbghelp.dll",
+    "dxgi.dll"
+  ],
+  "files": [
+    {
+      "file": "ai_probe.exe",
+      "architecture": "AMD64",
+      "sha256": "072e2b84dd8b7d4edf1a2dee4644251402ff9cd7d42455905b35ef4653249c1a"
+    },
+    {
+      "file": "birefnet_probe.exe",
+      "architecture": "AMD64",
+      "sha256": "3b5277552c8e6dbf9f29663d4be5eb8cddf870720453df37a918a9c08b21e171"
+    },
+    {
+      "file": "libc++.dll",
+      "architecture": "AMD64",
+      "sha256": "936a36ba1b1b0779067f15b77a92752a9ec29d073183969e76610c9caab4485f"
+    },
+    {
+      "file": "libunwind.dll",
+      "architecture": "AMD64",
+      "sha256": "fc8c676629fc5c0a1a1c0bace29f2538306a404a1e1dd15bf1707a3b948c7696"
+    },
+    {
+      "file": "onnxruntime.dll",
+      "architecture": "AMD64",
+      "sha256": "7e39e2bdbba836d98071ef28620735ba36a47c554cf794585269aecc50fab0da"
+    },
+    {
+      "file": "onnxruntime_providers_shared.dll",
+      "architecture": "AMD64",
+      "sha256": "b9b7ab9e2a8b08ee7ae4a7ac1c8bfd44a741f17ad8d0f764953140a57de0b796"
+    }
+  ]
+}
