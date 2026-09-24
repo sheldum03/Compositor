@@ -1,0 +1,22 @@
+{
+  "observedThrough": "UU session3",
+  "windowsSdkListing": {
+    "command": "dotnet --list-sdks",
+    "output": "",
+    "scope": "No SDK reported by the dotnet resolved in this session; not an exhaustive disk search"
+  },
+  "windowsSourceListing": {
+    "directory": "C:/Users/Administrator/Desktop/CompositorTest/experiments/windows",
+    "entries": [
+      "native"
+    ]
+  },
+  "windowsSdkHeadRequest": {
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.401/dotnet-sdk-10.0.401-win-x64.zip",
+    "exitCode": 28,
+    "message": "Connection timed out after 10835 milliseconds"
+  },
+  "sdkDownloadStatus": "partial local download; not yet SHA-512 verified or transferred",
+  "localLockUnchanged": true,
+  "windowsBuildExecuted": false
+}

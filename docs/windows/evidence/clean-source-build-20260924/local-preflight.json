@@ -1,0 +1,15 @@
+{
+  "windowsExecuted": false,
+  "emptyPackageCache": true,
+  "steps": [
+    {
+      "name": "restore",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "exitCode": 0
+    }
+  ],
+  "scope": "Mac only; Windows clean-source build pending"
+}
