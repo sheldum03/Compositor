@@ -1,0 +1,198 @@
+{
+  "status": "observations only; no D-03 acceptance threshold or product acceptance",
+  "inputSha256": {
+    "first": {
+      "windows": "e85f9b7e3a114bfd5e6396885e6747d31e3a907bad1e8832ab7d631924dacae4",
+      "cpu": "462ad51b9b3a6f20084bcaecd59cdb1a15f5e6de65b56a78309759c65d568eb8",
+      "metal": "87d91003367e23cfd144076ad275f766605b8a2995742e6a8c6f51acc7285dca"
+    },
+    "final": {
+      "windows": "a67276af16633a7ae23c782349172480f2c8464aaa2d5ee26053f045ff71f0e6",
+      "cpu": "cd35a1afe63fa98828e4ad0a7af7bd721791b133e8e2e40781411335fad96e6c",
+      "metal": "0790a40985a2ec8219b0317331d989503d9579fc46d6819a8e0ae05c15503638"
+    }
+  },
+  "records": [
+    {
+      "stage": "first",
+      "a": "windows",
+      "b": "cpu",
+      "supportPixels": 4279573,
+      "supportDisagreementPixels": 8028,
+      "alpha": {
+        "max": 3.0,
+        "meanWithinUnionSupport": 0.10922304631793874,
+        "p95WithinUnionSupport": 1.0,
+        "pixelsAbove1": 28962,
+        "pixelsAbove4": 0
+      },
+      "premultipliedRGB": {
+        "max": 3.0,
+        "meanWithinUnionSupport": 0.5030878098920463,
+        "p95WithinUnionSupport": 1.129411764705882,
+        "pixelsAbove1": 408912,
+        "pixelsAbove4": 0
+      },
+      "whiteCompositeRGB": {
+        "max": 3.0823529411764525,
+        "meanWithinUnionSupport": 0.5048071265566787,
+        "p95WithinUnionSupport": 1.1411764705882206,
+        "pixelsAbove1": 568695,
+        "pixelsAbove4": 0
+      }
+    },
+    {
+      "stage": "first",
+      "a": "windows",
+      "b": "metal",
+      "supportPixels": 4275493,
+      "supportDisagreementPixels": 7521,
+      "alpha": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.3869436811146691,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 313672,
+        "pixelsAbove4": 62130
+      },
+      "premultipliedRGB": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.7243081230173732,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 797592,
+        "pixelsAbove4": 62130
+      },
+      "whiteCompositeRGB": {
+        "max": 6.960784313725526,
+        "meanWithinUnionSupport": 0.6986448442732593,
+        "p95WithinUnionSupport": 2.1333333333333258,
+        "pixelsAbove1": 781495,
+        "pixelsAbove4": 71622
+      }
+    },
+    {
+      "stage": "first",
+      "a": "cpu",
+      "b": "metal",
+      "supportPixels": 4279358,
+      "supportDisagreementPixels": 13617,
+      "alpha": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.41153906730869444,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 338876,
+        "pixelsAbove4": 62499
+      },
+      "premultipliedRGB": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.4316780987919674,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 414339,
+        "pixelsAbove4": 62499
+      },
+      "whiteCompositeRGB": {
+        "max": 7.0627450980392155,
+        "meanWithinUnionSupport": 0.4083063036695745,
+        "p95WithinUnionSupport": 2.1098039215685844,
+        "pixelsAbove1": 681376,
+        "pixelsAbove4": 68069
+      }
+    },
+    {
+      "stage": "final",
+      "a": "windows",
+      "b": "cpu",
+      "supportPixels": 6673498,
+      "supportDisagreementPixels": 11470,
+      "alpha": {
+        "max": 4.0,
+        "meanWithinUnionSupport": 0.10942462258923281,
+        "p95WithinUnionSupport": 1.0,
+        "pixelsAbove1": 36737,
+        "pixelsAbove4": 0
+      },
+      "premultipliedRGB": {
+        "max": 4.0,
+        "meanWithinUnionSupport": 0.4927474458099249,
+        "p95WithinUnionSupport": 1.1411764705882348,
+        "pixelsAbove1": 716816,
+        "pixelsAbove4": 0
+      },
+      "whiteCompositeRGB": {
+        "max": 4.15294117647062,
+        "meanWithinUnionSupport": 0.49655927277200107,
+        "p95WithinUnionSupport": 1.1529411764706197,
+        "pixelsAbove1": 971254,
+        "pixelsAbove4": 7
+      }
+    },
+    {
+      "stage": "final",
+      "a": "windows",
+      "b": "metal",
+      "supportPixels": 6668571,
+      "supportDisagreementPixels": 9844,
+      "alpha": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.39716170076017787,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 502648,
+        "pixelsAbove4": 89716
+      },
+      "premultipliedRGB": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.7198750112324523,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 1331101,
+        "pixelsAbove4": 89716
+      },
+      "whiteCompositeRGB": {
+        "max": 6.960784313725526,
+        "meanWithinUnionSupport": 0.6999514823884551,
+        "p95WithinUnionSupport": 2.152941176470563,
+        "pixelsAbove1": 1324751,
+        "pixelsAbove4": 105639
+      }
+    },
+    {
+      "stage": "final",
+      "a": "cpu",
+      "b": "metal",
+      "supportPixels": 6672549,
+      "supportDisagreementPixels": 16670,
+      "alpha": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.4166072066312289,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 533666,
+        "pixelsAbove4": 90057
+      },
+      "premultipliedRGB": {
+        "max": 7.0,
+        "meanWithinUnionSupport": 0.4419926477872249,
+        "p95WithinUnionSupport": 2.0,
+        "pixelsAbove1": 697802,
+        "pixelsAbove4": 90057
+      },
+      "whiteCompositeRGB": {
+        "max": 7.0627450980392155,
+        "meanWithinUnionSupport": 0.4241129010405902,
+        "p95WithinUnionSupport": 2.1176470588234793,
+        "pixelsAbove1": 1144405,
+        "pixelsAbove4": 98716
+      }
+    }
+  ],
+  "crop": [
+    813,
+    1301,
+    512,
+    512
+  ],
+  "reviewerSha256": "9f565f6d36357fdd5fe83a66a564196e3f51f53a97ccafa2889c0c4ff8795e52",
+  "limits": [
+    "Two fixed 800px soft, 40 percent strokes only; not S02 or a complete brush matrix.",
+    "Straight PNG values re-premultiplied mathematically; original renderer buffers not sampled.",
+    "White composite uses encoded channel arithmetic; not a color-management or perceptual metric.",
+    "Current test run is offline analysis of previously executed Windows output."
+  ]
+}

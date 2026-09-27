@@ -75,3 +75,5 @@ python3 scripts/windows/inventory-probe-dependencies.py \
 ```
 
 实际检查通过：24 包/28 资产正向核对；向 `Avalonia.Base.dll` 追加字节后拒绝通过；输出目录已存在时拒绝覆盖；原文归档 ZIP CRC 通过。所有反例使用临时副本，R9 原始包及发布目录未改。此脚本只适用于当前平铺的探针发布布局，不声称是通用 SBOM 或生产发行验收工具。
+
+2026-09-27 补查官方 [NuGet 符号服务](https://learn.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg#nugetorg-symbol-server)：从已匹配 DLL 的 CodeView 记录读取 GUID `A11D5D5567714AE1BE597460A064C7DA`、age 1；按 portable 与传统索引尝试获取对应 `MicroCom.Runtime.pdb`，两次均返回 HTTP 403，未取得 PDB。见[请求结果](microcom-source-followup/symbol-attempts-20260927.json)。403 是本次访问结果，不证明符号不存在，也不能证明候选源码提交匹配。保留精确源码身份缺口，未改变包版本或 D-07 状态。
