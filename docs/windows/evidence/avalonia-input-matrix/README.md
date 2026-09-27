@@ -99,3 +99,21 @@ UU 的“窗口”菜单执行窗口缩放后，坐标点击恢复；双击唯�
 最终恢复原文并正常关闭，runtime/native 退出码均为 0，窗口报告最后事件为 `native-window-closed`，无 action-error、stderr 为空。UU 精确文件行显示“已接收”，包 `avalonia-ime-matrix-20260923-224035.zip` 为 716,069 字节，SHA-256 `56c1c08aa62822324fc5eab1bbbde1ffb29069ec97c7bdefbbaae120170ba36b`；CRC 和 63 个文件摘要通过。初次手工转录摘要漏一个字符，断言拒绝后按 Windows 完整输出更正，未忽略校验。
 
 见[独立复核](native-followup/review.json)、[操作观察](native-followup/final-observations.json)、[全部文字状态](native-followup/text-states.json)、[原始身份](native-followup/identity.json)及[窗口报告](native-followup/window-report.json)。[复核脚本](native-followup/review-final.py)接受 ZIP 路径和输出 JSON 路径，依赖 Pillow；完整 ZIP/解压结果保存在复核报告列出的本地目录。原始准备记录和自动 `nativeImeAccepted=false` 标记保留，不修改为全矩阵通过。物理拖选、数位笔、第二输入法、跨屏和设备/发布覆盖继续开放。
+
+## 2026-09-27 活动预编辑失焦补测归档
+
+继续同一 `native-20260924-174404` 窗口，PID 23668，DLL 仍为 `55909cba…`。9 月 24 日完成主要操作，9 月 27 日恢复连接后继续历史检查、恢复原文并正常关闭；中间空闲不算连续编辑或资源测试。runtime/native 退出码均为 0，报告最后事件为 `native-window-closed`，stderr 为空，无 action-error。
+
+| 操作及范围 | 导出编号 | 结果 |
+| --- | --- | --- |
+| 13°、系统 150%，反向选择“中文”，活动拼音期间切至笔刷并返回 | 001–002 | 预编辑变化 6→12，提交仍为 0；原文及选区 2→0 保留，像素一致 |
+| 返回后选词提交“测试”，再撤销 | 002–004 | 恰增加一次文字提交；仅替换前两字，撤销恢复原文 |
+| 活动拼音期间打开系统 Win+R，Esc 关闭系统窗口，再撤销／重做／恢复 | 004–008 | 系统失焦提交字面拼音 `ceshi` 一次（非中文选词）；精确替换前两字，历史可逆且重做像素一致 |
+| 活动拼音期间点击“导出并校验”，恢复连接后重做原编辑并撤销 | 008–012 | 预编辑取消，原文及反向选区保留；已有 `ceshi` 重做记录仍可用 |
+| 再次活动拼音切页、返回、重做并恢复 | 012–015 | 原文、已有历史及图像保留；有额外 Esc 取消和远控延迟，只接受内容/历史观察，不认定此轮预编辑选区方向 |
+
+001 前另有一次无导出基线的切页取消，不增加独立通过项。013 导出时选区为 0→2；截图及输入延迟不能证明这就是预编辑开始时的范围。候选栏和操作顺序取自会话工具截图，没有独立视频或几何测量。全部 15 对预览/导出 RGBA 精确；原文组、撤销组及 `ceshi` 提交/重做组分别像素精确。最终 42 次原生预编辑变化、2 次文字提交、0 次直接调用 IME client；计数不代替操作观察。最后有效导出比例为 1.5，关闭后报告比例回到 1，保留差异，不据关闭后的值认定系统 DPI 改变。
+
+原始包 `avalonia-ime-matrix-20260924-174404.zip` 为 642,137 字节，SHA-256 `a9e6f0f3e4cbbe6860101d86882d1112e3b26cd1145defc7deb3ac6d390902ea`；UU 显示已接收，Windows 输出摘要与本地一致，ZIP CRC、51 个文件摘要及成员集合通过。见[复核结果](active-focus/review.json)、[复核脚本](active-focus/review.py)、[文字状态](active-focus/text-states.json)、[原始身份](active-focus/identity.json)、[原始文件清单](active-focus/source-files.json)和[窗口事件](active-focus/window-report.json)。脚本参数为原始 ZIP 路径及输出 JSON 路径，依赖 Pillow；ZIP 保存在报告列出的本地目录。
+
+本次只补固定原型和微软拼音的活动预编辑失焦路径。自动 `nativeImeAccepted=false` 和 `systemDpiAccepted=false` 原样保留；物理拖选、数位笔、第二输入法、跨屏、完整变换组合与设备/发布矩阵继续开放，M1 和 Windows 1.0 未完成。
