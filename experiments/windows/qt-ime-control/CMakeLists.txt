@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.20)
+project(QtImeControlDiagnostic LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 17)
+find_package(Qt6 6.11.2 EXACT REQUIRED COMPONENTS Widgets)
+add_subdirectory(../native native)
+add_executable(qt_ime_control main.cpp ../qt/text_probe.cpp ../qt/scene.cpp ../qt/composite.cpp)
+target_link_libraries(qt_ime_control PRIVATE Qt6::Widgets compositor_native)
+if(WIN32)
+    target_link_libraries(qt_ime_control PRIVATE imm32 user32)
+endif()
+if(MSVC)
+    target_compile_options(qt_ime_control PRIVATE /W4 /WX /utf-8)
+else()
+    target_compile_options(qt_ime_control PRIVATE -Wall -Wextra -Werror)
+endif()
+qt_add_resources(qt_ime_control "text_fonts" PREFIX "/fonts"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}/../../../Compositor/Resources/Fonts"
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/../../../Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf")

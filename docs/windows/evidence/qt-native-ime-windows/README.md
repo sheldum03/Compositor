@@ -77,3 +77,11 @@ UU 切为全屏后，下半部分空白问题消失，既有 Qt 文字区可完�
 2. 保持原版焦点处理，在光标更新时另设 `CFS_CANDIDATEPOS`（[微软模式说明](https://learn.microsoft.com/en-us/windows/win32/api/imm/ns-imm-candidateform)）；原生 PID 43116 候选纵向位置略变，横向仍在旧行尾，未满足定位要求。
 
 两轮各 15 对 PNG 精确，合成、文字样本、原生窗口均正常退出，取消后的原文完整；这些只说明未引入所测文本错误，不代表候选位置通过。已取回两个完整 ZIP，核验远端 SHA-256 与 CRC；候选试验补丁只保存在本诊断目录，**均已撤回，不进入有效实现**。日志尚未记录 IMM32 返回值和实际系统光标，因此不把两个无效试验解释为排除了所有系统光标/候选模式原因。下一步在相同字体、宽度与输入法下用原生 QTextEdit 对照，记录 IMM 调用返回值及系统光标，区分控件集成和系统输入法行为；不以偏移补偿修改正确的布局坐标。
+
+### 2026-09-27 原生 QTextEdit 对照准备
+
+新增隔离的 [Qt 控件对照程序](../../../../experiments/windows/qt-ime-control/README.md)，没有修改有效 `WindowText` 或候选定位实现。QTextEdit 与现有 WindowText 分别使用相同字体/字号/换行宽度/原文，在独立进程中运行；记录事件前后布局、Qt 光标矩形、系统光标、IMM 查询成功标记及原始位置设置，避免把失败返回的零值认定为实际坐标。只读查询不设置候选位置，不能代替候选栏实际画面。
+
+Windows x64 交叉构建通过，固定 Qt 6.11.2；打包 CRC/载荷摘要通过，21 条随包依赖导入/导出符号边核验通过。第一次构建因 Win32 LONG 转 JSON 的重载歧义失败，显式转换为 int 后通过；这不是运行期定位修复。见[准备身份](candidate-diagnostic/control-comparison/preparation.json)和[构建日志](candidate-diagnostic/control-comparison/build.log)。`QtImeControl.zip` 为 13,908,795 字节，SHA-256 `1e5232a12d7b9d87e12897e5c2191fc4d1ea8565d64058ad3191b94c143c5116`，本地路径记录在准备身份中。
+
+传送前 CUA 明确报告 Mac 锁屏、自动解锁失败，没有进入传送/运行步骤，也没有 Windows PID；准备报告保留 `windowsExecuted=false`、`candidatePositionAccepted=false`。已请求手动解锁。恢复后传送并核验包，在既有 Windows 测试根目录执行 `python QtImeControl/run.py`，按说明对两个控件分别进行真实拼音换行/取消。当前没有新的候选定位通过证据，M1 继续开放。
