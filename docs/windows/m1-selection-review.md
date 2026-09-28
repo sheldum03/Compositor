@@ -4,6 +4,8 @@
 
 ## 同机证据比较
 
+同日逐键慢速补测也已完成并取回：两个 Qt 控件在数秒按键间隔下均复现候选栏换行偏移，取消后原文保留，正常退出；[完整复核](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/slow-20260928/README.md)保留早期远程送达异常，不将它算作控件错误。下一步系统原生 EDIT 对照仅已准备，尚无 Windows 执行结果。
+
 2026-09-28 已完成 [Qt 标准文本框与画布控件的原生对照](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/run-20260928/README.md)：两个独立进程各两次微软拼音换行，均出现候选栏停留旧行末尾；四次取消保留原文。系统光标及 IMM 候选设置点均已随换行更新，故不能归因为本次系统光标缺失，也不能只归因于画布控件。原始归档摘要、CRC、7 项成员身份通过独立核验。尚未定位具体责任或修复，不关闭 Qt IME 或 M1。
 
 | 必需路径 | Avalonia / C# | Qt / C++ | 评审状态 |

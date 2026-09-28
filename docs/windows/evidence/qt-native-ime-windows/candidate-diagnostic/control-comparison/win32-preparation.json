@@ -1,0 +1,24 @@
+{
+  "status": "prepared; transfer blocked by Mac lock",
+  "windowsExecuted": false,
+  "candidatePositionAccepted": false,
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/win32-ime-control-20260928/Win32ImeControl.zip",
+  "bytes": 13745164,
+  "sha256": "ae9ec83f840e971ae57bf45a76876f092e23115b7242c2e11403a81962bf01ff",
+  "payload": {
+    "SourceHanSans-OFL.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
+    "SourceHanSansSC-Regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "run.py": "cdaeb6f402e2a605bc19ac686b5c68eeebd23a3ba00ba18509083ef6b515d06f"
+  },
+  "checks": [
+    "Python AST parse",
+    "ctypes named types available",
+    "ZIP CRC",
+    "3 payload hashes and source copy match"
+  ],
+  "limitations": [
+    "Windows API execution and ABI layout not yet validated",
+    "GDI EDIT layout differs from Qt; actual wrap is required for a comparison verdict"
+  ],
+  "nextCommand": "python Win32ImeControl/run.py"
+}
