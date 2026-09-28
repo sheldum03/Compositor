@@ -22,6 +22,14 @@ cmake --build <new-build> --parallel 4
 3. Esc 取消，确认原文保留；重复一次确认现象，再正常关闭窗口。对下一个控件重复相同步骤。
 4. 取回完整结果，核验远端/本地 ZIP 摘要、CRC、成员清单、进程身份与退出码；结合真实候选位置和日志时间线比较两控件。
 
+## 字体单变量对照
+
+新包使用 `python QtImeFont/run.py --font-comparison`。同一可执行文件依次启动两个独立的 QTextEdit 进程：思源黑体、Microsoft YaHei UI。固定原文、32 px 字号、540 px 换行宽度、4 px 行距增量、Qt/插件/依赖及输入步骤。窗口标题显示请求字体，`opened` 日志记录请求字体和 Qt 实际匹配字体。此模式不修改 WindowText。
+
+每个窗口点击文字、Ctrl+End，确认微软拼音中文模式后逐键输入 `zhongwen`，不要按 Enter 人为换行。记录预编辑自动换行后候选栏是否跟随新行光标，再 Esc 检查原文并关闭。第一个窗口关闭后第二个自动打开，第二个关闭后生成 `qt-ime-font-时间.zip`。若任一字体未触发自动换行，或字体发生替代，则报告该条件，不能称作候选定位通过；宽度调整应另作单变量试验。
+
+预测：若两种字体在实际自动换行时均偏移，思源字体不是该失败的必要条件；若只有思源偏移，字体/布局路径成为下一诊断线索，尚不能据此认定根因。仅变更字体也会改变字宽和换行时机，不能直接比较绝对坐标。
+
 诊断未实现自动候选栏实际坐标读取。日志可以区分“Qt 坐标未更新”和“平台收到新坐标后仍显示旧位置”，不能单独给出候选定位通过结论。窗口关闭、导出或无崩溃都不替代本问题的复现。没有实际 Windows 结果前，不进入推测性布局修复。
 
 原生只读接口依据：[ImmGetCandidateWindow](https://learn.microsoft.com/en-us/windows/win32/api/imm/nf-imm-immgetcandidatewindow)、[GetCaretPos](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcaretpos)。日志保留 API 成功标记；失败时不把默认零坐标解释为有效位置。

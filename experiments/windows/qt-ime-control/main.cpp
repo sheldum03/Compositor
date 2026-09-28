@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QFile>
+#include <QFontInfo>
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <QGraphicsView>
@@ -93,9 +94,12 @@ public:
 };
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
-    if (argc != 3 || (QString(argv[1]) != "textedit" && QString(argv[1]) != "windowtext")) return 2;
+    if ((argc != 3 && argc != 4) || (QString(argv[1]) != "textedit" && QString(argv[1]) != "windowtext")) return 2;
+    if (argc == 4 && QString(argv[1]) != "textedit") return 2;
+    QString family = argc == 4 ? QString::fromUtf8(argv[3]) : "Source Han Sans SC";
+    if (family != "Source Han Sans SC" && family != "Microsoft YaHei UI") return 2;
     QString control = argv[1]; Recorder recorder(argv[2], control);
-    QWidget window; window.setWindowTitle("Qt IME control — " + control + " — " + QString::number(app.applicationPid()));
+    QWidget window; window.setWindowTitle("Qt IME control — " + control + " — " + family + " — " + QString::number(app.applicationPid()));
     window.resize(1080, 840); auto layout = new QVBoxLayout(&window);
     layout->addWidget(new QLabel("Diagnostic: click text, Ctrl+End, type zhongwen with Microsoft Pinyin; observe wrap, Esc, close."));
     // Construct the production probe unchanged, also registering the exact embedded font.
@@ -107,7 +111,7 @@ int main(int argc, char **argv) {
     } else {
         delete probe;
         auto edit = new QTextEdit; layout->addWidget(edit);
-        QFont font("Source Han Sans SC"); font.setPixelSize(32); edit->setFont(font);
+        QFont font(family); font.setPixelSize(32); edit->setFont(font);
         edit->setLineWrapMode(QTextEdit::FixedPixelWidth); edit->setLineWrapColumnOrWidth(540);
         edit->document()->setDocumentMargin(0);
         edit->setPlainText(QString::fromUtf8("中文输入 / Windows IME\nSelect, replace, undo, redo. 😀"));
@@ -119,6 +123,7 @@ int main(int argc, char **argv) {
     app.installEventFilter(&recorder);
     QObject::connect(app.inputMethod(), &QInputMethod::cursorRectangleChanged, &recorder, [&] { recorder.record("cursor-changed"); });
     window.show();
-    QTimer::singleShot(0, &recorder, [&] { recorder.record("opened", {{"qt", qVersion()}, {"platform", app.platformName()}, {"dpr", window.devicePixelRatioF()}}); });
+    QTimer::singleShot(0, &recorder, [&] { recorder.record("opened", {{"qt", qVersion()}, {"platform", app.platformName()}, {"dpr", window.devicePixelRatioF()},
+        {"fontRequested", family}, {"fontResolved", QFontInfo(recorder.document->defaultFont()).family()}}); });
     auto result = app.exec(); recorder.record("closed", {{"exitCode", result}}); return result;
 }
