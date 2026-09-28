@@ -4,7 +4,7 @@
 
 ## 同机证据比较
 
-同日逐键慢速补测也已完成并取回：两个 Qt 控件在数秒按键间隔下均复现候选栏换行偏移，取消后原文保留，正常退出；[完整复核](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/slow-20260928/README.md)保留早期远程送达异常，不将它算作控件错误。系统原生 EDIT 对照已校验传送包并在 Windows 启动 PID 29256，仍待恢复远程焦点后执行输入及取回结果；[启动记录](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/win32-started-20260928.md)不增加输入法通过项。
+同日逐键慢速补测也已完成并取回：两个 Qt 控件在数秒按键间隔下均复现候选栏换行偏移，取消后原文保留，正常退出；[完整复核](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/slow-20260928/README.md)保留早期远程送达异常，不将它算作控件错误。系统原生 EDIT 对照 PID 29256 已正常退出，最终原文及取回包的摘要通过核验；用户反馈无问题，但采样未捕获非空预编辑，自动换行条件尚待确认。[归档复核](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/win32-20260928/README.md)暂不增加候选定位独立通过项。
 
 2026-09-28 已完成 [Qt 标准文本框与画布控件的原生对照](evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/run-20260928/README.md)：两个独立进程各两次微软拼音换行，均出现候选栏停留旧行末尾；四次取消保留原文。系统光标及 IMM 候选设置点均已随换行更新，故不能归因为本次系统光标缺失，也不能只归因于画布控件。原始归档摘要、CRC、7 项成员身份通过独立核验。尚未定位具体责任或修复，不关闭 Qt IME 或 M1。
 

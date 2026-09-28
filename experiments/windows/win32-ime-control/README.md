@@ -1,6 +1,6 @@
 # 系统原生 EDIT 输入法对照（临时诊断）
 
-用于回答 Qt 两种控件都出现的候选栏换行偏移，是否也发生在 Windows 系统原生多行 EDIT 中。真实输入仅由用户或 CUA 通过 UU 操作；脚本不注入按键、合成输入法事件或覆盖候选位置。2026-09-28 已在 Windows 启动 PID 29256，原生输入及结果取回尚未完成，不是修复或验收通过。见[启动记录](../../../docs/windows/evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/win32-started-20260928.md)。
+用于回答 Qt 两种控件都出现的候选栏换行偏移，是否也发生在 Windows 系统原生多行 EDIT 中。真实输入仅由用户或 CUA 通过 UU 操作；脚本不注入按键、合成输入法事件或覆盖候选位置。2026-09-28 Windows PID 29256 已正常退出，原文及归档身份通过核验；用户反馈无问题，自动换行条件尚待确认，不是候选定位修复或独立验收通过。见[归档复核](../../../docs/windows/evidence/qt-native-ime-windows/candidate-diagnostic/control-comparison/win32-20260928/README.md)。
 
 Python 3 x64 直接使用系统 user32/gdi32/imm32。进程私有加载仓库固定思源字体，目标 32 逻辑像素、540 逻辑像素换行宽度、相同中文/英文/Emoji 原文。记录实际 DPI、GDI 解析字体名、系统光标、预编辑及 IMM 候选查询。系统 EDIT 的排版引擎、行间距、Emoji fallback 和预编辑绘制机制不同于 Qt，不能视为完全相同的布局；必须实际观察换行，不能只比较坐标数值。
 
