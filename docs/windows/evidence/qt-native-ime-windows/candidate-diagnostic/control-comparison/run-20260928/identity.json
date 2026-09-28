@@ -1,0 +1,45 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "manifest": {
+    "baseCommit": "8d6badda9713facf2c403e71327f88f7def103f7",
+    "sourceSha256": {
+      "experiments/windows/qt-ime-control/run.py": "ff2df7e0aded2afe7a4916c383610d7db337804aa967f8b79239be2d7cdc6f32",
+      "experiments/windows/qt-ime-control/CMakeLists.txt": "67310bbea6211ef7c664d618d024dbc133ecbd47b6e85d96652c31606b728cc6",
+      "experiments/windows/qt-ime-control/main.cpp": "f25fe3f2334ccc6eff72397a008e7a7efef20410c813c016e726836b7b92b683",
+      "experiments/windows/qt/text_probe.cpp": "0c79b4c4665ed907a1fa77be7296746f9bb7d0ff18fafcc4b3a2493f4e23205f",
+      "experiments/windows/qt/scene.cpp": "4a90aeb7419c096e22de015d1cd52dc3968eb832297d80e7fab320d8e3e52f65",
+      "experiments/windows/qt/composite.cpp": "243884dd7067d3ee8b3237ef7b7e9f93b486e4bec1f2fb06cd400aab8a12607f",
+      "experiments/windows/qt/window.hpp": "603ab21e8031d484a11eec5c8061ffbaf96c654fc09a4685302e77a9e9cc441d",
+      "experiments/windows/qt/scene.hpp": "4fc765f86ec1c1e0c5da7303a24625aa31ca1f84a44428488b6d92e08ea816af"
+    },
+    "dependencies": {
+      "Qt6Gui.dll": "14373fdf8387b58db274381eabe277865ac6d0ded519e457ffd959cb15d1449a",
+      "qt.conf": "d23e982f2910242a2bcdf7dabe68b036de9d2bb8ffad64fa9f86020c3ad118a4",
+      "libc++.dll": "936a36ba1b1b0779067f15b77a92752a9ec29d073183969e76610c9caab4485f",
+      "Qt6Widgets.dll": "d9b56253e8f029e23e5291c6d42eab2d74b88ecf5b23609a403198af8d776e04",
+      "libunwind.dll": "fc8c676629fc5c0a1a1c0bace29f2538306a404a1e1dd15bf1707a3b948c7696",
+      "Qt6Core.dll": "d672d0b5be99ffb5bd512e935c6b39429d2c569e430294f907d87da982cb0b55",
+      "platforms/qoffscreen.dll": "676186aa2afec0abcd5a30eb7a1547b43283f7517a2fe3bcad2709ee4ee7a541",
+      "platforms/qwindows.dll": "7fb737c19f3c4273aa6ec5df41807ea498af7a5eff292975dc3650b5a505b42e"
+    },
+    "payload": {
+      "run.py": "ff2df7e0aded2afe7a4916c383610d7db337804aa967f8b79239be2d7cdc6f32",
+      "libcompositor_native.dll": "962b7f785ce10e02d7f95d2101e64561957cd1052068a01560c433cb8106dde9",
+      "qt_ime_control.exe": "893b6b2b004bc68d98b5943ca21c1bfa2323dc1fb9ad9697e17303c4865a5a4a"
+    },
+    "scope": "Read-only IMM queries and native QTextEdit vs unchanged WindowText; no candidate position fix"
+  },
+  "processes": [
+    {
+      "control": "textedit",
+      "pid": 15352,
+      "exitCode": 0
+    },
+    {
+      "control": "windowtext",
+      "pid": 5332,
+      "exitCode": 0
+    }
+  ],
+  "candidatePositionAccepted": false
+}

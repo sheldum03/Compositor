@@ -1,0 +1,604 @@
+{
+  "status": "diagnostic completed; candidate wrap failed in both controls",
+  "windowsExecuted": true,
+  "candidatePositionAccepted": false,
+  "archive": {
+    "name": "qt-ime-control-20260928-111115.zip",
+    "bytes": 8440,
+    "sha256": "6edb6860959bdf64618ff56caa080371cbd6536bc209c82fac5fda552a9463cb",
+    "crcPassed": true,
+    "manifestFilesVerified": 7
+  },
+  "controls": [
+    {
+      "control": "textedit",
+      "pid": 15352,
+      "exitCode": 0,
+      "rows": 103,
+      "originalPreservedAllSnapshots": true,
+      "states": [
+        {
+          "utc": "2026-09-28T03:14:35.448Z",
+          "qtCursorRect": [
+            482.5,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            724,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              724,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              724,
+              197
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              724,
+              126
+            ],
+            "style": 32
+          },
+          "preedit": "z",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:14:42.869Z",
+          "qtCursorRect": [
+            102.5625,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            154,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              154,
+              203,
+              1,
+              70
+            ],
+            "point": [
+              154,
+              273
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              154,
+              203
+            ],
+            "style": 32
+          },
+          "preedit": "zhong",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:14:42.890Z",
+          "qtCursorRect": [
+            174.25,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            261,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              261,
+              203,
+              2,
+              70
+            ],
+            "point": [
+              261,
+              273
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              261,
+              203
+            ],
+            "style": 32
+          },
+          "preedit": "zhong'wen",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:14:53.689Z",
+          "qtCursorRect": [
+            467.3125,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            701,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              701,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              701,
+              197
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              701,
+              126
+            ],
+            "style": 32
+          },
+          "preedit": "",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:14:59.773Z",
+          "qtCursorRect": [
+            482.5,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            724,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              724,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              724,
+              197
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              724,
+              126
+            ],
+            "style": 32
+          },
+          "preedit": "z",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:15:07.012Z",
+          "qtCursorRect": [
+            102.5625,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            154,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              154,
+              203,
+              1,
+              70
+            ],
+            "point": [
+              154,
+              273
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              154,
+              203
+            ],
+            "style": 32
+          },
+          "preedit": "zhong",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:15:07.028Z",
+          "qtCursorRect": [
+            174.25,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            261,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              261,
+              203,
+              2,
+              70
+            ],
+            "point": [
+              261,
+              273
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              261,
+              203
+            ],
+            "style": 32
+          },
+          "preedit": "zhong'wen",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:15:13.348Z",
+          "qtCursorRect": [
+            467.3125,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            701,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              701,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              701,
+              197
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              701,
+              126
+            ],
+            "style": 32
+          },
+          "preedit": "",
+          "lines": 1
+        }
+      ]
+    },
+    {
+      "control": "windowtext",
+      "pid": 5332,
+      "exitCode": 0,
+      "rows": 154,
+      "originalPreservedAllSnapshots": true,
+      "states": [
+        {
+          "utc": "2026-09-28T03:15:36.559Z",
+          "qtCursorRect": [
+            739.5,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1109,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1109,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1109,
+              566
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              1109,
+              495
+            ],
+            "style": 32
+          },
+          "preedit": "z",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:15:44.037Z",
+          "qtCursorRect": [
+            359.5625,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            539,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              539,
+              572,
+              2,
+              70
+            ],
+            "point": [
+              539,
+              642
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              539,
+              572
+            ],
+            "style": 32
+          },
+          "preedit": "zhong",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:15:44.051Z",
+          "qtCursorRect": [
+            431.25,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            647,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              647,
+              572,
+              1,
+              70
+            ],
+            "point": [
+              647,
+              642
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              647,
+              572
+            ],
+            "style": 32
+          },
+          "preedit": "zhong'wen",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:15:50.309Z",
+          "qtCursorRect": [
+            724.3125,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1086,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1086,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1086,
+              566
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              1086,
+              495
+            ],
+            "style": 32
+          },
+          "preedit": "",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:15:59.630Z",
+          "qtCursorRect": [
+            739.5,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1109,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1109,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1109,
+              566
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              1109,
+              495
+            ],
+            "style": 32
+          },
+          "preedit": "z",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:16:08.339Z",
+          "qtCursorRect": [
+            359.5625,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            539,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              539,
+              572,
+              2,
+              70
+            ],
+            "point": [
+              539,
+              642
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              539,
+              572
+            ],
+            "style": 32
+          },
+          "preedit": "zhong",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:16:08.353Z",
+          "qtCursorRect": [
+            431.25,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            647,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              647,
+              572,
+              1,
+              70
+            ],
+            "point": [
+              647,
+              642
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              647,
+              572
+            ],
+            "style": 32
+          },
+          "preedit": "zhong'wen",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:16:20.006Z",
+          "qtCursorRect": [
+            724.3125,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1086,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1086,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1086,
+              566
+            ],
+            "style": 128
+          },
+          "compositionForm": {
+            "point": [
+              1086,
+              495
+            ],
+            "style": 32
+          },
+          "preedit": "",
+          "lines": 1
+        }
+      ]
+    }
+  ],
+  "visualObservation": {
+    "source": "CUA screenshots observed live in this task; no standalone screenshot files in ZIP",
+    "repetitionsPerControl": 2,
+    "result": "preedit wraps to next line; candidate popup remains beside previous line end",
+    "cancel": "original text preserved after all four Escape operations"
+  },
+  "limits": [
+    "IMM forms are requested settings, not measured actual candidate popup rectangles",
+    "input-after may repeat for receivers; not counted as independent keystrokes",
+    "same device, Microsoft Pinyin, Qt 6.11.2, DPR 1.5",
+    "hongwen keys sent in rapid sequence; slow-key control pending"
+  ]
+}

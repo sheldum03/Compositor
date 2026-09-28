@@ -1,0 +1,62 @@
+qt.qpa.input.methods: startComposition QGraphicsView(0x23c4b02fb10) QWidgetWindow(0x23c4b0821b0, name="QWidgetClassWindow") language= 2052
+qt.qpa.input.methods: cursorRectChanged QRect(1086,495 2x71)
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1109,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1138,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1167,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1197,495 1x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(539,572 2x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(591,572 2x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(618,572 1x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(647,572 1x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1086,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 1  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: endComposition false 0x90a80
+qt.qpa.input.methods: cursorRectChanged QRect(1086,495 2x71)
+qt.qpa.input.methods: startComposition QGraphicsView(0x23c4b02fb10) QWidgetWindow(0x23c4b0821b0, name="QWidgetClassWindow") language= 2052
+qt.qpa.input.methods: cursorRectChanged QRect(1086,495 2x71)
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1109,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1138,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1167,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1197,495 1x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(539,572 2x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(591,572 2x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(618,572 1x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(647,572 1x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: > composition QGraphicsView(0x23c4b02fb10) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(1086,495 2x71)
+qt.qpa.input.methods: < composition sending markup= 1  commit= ""  to  QGraphicsView(0x23c4b02fb10)  returns  true
+qt.qpa.input.methods: endComposition false 0x90a80
+qt.qpa.input.methods: cursorRectChanged QRect(1086,495 2x71)
