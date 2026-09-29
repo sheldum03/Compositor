@@ -1,6 +1,6 @@
 # Windows 版技术设计
 
-状态：候选设计，尚无 Windows 实现。需求见 [PRD](product-requirements.md)；开源候选事实来源见 [调研](../research/windows-port-open-source-evaluation.md)。不把候选库的能力写成已经验证的产品能力。当前结构和修订依据见[代码耦合审计](code-coupling-audit.md)；下文是目标设计，现有 Mac 工程并不具备这些独立模块。
+状态：目标设计；受限 Windows 原型已执行，生产路线于 2026-09-29 [选择 Avalonia](m1-route-decision-20260929.md)，正式产品仍待实现。需求见 [PRD](product-requirements.md)；开源候选事实来源见 [调研](../research/windows-port-open-source-evaluation.md)。不把候选库的能力写成已经验证的产品能力。当前结构和修订依据见[代码耦合审计](code-coupling-audit.md)；下文是目标设计，现有 Mac 工程并不具备这些独立模块。
 
 ## 1. 实施原则
 
@@ -161,7 +161,7 @@ CI 初期只加必要路径：Windows Release 构建、核心/格式/渲染测�
 | ID | 问题 | 当前建议/状态 | 最晚阶段 | 决策所需证据 |
 | --- | --- | --- | --- | --- |
 | D-01 | OS/CPU 范围 | 已确认 Windows 11 x64（用户 2026-09-21） | M0 | 目标用户设备、可用实机、依赖支持 |
-| D-02 | GUI/语言 | Qt/C++ 或 Avalonia/C#，未决定；见 [M1 评审草案](m1-selection-review.md) | M1 | 同场景原型、文本输入验证、团队维护能力 |
+| D-02 | GUI/语言 | 2026-09-29 选定 Avalonia/C# 单一生产路线；见 [M1 决定](m1-route-decision-20260929.md) | M1 | 同场景原型、文本输入验证、团队维护能力 |
 | D-03 | 笔刷算法/GPU 方案 | CPU 先测；确认与 Metal 基线的语义差异；无默认独立 GPU 库 | M1 可行性，M5 优化定稿 | 连续覆盖、历史/物化、端到端耗时；CPU 不达标时先证明备选路径 |
 | D-04 | 工程容器 | 已确认首版 v8 .comp 文件夹工程（用户 2026-09-21） | M0 | Windows 打开/复制体验、Mac 互读；单文件需求是否必需 |
 | D-05 | 文字排版 | 保存栅格保真，编辑后平台重排 | M1 | 同字体/缺失字体、IME、光标与栅格一致性 |

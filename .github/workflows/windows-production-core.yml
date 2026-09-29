@@ -1,0 +1,40 @@
+name: Windows production core
+
+on:
+  push:
+    paths:
+      - .github/workflows/windows-production-core.yml
+      - windows/**
+      - Compositor/Rendering/**
+      - docs/windows/fixtures/**
+  pull_request:
+    paths:
+      - .github/workflows/windows-production-core.yml
+      - windows/**
+      - Compositor/Rendering/**
+      - docs/windows/fixtures/**
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: windows/global.json
+      - name: Build production core
+        working-directory: windows
+        run: dotnet build Compositor.Smoke/Compositor.Smoke.csproj -c Release
+      - name: Build shared C algorithms
+        run: |
+          cmake -S windows/native -B "$env:RUNNER_TEMP/compositor-native" -A x64
+          cmake --build "$env:RUNNER_TEMP/compositor-native" --config Release
+      - name: Verify first engineering path
+        working-directory: windows
+        run: dotnet run --project Compositor.Smoke -c Release --no-build -- ../docs/windows/fixtures "$env:RUNNER_TEMP/compositor-core-$env:GITHUB_RUN_ID" "$env:RUNNER_TEMP/compositor-native/Release/compositor_native.dll"
