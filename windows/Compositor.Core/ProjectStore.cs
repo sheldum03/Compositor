@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -49,6 +50,7 @@ public static class ProjectStore
         string images = Path.Combine(source, "images");
         CheckPlain(images);
         string imageName = "";
+        (uint Width, uint Height) imageSize = default;
         if (layers.Count == 1) imageName = layers[0]?["imageFile"]?.GetValue<string>() ?? "";
         foreach (var layerNode in layers)
         {
@@ -63,14 +65,22 @@ public static class ProjectStore
                 CheckPlain(asset);
                 if (new FileInfo(asset).Length > 512L * 1024 * 1024)
                     throw new InvalidDataException("Asset exceeds 512 MiB.");
-                CheckPng(asset);
+                var dimensions = CheckPng(asset);
+                if (layers.Count == 1 && key == "imageFile") imageSize = dimensions;
             }
         }
         bool canEdit = version == 1 && layers.Count == 1 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             IsSimpleLayer(layers[0]!.AsObject(), width, height, imageName) &&
+            imageSize == ((uint)width, (uint)height) &&
             Directory.GetFiles(images).Length == 1 && Directory.GetDirectories(images).Length == 0;
-        return new ProjectSession(source, manifest, imageName, canEdit);
+        ReadOnlyMemory<byte> imageHash = default;
+        if (canEdit)
+        {
+            using var stream = File.OpenRead(Path.Combine(images, imageName));
+            imageHash = SHA256.HashData(stream);
+        }
+        return new ProjectSession(source, manifest, imageName, canEdit, imageHash);
     }
 
     public static void Save(ProjectSession session, string directory)
@@ -85,8 +95,9 @@ public static class ProjectStore
         try
         {
             Directory.CreateDirectory(Path.Combine(temporary, "images"));
-            File.Copy(Path.Combine(session.SourceDirectory, "images", session.ImageName),
-                Path.Combine(temporary, "images", session.ImageName));
+            string copiedImage = Path.Combine(temporary, "images", session.ImageName);
+            File.Copy(Path.Combine(session.SourceDirectory, "images", session.ImageName), copiedImage);
+            CheckImageHash(session, copiedImage);
             File.WriteAllText(Path.Combine(temporary, "manifest.json"), session.Current.ToJsonString(JsonOptions));
             if (!Open(temporary).CanEdit) throw new InvalidDataException("Saved project failed validation.");
             if (Directory.Exists(destination))
@@ -118,7 +129,24 @@ public static class ProjectStore
     public static void ExportPng(ProjectSession session, string output)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be exported yet.");
-        File.Copy(Path.Combine(session.SourceDirectory, "images", session.ImageName), output, overwrite: false);
+        string temporary = Path.GetFullPath(output) + ".tmp-" + Guid.NewGuid().ToString("N");
+        try
+        {
+            File.Copy(Path.Combine(session.SourceDirectory, "images", session.ImageName), temporary);
+            CheckImageHash(session, temporary);
+            File.Move(temporary, output);
+        }
+        finally
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+        }
+    }
+
+    private static void CheckImageHash(ProjectSession session, string image)
+    {
+        using var stream = File.OpenRead(image);
+        if (!SHA256.HashData(stream).AsSpan().SequenceEqual(session.ImageHash.Span))
+            throw new IOException("Source image changed after opening the project.");
     }
 
     private static bool IsSimpleLayer(JsonObject layer, int width, int height, string imageName)
@@ -137,7 +165,7 @@ public static class ProjectStore
             transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
     }
 
-    private static void CheckPng(string path)
+    private static (uint Width, uint Height) CheckPng(string path)
     {
         using var stream = File.OpenRead(path);
         Span<byte> header = stackalloc byte[24];
@@ -147,6 +175,7 @@ public static class ProjectStore
         uint height = BinaryPrimitives.ReadUInt32BigEndian(header[20..24]);
         if (width == 0 || height == 0 || width > 30000 || height > 30000 || (ulong)width * height > 100_000_000)
             throw new InvalidDataException("Invalid PNG dimensions.");
+        return (width, height);
     }
 
     private static void CheckPlain(string path)

@@ -2,14 +2,14 @@
 
 M1 选用 Avalonia/.NET；此目录是生产实现，`experiments/windows/` 继续保存原型证据。当前仅有与 GUI 无关的工程核心初始切片：读取 v1–8 manifest 基本字段、图像路径及 PNG 头部，识别一个可编辑的 v1 单图层工程；固定 F02～F08 样本可以打开为只读，不允许编辑保存。单图层切片支持图层改名、撤销/重做、安全另存、重开与原 PNG 导出。它尚不是完整 M2，更不是 Windows 编辑器。
 
-固定 SDK 10.0.401。验证命令：
+固定 SDK 10.0.401。当前只把源 PNG 与画布尺寸一致、未变换的单图层工程标为可编辑；打开后若源 PNG 被外部改动，保存和导出会拒绝写出，以免悄悄替换会话中的图像。验证命令：
 
 ```sh
 cd windows
 dotnet run --project Compositor.Smoke -c Release -- ../docs/windows/fixtures <新的空目录>
 ```
 
-Windows 上也可从解压后的源码根目录双击 `windows/run-smoke.cmd`。脚本将固定 SDK 版本、Release 构建与托管核心冒烟输出写入源码根目录下的 `production-core-smoke-*` 文件，窗口保持打开以便查看退出结果。需要已安装 .NET SDK 10.0.401。
+Windows 上也可从解压后的源码根目录双击 `windows/run-smoke.cmd`。脚本将固定 SDK 版本、Release 构建与托管核心冒烟输出写入源码根目录下的 `production-core-smoke-*` 文件，窗口保持打开以便查看退出结果。需要 .NET SDK 10.0.401；若使用便携 SDK，先把 `DOTNET_EXE` 环境变量设为其 `dotnet.exe` 的绝对路径。
 
 共享 C 算法的正式桥接源码在 `windows/native/`；提供原生库路径作为冒烟第三个参数，才会执行预乘 RGBA 夹取与 alpha 提取的 P/Invoke 检查。Windows CI 以 CMake 构建此库并执行完整冒烟。本地 macOS 无 CMake 时已用 clang 从相同 C 源构建并检查；Windows 结果须独立取得。
 

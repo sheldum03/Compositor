@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
+using System.Text.Json.Nodes;
 using Compositor.Core;
 
 if (args.Length is not (2 or 3)) throw new ArgumentException("Usage: Compositor.Smoke <fixtures directory> <new output directory> [native library]");
@@ -10,6 +11,45 @@ if (Directory.Exists(output)) throw new IOException("Output directory already ex
 Directory.CreateDirectory(output);
 var session = ProjectStore.Open(fixture);
 if (!session.CanEdit || session.IsDirty) throw new Exception("Fixture must be editable and clean.");
+string scaled = Path.Combine(output, "ScaledSource.comp");
+Directory.CreateDirectory(Path.Combine(scaled, "images"));
+File.Copy(Path.Combine(fixture, "images", session.ImageName), Path.Combine(scaled, "images", session.ImageName));
+var scaledManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixture, "manifest.json")))!.AsObject();
+int scaledWidth = scaledManifest["width"]!.GetValue<int>() + 1;
+scaledManifest["width"] = scaledWidth;
+scaledManifest["layers"]![0]!["transform"]!["size"]![0] = scaledWidth;
+File.WriteAllText(Path.Combine(scaled, "manifest.json"), scaledManifest.ToJsonString());
+var scaledSession = ProjectStore.Open(scaled);
+if (scaledSession.CanEdit) throw new Exception("Scaled source was made editable without rendering support.");
+try
+{
+    ProjectStore.Save(scaledSession, Path.Combine(output, "Unexpected.comp"));
+    throw new Exception("Scaled source was saved without rendering support.");
+}
+catch (NotSupportedException) { }
+string mutable = Path.Combine(output, "Mutable.comp");
+Directory.CreateDirectory(Path.Combine(mutable, "images"));
+File.Copy(Path.Combine(fixture, "manifest.json"), Path.Combine(mutable, "manifest.json"));
+string mutableImage = Path.Combine(mutable, "images", session.ImageName);
+File.Copy(Path.Combine(fixture, "images", session.ImageName), mutableImage);
+var mutableSession = ProjectStore.Open(mutable);
+using (var stream = new FileStream(mutableImage, FileMode.Append)) stream.WriteByte(1);
+string changedSave = Path.Combine(output, "Changed.comp");
+try
+{
+    ProjectStore.Save(mutableSession, changedSave);
+    throw new Exception("Externally changed image was saved.");
+}
+catch (IOException) { }
+if (Directory.Exists(changedSave)) throw new Exception("Rejected changed image left a saved project.");
+string changedExport = Path.Combine(output, "changed.png");
+try
+{
+    ProjectStore.ExportPng(mutableSession, changedExport);
+    throw new Exception("Externally changed image was exported.");
+}
+catch (IOException) { }
+if (File.Exists(changedExport)) throw new Exception("Rejected changed image left an export.");
 string before = session.LayerName;
 session.RenameLayer("Windows smoke edit");
 if (!session.IsDirty || session.LayerName != "Windows smoke edit") throw new Exception("Rename failed.");
@@ -77,5 +117,5 @@ try
     throw new Exception("Future-version project was accepted.");
 }
 catch (NotSupportedException) { }
-Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, backup recovery, v1-v8 recognition and write protection, tile snapshots" +
+Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, backup recovery, v1-v8 recognition and write protection, scaled-source write protection, changed-asset protection, tile snapshots" +
     (args.Length == 3 ? ", native C pixels" : ""));

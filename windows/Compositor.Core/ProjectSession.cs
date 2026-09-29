@@ -8,10 +8,11 @@ public sealed class ProjectSession
     private int cursor;
     private JsonObject savedSnapshot;
 
-    internal ProjectSession(string sourceDirectory, JsonObject manifest, string imageName, bool canEdit)
+    internal ProjectSession(string sourceDirectory, JsonObject manifest, string imageName, bool canEdit, ReadOnlyMemory<byte> imageHash)
     {
         SourceDirectory = sourceDirectory;
         ImageName = imageName;
+        ImageHash = imageHash;
         CanEdit = canEdit;
         snapshots = [manifest];
         savedSnapshot = manifest;
@@ -19,6 +20,7 @@ public sealed class ProjectSession
 
     public string SourceDirectory { get; private set; }
     public string ImageName { get; }
+    internal ReadOnlyMemory<byte> ImageHash { get; }
     public bool CanEdit { get; }
     public bool IsDirty => !ReferenceEquals(Current, savedSnapshot);
     public string LayerName => Current["layers"]![0]!["name"]!.GetValue<string>();

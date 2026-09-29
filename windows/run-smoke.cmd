@@ -1,19 +1,20 @@
 @echo off
 setlocal
 set "RESULT=1"
+if not defined DOTNET_EXE set "DOTNET_EXE=dotnet"
 cd /d "%~dp0"
 set "OUT=%CD%\..\production-core-smoke-%RANDOM%"
 if exist "%OUT%" (
   echo Output already exists: %OUT%
   goto done
 )
-dotnet --version > "%OUT%.sdk.txt" 2>&1
+"%DOTNET_EXE%" --version > "%OUT%.sdk.txt" 2>&1
 if errorlevel 1 goto failed
 findstr /x /c:"10.0.401" "%OUT%.sdk.txt" >nul
 if errorlevel 1 goto failed
-dotnet build Compositor.Smoke\Compositor.Smoke.csproj -c Release > "%OUT%.build.log" 2>&1
+"%DOTNET_EXE%" build Compositor.Smoke\Compositor.Smoke.csproj -c Release > "%OUT%.build.log" 2>&1
 if errorlevel 1 goto failed
-dotnet run --project Compositor.Smoke -c Release --no-build -- ..\docs\windows\fixtures "%OUT%" > "%OUT%.run.log" 2>&1
+"%DOTNET_EXE%" run --project Compositor.Smoke -c Release --no-build -- ..\docs\windows\fixtures "%OUT%" > "%OUT%.run.log" 2>&1
 if errorlevel 1 goto failed
 findstr /b /c:"PASS: edit," "%OUT%.run.log" >nul
 if errorlevel 1 goto failed

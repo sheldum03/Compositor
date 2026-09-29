@@ -10,4 +10,4 @@
 PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, backup recovery, unsupported-project protection
 ```
 
-冒烟程序在输出 PASS 前，实际重开保存的工程，检查 `Edited.comp/manifest.json` 不因拒绝保存而改变，读取导出 `export.png` 并与原图逐字节 SHA-256 对比，确认备份恢复及不支持工程不能写入。故 r2 的这条受限工程读写链路在 Windows 11 实机上通过。该结果不覆盖最新版瓦片/原生桥接，也不等于 M2 整体通过。终端成功画面已由 UU 远程观察；远端终端转储和完整输出目录尚未取回，因此本记录对成功项的独立文件复核仍低于失败日志的原始文件复核。
+冒烟程序在输出 PASS 前，实际重开保存的工程，检查 `Edited.comp/manifest.json` 不因拒绝保存而改变，读取导出 `export.png` 并与原图逐字节 SHA-256 对比，确认备份恢复及不支持工程不能写入。故 r2 的这条受限工程读写链路在 Windows 11 实机上通过。该结果不覆盖最新版瓦片/原生桥接，也不等于 M2 整体通过。终端成功画面已由 UU 远程观察。[取回的 PowerShell 转储](success-commands-transcript.zip)记录了主机、SDK、构建和运行命令，但没有捕获原生程序的标准输出；完整输出目录尚未取回。因此本记录对成功项的独立文件复核仍低于失败日志的原始文件复核。
