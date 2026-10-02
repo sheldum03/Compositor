@@ -1,0 +1,19 @@
+{
+  "scope": "Local failure injection verifies runner exit/log handling only; no Windows execution",
+  "checks": [
+    {
+      "case": "nonzero-exit",
+      "runnerExit": 1,
+      "recordedChildExit": 7,
+      "passed": true
+    },
+    {
+      "case": "wrong-sdk",
+      "runnerExit": 1,
+      "recordedChildExit": 0,
+      "passed": true
+    }
+  ],
+  "runnerSha256": "0e8bec8cbc9145340fd14d604f4257a60099836a17bac8656fb322f71a2d2979",
+  "rawDirectory": "/Users/admin/.codex/visualizations/2026/10/02/production-r4-runner-local-checks"
+}
