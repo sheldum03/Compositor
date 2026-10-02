@@ -1,0 +1,29 @@
+Test Suite 'Selected tests' started at 2026-10-02 11:32:24.144.
+Test Suite 'CompositorTests.xctest' started at 2026-10-02 11:32:24.144.
+Test Suite 'CompositorTests.xctest' passed at 2026-10-02 11:32:24.144.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-02 11:32:24.145.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite WindowsProductionWorkflowTests started.
+◇ Test productionFlatNormalMatchesMacRenderer() started.
+✔ Test productionFlatNormalMatchesMacRenderer() passed after 0.062 seconds.
+◇ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+◇ Test case passing 1 argument name → "Image" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Edited" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Oriented" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​✔ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) with 3 test cases passed after 0.050 seconds.
+✔ Suite WindowsProductionWorkflowTests passed after 0.113 seconds.
+✔ Test run with 2 tests in 1 suite passed after 0.113 seconds.
+2026-10-02 11:32:24.536 xcodebuild[78847:449080] [MT] IDETestOperationsObserverDebug: 1.469 elapsed -- Testing started completed.
+2026-10-02 11:32:24.536 xcodebuild[78847:449080] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-02 11:32:24.536 xcodebuild[78847:449080] [MT] IDETestOperationsObserverDebug: 1.469 sec, +1.469 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/admin/.codex/visualizations/2026/10/02/production-flat-normal-mac-validation/suite-readback.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

@@ -16,6 +16,38 @@ struct WindowsProductionWorkflowTests {
         return result
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_FLAT_DIR"] != nil,
+                   "Set WINDOWS_PRODUCTION_FLAT_DIR to the fixed two-layer production fixture."))
+    func productionFlatNormalMatchesMacRenderer() async throws {
+        let root = URL(fileURLWithPath: try #require(
+            ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_FLAT_DIR"]))
+        let reference = try #require(NSBitmapImageRep(
+            data: Data(contentsOf: root.appendingPathComponent("composite-csharp.png")))?.cgImage)
+        let snapshot = try await ProjectStore.shared.load(from: root.appendingPathComponent("Flat.comp"))
+        #expect(snapshot.manifest.version == 8 && snapshot.manifest.layers.count == 2)
+        #expect(snapshot.manifest.layers.last?.name == "Top")
+        let rendered = try await ImageExporter.shared.render(snapshot).image
+        #expect(rendered.width == reference.width && rendered.height == reference.height)
+        let expected = try pixels(reference)
+        let actual = try pixels(rendered)
+        try #require(actual.count == expected.count)
+        let differences = zip(actual, expected).map { abs(Int($0) - Int($1)) }
+        let maximum = differences.max() ?? 0
+        let changedChannels = differences.filter { $0 != 0 }.count
+        if let output = ProcessInfo.processInfo.environment["MAC_PRODUCTION_FLAT_OUTPUT_DIR"] {
+            let directory = URL(fileURLWithPath: output)
+            try #require(!FileManager.default.fileExists(atPath: directory.path), "Use a fresh output directory")
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let png = try #require(NSBitmapImageRep(cgImage: rendered).representation(using: .png, properties: [:]))
+            try png.write(to: directory.appendingPathComponent("mac-render.png"))
+            let report: [String: Any] = ["maximumChannelError": maximum, "changedChannels": changedChannels,
+                                         "comparedChannels": actual.count, "exact": maximum == 0]
+            try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
+                .write(to: directory.appendingPathComponent("comparison.json"))
+        }
+        #expect(maximum == 0, "Flat Normal production/Mac mismatch: max \(maximum), \(changedChannels) channels")
+    }
+
     @Test(.enabled(if: ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_WORKFLOW_DIR"] != nil,
                    "Run Compositor.Workflow.Checks and set WINDOWS_PRODUCTION_WORKFLOW_DIR to its output."),
           arguments: ["Image", "Edited", "Oriented"])
