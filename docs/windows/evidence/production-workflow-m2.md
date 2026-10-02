@@ -13,3 +13,5 @@ PASS: v8 PNG/JPEG import, pixel and metadata history, safe save, reopen, PNG/JPE
 已为真实 Mac reader 对照保留三组生产输出：`Image.comp` 与 `memory-export.png` 为初始像素，`Edited.comp` 与 `export.png` 为编辑后像素，`Oriented.comp` 与 `oriented-export.png` 为 EXIF 6 后像素。[真实 Mac 应用读回记录](production-workflow-mac-readback.md)已验证这三组的像素、身份、编辑保存重开。Mac 正常保存会补写默认的 `blendMode: "Normal"`、`opacity: 1`、`isGroup: false`；反向测试最初复现 Core 拒绝三份 Mac 工程，修复白名单后，直接对三份**原始 Mac 输出**执行 `OpenEditable`、修改像素与名称、安全保存、重开及 PNG 导出均通过；非默认混合、透明度和组层仍保持只读。反向输出保留在 `/Users/admin/.codex/visualizations/2026/10/02/production-workflow-integration/mac-return`，28 文件 SHA-256 清单在同级 `mac-return-sha256.json`。
 
 **上述两方向都在 macOS 上执行，Windows 11 实机尚未执行此整合版。** 单层 v8 支持仅是受限子集，v1～v8 完整语义、性能与内存压力、剩余保存故障和生产窗口仍未验收，不能据此关闭 M2 或 W-015。
+
+用于 Windows 实机的[统一 r4 源码包](production-core-windows-r4/README.md)已从新解压目录完成本地封包复核；Windows 结果仍须独立取得。

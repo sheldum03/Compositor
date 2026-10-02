@@ -17,3 +17,5 @@
 对上述真实 Mac 保存输出调用当前 C# `ProjectStore.Open`，三个工程均返回 `CanEdit=false`，独立探针退出 1，见[反向失败记录](production-workflow-mac-readback/reverse-before.txt)。Mac 常规保存显式写入 `blendMode: "Normal"`、`opacity: 1`、`isGroup: false`，当前单图层白名单尚不接受这些语义等价的默认值。这个结果不推翻 Mac 方向的通过，但说明双向可编辑链路尚未完成。
 
 已交给生产整合任务修复：保留默认字段并识别其语义，同时继续拒绝尚未支持的混合、不透明度和分组；必须用原始 Mac 输出重新执行编辑/保存/导出，不能删字段绕过。完整多图层、蒙版、文字及所有 v1–8 语义仍按原 M2/M6 计划推进，不以这三个单图层样本代替。
+
+**后续修复：** 生产 Core 现接受上述三个显式默认值，并保持非默认混合、透明度和组层只读。对本页归档的三份原始 Mac 输出执行 C# `OpenEditable`、像素与名称编辑、安全保存、重开和 PNG 导出均通过，未删改输入字段；见[反向工作流记录](production-workflow-m2.md)。本节的红灯保留为修复前证据。
