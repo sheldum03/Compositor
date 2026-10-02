@@ -74,6 +74,10 @@ public static class ProjectStore
                 string name = fileNode.GetValue<string>();
                 if (Path.GetFileName(name) != name || !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Unsafe asset name.");
+                string expected = Guid.Parse(layer["id"]!.GetValue<string>()).ToString("D") +
+                    (key == "maskFile" ? ".mask.png" : ".png");
+                if (!string.Equals(name, expected, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("Asset name does not match its layer ID.");
                 string asset = Path.Combine(images, name);
                 CheckPlain(asset);
                 if (new FileInfo(asset).Length > 512L * 1024 * 1024)
