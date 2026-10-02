@@ -1,5 +1,7 @@
 # M2 PNG/JPEG 生产像素 IO 切片（2026-10-02）
 
+本页记录初始切片；同日后续已补 [PNG CRC/容器完整性及反例](production-imaging-png-integrity.md)，原始结果和摘要保留不改写。
+
 新增 [Compositor.Imaging](../../../windows/Compositor.Imaging/README.md)，以已有 `TileRaster` 为输入/输出，采用路线固定的 SkiaSharp 2.88.9。它实际解码 PNG/JPEG、转换到 sRGB 预乘 RGBA、应用 EXIF 方向，导出透明 PNG 或带调用方指定背景的 JPEG。它尚未接入工程 reader、导入事务和生产窗口，不代表 W-015 或 M2 全部完成。
 
 ## 本地验证

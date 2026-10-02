@@ -68,5 +68,19 @@
     "height": 1,
     "expected": "linear-profile.png.rgba.gz",
     "tolerance": 1
+  },
+  {
+    "file": "split-idat.png",
+    "width": 2,
+    "height": 3,
+    "expected": "split-idat.png.rgba.gz",
+    "tolerance": 0
+  },
+  {
+    "file": "ancillary-after-idat.png",
+    "width": 2,
+    "height": 3,
+    "expected": "ancillary-after-idat.png.rgba.gz",
+    "tolerance": 0
   }
 ]

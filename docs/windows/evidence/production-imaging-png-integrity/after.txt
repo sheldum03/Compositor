@@ -1,0 +1,1 @@
+PASS: PNG pixels/alpha/tiles, JPEG EXIF 1-8, linear ICC to sRGB, PNG roundtrip, explicit JPEG background, rejected input/output protection

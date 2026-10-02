@@ -81,5 +81,41 @@ reference('linear-profile.png',8,1,expected,1)
 (root/'too-wide.png').write_bytes(png(30001,1,bytes(30001*4)))
 (root/'too-many-pixels.png').write_bytes(png(10001,10000,b''))
 Image.new('RGB',(2,2),'red').save(root/'unsupported.gif')
+
+# Container integrity cases retain decodable pixels, so decoding alone is insufficient.
+tiny_pixels = bytes([255,0,0,255, 0,255,0,255, 0,0,255,255, 80,90,100,255, 0,0,0,255, 255,255,255,255])
+tiny = png(2,3,tiny_pixels)
+header, end = tiny[:33], chunk(b'IEND', b'')
+payload_size = struct.unpack('>I',tiny[33:37])[0]
+payload = tiny[41:41+payload_size]
+split = len(payload)//2
+idat = chunk(b'IDAT',payload)
+for name,data in {
+    'split-idat.png': header+chunk(b'IDAT',payload[:split])+chunk(b'IDAT',payload[split:])+end,
+    'ancillary-after-idat.png': header+idat+chunk(b'vpAg',b'owned metadata')+end,
+}.items():
+    (root/name).write_bytes(data)
+    reference(name,2,3,tiny_pixels)
+bad_crc = bytearray(idat); bad_crc[-1] ^= 1
+bad_ancillary = bytearray(chunk(b'tEXt',b'Comment\0owned metadata')); bad_ancillary[-1] ^= 1
+invalid_png = {
+    'missing-iend.png': tiny[:-12],
+    'truncated-iend.png': tiny[:-1],
+    'bad-iend-crc.png': tiny[:-1]+bytes([tiny[-1]^1]),
+    'extra-tail.png': tiny+b'trailing bytes',
+    'bad-ancillary-crc.png': header+idat+bad_ancillary+end,
+    'bad-idat-crc.png': header+bad_crc+end,
+    'unknown-critical.png': header+chunk(b'ABCD',b'')+idat+end,
+    'repeated-ihdr.png': header+header[8:]+idat+end,
+    'idat-gap.png': header+chunk(b'IDAT',payload[:split])+chunk(b'tEXt',b'Comment\0gap')+chunk(b'IDAT',payload[split:])+end,
+    'invalid-chunk-name.png': header+idat+chunk(b't3Xt',b'')+end,
+    'oversized-chunk.png': header+struct.pack('>I',0x80000000)+b'IDAT'+end,
+    'no-idat.png': header+end,
+    'nonempty-iend.png': header+idat+chunk(b'IEND',b'a'),
+    'invalid-plte.png': header+chunk(b'PLTE',b'12')+idat+end,
+    'late-plte.png': header+idat+chunk(b'PLTE',b'123')+end,
+}
+for name,data in invalid_png.items(): (root/name).write_bytes(data)
+(root/'png-invalid.json').write_text(json.dumps(list(invalid_png),indent=2)+'\n')
 (root/'cases.json').write_text(json.dumps(records,indent=2)+'\n')
-print(f'Generated {len(records)} reference cases and five invalid/unsupported inputs')
+print(f'Generated {len(records)} reference cases, five original rejection inputs and {len(invalid_png)} PNG integrity cases')

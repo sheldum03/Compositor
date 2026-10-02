@@ -32,6 +32,7 @@ foreach (var item in cases.RootElement.EnumerateArray())
 foreach (string name in new[] { "truncated.png", "truncated.jpg", "too-wide.png", "too-many-pixels.png" })
     Reject<InvalidDataException>(() => ImageCodec.Load(Path.Combine(fixtures, name)), name);
 Reject<NotSupportedException>(() => ImageCodec.Load(Path.Combine(fixtures, "unsupported.gif")), "GIF");
+int pngIntegrityChecks = PngIntegrityChecks.Run(fixtures, output);
 
 var transparent = new TileRaster(32, 32);
 var halfRed = transparent.ReplaceTile(0, 0,
@@ -69,7 +70,7 @@ Require(!Directory.EnumerateFiles(output, "*.tmp-*").Any(), "Temporary output le
 File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
 {
     platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
-    cases = results, rejectionChecks = 8, passed = true
+    cases = results, rejectionChecks = 8 + pngIntegrityChecks, passed = true
 }, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine("PASS: PNG pixels/alpha/tiles, JPEG EXIF 1-8, linear ICC to sRGB, PNG roundtrip, explicit JPEG background, rejected input/output protection");
 

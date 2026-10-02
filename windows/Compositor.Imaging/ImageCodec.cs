@@ -11,6 +11,7 @@ public static class ImageCodec
         using var stream = File.OpenRead(path);
         if (stream.Length > 512L * 1024 * 1024)
             throw new InvalidDataException("Image exceeds 512 MiB.");
+        PngIntegrity.ValidateIfPng(stream);
         using var codec = SKCodec.Create(stream)
             ?? throw new InvalidDataException("Cannot decode image.");
         if (codec.EncodedFormat is not (SKEncodedImageFormat.Png or SKEncodedImageFormat.Jpeg))
