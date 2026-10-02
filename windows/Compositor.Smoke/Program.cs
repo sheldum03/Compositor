@@ -212,6 +212,7 @@ if (args.Length == 3)
     if (!rgba.AsSpan().SequenceEqual(new byte[] { 100, 40, 100, 100, 1, 2, 3, 4 }) ||
         !NativePixels.ExtractAlpha(rgba, 2, 1, 8).AsSpan().SequenceEqual(new byte[] { 100, 4 }))
         throw new Exception("Native C pixel boundary failed.");
+    NativeSelectionChecks.Run(output);
 }
 try
 {

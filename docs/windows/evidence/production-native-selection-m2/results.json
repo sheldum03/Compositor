@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "maskCases": 10,
+  "invalidInputs": 5,
+  "repeatedTraceChecks": 100,
+  "detailedOutlineRejected": true,
+  "inputPreserved": true,
+  "ringOutline": {
+    "Coordinates": [
+      0,
+      0,
+      3,
+      0,
+      3,
+      3,
+      0,
+      3,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      1
+    ],
+    "LoopLengths": [
+      4,
+      4
+    ]
+  },
+  "limits": "Native interface checks; no editor selection transaction, canvas interaction or Windows claim unless run there."
+}

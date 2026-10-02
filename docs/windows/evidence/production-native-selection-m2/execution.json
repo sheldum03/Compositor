@@ -1,0 +1,62 @@
+[
+  {
+    "step": "native",
+    "command": [
+      "clang",
+      "-O2",
+      "-std=c17",
+      "-dynamiclib",
+      "-I/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/windows/native/bridge.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/AdjustPixels.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/BrushPixels.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/ContentFill.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/HealPixels.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/LensPixels.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/LevelsPixels.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/NoisePixels.c",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/source/Compositor/Rendering/WandPixels.c",
+      "-o",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/libcompositor_native.dylib"
+    ],
+    "exitCode": 0
+  },
+  {
+    "step": "restore",
+    "command": [
+      "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/dotnet-sdk-osx-arm64/dotnet",
+      "restore",
+      "Compositor.Smoke/Compositor.Smoke.csproj",
+      "--locked-mode",
+      "--source",
+      "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows-clean-build-20260924/local-source-preflight/feed",
+      "-p:NuGetAudit=false",
+      "-p:RestorePackagesPath=/tmp/compositor-nuget-packages"
+    ],
+    "exitCode": 0
+  },
+  {
+    "step": "build",
+    "command": [
+      "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/dotnet-sdk-osx-arm64/dotnet",
+      "build",
+      "Compositor.Smoke/Compositor.Smoke.csproj",
+      "-c",
+      "Release",
+      "--no-restore",
+      "-p:RestorePackagesPath=/tmp/compositor-nuget-packages"
+    ],
+    "exitCode": 0
+  },
+  {
+    "step": "run",
+    "command": [
+      "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/dotnet-sdk-osx-arm64/dotnet",
+      "Compositor.Smoke/bin/Release/net10.0/Compositor.Smoke.dll",
+      "/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/fixtures",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/output",
+      "/Users/admin/.codex/visualizations/2026/10/02/production-native-selection-m2/libcompositor_native.dylib"
+    ],
+    "exitCode": 0
+  }
+]
