@@ -84,6 +84,15 @@ public static class ImageProjectWorkflow
             TileRaster raster = ImageCodec.Load(image);
             if (raster.Width != width || raster.Height != height)
                 throw new InvalidDataException("Layer image dimensions do not match the canvas.");
+            if (layer["maskFile"] is { } maskFile)
+            {
+                string maskPath = Path.Combine(session.SourceDirectory, "images", maskFile.GetValue<string>());
+                GrayTileRaster mask = ImageCodec.LoadGrayMask(maskPath);
+                if (mask.Width != width || mask.Height != height)
+                    throw new NotSupportedException("Only full-canvas masks at the default placement are supported.");
+                if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
+                    raster = RasterCompositor.ApplyMask(raster, mask);
+            }
             if (layer["isVisible"]!.GetValue<bool>()) result = RasterCompositor.SourceOver(result, raster);
         }
         return result;
@@ -111,8 +120,9 @@ public static class ImageProjectWorkflow
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "name", "opacity", "transform" }.Contains(pair.Key)) ||
             layer["imageFile"] is null || layer["isVisible"] is null ||
+            layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
             layer["opacity"] is { } opacity && opacity.GetValue<double>() != 1 ||
             layer["blendMode"] is { } blend && blend.GetValue<string>() != "Normal") return false;

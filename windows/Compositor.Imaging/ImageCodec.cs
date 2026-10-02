@@ -60,6 +60,44 @@ public static class ImageCodec
     public static void SavePng(TileRaster raster, string output) =>
         Save(raster, output, SKEncodedImageFormat.Png, 100, null);
 
+    public static unsafe GrayTileRaster LoadGrayMask(string path)
+    {
+        using var stream = File.OpenRead(path);
+        if (stream.Length > 512L * 1024 * 1024)
+            throw new InvalidDataException("Mask exceeds 512 MiB.");
+        PngIntegrity.ValidateIfPng(stream);
+        if (stream.Length < 26) throw new InvalidDataException("Invalid mask PNG header.");
+        Span<byte> header = stackalloc byte[26];
+        stream.ReadExactly(header);
+        stream.Position = 0;
+        if (header[24] != 8 || header[25] != 0)
+            throw new InvalidDataException("Mask must be 8-bit grayscale without alpha.");
+        using var codec = SKCodec.Create(stream)
+            ?? throw new InvalidDataException("Cannot decode mask.");
+        if (codec.EncodedFormat != SKEncodedImageFormat.Png ||
+            codec.Info.ColorType != SKColorType.Gray8 || codec.Info.AlphaType != SKAlphaType.Opaque ||
+            (int)codec.EncodedOrigin != 1)
+            throw new InvalidDataException("Mask must be an unrotated 8-bit grayscale PNG without alpha.");
+        int width = codec.Info.Width, height = codec.Info.Height;
+        CheckDimensions(width, height);
+        using var bitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Gray8, SKAlphaType.Opaque));
+        if (codec.GetPixels(bitmap.Info, bitmap.GetPixels(), bitmap.RowBytes, SKCodecOptions.Default) != SKCodecResult.Success)
+            throw new InvalidDataException("Mask decoding failed.");
+        var raster = new GrayTileRaster(width, height);
+        var pixels = (byte*)bitmap.GetPixels();
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            var tile = new byte[size.Width * size.Height];
+            for (int y = 0; y < size.Height; y++)
+                new ReadOnlySpan<byte>(pixels + (row * TileRaster.TileSize + y) * bitmap.RowBytes + column * TileRaster.TileSize,
+                    size.Width).CopyTo(tile.AsSpan(y * size.Width, size.Width));
+            raster = raster.ReplaceTile(column, row, tile);
+        }
+        return raster;
+    }
+
     // JPEG has no alpha; callers must explicitly choose an opaque background.
     public static void SaveJpeg(TileRaster raster, string output, int quality,
         (byte R, byte G, byte B) background)

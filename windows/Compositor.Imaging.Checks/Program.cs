@@ -32,6 +32,13 @@ foreach (var item in cases.RootElement.EnumerateArray())
 foreach (string name in new[] { "truncated.png", "truncated.jpg", "too-wide.png", "too-many-pixels.png" })
     Reject<InvalidDataException>(() => ImageCodec.Load(Path.Combine(fixtures, name)), name);
 Reject<NotSupportedException>(() => ImageCodec.Load(Path.Combine(fixtures, "unsupported.gif")), "GIF");
+var mask = ImageCodec.LoadGrayMask(Path.Combine(fixtures, "gray-mask.png"));
+byte[] maskPixels = mask.ReadTileCopy(0, 0);
+Require(mask.Width == 64 && mask.Height == 48 && maskPixels[0] == 0 && maskPixels[1] == 4 &&
+    maskPixels[23 * 64 + 31] == 125 && maskPixels[47 * 64 + 63] == 255,
+    "Gray8 mask coverage changed during decoding");
+Reject<InvalidDataException>(() => ImageCodec.LoadGrayMask(Path.Combine(fixtures, "alpha-tiles.png")),
+    "RGBA image as Gray8 mask");
 int pngIntegrityChecks = PngIntegrityChecks.Run(fixtures, output);
 
 var transparent = new TileRaster(32, 32);
@@ -70,9 +77,9 @@ Require(!Directory.EnumerateFiles(output, "*.tmp-*").Any(), "Temporary output le
 File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
 {
     platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
-    cases = results, rejectionChecks = 8 + pngIntegrityChecks, passed = true
+    cases = results, rejectionChecks = 9 + pngIntegrityChecks, passed = true
 }, new JsonSerializerOptions { WriteIndented = true }));
-Console.WriteLine("PASS: PNG pixels/alpha/tiles, JPEG EXIF 1-8, linear ICC to sRGB, PNG roundtrip, explicit JPEG background, rejected input/output protection");
+Console.WriteLine("PASS: PNG pixels/alpha/tiles, JPEG EXIF 1-8, linear ICC to sRGB, Gray8 mask coverage, PNG roundtrip, explicit JPEG background, rejected input/output protection");
 
 static byte[] Flatten(TileRaster raster)
 {

@@ -2,6 +2,29 @@ namespace Compositor.Core;
 
 public static class RasterCompositor
 {
+    public static TileRaster ApplyMask(TileRaster image, GrayTileRaster mask)
+    {
+        if (image.Width != mask.Width || image.Height != mask.Height)
+            throw new ArgumentException("Image and mask dimensions must match.");
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            byte[] coverage = mask.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < coverage.Length; pixel++)
+            {
+                int i = pixel * 4, alpha = pixels[i + 3];
+                if (pixels[i] > alpha || pixels[i + 1] > alpha || pixels[i + 2] > alpha)
+                    throw new InvalidDataException("Layer contains invalid premultiplied RGBA.");
+                for (int channel = 0; channel < 4; channel++)
+                    pixels[i + channel] = (byte)((pixels[i + channel] * coverage[pixel] + 127) / 255);
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+    }
+
     public static TileRaster SourceOver(TileRaster bottom, TileRaster top)
     {
         if (bottom.Width != top.Width || bottom.Height != top.Height)

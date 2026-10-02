@@ -1,6 +1,8 @@
 using System.Text.Json.Nodes;
+using System.Runtime.InteropServices;
 using Compositor.Core;
 using Compositor.Imaging;
+using SkiaSharp;
 
 if (args.Length is not (2 or 3)) throw new ArgumentException("Usage: Compositor.Workflow.Checks <image fixtures> <new output directory> [Mac-produced projects]");
 string fixtures = Path.GetFullPath(args[0]);
@@ -146,9 +148,9 @@ historySession.RenameLayer("New branch");
 if (historySession.Redo() || historySession.LayerName != "New branch")
     throw new Exception("A new edit retained an abandoned redo branch.");
 
-CheckCompositing(output);
+CheckCompositing(output, fixtures);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
-Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat Normal project composition" +
+Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat Normal and Gray8 mask project composition" +
     (args.Length == 3 ? ", Mac-produced v8 continuation and non-default protection" : ""));
 
 static void AssertRaster(TileRaster expected, TileRaster actual)
@@ -161,7 +163,7 @@ static void AssertRaster(TileRaster expected, TileRaster actual)
             throw new Exception($"Raster differs at tile {column},{row}.");
 }
 
-static void CheckCompositing(string output)
+static void CheckCompositing(string output, string fixtures)
 {
     var bottom = new TileRaster(300, 300);
     for (int row = 0; row < 2; row++)
@@ -258,6 +260,57 @@ static void CheckCompositing(string output)
     string exported = Path.Combine(output, "composite.png");
     ImageCodec.SavePng(ImageProjectWorkflow.RenderFlatNormal(flat), exported);
     AssertRaster(result, ImageCodec.Load(exported));
+
+    string masked = Path.Combine(output, "Masked.comp");
+    string maskedImages = Path.Combine(masked, "images");
+    Directory.CreateDirectory(maskedImages);
+    foreach (string asset in Directory.GetFiles(images))
+        File.Copy(asset, Path.Combine(maskedImages, Path.GetFileName(asset)));
+    var maskedManifest = JsonNode.Parse(originalManifest)!.AsObject();
+    var maskedTop = maskedManifest["layers"]![1]!.AsObject();
+    string maskName = topId.ToUpperInvariant() + ".mask.png";
+    maskedTop["maskFile"] = maskName;
+    maskedTop["maskEnabled"] = true;
+    string maskedManifestPath = Path.Combine(masked, "manifest.json");
+    File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
+    string maskPath = Path.Combine(maskedImages, maskName);
+    SaveGrayMask(maskPath, 300, 300);
+    GrayTileRaster gray = ImageCodec.LoadGrayMask(maskPath);
+    byte[] changedMaskTile = gray.ReadTileCopy(0, 0);
+    changedMaskTile[0] = 255;
+    if (gray.ReadTileCopy(0, 0)[0] != 0 ||
+        gray.ReplaceTile(0, 0, changedMaskTile).ReadTileCopy(0, 0)[0] != 255)
+        throw new Exception("Gray mask snapshot did not own its tile bytes.");
+    TileRaster maskedResult = ImageProjectWorkflow.RenderFlatNormal(masked);
+    if (!Pixel(maskedResult, 0, 0).SequenceEqual(new byte[] { 40, 80, 120, 200 }) ||
+        !Pixel(maskedResult, 2, 0).SequenceEqual(new byte[] { 255, 0, 0, 255 }) ||
+        !Pixel(maskedResult, 256, 0).SequenceEqual(new byte[] { 30, 124, 90, 214 }) ||
+        !Pixel(top, 0, 0).SequenceEqual(new byte[] { 80, 20, 40, 128 }))
+        throw new Exception("Gray8 layer mask coverage produced wrong premultiplied pixels.");
+    string maskedExport = Path.Combine(output, "masked-composite.png");
+    ImageCodec.SavePng(maskedResult, maskedExport);
+    AssertRaster(maskedResult, ImageCodec.Load(maskedExport));
+    maskedTop["maskEnabled"] = false;
+    File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
+    AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(masked));
+    maskedTop["maskEnabled"] = true;
+    File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
+    SaveGrayMask(maskPath, 299, 300);
+    try
+    {
+        ImageProjectWorkflow.RenderFlatNormal(masked);
+        throw new Exception("Incorrect mask dimensions were rendered.");
+    }
+    catch (NotSupportedException) { }
+    File.Copy(Path.Combine(fixtures, "alpha-tiles.png"), maskPath, overwrite: true);
+    try
+    {
+        ImageProjectWorkflow.RenderFlatNormal(masked);
+        throw new Exception("RGBA image was accepted as a Gray8 mask.");
+    }
+    catch (InvalidDataException) { }
+    SaveGrayMask(maskPath, 300, 300);
+
     try
     {
         RasterCompositor.SourceOver(bottom, new TileRaster(1, 1));
@@ -272,6 +325,21 @@ static void CheckCompositing(string output)
         throw new Exception("Invalid premultiplied source was accepted.");
     }
     catch (InvalidDataException) { }
+}
+
+static void SaveGrayMask(string path, int width, int height)
+{
+    using var bitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Gray8, SKAlphaType.Opaque));
+    byte[] pixels = Enumerable.Repeat((byte)128, bitmap.RowBytes * height).ToArray();
+    pixels[0] = 0;
+    pixels[1] = 255;
+    pixels[2] = 255;
+    Marshal.Copy(pixels, 0, bitmap.GetPixels(), pixels.Length);
+    using var image = SKImage.FromBitmap(bitmap);
+    using var data = image.Encode(SKEncodedImageFormat.Png, 100)
+        ?? throw new IOException("Cannot encode Gray8 test mask.");
+    using var stream = File.Create(path);
+    data.SaveTo(stream);
 }
 
 static byte[] Pixel(TileRaster raster, int x, int y)
