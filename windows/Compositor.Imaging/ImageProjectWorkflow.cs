@@ -50,6 +50,7 @@ public static class ImageProjectWorkflow
     {
         var session = ProjectStore.Open(projectDirectory);
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
+        if (session.ImageName.Length == 0) return session;
         string temporary = Path.Combine(Path.GetTempPath(), "compositor-image-" + Guid.NewGuid().ToString("N") + ".png");
         try
         {
@@ -63,11 +64,14 @@ public static class ImageProjectWorkflow
         }
     }
 
-    public static TileRaster RenderFlatNormal(string projectDirectory)
+    public static TileRaster RenderFlatNormal(string projectDirectory) =>
+        RenderFlatNormal(ProjectStore.Open(projectDirectory));
+
+    public static TileRaster RenderFlatNormal(ProjectSession session)
     {
-        var session = ProjectStore.Open(projectDirectory);
         var manifest = session.Current;
-        if (manifest["version"]!.GetValue<int>() != 8 ||
+        int version = manifest["version"]!.GetValue<int>();
+        if (version is not (1 or 8) || version == 1 && manifest["layers"]!.AsArray().Count != 1 ||
             !manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)))
             throw new NotSupportedException("This project cannot be rendered by the flat Normal renderer.");
         int width = manifest["width"]!.GetValue<int>(), height = manifest["height"]!.GetValue<int>();
@@ -80,8 +84,16 @@ public static class ImageProjectWorkflow
             var layer = node!.AsObject();
             if (!IsFlatNormalLayer(layer, width, height))
                 throw new NotSupportedException("This layer needs rendering features that are not implemented yet.");
-            string image = Path.Combine(session.SourceDirectory, "images", layer["imageFile"]!.GetValue<string>());
-            TileRaster raster = ImageCodec.Load(image);
+            string imageName = layer["imageFile"]!.GetValue<string>();
+            string image = Path.Combine(session.SourceDirectory, "images", imageName);
+            TileRaster raster;
+            if (session.Raster is { } memory && imageName == session.ImageName) raster = memory;
+            else
+            {
+                if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);
+                raster = ImageCodec.Load(image);
+                if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);
+            }
             if (raster.Width != width || raster.Height != height)
                 throw new InvalidDataException("Layer image dimensions do not match the canvas.");
             if (layer["maskFile"] is { } maskFile)
@@ -100,19 +112,24 @@ public static class ImageProjectWorkflow
 
     public static void Save(ProjectSession session, string projectDirectory)
     {
-        RequireRaster(session);
-        ProjectStore.Save(session, projectDirectory, EncodeRaster);
+        if (!session.CanEdit) throw new NotSupportedException("This project cannot be saved yet.");
+        if (session.ImageName.Length == 0) ProjectStore.Save(session, projectDirectory);
+        else
+        {
+            RequireRaster(session);
+            ProjectStore.Save(session, projectDirectory, EncodeRaster);
+        }
     }
 
     public static void ExportPng(ProjectSession session, string output)
     {
-        ImageCodec.SavePng(RequireRaster(session), output);
+        ImageCodec.SavePng(RenderFlatNormal(session), output);
     }
 
     public static void ExportJpeg(ProjectSession session, string output, int quality,
         (byte R, byte G, byte B) background)
     {
-        ImageCodec.SaveJpeg(RequireRaster(session), output, quality, background);
+        ImageCodec.SaveJpeg(RenderFlatNormal(session), output, quality, background);
     }
 
     private static TileRaster RequireRaster(ProjectSession session) => session.CanEdit && session.Raster is { } raster

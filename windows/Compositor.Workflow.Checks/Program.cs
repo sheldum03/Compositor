@@ -21,6 +21,17 @@ if (!session.CanEdit || session.IsDirty || session.Raster is null ||
         Guid.Parse(importedId).ToString("D").ToUpperInvariant() + ".png")
     throw new Exception("PNG import did not create a clean editable v8 project.");
 AssertRaster(ImageCodec.Load(sourcePng), session.Raster);
+string legacy = Path.Combine(output, "Legacy.comp");
+Directory.CreateDirectory(Path.Combine(legacy, "images"));
+File.Copy(Path.Combine(project, "images", importedManifest["layers"]![0]!["imageFile"]!.GetValue<string>()),
+    Path.Combine(legacy, "images", importedManifest["layers"]![0]!["imageFile"]!.GetValue<string>()));
+var legacyManifest = (JsonObject)importedManifest.DeepClone();
+legacyManifest["version"] = 1;
+File.WriteAllText(Path.Combine(legacy, "manifest.json"), legacyManifest.ToJsonString());
+var legacySession = ImageProjectWorkflow.OpenEditable(legacy);
+string legacyExport = Path.Combine(output, "legacy-export.png");
+ImageProjectWorkflow.ExportPng(legacySession, legacyExport);
+AssertRaster(session.Raster, ImageCodec.Load(legacyExport));
 try
 {
     session.RenameLayer("  ");
@@ -150,7 +161,7 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
 
 CheckCompositing(output, fixtures);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
-Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat Normal and Gray8 mask project composition" +
+Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer metadata edit/save, Normal and Gray8 mask composition" +
     (args.Length == 3 ? ", Mac-produced v8 continuation and non-default protection" : ""));
 
 static void AssertRaster(TileRaster expected, TileRaster actual)
@@ -219,9 +230,18 @@ static void CheckCompositing(string output, string fixtures)
     string manifestPath = Path.Combine(flat, "manifest.json");
     string originalManifest = manifest.ToJsonString();
     File.WriteAllText(manifestPath, originalManifest);
-    if (ProjectStore.Open(flat).CanEdit)
-        throw new Exception("Multi-layer project was made editable without full write support.");
+    var flatSession = ImageProjectWorkflow.OpenEditable(flat);
+    if (!flatSession.CanEdit || flatSession.Raster is not null)
+        throw new Exception("Flat multi-layer project did not open for metadata editing.");
+    Guid topLayerId = Guid.Parse(topId);
+    flatSession.RenameLayer(topLayerId, "Top");
+    flatSession.SetLayerVisible(topLayerId, true);
+    flatSession.MoveLayer(topLayerId, 1);
+    if (flatSession.IsDirty) throw new Exception("No-op layer changes created history.");
     AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(flat));
+    var orderSession = ImageProjectWorkflow.OpenEditable(flat);
+    orderSession.MoveLayer(Guid.Parse(topId), 0);
+    AssertRaster(RasterCompositor.SourceOver(top, bottom), ImageProjectWorkflow.RenderFlatNormal(orderSession));
     try
     {
         topLayer["isVisible"] = false;
@@ -230,6 +250,7 @@ static void CheckCompositing(string output, string fixtures)
         topLayer["isVisible"] = true;
         topLayer["blendMode"] = "Multiply";
         File.WriteAllText(manifestPath, manifest.ToJsonString());
+        if (ProjectStore.Open(flat).CanEdit) throw new Exception("Unsupported blend mode became editable.");
         try
         {
             ImageProjectWorkflow.RenderFlatNormal(flat);
@@ -239,6 +260,7 @@ static void CheckCompositing(string output, string fixtures)
         topLayer.Remove("blendMode");
         topLayer["opacity"] = 0.5;
         File.WriteAllText(manifestPath, manifest.ToJsonString());
+        if (ProjectStore.Open(flat).CanEdit) throw new Exception("Unsupported opacity became editable.");
         try
         {
             ImageProjectWorkflow.RenderFlatNormal(flat);
@@ -248,6 +270,7 @@ static void CheckCompositing(string output, string fixtures)
         topLayer.Remove("opacity");
         topLayer["transform"]!["origin"]![0] = 1;
         File.WriteAllText(manifestPath, manifest.ToJsonString());
+        if (ProjectStore.Open(flat).CanEdit) throw new Exception("Unsupported transform became editable.");
         try
         {
             ImageProjectWorkflow.RenderFlatNormal(flat);
@@ -256,6 +279,63 @@ static void CheckCompositing(string output, string fixtures)
         catch (NotSupportedException) { }
     }
     finally { File.WriteAllText(manifestPath, originalManifest); }
+
+    flatSession.RenameLayer(topLayerId, "Overlay");
+    flatSession.SetLayerVisible(topLayerId, false);
+    flatSession.MoveLayer(topLayerId, 0);
+    if (!flatSession.IsDirty || flatSession.Layers[0].Id != topLayerId ||
+        flatSession.Layers[0].Name != "Overlay" || flatSession.Layers[0].IsVisible)
+        throw new Exception("Flat layer metadata transaction lost identity or ordering.");
+    AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(flatSession));
+    if (!flatSession.Undo()) throw new Exception("Layer reorder did not undo.");
+    AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(flatSession));
+    if (!flatSession.Undo()) throw new Exception("Layer visibility did not undo.");
+    AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(flatSession));
+    if (!flatSession.Undo() || flatSession.IsDirty || flatSession.Layers[1].Name != "Top")
+        throw new Exception("Layer rename undo did not return to the save point.");
+    if (!flatSession.Redo() || !flatSession.Redo() || !flatSession.Redo() || flatSession.Redo())
+        throw new Exception("Flat layer metadata redo path is wrong.");
+    string flatEdited = Path.Combine(output, "FlatEdited.comp");
+    ImageProjectWorkflow.Save(flatSession, flatEdited);
+    if (flatSession.IsDirty) throw new Exception("Flat multi-layer save did not advance the save point.");
+    foreach (string asset in Directory.GetFiles(images))
+        if (!File.ReadAllBytes(asset).SequenceEqual(File.ReadAllBytes(Path.Combine(flatEdited, "images", Path.GetFileName(asset)))))
+            throw new Exception("Flat multi-layer save changed an untouched layer asset.");
+    var flatReopened = ImageProjectWorkflow.OpenEditable(flatEdited);
+    if (!flatReopened.CanEdit || flatReopened.Layers[0].Name != "Overlay" ||
+        flatReopened.Layers[0].Id != topLayerId || flatReopened.Layers[0].IsVisible)
+        throw new Exception("Flat multi-layer save did not reopen with its layer identity.");
+    AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(flatReopened));
+    string flatPreview = Path.Combine(output, "flat-edited-export.png");
+    ImageProjectWorkflow.ExportPng(flatReopened, flatPreview);
+    AssertRaster(bottom, ImageCodec.Load(flatPreview));
+    try
+    {
+        ProjectStore.ExportPng(flatReopened, Path.Combine(output, "flat-unsafe-raw.png"));
+        throw new Exception("A raw layer asset was exported as the whole flat project.");
+    }
+    catch (NotSupportedException) { }
+    if (!flatSession.Undo() || !flatSession.IsDirty || !flatSession.Redo() || flatSession.IsDirty)
+        throw new Exception("Flat multi-layer history lost its saved revision.");
+    string flatMutable = Path.Combine(output, "FlatMutable.comp");
+    Directory.CreateDirectory(Path.Combine(flatMutable, "images"));
+    File.Copy(Path.Combine(flatEdited, "manifest.json"), Path.Combine(flatMutable, "manifest.json"));
+    foreach (string asset in Directory.GetFiles(Path.Combine(flatEdited, "images")))
+        File.Copy(asset, Path.Combine(flatMutable, "images", Path.GetFileName(asset)));
+    var mutableFlat = ImageProjectWorkflow.OpenEditable(flatMutable);
+    mutableFlat.SetLayerVisible(topLayerId, true);
+    string changedAsset = Path.Combine(flatMutable, "images", topLayer["imageFile"]!.GetValue<string>());
+    using (var stream = new FileStream(changedAsset, FileMode.Append)) stream.WriteByte(1);
+    string rejectedFlatSave = Path.Combine(output, "FlatChanged.comp");
+    try
+    {
+        ImageProjectWorkflow.Save(mutableFlat, rejectedFlatSave);
+        throw new Exception("Changed multi-layer asset was saved.");
+    }
+    catch (IOException) { }
+    if (!mutableFlat.IsDirty || Directory.Exists(rejectedFlatSave) ||
+        Directory.GetDirectories(output, "FlatChanged.comp.tmp-*").Length != 0)
+        throw new Exception("Rejected multi-layer save changed state or left temporary files.");
 
     string exported = Path.Combine(output, "composite.png");
     ImageCodec.SavePng(ImageProjectWorkflow.RenderFlatNormal(flat), exported);
@@ -275,6 +355,8 @@ static void CheckCompositing(string output, string fixtures)
     File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
     string maskPath = Path.Combine(maskedImages, maskName);
     SaveGrayMask(maskPath, 300, 300);
+    if (ProjectStore.Open(masked).CanEdit)
+        throw new Exception("Masked project became editable without mask save support.");
     GrayTileRaster gray = ImageCodec.LoadGrayMask(maskPath);
     byte[] changedMaskTile = gray.ReadTileCopy(0, 0);
     changedMaskTile[0] = 255;

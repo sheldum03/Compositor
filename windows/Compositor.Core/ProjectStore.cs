@@ -63,8 +63,8 @@ public static class ProjectStore
         string images = Path.Combine(source, "images");
         CheckPlain(images);
         string imageName = "";
-        (uint Width, uint Height) imageSize = default;
         if (layers.Count == 1) imageName = layers[0]?["imageFile"]?.GetValue<string>() ?? "";
+        bool allImageSizesMatch = true;
         foreach (var layerNode in layers)
         {
             var layer = layerNode!.AsObject();
@@ -83,21 +83,30 @@ public static class ProjectStore
                 if (new FileInfo(asset).Length > 512L * 1024 * 1024)
                     throw new InvalidDataException("Asset exceeds 512 MiB.");
                 var dimensions = CheckPng(asset);
-                if (layers.Count == 1 && key == "imageFile") imageSize = dimensions;
+                if (key == "imageFile" && dimensions != ((uint)width, (uint)height))
+                    allImageSizesMatch = false;
             }
         }
-        bool canEdit = version is 1 or 8 && layers.Count == 1 &&
+        bool canEdit = version is 1 or 8 && layers.Count > 0 && (version == 8 || layers.Count == 1) &&
+            (long)layers.Count * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
-            IsSimpleLayer(layers[0]!.AsObject(), width, height, imageName) &&
-            imageSize == ((uint)width, (uint)height) &&
-            Directory.GetFiles(images).Length == 1 && Directory.GetDirectories(images).Length == 0;
+            layers.All(node => IsFlatEditableLayer(node!.AsObject(), width, height)) &&
+            allImageSizesMatch && Directory.GetFiles(images).Length == layers.Count &&
+            Directory.GetDirectories(images).Length == 0;
+        var assetHashes = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         ReadOnlyMemory<byte> imageHash = default;
         if (canEdit)
         {
-            using var stream = File.OpenRead(Path.Combine(images, imageName));
-            imageHash = SHA256.HashData(stream);
+            foreach (var layerNode in layers)
+            {
+                string name = layerNode!["imageFile"]!.GetValue<string>();
+                using var stream = File.OpenRead(Path.Combine(images, name));
+                assetHashes.Add(name, SHA256.HashData(stream));
+            }
+            if (layers.Count == 1) imageHash = assetHashes[imageName];
+            else imageName = "";
         }
-        return new ProjectSession(source, manifest, imageName, canEdit, imageHash);
+        return new ProjectSession(source, manifest, imageName, canEdit, imageHash, assetHashes);
     }
 
     public static void Save(ProjectSession session, string directory) =>
@@ -127,19 +136,22 @@ public static class ProjectStore
         try
         {
             Directory.CreateDirectory(Path.Combine(temporary, "images"));
-            string copiedImage = Path.Combine(temporary, "images", session.ImageName);
-            string sourceImage = Path.Combine(session.SourceDirectory, "images", session.ImageName);
-            if (session.RequiresRasterEncoding)
+            foreach (var (name, _) in session.AssetHashes)
             {
-                if (encodeRaster is null) throw new NotSupportedException("Raster encoder is required for pixel edits.");
-                CheckImageHash(session, sourceImage);
-                encodeRaster(session.Raster!, copiedImage);
-                CheckImageHash(session, sourceImage);
-            }
-            else
-            {
-                File.Copy(sourceImage, copiedImage);
-                CheckImageHash(session, copiedImage);
+                string copiedImage = Path.Combine(temporary, "images", name);
+                string sourceImage = Path.Combine(session.SourceDirectory, "images", name);
+                if (session.RequiresRasterEncoding && name == session.ImageName)
+                {
+                    if (encodeRaster is null) throw new NotSupportedException("Raster encoder is required for pixel edits.");
+                    CheckAssetHash(session, name, sourceImage);
+                    encodeRaster(session.Raster!, copiedImage);
+                    CheckAssetHash(session, name, sourceImage);
+                }
+                else
+                {
+                    File.Copy(sourceImage, copiedImage);
+                    CheckAssetHash(session, name, copiedImage);
+                }
             }
             File.WriteAllText(Path.Combine(temporary, "manifest.json"), session.Current.ToJsonString(JsonOptions));
             if (!Open(temporary).CanEdit) throw new InvalidDataException("Saved project failed validation.");
@@ -157,7 +169,7 @@ public static class ProjectStore
             var verified = Open(destination);
             if (!verified.CanEdit) throw new InvalidDataException("Final project failed validation.");
             committed = true;
-            session.MarkSaved(destination, verified.ImageHash);
+            session.MarkSaved(destination, verified.AssetHashes);
             if (movedOld) deleteBackup(backup);
         }
         catch
@@ -178,14 +190,15 @@ public static class ProjectStore
 
     public static void ExportPng(ProjectSession session, string output)
     {
-        if (!session.CanEdit) throw new NotSupportedException("This project cannot be exported yet.");
+        if (!session.CanEdit || session.ImageName.Length == 0)
+            throw new NotSupportedException("Only single-layer projects can copy their image as an export.");
         if (session.RequiresRasterEncoding)
             throw new NotSupportedException("Pixel edits require the image encoder for export.");
         string temporary = Path.GetFullPath(output) + ".tmp-" + Guid.NewGuid().ToString("N");
         try
         {
             File.Copy(Path.Combine(session.SourceDirectory, "images", session.ImageName), temporary);
-            CheckImageHash(session, temporary);
+            CheckAssetHash(session, session.ImageName, temporary);
             File.Move(temporary, output);
         }
         finally
@@ -194,10 +207,10 @@ public static class ProjectStore
         }
     }
 
-    private static void CheckImageHash(ProjectSession session, string image)
+    internal static void CheckAssetHash(ProjectSession session, string name, string image)
     {
         using var stream = File.OpenRead(image);
-        if (!SHA256.HashData(stream).AsSpan().SequenceEqual(session.ImageHash.Span))
+        if (!SHA256.HashData(stream).AsSpan().SequenceEqual(session.AssetHashes[name]))
             throw new IOException("Source image changed after opening the project.");
     }
 
@@ -245,14 +258,14 @@ public static class ProjectStore
         return id;
     }
 
-    private static bool IsSimpleLayer(JsonObject layer, int width, int height, string imageName)
+    private static bool IsFlatEditableLayer(JsonObject layer, int width, int height)
     {
         if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "name", "opacity", "transform" }.Contains(pair.Key)) ||
-            layer["isVisible"]?.GetValue<bool>() != true || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
+            layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
             layer["opacity"] is { } opacity && opacity.GetValue<double>() != 1 ||
             layer["blendMode"] is { } blend && blend.GetValue<string>() != "Normal" ||
-            !string.Equals(imageName, id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase)) return false;
+            !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase)) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();

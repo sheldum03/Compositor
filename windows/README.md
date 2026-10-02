@@ -17,6 +17,6 @@ Windows 上也可从解压后的源码根目录双击 `windows/run-smoke.cmd`。
 
 后续顺序：完整文档事务和资产身份、共享瓦片的多层合成（已有平面 Normal 图层及全画布 Gray8 蒙版的只读工程渲染，其他变换/蒙版位置/组等仍缺）、受保护的 v1–8 reader、剩余保存故障与图像格式/资源压力验证，随后把核心接入唯一 Avalonia 生产窗口。UI、IME、S02/S05 和设备测试均在正式应用上重新验收。
 
-生产像素链路的独立检查：先在 `windows/` 下对 `Compositor.Workflow.Checks` 执行 `dotnet restore --locked-mode`，再运行 `dotnet run --project Compositor.Workflow.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。测试会生成新 v8 工程、编辑并撤销/重做像素、保存重开、导出 PNG/JPEG，再检查恢复旧快照、拒绝损坏输入及外部资产变化。Core 不依赖 Imaging；只有工作流调用二者。当前仍限单层，完整 v8 语义和 Windows 实机执行未验收。
+生产像素链路的独立检查：先在 `windows/` 下对 `Compositor.Workflow.Checks` 执行 `dotnet restore --locked-mode`，再运行 `dotnet run --project Compositor.Workflow.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。测试会生成新 v8 工程、编辑并撤销/重做像素、保存重开、导出 PNG/JPEG，再检查恢复旧快照、拒绝损坏输入及外部资产变化。Core 不依赖 Imaging；只有工作流调用二者。像素编辑目前仍限单层；平面多层可改名、显隐、排序并安全保存，其他完整 v8 语义和 Windows 实机执行未验收。
 
 真实保存中断检查：锁定恢复 `Compositor.SaveCrash.Checks` 后，执行 `dotnet run --project Compositor.SaveCrash.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。父进程在 PNG 写入、目录替换及备份清理边界终止本测试创建的 8 个子进程，再核对完整旧版/新版像素及备份保护。详见[进程终止证据](../docs/windows/evidence/production-save-process-kill-m2.md)；本地通过不等于 Windows 或断电持久性通过。
