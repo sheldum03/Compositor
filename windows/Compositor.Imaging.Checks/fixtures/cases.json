@@ -1,0 +1,72 @@
+[
+  {
+    "file": "alpha-tiles.png",
+    "width": 259,
+    "height": 257,
+    "expected": "alpha-tiles.png.rgba.gz",
+    "tolerance": 0
+  },
+  {
+    "file": "orientation-1.jpg",
+    "width": 23,
+    "height": 17,
+    "expected": "orientation-1.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-2.jpg",
+    "width": 23,
+    "height": 17,
+    "expected": "orientation-2.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-3.jpg",
+    "width": 23,
+    "height": 17,
+    "expected": "orientation-3.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-4.jpg",
+    "width": 23,
+    "height": 17,
+    "expected": "orientation-4.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-5.jpg",
+    "width": 17,
+    "height": 23,
+    "expected": "orientation-5.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-6.jpg",
+    "width": 17,
+    "height": 23,
+    "expected": "orientation-6.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-7.jpg",
+    "width": 17,
+    "height": 23,
+    "expected": "orientation-7.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "orientation-8.jpg",
+    "width": 17,
+    "height": 23,
+    "expected": "orientation-8.jpg.rgba.gz",
+    "tolerance": 3
+  },
+  {
+    "file": "linear-profile.png",
+    "width": 8,
+    "height": 1,
+    "expected": "linear-profile.png.rgba.gz",
+    "tolerance": 1
+  }
+]
