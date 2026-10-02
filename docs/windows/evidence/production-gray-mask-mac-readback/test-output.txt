@@ -1,0 +1,31 @@
+Test Suite 'Selected tests' started at 2026-10-02 11:51:59.135.
+Test Suite 'CompositorTests.xctest' started at 2026-10-02 11:51:59.135.
+Test Suite 'CompositorTests.xctest' passed at 2026-10-02 11:51:59.135.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-02 11:51:59.135.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite WindowsProductionWorkflowTests started.
+◇ Test productionFlatNormalMatchesMacRenderer() started.
+✔ Test productionFlatNormalMatchesMacRenderer() passed after 0.060 seconds.
+◇ Test productionGrayMaskMatchesMacRenderer() started.
+✔ Test productionGrayMaskMatchesMacRenderer() passed after 0.061 seconds.
+◇ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+◇ Test case passing 1 argument name → "Image" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Edited" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Oriented" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​✔ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) with 3 test cases passed after 0.042 seconds.
+✔ Suite WindowsProductionWorkflowTests passed after 0.164 seconds.
+✔ Test run with 3 tests in 1 suite passed after 0.164 seconds.
+2026-10-02 11:51:59.582 xcodebuild[89789:518708] [MT] IDETestOperationsObserverDebug: 2.410 elapsed -- Testing started completed.
+2026-10-02 11:51:59.582 xcodebuild[89789:518708] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-02 11:51:59.582 xcodebuild[89789:518708] [MT] IDETestOperationsObserverDebug: 2.410 sec, +2.410 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/admin/.codex/visualizations/2026/10/02/production-gray-mask-mac-validation/tests.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

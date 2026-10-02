@@ -21,9 +21,26 @@ struct WindowsProductionWorkflowTests {
     func productionFlatNormalMatchesMacRenderer() async throws {
         let root = URL(fileURLWithPath: try #require(
             ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_FLAT_DIR"]))
+        try await compareMacRender(root: root, masked: false,
+                                   output: ProcessInfo.processInfo.environment["MAC_PRODUCTION_FLAT_OUTPUT_DIR"])
+    }
+
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_MASK_DIR"] != nil,
+                   "Set WINDOWS_PRODUCTION_MASK_DIR to the fixed Gray8 production fixture."))
+    func productionGrayMaskMatchesMacRenderer() async throws {
+        let root = URL(fileURLWithPath: try #require(
+            ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_MASK_DIR"]))
+        try await compareMacRender(root: root, masked: true,
+                                   output: ProcessInfo.processInfo.environment["MAC_PRODUCTION_MASK_OUTPUT_DIR"])
+    }
+
+    private func compareMacRender(root: URL, masked: Bool, output: String?) async throws {
         let reference = try #require(NSBitmapImageRep(
-            data: Data(contentsOf: root.appendingPathComponent("composite-csharp.png")))?.cgImage)
-        let snapshot = try await ProjectStore.shared.load(from: root.appendingPathComponent("Flat.comp"))
+            data: Data(contentsOf: root.appendingPathComponent(
+                masked ? "masked-composite-csharp.png" : "composite-csharp.png")))?.cgImage)
+        let snapshot = try await ProjectStore.shared.load(from: root.appendingPathComponent(
+            masked ? "Masked.comp" : "Flat.comp"))
+        #expect(snapshot.masks.count == (masked ? 1 : 0))
         #expect(snapshot.manifest.version == 8 && snapshot.manifest.layers.count == 2)
         #expect(snapshot.manifest.layers.last?.name == "Top")
         let rendered = try await ImageExporter.shared.render(snapshot).image
@@ -34,7 +51,7 @@ struct WindowsProductionWorkflowTests {
         let differences = zip(actual, expected).map { abs(Int($0) - Int($1)) }
         let maximum = differences.max() ?? 0
         let changedChannels = differences.filter { $0 != 0 }.count
-        if let output = ProcessInfo.processInfo.environment["MAC_PRODUCTION_FLAT_OUTPUT_DIR"] {
+        if let output {
             let directory = URL(fileURLWithPath: output)
             try #require(!FileManager.default.fileExists(atPath: directory.path), "Use a fresh output directory")
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
