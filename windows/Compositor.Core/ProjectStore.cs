@@ -58,6 +58,7 @@ public static class ProjectStore
         if (manifest["activeLayerID"] is { } active &&
             (!Guid.TryParse(active.GetValue<string>(), out var activeId) || !ids.Contains(activeId)))
             throw new InvalidDataException("Invalid active layer.");
+        ValidateRelationships(layers);
 
         string images = Path.Combine(source, "images");
         CheckPlain(images);
@@ -194,6 +195,50 @@ public static class ProjectStore
         using var stream = File.OpenRead(image);
         if (!SHA256.HashData(stream).AsSpan().SequenceEqual(session.ImageHash.Span))
             throw new IOException("Source image changed after opening the project.");
+    }
+
+    private static void ValidateRelationships(JsonArray layers)
+    {
+        var byId = layers.Select(node => node!.AsObject())
+            .ToDictionary(layer => Guid.Parse(layer["id"]!.GetValue<string>()));
+        foreach (var (id, layer) in byId)
+        {
+            if (layer["isGroup"]?.GetValue<bool>() == true && layer["imageFile"] is not null)
+                throw new InvalidDataException("Group cannot have an image asset.");
+            var seenParents = new HashSet<Guid> { id };
+            for (Guid? parent = OptionalId(layer, "parentID"); parent is { } parentId;)
+            {
+                if (!seenParents.Add(parentId) || seenParents.Count > 64 ||
+                    !byId.TryGetValue(parentId, out var parentLayer) ||
+                    parentLayer["isGroup"]?.GetValue<bool>() != true)
+                    throw new InvalidDataException("Invalid layer hierarchy.");
+                parent = OptionalId(parentLayer, "parentID");
+            }
+
+            var seenMasks = new HashSet<Guid>();
+            for (Guid? current = id; current is { } currentId;)
+            {
+                if (!seenMasks.Add(currentId) || seenMasks.Count > 256)
+                    throw new InvalidDataException("Invalid mask source cycle.");
+                var currentLayer = byId[currentId];
+                Guid? source = OptionalId(currentLayer, "maskSourceID");
+                if (source is null) break;
+                if (currentLayer["isGroup"]?.GetValue<bool>() == true ||
+                    !byId.TryGetValue(source.Value, out var sourceLayer) ||
+                    sourceLayer["isGroup"]?.GetValue<bool>() == true ||
+                    sourceLayer["adjustment"] is not null)
+                    throw new InvalidDataException("Invalid mask source.");
+                current = source;
+            }
+        }
+    }
+
+    private static Guid? OptionalId(JsonObject layer, string key)
+    {
+        if (layer[key] is not { } value) return null;
+        if (!Guid.TryParse(value.GetValue<string>(), out var id))
+            throw new InvalidDataException($"Invalid {key}.");
+        return id;
     }
 
     private static bool IsSimpleLayer(JsonObject layer, int width, int height, string imageName)

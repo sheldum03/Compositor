@@ -200,7 +200,16 @@ static void CheckMacProduced(string macProjects, string output)
             _ => true
         };
         File.WriteAllText(Path.Combine(target, "manifest.json"), manifest.ToJsonString());
-        if (ProjectStore.Open(target).CanEdit)
+        if (field == "isGroup")
+        {
+            try
+            {
+                ProjectStore.Open(target);
+                throw new Exception("Group with image asset was accepted.");
+            }
+            catch (InvalidDataException) { }
+        }
+        else if (ProjectStore.Open(target).CanEdit)
             throw new Exception($"Non-default {field} layer was made editable without rendering support.");
     }
 }

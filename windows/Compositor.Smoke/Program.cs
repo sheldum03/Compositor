@@ -170,6 +170,23 @@ try
 }
 catch (NotSupportedException) { }
 if (Directory.Exists(Path.Combine(output, "Complex.comp"))) throw new Exception("Rejected complex save created output.");
+string hierarchyFixture = Path.Combine(fixtures, "F08.comp");
+CheckInvalidProject(hierarchyFixture, output, "MissingParent", manifest =>
+    manifest["layers"]![1]!["parentID"] = Guid.NewGuid().ToString("D"));
+CheckInvalidProject(hierarchyFixture, output, "ParentCycle", manifest =>
+    manifest["layers"]![0]!["parentID"] = manifest["layers"]![0]!["id"]!.GetValue<string>());
+CheckInvalidProject(hierarchyFixture, output, "NonGroupParent", manifest =>
+    manifest["layers"]![2]!["parentID"] = manifest["layers"]![1]!["id"]!.GetValue<string>());
+CheckInvalidProject(hierarchyFixture, output, "GroupImage", manifest =>
+    manifest["layers"]![0]!["imageFile"] = manifest["layers"]![1]!["imageFile"]!.GetValue<string>());
+CheckInvalidProject(hierarchyFixture, output, "MaskCycle", manifest =>
+    manifest["layers"]![1]!["maskSourceID"] = manifest["layers"]![2]!["id"]!.GetValue<string>());
+CheckInvalidProject(hierarchyFixture, output, "MissingMaskSource", manifest =>
+    manifest["layers"]![1]!["maskSourceID"] = Guid.NewGuid().ToString("D"));
+CheckInvalidProject(hierarchyFixture, output, "GroupMaskSource", manifest =>
+    manifest["layers"]![1]!["maskSourceID"] = manifest["layers"]![0]!["id"]!.GetValue<string>());
+CheckInvalidProject(hierarchyFixture, output, "AdjustmentMaskSource", manifest =>
+    manifest["layers"]![1]!["maskSourceID"] = manifest["layers"]![3]!["id"]!.GetValue<string>());
 var emptyTiles = new TileRaster(300, 300);
 byte[] corner = new byte[44 * 44 * 4];
 corner[0] = 17;
@@ -197,5 +214,23 @@ try
     throw new Exception("Future-version project was accepted.");
 }
 catch (NotSupportedException) { }
-Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, precommit rollback, v1-v8 recognition and write protection, scaled-source write protection, changed-asset protection, tile snapshots" +
+Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, precommit rollback, v1-v8 recognition and write protection, hierarchy rejection, scaled-source write protection, changed-asset protection, tile snapshots" +
     (args.Length == 3 ? ", native C pixels" : ""));
+
+static void CheckInvalidProject(string fixture, string output, string name, Action<JsonObject> mutate)
+{
+    string target = Path.Combine(output, name + ".comp");
+    string images = Path.Combine(target, "images");
+    Directory.CreateDirectory(images);
+    foreach (string asset in Directory.GetFiles(Path.Combine(fixture, "images")))
+        File.Copy(asset, Path.Combine(images, Path.GetFileName(asset)));
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixture, "manifest.json")))!.AsObject();
+    mutate(manifest);
+    File.WriteAllText(Path.Combine(target, "manifest.json"), manifest.ToJsonString());
+    try
+    {
+        ProjectStore.Open(target);
+        throw new Exception($"Invalid {name} project was accepted.");
+    }
+    catch (InvalidDataException) { }
+}
