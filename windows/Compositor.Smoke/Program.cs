@@ -119,6 +119,46 @@ try
 catch (IOException) { }
 if (!cleanupSession.IsDirty || ProjectStore.Open(cleanupTarget).LayerName != "After cleanup failure")
     throw new Exception("Rejected retry changed the committed project or session state.");
+foreach (SaveStage stage in Enum.GetValues<SaveStage>())
+{
+    string target = Path.Combine(output, $"Fault-{stage}.comp");
+    ProjectStore.Save(ProjectStore.Open(fixture), target);
+    var faultSession = ProjectStore.Open(target);
+    byte[] oldManifest = File.ReadAllBytes(Path.Combine(target, "manifest.json"));
+    byte[] oldImage = File.ReadAllBytes(Path.Combine(target, "images", faultSession.ImageName));
+    faultSession.RenameLayer("Uncommitted edit");
+    bool injected = false;
+    try
+    {
+        ProjectStore.Save(faultSession, target, backup => Directory.Delete(backup, recursive: true),
+            reached => { if (reached == stage) throw new IOException($"Injected {stage} failure."); });
+    }
+    catch (IOException ex) when (ex.Message == $"Injected {stage} failure.") { injected = true; }
+    string[] failed = Directory.GetDirectories(output, $"Fault-{stage}.comp.failed-*");
+    if (!injected || !faultSession.IsDirty ||
+        !File.ReadAllBytes(Path.Combine(target, "manifest.json")).SequenceEqual(oldManifest) ||
+        !File.ReadAllBytes(Path.Combine(target, "images", faultSession.ImageName)).SequenceEqual(oldImage) ||
+        Directory.Exists(target + ".backup") ||
+        Directory.GetDirectories(output, $"Fault-{stage}.comp.tmp-*").Length != 0 ||
+        failed.Length != (stage == SaveStage.NewMoved ? 1 : 0) ||
+        (failed.Length == 1 && ProjectStore.Open(failed[0]).LayerName != "Uncommitted edit"))
+        throw new Exception($"Precommit failure at {stage} did not preserve the old project.");
+}
+string freshTarget = Path.Combine(output, "FreshFault.comp");
+var freshSession = ProjectStore.Open(fixture);
+freshSession.RenameLayer("Uncommitted new project");
+bool freshInjected = false;
+try
+{
+    ProjectStore.Save(freshSession, freshTarget, backup => Directory.Delete(backup, recursive: true),
+        reached => { if (reached == SaveStage.NewMoved) throw new IOException("Injected fresh-save failure."); });
+}
+catch (IOException ex) when (ex.Message == "Injected fresh-save failure.") { freshInjected = true; }
+string[] freshFailed = Directory.GetDirectories(output, "FreshFault.comp.failed-*");
+if (!freshInjected || !freshSession.IsDirty || Directory.Exists(freshTarget) ||
+    Directory.GetDirectories(output, "FreshFault.comp.tmp-*").Length != 0 ||
+    freshFailed.Length != 1 || ProjectStore.Open(freshFailed[0]).LayerName != "Uncommitted new project")
+    throw new Exception("Failed first save left an unverified project at the formal destination.");
 for (int version = 2; version <= 8; version++)
     if (ProjectStore.Open(Path.Combine(fixtures, $"F{version:00}.comp")).CanEdit)
         throw new Exception($"Version {version} was made editable without its full semantics.");
@@ -157,5 +197,5 @@ try
     throw new Exception("Future-version project was accepted.");
 }
 catch (NotSupportedException) { }
-Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, v1-v8 recognition and write protection, scaled-source write protection, changed-asset protection, tile snapshots" +
+Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, precommit rollback, v1-v8 recognition and write protection, scaled-source write protection, changed-asset protection, tile snapshots" +
     (args.Length == 3 ? ", native C pixels" : ""));

@@ -5,6 +5,8 @@ using System.Text.Json.Nodes;
 
 namespace Compositor.Core;
 
+internal enum SaveStage { Prepared, OldMoved, NewMoved }
+
 public static class ProjectStore
 {
     private static readonly byte[] PngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -95,7 +97,8 @@ public static class ProjectStore
     public static void Save(ProjectSession session, string directory) =>
         Save(session, directory, path => Directory.Delete(path, recursive: true));
 
-    internal static void Save(ProjectSession session, string directory, Action<string> deleteBackup)
+    internal static void Save(ProjectSession session, string directory, Action<string> deleteBackup,
+        Action<SaveStage>? afterStage = null)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
         string destination = Path.GetFullPath(directory);
@@ -104,6 +107,7 @@ public static class ProjectStore
             throw new IOException("A previous save backup exists; inspect it before saving.");
         string temporary = destination + ".tmp-" + Guid.NewGuid().ToString("N");
         bool movedOld = false;
+        bool movedNew = false;
         bool committed = false;
         try
         {
@@ -113,12 +117,16 @@ public static class ProjectStore
             CheckImageHash(session, copiedImage);
             File.WriteAllText(Path.Combine(temporary, "manifest.json"), session.Current.ToJsonString(JsonOptions));
             if (!Open(temporary).CanEdit) throw new InvalidDataException("Saved project failed validation.");
+            afterStage?.Invoke(SaveStage.Prepared);
             if (Directory.Exists(destination))
             {
                 Directory.Move(destination, backup);
                 movedOld = true;
+                afterStage?.Invoke(SaveStage.OldMoved);
             }
             Directory.Move(temporary, destination);
+            movedNew = true;
+            afterStage?.Invoke(SaveStage.NewMoved);
             if (!Open(destination).CanEdit) throw new InvalidDataException("Final project failed validation.");
             committed = true;
             session.MarkSaved(destination);
@@ -126,11 +134,11 @@ public static class ProjectStore
         }
         catch
         {
-            if (!committed && movedOld && Directory.Exists(backup))
+            if (!committed)
             {
-                if (Directory.Exists(destination))
+                if (movedNew && Directory.Exists(destination))
                     Directory.Move(destination, destination + ".failed-" + Guid.NewGuid().ToString("N"));
-                Directory.Move(backup, destination);
+                if (movedOld && Directory.Exists(backup)) Directory.Move(backup, destination);
             }
             throw;
         }
