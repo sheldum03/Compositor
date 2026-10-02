@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Compositor.Core;
 
 namespace Compositor.Imaging;
@@ -62,6 +63,32 @@ public static class ImageProjectWorkflow
         }
     }
 
+    public static TileRaster RenderFlatNormal(string projectDirectory)
+    {
+        var session = ProjectStore.Open(projectDirectory);
+        var manifest = session.Current;
+        if (manifest["version"]!.GetValue<int>() != 8 ||
+            !manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)))
+            throw new NotSupportedException("This project cannot be rendered by the flat Normal renderer.");
+        int width = manifest["width"]!.GetValue<int>(), height = manifest["height"]!.GetValue<int>();
+        var layers = manifest["layers"]!.AsArray();
+        if ((long)layers.Count * width * height > 100_000_000)
+            throw new NotSupportedException("Flat layer source pixels exceed the rendering limit.");
+        var result = new TileRaster(width, height);
+        foreach (JsonNode? node in layers)
+        {
+            var layer = node!.AsObject();
+            if (!IsFlatNormalLayer(layer, width, height))
+                throw new NotSupportedException("This layer needs rendering features that are not implemented yet.");
+            string image = Path.Combine(session.SourceDirectory, "images", layer["imageFile"]!.GetValue<string>());
+            TileRaster raster = ImageCodec.Load(image);
+            if (raster.Width != width || raster.Height != height)
+                throw new InvalidDataException("Layer image dimensions do not match the canvas.");
+            if (layer["isVisible"]!.GetValue<bool>()) result = RasterCompositor.SourceOver(result, raster);
+        }
+        return result;
+    }
+
     public static void Save(ProjectSession session, string projectDirectory)
     {
         RequireRaster(session);
@@ -81,6 +108,24 @@ public static class ImageProjectWorkflow
 
     private static TileRaster RequireRaster(ProjectSession session) => session.CanEdit && session.Raster is { } raster
         ? raster : throw new NotSupportedException("Open the editable project through ImageProjectWorkflow first.");
+
+    private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
+    {
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+            layer["imageFile"] is null || layer["isVisible"] is null ||
+            layer["isGroup"] is { } group && group.GetValue<bool>() ||
+            layer["opacity"] is { } opacity && opacity.GetValue<double>() != 1 ||
+            layer["blendMode"] is { } blend && blend.GetValue<string>() != "Normal") return false;
+        var transform = layer["transform"]?.AsObject();
+        if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        return origin?.Count == 2 && size?.Count == 2 &&
+            origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
+            size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
+            transform["rotation"]?.GetValue<double>() == 0 &&
+            transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
+    }
 
     private static void EncodeRaster(TileRaster raster, string path)
     {

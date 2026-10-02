@@ -134,7 +134,7 @@ if (!mutableSession.IsDirty || Directory.GetDirectories(output, "Mutable.comp.tm
 
 CheckCompositing(output);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
-Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, normal tile composition" +
+Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat Normal project composition" +
     (args.Length == 3 ? ", Mac-produced v8 continuation and non-default protection" : ""));
 
 static void AssertRaster(TileRaster expected, TileRaster actual)
@@ -182,8 +182,67 @@ static void CheckCompositing(string output)
         !Pixel(bottom, 0, 0).SequenceEqual(new byte[] { 40, 80, 120, 200 }) ||
         !Pixel(top, 0, 0).SequenceEqual(new byte[] { 80, 20, 40, 128 }))
         throw new Exception("Normal tile composition produced wrong pixels or changed an input.");
+
+    string flat = Path.Combine(output, "Flat.comp");
+    string images = Path.Combine(flat, "images");
+    Directory.CreateDirectory(images);
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(output, "Image.comp", "manifest.json")))!.AsObject();
+    manifest["width"] = 300;
+    manifest["height"] = 300;
+    var baseLayer = manifest["layers"]![0]!.AsObject();
+    baseLayer["transform"]!["size"]![0] = 300;
+    baseLayer["transform"]!["size"]![1] = 300;
+    var topLayer = (JsonObject)baseLayer.DeepClone();
+    string topId = Guid.NewGuid().ToString("D");
+    topLayer["id"] = topId;
+    topLayer["imageFile"] = topId.ToUpperInvariant() + ".png";
+    topLayer["name"] = "Top";
+    manifest["layers"]!.AsArray().Add(topLayer);
+    ImageCodec.SavePng(bottom, Path.Combine(images, baseLayer["imageFile"]!.GetValue<string>()));
+    ImageCodec.SavePng(top, Path.Combine(images, topLayer["imageFile"]!.GetValue<string>()));
+    string manifestPath = Path.Combine(flat, "manifest.json");
+    string originalManifest = manifest.ToJsonString();
+    File.WriteAllText(manifestPath, originalManifest);
+    if (ProjectStore.Open(flat).CanEdit)
+        throw new Exception("Multi-layer project was made editable without full write support.");
+    AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(flat));
+    try
+    {
+        topLayer["isVisible"] = false;
+        File.WriteAllText(manifestPath, manifest.ToJsonString());
+        AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(flat));
+        topLayer["isVisible"] = true;
+        topLayer["blendMode"] = "Multiply";
+        File.WriteAllText(manifestPath, manifest.ToJsonString());
+        try
+        {
+            ImageProjectWorkflow.RenderFlatNormal(flat);
+            throw new Exception("Unsupported blend mode was rendered as Normal.");
+        }
+        catch (NotSupportedException) { }
+        topLayer.Remove("blendMode");
+        topLayer["opacity"] = 0.5;
+        File.WriteAllText(manifestPath, manifest.ToJsonString());
+        try
+        {
+            ImageProjectWorkflow.RenderFlatNormal(flat);
+            throw new Exception("Unsupported opacity was rendered as fully opaque.");
+        }
+        catch (NotSupportedException) { }
+        topLayer.Remove("opacity");
+        topLayer["transform"]!["origin"]![0] = 1;
+        File.WriteAllText(manifestPath, manifest.ToJsonString());
+        try
+        {
+            ImageProjectWorkflow.RenderFlatNormal(flat);
+            throw new Exception("Unsupported transform was rendered at the origin.");
+        }
+        catch (NotSupportedException) { }
+    }
+    finally { File.WriteAllText(manifestPath, originalManifest); }
+
     string exported = Path.Combine(output, "composite.png");
-    ImageCodec.SavePng(result, exported);
+    ImageCodec.SavePng(ImageProjectWorkflow.RenderFlatNormal(flat), exported);
     AssertRaster(result, ImageCodec.Load(exported));
     try
     {
