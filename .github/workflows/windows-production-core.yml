@@ -20,6 +20,22 @@ permissions:
 jobs:
   core:
     runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: Compositor.Smoke
+            fixtures: ../docs/windows/fixtures
+          - project: Compositor.Imaging.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+          - project: Compositor.Workflow.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+          - project: Compositor.SaveCrash.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+    env:
+      CHECK_PROJECT: ${{ matrix.project }}
+      CHECK_FIXTURES: ${{ matrix.fixtures }}
+      EVIDENCE: ${{ github.workspace }}/build/production-evidence
     defaults:
       run:
         shell: pwsh
@@ -28,13 +44,42 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           global-json-file: windows/global.json
-      - name: Build production core
+      - name: Restore locked dependencies and build Release checks
         working-directory: windows
-        run: dotnet build Compositor.Smoke/Compositor.Smoke.csproj -c Release
-      - name: Build shared C algorithms
         run: |
-          cmake -S windows/native -B "$env:RUNNER_TEMP/compositor-native" -A x64
-          cmake --build "$env:RUNNER_TEMP/compositor-native" --config Release
-      - name: Verify first engineering path
+          New-Item -ItemType Directory -Path $env:EVIDENCE | Out-Null
+          dotnet --info 2>&1 | Tee-Object "$env:EVIDENCE/sdk.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" --locked-mode 2>&1 | Tee-Object "$env:EVIDENCE/restore.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" -c Release --no-restore 2>&1 | Tee-Object "$env:EVIDENCE/build.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build shared C algorithms
+        if: matrix.project == 'Compositor.Smoke'
+        run: |
+          cmake -S windows/native -B "$env:RUNNER_TEMP/compositor-native" -A x64 2>&1 | Tee-Object "$env:EVIDENCE/native-configure.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build "$env:RUNNER_TEMP/compositor-native" --config Release 2>&1 | Tee-Object "$env:EVIDENCE/native-build.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run production checks and retain outputs
         working-directory: windows
-        run: dotnet run --project Compositor.Smoke -c Release --no-build -- ../docs/windows/fixtures "$env:RUNNER_TEMP/compositor-core-$env:GITHUB_RUN_ID" "$env:RUNNER_TEMP/compositor-native/Release/compositor_native.dll"
+        run: |
+          $arguments = @("$env:CHECK_PROJECT/bin/Release/net10.0/$env:CHECK_PROJECT.dll", $env:CHECK_FIXTURES, "$env:EVIDENCE/output")
+          if ($env:CHECK_PROJECT -eq 'Compositor.Smoke') {
+            $arguments += "$env:RUNNER_TEMP/compositor-native/Release/compositor_native.dll"
+          }
+          dotnet @arguments 2>&1 | Tee-Object "$env:EVIDENCE/run.log"
+          $code = $LASTEXITCODE
+          Set-Content -Path "$env:EVIDENCE/exit-code.txt" -Value $code
+          if ($code -ne 0) { exit $code }
+          if (-not (Select-String -Path "$env:EVIDENCE/run.log" -Pattern '^PASS:')) {
+            throw 'Check program did not report PASS.'
+          }
+      - name: Retain results and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-production-${{ matrix.project }}-${{ github.sha }}
+          path: ${{ env.EVIDENCE }}/
+          if-no-files-found: warn
+          retention-days: 14

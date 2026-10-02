@@ -1,0 +1,87 @@
+{
+  "platform": "macOS 26.5.1",
+  "passed": true,
+  "cases": [
+    {
+      "name": "replace-Encoding",
+      "killedPid": 82820,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-Prepared",
+      "killedPid": 82825,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-OldMoved",
+      "killedPid": 82826,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-NewMoved",
+      "killedPid": 82829,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-BackupCleanup",
+      "killedPid": 82830,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "first-Encoding",
+      "killedPid": 82831,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "no-formal-target",
+      "preservedSource": true
+    },
+    {
+      "name": "first-Prepared",
+      "killedPid": 82832,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "no-formal-target",
+      "preservedSource": true
+    },
+    {
+      "name": "first-NewMoved",
+      "killedPid": 82834,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    }
+  ],
+  "limits": "Process termination at controlled boundaries only; not power-loss or Windows evidence unless executed on Windows."
+}
