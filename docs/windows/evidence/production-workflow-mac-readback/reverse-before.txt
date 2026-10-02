@@ -1,0 +1,20 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "name": "Image",
+      "CanEdit": false,
+      "LayerName": "Mac \u7F16\u8F91 Image"
+    },
+    {
+      "name": "Edited",
+      "CanEdit": false,
+      "LayerName": "Mac \u7F16\u8F91 Edited"
+    },
+    {
+      "name": "Oriented",
+      "CanEdit": false,
+      "LayerName": "Mac \u7F16\u8F91 Oriented"
+    }
+  ]
+}
