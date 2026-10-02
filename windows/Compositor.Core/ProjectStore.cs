@@ -14,7 +14,16 @@ public static class ProjectStore
     {
         string source = Path.GetFullPath(directory);
         string backup = source + ".backup";
-        if (!Directory.Exists(source) && Directory.Exists(backup)) Directory.Move(backup, source);
+        if (!Directory.Exists(source) && Directory.Exists(backup))
+        {
+            _ = OpenProject(backup);
+            Directory.Move(backup, source);
+        }
+        return OpenProject(source);
+    }
+
+    private static ProjectSession OpenProject(string source)
+    {
         CheckPlain(source);
         string manifestPath = Path.Combine(source, "manifest.json");
         CheckPlain(manifestPath);
@@ -83,7 +92,10 @@ public static class ProjectStore
         return new ProjectSession(source, manifest, imageName, canEdit, imageHash);
     }
 
-    public static void Save(ProjectSession session, string directory)
+    public static void Save(ProjectSession session, string directory) =>
+        Save(session, directory, path => Directory.Delete(path, recursive: true));
+
+    internal static void Save(ProjectSession session, string directory, Action<string> deleteBackup)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
         string destination = Path.GetFullPath(directory);
@@ -92,6 +104,7 @@ public static class ProjectStore
             throw new IOException("A previous save backup exists; inspect it before saving.");
         string temporary = destination + ".tmp-" + Guid.NewGuid().ToString("N");
         bool movedOld = false;
+        bool committed = false;
         try
         {
             Directory.CreateDirectory(Path.Combine(temporary, "images"));
@@ -107,12 +120,13 @@ public static class ProjectStore
             }
             Directory.Move(temporary, destination);
             if (!Open(destination).CanEdit) throw new InvalidDataException("Final project failed validation.");
-            if (movedOld) Directory.Delete(backup, recursive: true);
+            committed = true;
             session.MarkSaved(destination);
+            if (movedOld) deleteBackup(backup);
         }
         catch
         {
-            if (movedOld && Directory.Exists(backup))
+            if (!committed && movedOld && Directory.Exists(backup))
             {
                 if (Directory.Exists(destination))
                     Directory.Move(destination, destination + ".failed-" + Guid.NewGuid().ToString("N"));

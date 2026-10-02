@@ -79,6 +79,46 @@ if (!SHA256.HashData(File.ReadAllBytes(png)).SequenceEqual(SHA256.HashData(File.
 Directory.Move(saved, saved + ".backup");
 if (ProjectStore.Open(saved).LayerName != "Windows smoke edit")
     throw new Exception("Interrupted-save recovery failed.");
+string corruptTarget = Path.Combine(output, "CorruptBackup.comp");
+string corruptBackup = corruptTarget + ".backup";
+Directory.CreateDirectory(corruptBackup);
+File.WriteAllText(Path.Combine(corruptBackup, "manifest.json"), "{\"format\":\"invalid\"}");
+try
+{
+    ProjectStore.Open(corruptTarget);
+    throw new Exception("Corrupt backup was accepted.");
+}
+catch (InvalidDataException) { }
+if (Directory.Exists(corruptTarget) || !Directory.Exists(corruptBackup))
+    throw new Exception("Corrupt backup was moved before validation.");
+string cleanupTarget = Path.Combine(output, "Cleanup.comp");
+ProjectStore.Save(ProjectStore.Open(fixture), cleanupTarget);
+var cleanupSession = ProjectStore.Open(cleanupTarget);
+cleanupSession.RenameLayer("After cleanup failure");
+bool cleanupFailed = false;
+try
+{
+    ProjectStore.Save(cleanupSession, cleanupTarget, backup =>
+    {
+        File.Delete(Path.Combine(backup, "manifest.json"));
+        throw new IOException("Injected backup cleanup failure.");
+    });
+}
+catch (IOException ex) when (ex.Message == "Injected backup cleanup failure.") { cleanupFailed = true; }
+if (!cleanupFailed || cleanupSession.IsDirty ||
+    ProjectStore.Open(cleanupTarget).LayerName != "After cleanup failure" ||
+    !Directory.Exists(cleanupTarget + ".backup") ||
+    Directory.GetDirectories(output, "Cleanup.comp.failed-*").Length != 0)
+    throw new Exception("Cleanup failure damaged the committed project or session state.");
+cleanupSession.RenameLayer("Later edit");
+try
+{
+    ProjectStore.Save(cleanupSession, cleanupTarget);
+    throw new Exception("Save ignored a partially removed backup.");
+}
+catch (IOException) { }
+if (!cleanupSession.IsDirty || ProjectStore.Open(cleanupTarget).LayerName != "After cleanup failure")
+    throw new Exception("Rejected retry changed the committed project or session state.");
 for (int version = 2; version <= 8; version++)
     if (ProjectStore.Open(Path.Combine(fixtures, $"F{version:00}.comp")).CanEdit)
         throw new Exception($"Version {version} was made editable without its full semantics.");
@@ -117,5 +157,5 @@ try
     throw new Exception("Future-version project was accepted.");
 }
 catch (NotSupportedException) { }
-Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, backup recovery, v1-v8 recognition and write protection, scaled-source write protection, changed-asset protection, tile snapshots" +
+Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, v1-v8 recognition and write protection, scaled-source write protection, changed-asset protection, tile snapshots" +
     (args.Length == 3 ? ", native C pixels" : ""));

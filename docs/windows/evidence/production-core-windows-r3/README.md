@@ -11,3 +11,5 @@ PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, bac
 本轮新增两个安全反例：单图层源 PNG 尺寸与画布不同则只读；打开后源 PNG 被外部改变，则保存和导出必须拒绝且不产生正式输出。外部改动反例在修复前实测失败，修复后通过。
 
 **Windows 状态：尚未传输和执行 r3。** 已在 Windows 11 实机通过的是此前 r2 的受限读写链路，见 [r2 记录](../production-core-windows-r2/README.md)。r3 仍需在该实体机核对 ZIP 哈希、以 10.0.401 SDK 构建并运行冒烟，取回完整运行日志与输出目录；原生 C 桥接还需 Windows 本机编译并将 DLL 路径作为冒烟第三参数。未完成前，不能把本页的 macOS 结果记为 Windows 验收。
+
+2026-10-02 后又修复了备份恢复和保存提交后的清理失败边界，见 [本地故障注入记录](../production-core-m2-save-faults.md)。这些修改不在 r3 ZIP 中；该包继续只代表 2026-09-29 的源码快照。
