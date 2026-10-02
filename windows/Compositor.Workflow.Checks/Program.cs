@@ -132,9 +132,23 @@ catch (IOException) { }
 if (!mutableSession.IsDirty || Directory.GetDirectories(output, "Mutable.comp.tmp-*").Length != 0)
     throw new Exception("Rejected changed-asset save altered the session or left temporary files.");
 
+var historySession = ImageProjectWorkflow.OpenEditable(project);
+for (int i = 1; i <= 105; i++) historySession.RenameLayer($"History {i}");
+for (int i = 0; i < 100; i++)
+    if (!historySession.Undo()) throw new Exception("History lost a retained undo step.");
+if (historySession.Undo() || historySession.LayerName != "History 5" || !historySession.IsDirty)
+    throw new Exception("History exceeded 100 undo steps or lost its saved-state marker.");
+for (int i = 0; i < 100; i++)
+    if (!historySession.Redo()) throw new Exception("History lost a retained redo step.");
+if (historySession.Redo() || historySession.LayerName != "History 105" ||
+    !historySession.Undo()) throw new Exception("History redo boundary is wrong.");
+historySession.RenameLayer("New branch");
+if (historySession.Redo() || historySession.LayerName != "New branch")
+    throw new Exception("A new edit retained an abandoned redo branch.");
+
 CheckCompositing(output);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
-Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat Normal project composition" +
+Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat Normal project composition" +
     (args.Length == 3 ? ", Mac-produced v8 continuation and non-default protection" : ""));
 
 static void AssertRaster(TileRaster expected, TileRaster actual)

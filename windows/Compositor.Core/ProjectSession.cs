@@ -4,6 +4,7 @@ namespace Compositor.Core;
 
 public sealed class ProjectSession
 {
+    private const int MaxUndoSteps = 100;
     private sealed record Snapshot(JsonObject Manifest, TileRaster? Raster);
     private readonly List<Snapshot> snapshots;
     private int cursor;
@@ -64,6 +65,11 @@ public sealed class ProjectSession
         snapshots.RemoveRange(cursor + 1, snapshots.Count - cursor - 1);
         snapshots.Add(next);
         cursor++;
+        if (snapshots.Count > MaxUndoSteps + 1)
+        {
+            snapshots.RemoveAt(0);
+            cursor--;
+        }
     }
 
     private void CheckRasterSize(TileRaster raster)
