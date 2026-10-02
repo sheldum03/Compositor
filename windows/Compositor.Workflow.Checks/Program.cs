@@ -132,8 +132,9 @@ catch (IOException) { }
 if (!mutableSession.IsDirty || Directory.GetDirectories(output, "Mutable.comp.tmp-*").Length != 0)
     throw new Exception("Rejected changed-asset save altered the session or left temporary files.");
 
+CheckCompositing(output);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
-Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import" +
+Console.WriteLine("PASS: v8 PNG/JPEG import, pixel and metadata history, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, normal tile composition" +
     (args.Length == 3 ? ", Mac-produced v8 continuation and non-default protection" : ""));
 
 static void AssertRaster(TileRaster expected, TileRaster actual)
@@ -144,6 +145,69 @@ static void AssertRaster(TileRaster expected, TileRaster actual)
     for (int column = 0; column * TileRaster.TileSize < expected.Width; column++)
         if (!expected.ReadTileCopy(column, row).SequenceEqual(actual.ReadTileCopy(column, row)))
             throw new Exception($"Raster differs at tile {column},{row}.");
+}
+
+static void CheckCompositing(string output)
+{
+    var bottom = new TileRaster(300, 300);
+    for (int row = 0; row < 2; row++)
+    for (int column = 0; column < 2; column++)
+    {
+        var size = bottom.TileDimensions(column, row);
+        var tile = new byte[size.Width * size.Height * 4];
+        for (int i = 0; i < tile.Length; i += 4)
+        {
+            tile[i] = 40; tile[i + 1] = 80; tile[i + 2] = 120; tile[i + 3] = 200;
+        }
+        bottom = bottom.ReplaceTile(column, row, tile);
+    }
+    var top = new TileRaster(300, 300);
+    byte[] left = top.ReadTileCopy(0, 0);
+    new byte[] { 80, 20, 40, 128 }.CopyTo(left, 0);
+    new byte[] { 255, 0, 0, 255 }.CopyTo(left, 8);
+    top = top.ReplaceTile(0, 0, left);
+    byte[] right = top.ReadTileCopy(1, 0);
+    new byte[] { 0, 128, 0, 128 }.CopyTo(right, 0);
+    top = top.ReplaceTile(1, 0, right);
+    byte[] edge = top.ReadTileCopy(1, 1);
+    new byte[] { 0, 0, 128, 128 }.CopyTo(edge, edge.Length - 4);
+    top = top.ReplaceTile(1, 1, edge);
+
+    TileRaster result = RasterCompositor.SourceOver(bottom, top);
+    if (!Pixel(result, 0, 0).SequenceEqual(new byte[] { 100, 60, 100, 228 }) ||
+        !Pixel(result, 1, 0).SequenceEqual(new byte[] { 40, 80, 120, 200 }) ||
+        !Pixel(result, 2, 0).SequenceEqual(new byte[] { 255, 0, 0, 255 }) ||
+        !Pixel(result, 256, 0).SequenceEqual(new byte[] { 20, 168, 60, 228 }) ||
+        !Pixel(result, 299, 299).SequenceEqual(new byte[] { 20, 40, 188, 228 }) ||
+        !Pixel(bottom, 0, 0).SequenceEqual(new byte[] { 40, 80, 120, 200 }) ||
+        !Pixel(top, 0, 0).SequenceEqual(new byte[] { 80, 20, 40, 128 }))
+        throw new Exception("Normal tile composition produced wrong pixels or changed an input.");
+    string exported = Path.Combine(output, "composite.png");
+    ImageCodec.SavePng(result, exported);
+    AssertRaster(result, ImageCodec.Load(exported));
+    try
+    {
+        RasterCompositor.SourceOver(bottom, new TileRaster(1, 1));
+        throw new Exception("Mismatched layer dimensions were accepted.");
+    }
+    catch (ArgumentException) { }
+    byte[] invalidTile = new byte[256 * 256 * 4];
+    invalidTile[0] = 200; invalidTile[3] = 100;
+    try
+    {
+        RasterCompositor.SourceOver(bottom, new TileRaster(300, 300).ReplaceTile(0, 0, invalidTile));
+        throw new Exception("Invalid premultiplied source was accepted.");
+    }
+    catch (InvalidDataException) { }
+}
+
+static byte[] Pixel(TileRaster raster, int x, int y)
+{
+    int column = x / TileRaster.TileSize, row = y / TileRaster.TileSize;
+    var size = raster.TileDimensions(column, row);
+    byte[] tile = raster.ReadTileCopy(column, row);
+    int offset = ((y % TileRaster.TileSize) * size.Width + x % TileRaster.TileSize) * 4;
+    return tile.AsSpan(offset, 4).ToArray();
 }
 
 static void CheckMacProduced(string macProjects, string output)
