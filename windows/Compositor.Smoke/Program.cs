@@ -201,6 +201,7 @@ if (firstTiles.ReadTileCopy(1, 1)[0] != 17 || emptyTiles.ReadTileCopy(1, 1)[0] !
 var secondTiles = firstTiles.ReplaceTile(0, 0, new byte[256 * 256 * 4]);
 if (secondTiles.SharedTileCount(firstTiles) != 1 || secondTiles.StoredBytes != 44L * 44 * 4 + 256L * 256 * 4)
     throw new Exception("Tile snapshots did not share untouched bytes.");
+CheckHistoryBudget(fixture);
 if (args.Length == 3)
 {
     nint library = NativeLibrary.Load(Path.GetFullPath(args[2]));
@@ -218,8 +219,53 @@ try
     throw new Exception("Future-version project was accepted.");
 }
 catch (NotSupportedException) { }
-Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, precommit rollback, v1-v8 recognition and write protection, hierarchy rejection, scaled-source write protection, changed-asset protection, tile snapshots" +
+Console.WriteLine("PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, precommit rollback, v1-v8 recognition and write protection, hierarchy rejection, scaled-source write protection, changed-asset protection, tile snapshots, history image budget" +
     (args.Length == 3 ? ", native C pixels" : ""));
+
+static void CheckHistoryBudget(string fixture)
+{
+    var sharedManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixture, "manifest.json")))!.AsObject();
+    sharedManifest["width"] = 300;
+    sharedManifest["height"] = 300;
+    var sharedSession = new ProjectSession(fixture, sharedManifest,
+        sharedManifest["layers"]![0]!["imageFile"]!.GetValue<string>(), true, ReadOnlyMemory<byte>.Empty);
+    var sharedRaster = new TileRaster(300, 300);
+    for (int row = 0; row < 2; row++)
+    for (int column = 0; column < 2; column++)
+    {
+        var size = sharedRaster.TileDimensions(column, row);
+        sharedRaster = sharedRaster.ReplaceTile(column, row, new byte[size.Width * size.Height * 4]);
+    }
+    sharedSession.AttachRaster(sharedRaster);
+    sharedSession.ReplaceRaster(sharedRaster.ReplaceTile(0, 0, new byte[256 * 256 * 4]));
+    if (sharedSession.HistoryExclusiveBytes != 256L * 256 * 4)
+        throw new Exception("Shared tiles were charged as exclusive history memory.");
+
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixture, "manifest.json")))!.AsObject();
+    manifest["width"] = 2048;
+    manifest["height"] = 2048;
+    var session = new ProjectSession(fixture, manifest,
+        manifest["layers"]![0]!["imageFile"]!.GetValue<string>(), true, ReadOnlyMemory<byte>.Empty);
+    session.AttachRaster(new TileRaster(2048, 2048));
+    byte[] tile = new byte[TileRaster.TileSize * TileRaster.TileSize * 4];
+    for (int edit = 1; edit <= 18; edit++)
+    {
+        tile[0] = (byte)edit;
+        var raster = new TileRaster(2048, 2048);
+        for (int row = 0; row < 8; row++)
+        for (int column = 0; column < 8; column++)
+            raster = raster.ReplaceTile(column, row, tile);
+        session.ReplaceRaster(raster);
+        if (session.HistoryExclusiveBytes > 256L * 1024 * 1024)
+            throw new Exception("History exceeded its exclusive image budget.");
+    }
+    for (int i = 0; i < 16; i++)
+        if (!session.Undo()) throw new Exception("History image budget removed too many undo steps.");
+    if (session.Undo() || !session.IsDirty || session.Raster!.ReadTileCopy(0, 0)[0] != 2)
+        throw new Exception("History image budget retained too many steps or lost the saved-state marker.");
+    for (int i = 0; i < 16; i++)
+        if (!session.Redo()) throw new Exception("History image budget lost its redo path.");
+}
 
 static void CheckInvalidProject(string fixture, string output, string name, Action<JsonObject> mutate)
 {

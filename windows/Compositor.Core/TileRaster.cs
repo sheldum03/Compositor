@@ -9,6 +9,7 @@ public sealed class TileRaster
     public int Height { get; }
     public int TileCount => tiles.Count;
     public long StoredBytes => tiles.Values.Sum(tile => (long)tile.Length);
+    internal IEnumerable<byte[]> Buffers => tiles.Values;
 
     public TileRaster(int width, int height)
     {
