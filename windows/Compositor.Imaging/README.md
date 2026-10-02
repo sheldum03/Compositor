@@ -1,6 +1,6 @@
 # PNG / JPEG 像素读写
 
-生产图像 IO 模块，依赖 `Compositor.Core.TileRaster` 与路线固定的 SkiaSharp 2.88.9；两个项目的锁文件保留传递依赖及内容哈希。当前模块独立于工程存储和 GUI，后续由导入/导出事务调用，不让 Core 反向依赖 Imaging。
+生产图像 IO 模块，依赖 `Compositor.Core.TileRaster` 与路线固定的 SkiaSharp 2.88.9；两个项目的锁文件保留传递依赖及内容哈希。`ImageProjectWorkflow` 在此模块内调用 Core 工程事务与实际编解码，Core 不反向依赖 Imaging；GUI 尚未接入。
 
 - `ImageCodec.Load(path)`：按实际文件格式接收 PNG/JPEG，检查 512 MiB 文件、30,000 单边及 100 MP 上限。PNG 先流式检查块长度、名称、CRC、关键块顺序及 IEND/文件尾，再调用像素解码器；只接受成功解码结果。请求 sRGB、8-bit 预乘 RGBA，并应用 EXIF 1–8 方向后返回瓦片快照。无内嵌颜色信息的图像按 sRGB 处理。
 - `ImageCodec.SavePng(raster, output)`：保存透明 PNG，写入 sRGB 颜色信息；不修改输入快照。
@@ -16,4 +16,4 @@ dotnet run --project Compositor.Imaging.Checks -c Release --no-restore -- Compos
 
 检查使用已提交的自制样本，不依赖 Python。覆盖跨瓦片透明 PNG、八种 JPEG 方向、线性 ICC 转 sRGB、PNG 预乘往返、JPEG 指定背景、截断输入、尺寸限制及既存输出保护。夹具生成脚本使用 Pillow 和其 macOS 随附 LittleCMS；这只是维护工具，不是应用运行依赖。
 
-本地证据见 [M2 图像 IO 记录](../../docs/windows/evidence/production-imaging-m2.md)及[PNG 完整性补测](../../docs/windows/evidence/production-imaging-png-integrity.md)。CMYK/广色域/16-bit/真实相机样本、资源压力、取消及 Windows 原生运行仍需补齐；CRC/容器校验也不等于所有 PNG 元数据语义均已验收，不据此关闭 W-015。
+本地证据见 [M2 图像 IO 记录](../../docs/windows/evidence/production-imaging-m2.md)、[PNG 完整性补测](../../docs/windows/evidence/production-imaging-png-integrity.md)、[受限工程工作流](../../docs/windows/evidence/production-workflow-m2.md)与[真实 Mac 读回](../../docs/windows/evidence/production-workflow-mac-readback.md)。工作流现可导入 PNG/JPEG 为单层 v8 工程、实际像素编辑与历史、安全保存重开、导出 PNG/JPEG；复杂 v8 工程依旧只读。Windows 11 实机执行、CMYK/广色域/16-bit/真实相机样本、资源压力和取消仍需补齐，不据此关闭 W-015。

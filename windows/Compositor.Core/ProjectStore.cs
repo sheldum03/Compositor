@@ -52,7 +52,8 @@ public static class ProjectStore
             var layer = node?.AsObject() ?? throw new InvalidDataException("Invalid layer.");
             if (!Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) || !ids.Add(id))
                 throw new InvalidDataException("Invalid layer ID.");
-            _ = layer["name"]?.GetValue<string>() ?? throw new InvalidDataException("Missing layer name.");
+            string name = layer["name"]?.GetValue<string>() ?? throw new InvalidDataException("Missing layer name.");
+            if (string.IsNullOrWhiteSpace(name)) throw new InvalidDataException("Blank layer name.");
         }
         if (manifest["activeLayerID"] is { } active &&
             (!Guid.TryParse(active.GetValue<string>(), out var activeId) || !ids.Contains(activeId)))
@@ -80,7 +81,7 @@ public static class ProjectStore
                 if (layers.Count == 1 && key == "imageFile") imageSize = dimensions;
             }
         }
-        bool canEdit = version == 1 && layers.Count == 1 &&
+        bool canEdit = version is 1 or 8 && layers.Count == 1 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             IsSimpleLayer(layers[0]!.AsObject(), width, height, imageName) &&
             imageSize == ((uint)width, (uint)height) &&
@@ -97,11 +98,20 @@ public static class ProjectStore
     public static void Save(ProjectSession session, string directory) =>
         Save(session, directory, path => Directory.Delete(path, recursive: true));
 
+    internal static void Save(ProjectSession session, string directory, Action<TileRaster, string> encodeRaster) =>
+        Save(session, directory, path => Directory.Delete(path, recursive: true), encodeRaster: encodeRaster);
+
+    public static void SaveNew(ProjectSession session, string directory) =>
+        Save(session, directory, path => Directory.Delete(path, recursive: true), requireNew: true);
+
     internal static void Save(ProjectSession session, string directory, Action<string> deleteBackup,
-        Action<SaveStage>? afterStage = null)
+        Action<SaveStage>? afterStage = null, bool requireNew = false,
+        Action<TileRaster, string>? encodeRaster = null)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
         string destination = Path.GetFullPath(directory);
+        if (requireNew && (Directory.Exists(destination) || File.Exists(destination)))
+            throw new IOException("Destination already exists.");
         string backup = destination + ".backup";
         if (Directory.Exists(backup) || File.Exists(backup))
             throw new IOException("A previous save backup exists; inspect it before saving.");
@@ -113,13 +123,25 @@ public static class ProjectStore
         {
             Directory.CreateDirectory(Path.Combine(temporary, "images"));
             string copiedImage = Path.Combine(temporary, "images", session.ImageName);
-            File.Copy(Path.Combine(session.SourceDirectory, "images", session.ImageName), copiedImage);
-            CheckImageHash(session, copiedImage);
+            string sourceImage = Path.Combine(session.SourceDirectory, "images", session.ImageName);
+            if (session.RequiresRasterEncoding)
+            {
+                if (encodeRaster is null) throw new NotSupportedException("Raster encoder is required for pixel edits.");
+                CheckImageHash(session, sourceImage);
+                encodeRaster(session.Raster!, copiedImage);
+                CheckImageHash(session, sourceImage);
+            }
+            else
+            {
+                File.Copy(sourceImage, copiedImage);
+                CheckImageHash(session, copiedImage);
+            }
             File.WriteAllText(Path.Combine(temporary, "manifest.json"), session.Current.ToJsonString(JsonOptions));
             if (!Open(temporary).CanEdit) throw new InvalidDataException("Saved project failed validation.");
             afterStage?.Invoke(SaveStage.Prepared);
             if (Directory.Exists(destination))
             {
+                if (requireNew) throw new IOException("Destination already exists.");
                 Directory.Move(destination, backup);
                 movedOld = true;
                 afterStage?.Invoke(SaveStage.OldMoved);
@@ -127,9 +149,10 @@ public static class ProjectStore
             Directory.Move(temporary, destination);
             movedNew = true;
             afterStage?.Invoke(SaveStage.NewMoved);
-            if (!Open(destination).CanEdit) throw new InvalidDataException("Final project failed validation.");
+            var verified = Open(destination);
+            if (!verified.CanEdit) throw new InvalidDataException("Final project failed validation.");
             committed = true;
-            session.MarkSaved(destination);
+            session.MarkSaved(destination, verified.ImageHash);
             if (movedOld) deleteBackup(backup);
         }
         catch
@@ -151,6 +174,8 @@ public static class ProjectStore
     public static void ExportPng(ProjectSession session, string output)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be exported yet.");
+        if (session.RequiresRasterEncoding)
+            throw new NotSupportedException("Pixel edits require the image encoder for export.");
         string temporary = Path.GetFullPath(output) + ".tmp-" + Guid.NewGuid().ToString("N");
         try
         {
@@ -173,8 +198,11 @@ public static class ProjectStore
 
     private static bool IsSimpleLayer(JsonObject layer, int width, int height, string imageName)
     {
-        if (!layer.All(pair => new[] { "id", "name", "isVisible", "imageFile", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "name", "opacity", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"]?.GetValue<bool>() != true || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
+            layer["isGroup"] is { } group && group.GetValue<bool>() ||
+            layer["opacity"] is { } opacity && opacity.GetValue<double>() != 1 ||
+            layer["blendMode"] is { } blend && blend.GetValue<string>() != "Normal" ||
             !string.Equals(imageName, id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase)) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
