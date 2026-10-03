@@ -1,0 +1,33 @@
+Test Suite 'Selected tests' started at 2026-10-02 12:04:07.959.
+Test Suite 'CompositorTests.xctest' started at 2026-10-02 12:04:07.960.
+Test Suite 'CompositorTests.xctest' passed at 2026-10-02 12:04:07.960.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-02 12:04:07.960.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite WindowsProductionWorkflowTests started.
+◇ Test productionFlatNormalMatchesMacRenderer() started.
+✔ Test productionFlatNormalMatchesMacRenderer() passed after 0.058 seconds.
+◇ Test productionGrayMaskMatchesMacRenderer() started.
+✔ Test productionGrayMaskMatchesMacRenderer() passed after 0.058 seconds.
+◇ Test productionFlatEditsSurviveMacRoundTrip() started.
+✔ Test productionFlatEditsSurviveMacRoundTrip() passed after 0.023 seconds.
+◇ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+◇ Test case passing 1 argument name → "Image" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Edited" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Oriented" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​✔ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) with 3 test cases passed after 0.039 seconds.
+✔ Suite WindowsProductionWorkflowTests passed after 0.179 seconds.
+✔ Test run with 4 tests in 1 suite passed after 0.179 seconds.
+2026-10-02 12:04:08.422 xcodebuild[96429:559142] [MT] IDETestOperationsObserverDebug: 58.407 elapsed -- Testing started completed.
+2026-10-02 12:04:08.422 xcodebuild[96429:559142] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-02 12:04:08.422 xcodebuild[96429:559142] [MT] IDETestOperationsObserverDebug: 58.407 sec, +58.407 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/admin/.codex/visualizations/2026/10/02/production-flat-edit-mac-validation/retry-tests.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

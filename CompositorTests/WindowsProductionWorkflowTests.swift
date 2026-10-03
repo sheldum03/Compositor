@@ -65,6 +65,63 @@ struct WindowsProductionWorkflowTests {
         #expect(maximum == 0, "Flat Normal production/Mac mismatch: max \(maximum), \(changedChannels) channels")
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_FLAT_EDIT_DIR"] != nil,
+                   "Set WINDOWS_PRODUCTION_FLAT_EDIT_DIR to the fixed edited multilayer fixture."))
+    func productionFlatEditsSurviveMacRoundTrip() async throws {
+        let root = URL(fileURLWithPath: try #require(
+            ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_FLAT_EDIT_DIR"]))
+        let output = URL(fileURLWithPath: try #require(
+            ProcessInfo.processInfo.environment["MAC_PRODUCTION_FLAT_EDIT_OUTPUT_DIR"]))
+        try #require(!FileManager.default.fileExists(atPath: output.path), "Use a fresh output directory")
+        let package = root.appendingPathComponent("FlatEdited.comp")
+        let reference = try #require(NSBitmapImageRep(
+            data: Data(contentsOf: root.appendingPathComponent("flat-edited-csharp.png")))?.cgImage)
+        let snapshot = try await ProjectStore.shared.load(from: package)
+        #expect(snapshot.manifest.version == 8 && snapshot.images.count == 2 && snapshot.masks.isEmpty)
+        #expect(snapshot.manifest.layers.map(\.name) == ["Overlay", "Image"])
+        #expect(snapshot.manifest.layers.map(\.isVisible) == [false, true])
+        let layer = try #require(snapshot.manifest.layers.first)
+        #expect(snapshot.manifest.activeLayerID == snapshot.manifest.layers.last?.id)
+        let expected = try pixels(reference)
+        let initial = try await ImageExporter.shared.render(snapshot).image
+        #expect(try pixels(initial) == expected)
+
+        let session = EditorSession()
+        session.installProject(snapshot, from: package)
+        #expect(!session.isModified && !session.canUndo)
+        session.renameLayer(layer.id, to: "Mac Overlay")
+        session.toggleLayerVisibility(layer.id)
+        let edited = try #require(session.projectSnapshot())
+        #expect(edited.manifest.layers.first?.isVisible == true && session.isModified)
+        let after = try await ImageExporter.shared.render(edited).image
+        #expect(try pixels(after) != expected, "Showing the hidden layer must change the reference image")
+        session.undo()
+        #expect(try pixels(await ImageExporter.shared.render(try #require(session.projectSnapshot())).image) == expected)
+        session.undo()
+        #expect(!session.isModified)
+        session.redo()
+        session.redo()
+        let savedSnapshot = try #require(session.projectSnapshot())
+        #expect(try pixels(await ImageExporter.shared.render(savedSnapshot).image) == pixels(after))
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+        let saved = output.appendingPathComponent("MacFlatEdited.comp")
+        try await ProjectStore.shared.save(savedSnapshot, to: saved)
+        let reopened = try await ProjectStore.shared.load(from: saved)
+        #expect(reopened.manifest.documentID == snapshot.manifest.documentID)
+        #expect(reopened.manifest.activeLayerID == snapshot.manifest.activeLayerID)
+        #expect(reopened.manifest.layers.map(\.id) == snapshot.manifest.layers.map(\.id))
+        #expect(reopened.manifest.layers.map(\.name) == ["Mac Overlay", "Image"])
+        #expect(reopened.manifest.layers.allSatisfy { $0.isVisible })
+        #expect(try pixels(await ImageExporter.shared.render(reopened).image) == pixels(after))
+        for id in snapshot.images.keys {
+            #expect(try pixels(#require(reopened.images[id]).image) == pixels(#require(snapshot.images[id]).image))
+        }
+        for (name, image) in [("mac-before.png", initial), ("mac-after.png", after)] {
+            try #require(NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]))
+                .write(to: output.appendingPathComponent(name))
+        }
+    }
+
     @Test(.enabled(if: ProcessInfo.processInfo.environment["WINDOWS_PRODUCTION_WORKFLOW_DIR"] != nil,
                    "Run Compositor.Workflow.Checks and set WINDOWS_PRODUCTION_WORKFLOW_DIR to its output."),
           arguments: ["Image", "Edited", "Oriented"])

@@ -1,0 +1,12 @@
+{
+  "inputs/FlatEdited.comp/images/96E04A58-F029-44C4-AC33-D75489A493D3.png": "747a3d75599de86f9a8d67e04517fefaf11caf2e6b6dd0e95594a0cc79afe462",
+  "inputs/FlatEdited.comp/images/C27F0F54-5D3B-4FE7-A965-1FC7A7CF0CD2.png": "34fe6297da4acdb820a97f86d9393d633aae6b9df5bdae8752708a69e267d488",
+  "inputs/FlatEdited.comp/manifest.json": "82defc4c323f6c2b0b123c975e88fafa7129c3406ac0dee994435d737c02c380",
+  "inputs/flat-edited-csharp.png": "34fe6297da4acdb820a97f86d9393d633aae6b9df5bdae8752708a69e267d488",
+  "outputs/MacFlatEdited.comp/images/96E04A58-F029-44C4-AC33-D75489A493D3.png": "c1c62429f8c9ce7ea3e6b54be2c472b3337c62e727a35b24619116be0ff7e3e1",
+  "outputs/MacFlatEdited.comp/images/C27F0F54-5D3B-4FE7-A965-1FC7A7CF0CD2.png": "a5731fa78146d62e8f74b17b52301b876b1a74c8b16a383d99cfaaee483f42fb",
+  "outputs/MacFlatEdited.comp/manifest.json": "4ee137d31314135bafc4c539d5b05495884e0b9afe3406dc381ede12a6804610",
+  "outputs/mac-after.png": "826c9be34e3a67ca5f16fc0bc1512fb84e6c3fbf8ce6611f2a8f7a017c39caa1",
+  "outputs/mac-before.png": "a5731fa78146d62e8f74b17b52301b876b1a74c8b16a383d99cfaaee483f42fb",
+  "roundtrip-fixtures.zip": "09c2a6d6ff4d741b2dc3fcd269eca28c036ba7219236d499977b0cf801a73e2c"
+}
