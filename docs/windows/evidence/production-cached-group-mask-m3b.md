@@ -14,4 +14,5 @@
 - `Compositor.App.Checks` Release 通过：正式窗口、真实指针笔刷、图层按钮、选择、蒙版和关闭保护回归通过。
 - `Compositor.Imaging.Checks` Release 通过：PNG/JPEG/Gray8 蒙版及坏输入保护通过。
 - `Compositor.SaveCrash.Checks` Release 通过：14 个单层/多层子进程保存中断和恢复场景通过。
+- 同一 `0be6f8c` 代码发布 `win-x64` self-contained 便携目录：224 个文件，`Compositor.App.exe` SHA-256 为 `91c7ab104efddf0deff30b7d0629235f86ab4e47c0efba26a672276b4ceb4eb2`；该发布只证明交叉发布成功，未在 Windows 启动。
 - 所有上述命令在 macOS arm64、.NET SDK 10.0.401、Release 下执行；Windows 原生启动、原生 DLL、DPI/IME、压感设备和安装部署仍未验证。
