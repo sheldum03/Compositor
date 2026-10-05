@@ -8,7 +8,7 @@
 
 ### 本轮进度核对（2026-10-05）
 
-- **代码基线**：功能代码基线为 `363b94d`；计划文档与本轮 M3b 证据已提交到实施分支，待同步到 `windows-part`。
+- **代码基线**：功能代码基线为 `363b94d`；计划文档与本轮 M3b 证据已提交到实施分支，并已同步到 `windows-part`。
 - **本地验证**：固定 SDK 10.0.401、Avalonia Headless 的 App.Checks（无原生选择库）构建成功并通过 3 项检查；Workflow Checks 构建成功并通过 13 项核心场景；Imaging Checks 与 SaveCrash Checks 均构建成功并通过；`win-x64` self-contained 发布成功（224 文件，入口 SHA-256 为 `766cdd3f53ed4a28e026d574d709040c443240fa689e750d07e2a4044c472a0e`）。完整命令、范围和限制见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)。
 - **已推进**：M3a 最小内部链路（新建→编辑→尺寸/旋转→保存→重开→PNG 导出）已在 macOS Headless 通过；M3b 第一条全画布 Gray8 栅格蒙版切片已接入载入、启停、选区显示/隐藏、蒙版历史、保存重开及尺寸/90°旋转同步；带缺失字体/文字变换工程仍能只读预览并导出，保存与编辑会被禁用；不支持的缓存语义会明确拒绝。
 - **仍未验证**：上述结果均不是 Windows 实机证据。当前尚未在腾讯云 Windows 服务器启动新版 `Compositor.App.exe`，也未完成 Windows 原生 DLL、文件对话框、DPI/多显示器、IME、性能和干净机部署验收。
