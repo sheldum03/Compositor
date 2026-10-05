@@ -268,6 +268,21 @@ internal static class CanvasChecks
         Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(baselineBytes), "One undo did not remove the whole stroke.");
         Click("Redo"); CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
+        byte[] flipBaseline = Bytes(workspace.Session.GetLayerRaster(layerId));
+        Click("FlipLayerHorizontal");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(Mirror(flipBaseline, workspace.Session.Width, workspace.Session.Height, horizontal: true)),
+            "Horizontal layer flip did not commit the expected single-layer pixel result.");
+        Click("Undo");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
+            "Undo did not restore the pre-flip layer pixels.");
+        Click("Redo");
+        Click("Undo");
+        Click("FlipLayerVertical");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(Mirror(flipBaseline, workspace.Session.Width, workspace.Session.Height, horizontal: false)),
+            "Vertical layer flip did not commit the expected single-layer pixel result.");
+        Click("Undo");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
+            "Undo did not restore the pre-vertical-flip layer pixels.");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);
@@ -344,6 +359,19 @@ internal static class CanvasChecks
                 tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(bytes.AsSpan(((row * 256 + y) * raster.Width + column * 256) * 4));
         }
         return bytes;
+    }
+
+    private static byte[] Mirror(byte[] source, int width, int height, bool horizontal)
+    {
+        byte[] result = new byte[source.Length];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int targetX = horizontal ? width - 1 - x : x;
+            int targetY = horizontal ? y : height - 1 - y;
+            source.AsSpan((y * width + x) * 4, 4).CopyTo(result.AsSpan((targetY * width + targetX) * 4, 4));
+        }
+        return result;
     }
     private static void Require(bool condition, string message) { if (!condition) throw new Exception(message); }
 }

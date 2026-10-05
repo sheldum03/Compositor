@@ -123,6 +123,8 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
+        structure.Children.Add(Command("FlipLayerHorizontal", "水平翻转", () => FlipLayerAsync(true), layer: true));
+        structure.Children.Add(Command("FlipLayerVertical", "垂直翻转", () => FlipLayerAsync(false), layer: true));
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
@@ -360,6 +362,8 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         return EditAsync(session => session.DeleteLayer(id));
     }
+
+    private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
     private Task RenameAsync()
     {
         Guid id = selectedId!.Value;

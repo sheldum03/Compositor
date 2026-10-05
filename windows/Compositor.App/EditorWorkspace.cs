@@ -353,6 +353,26 @@ public sealed class EditorWorkspace
         UpdateSelectionOutline();
     }
 
+    public void FlipActiveLayer(bool horizontal)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        TileRaster current = session.GetLayerRaster(layerId);
+        byte[] source = ToRgba(current), flipped = new byte[source.Length];
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+        {
+            int targetX = horizontal ? session.Width - 1 - x : x;
+            int targetY = horizontal ? y : session.Height - 1 - y;
+            source.AsSpan((y * session.Width + x) * 4, 4)
+                .CopyTo(flipped.AsSpan((targetY * session.Width + targetX) * 4, 4));
+        }
+        var next = FromRgba(session.Width, session.Height, flipped);
+        if (!SamePixels(current, next)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
+    }
+
     public void SelectLayerAlpha()
     {
         selectionMoveHistory = null;
