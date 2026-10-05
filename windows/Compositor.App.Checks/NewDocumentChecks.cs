@@ -147,6 +147,12 @@ internal static class NewDocumentChecks
         Click("Undo");
         Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
             "Undo did not restore the saved dimensions after rotation.");
+        Begin("RotateCounterClockwise"); Pump(window);
+        Require(workspace.Session.Width == 257 && workspace.Session.Height == 259 && workspace.IsDirty,
+            "Counter-clockwise rotation button did not exchange the document dimensions.");
+        Click("Undo");
+        Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
+            "Undo did not restore the saved dimensions after counter-clockwise rotation.");
         Begin("RotateClockwise"); Pump(window);
         Click("Save");
         var rotatedReopened = ImageProjectWorkflow.OpenEditable(saved);
