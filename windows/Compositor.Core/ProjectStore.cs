@@ -123,6 +123,7 @@ public static class ProjectStore
         Action<TileRaster, string>? encodeRaster = null)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
+        requireNew |= !session.HasBeenSaved;
         string destination = Path.GetFullPath(directory);
         if (requireNew && (Directory.Exists(destination) || File.Exists(destination)))
             throw new IOException("Destination already exists.");
@@ -139,17 +140,18 @@ public static class ProjectStore
             foreach (string name in session.CurrentImageNames)
             {
                 string copiedImage = Path.Combine(temporary, "images", name);
-                string sourceImage = Path.Combine(session.SourceDirectory, "images", name);
+                string? sourceImage = session.AssetHashes.ContainsKey(name)
+                    ? Path.Combine(session.SourceDirectory, "images", name) : null;
                 if (session.TryGetRasterForEncoding(name, out TileRaster raster))
                 {
                     if (encodeRaster is null) throw new NotSupportedException("Raster encoder is required for pixel edits.");
-                    if (session.AssetHashes.ContainsKey(name)) CheckAssetHash(session, name, sourceImage);
+                    if (sourceImage is not null) CheckAssetHash(session, name, sourceImage);
                     encodeRaster(raster, copiedImage);
-                    if (session.AssetHashes.ContainsKey(name)) CheckAssetHash(session, name, sourceImage);
+                    if (sourceImage is not null) CheckAssetHash(session, name, sourceImage);
                 }
                 else
                 {
-                    File.Copy(sourceImage, copiedImage);
+                    File.Copy(sourceImage ?? throw new InvalidOperationException("Unsaved layer pixels have not been loaded."), copiedImage);
                     CheckAssetHash(session, name, copiedImage);
                 }
             }

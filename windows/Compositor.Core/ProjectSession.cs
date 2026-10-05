@@ -15,10 +15,10 @@ public sealed class ProjectSession
     private long savedRevision;
     private IReadOnlyDictionary<Guid, TileRaster>? sourceLayerRasters;
 
-    internal ProjectSession(string sourceDirectory, JsonObject manifest, string imageName, bool canEdit,
+    internal ProjectSession(string? sourceDirectory, JsonObject manifest, string imageName, bool canEdit,
         ReadOnlyMemory<byte> imageHash, IReadOnlyDictionary<string, byte[]>? assetHashes = null)
     {
-        SourceDirectory = sourceDirectory;
+        SavedDirectory = sourceDirectory;
         var hashes = assetHashes is null
             ? new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase)
             : new Dictionary<string, byte[]>(assetHashes, StringComparer.OrdinalIgnoreCase);
@@ -29,12 +29,14 @@ public sealed class ProjectSession
         snapshots = [new Snapshot(manifest, null, 0)];
     }
 
-    public string SourceDirectory { get; private set; }
+    public string? SavedDirectory { get; private set; }
+    public bool HasBeenSaved => SavedDirectory is not null;
+    public string SourceDirectory => SavedDirectory ?? throw new InvalidOperationException("This document has not been saved yet.");
     public string ImageName => Current["layers"]!.AsArray().Count == 1
         ? Current["layers"]![0]?["imageFile"]?.GetValue<string>() ?? "" : "";
     internal IReadOnlyDictionary<string, byte[]> AssetHashes { get; private set; }
     public bool CanEdit { get; }
-    public bool IsDirty => snapshots[cursor].Revision != savedRevision;
+    public bool IsDirty => !HasBeenSaved || snapshots[cursor].Revision != savedRevision;
     public string LayerName => Current["layers"]!.AsArray().Count > 0
         ? Current["layers"]![0]!["name"]!.GetValue<string>()
         : throw new InvalidOperationException("This document has no layers.");
@@ -59,7 +61,7 @@ public sealed class ProjectSession
     {
         Guid id = Guid.Parse(Path.GetFileNameWithoutExtension(imageName));
         if (snapshots[cursor].LayerRasters is { } layers && layers.TryGetValue(id, out var current) &&
-            (sourceLayerRasters is null || !sourceLayerRasters.TryGetValue(id, out var original) ||
+            (!AssetHashes.ContainsKey(imageName) || sourceLayerRasters is null || !sourceLayerRasters.TryGetValue(id, out var original) ||
                 !ReferenceEquals(current, original)))
         {
             raster = current;
@@ -188,11 +190,47 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
     }
 
+    public void SelectLayer(Guid layerId)
+    {
+        FindLayer(layerId);
+        if (ActiveLayerId == layerId) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["activeLayerID"] = layerId.ToString("D");
+        snapshots[cursor] = snapshots[cursor] with { Manifest = next };
+    }
+
+    public static ProjectSession CreateBlank(int width, int height, double resolution = 72)
+    {
+        if (width is < 1 or > 30000) throw new ArgumentOutOfRangeException(nameof(width));
+        if (height is < 1 or > 30000 || (long)width * height > 100_000_000)
+            throw new ArgumentOutOfRangeException(nameof(height));
+        if (!double.IsFinite(resolution) || resolution is < 1 or > 9600)
+            throw new ArgumentOutOfRangeException(nameof(resolution));
+        Guid layerId = Guid.NewGuid();
+        var layer = CreateBlankLayer("Layer 1", width, height);
+        layer["id"] = layerId.ToString("D");
+        layer["imageFile"] = layerId.ToString("D").ToUpperInvariant() + ".png";
+        var manifest = new JsonObject
+        {
+            ["format"] = "com.compositor.project", ["version"] = 8,
+            ["documentID"] = Guid.NewGuid().ToString("D"), ["colorSpace"] = "sRGB",
+            ["resolution"] = resolution, ["width"] = width, ["height"] = height,
+            ["activeLayerID"] = layerId.ToString("D"), ["layers"] = new JsonArray(layer)
+        };
+        var session = new ProjectSession(null, manifest, "", true, ReadOnlyMemory<byte>.Empty);
+        session.AttachRaster(new TileRaster(width, height));
+        return session;
+    }
+
     public Guid AddBlankLayer(string name, int destinationIndex)
     {
         RequireLayerStructureEditing();
         int width = Current["width"]!.GetValue<int>(), height = Current["height"]!.GetValue<int>();
-        var layer = new JsonObject
+        return InsertLayer(CreateBlankLayer(name, width, height), new TileRaster(width, height), destinationIndex);
+    }
+
+    private static JsonObject CreateBlankLayer(string name, int width, int height) =>
+        new JsonObject
         {
             ["name"] = name, ["isVisible"] = true,
             ["transform"] = new JsonObject
@@ -201,8 +239,6 @@ public sealed class ProjectSession
                 ["rotation"] = 0d, ["flipX"] = false, ["flipY"] = false, ["sampling"] = "High quality"
             }
         };
-        return InsertLayer(layer, new TileRaster(width, height), destinationIndex);
-    }
 
     public Guid DuplicateLayer(Guid layerId, string name)
     {
@@ -306,7 +342,7 @@ public sealed class ProjectSession
 
     internal void MarkSaved(string directory, IReadOnlyDictionary<string, byte[]> assetHashes)
     {
-        SourceDirectory = directory;
+        SavedDirectory = directory;
         AssetHashes = new Dictionary<string, byte[]>(assetHashes, StringComparer.OrdinalIgnoreCase);
         sourceLayerRasters = snapshots[cursor].LayerRasters;
         savedRevision = snapshots[cursor].Revision;

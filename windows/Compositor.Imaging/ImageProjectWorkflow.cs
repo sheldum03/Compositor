@@ -110,7 +110,6 @@ public static class ImageProjectWorkflow
             if (!IsFlatNormalLayer(layer, width, height))
                 throw new NotSupportedException("This layer needs rendering features that are not implemented yet.");
             string imageName = layer["imageFile"]!.GetValue<string>();
-            string image = Path.Combine(session.SourceDirectory, "images", imageName);
             TileRaster raster;
             if (overrideLayerId == Guid.Parse(layer["id"]!.GetValue<string>())) raster = overrideRaster!;
             else if (session.Raster is { } memory && imageName == session.ImageName) raster = memory;
@@ -118,6 +117,7 @@ public static class ImageProjectWorkflow
                 raster = layerRaster;
             else
             {
+                string image = Path.Combine(session.SourceDirectory, "images", imageName);
                 if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);
                 raster = ImageCodec.Load(image);
                 if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);

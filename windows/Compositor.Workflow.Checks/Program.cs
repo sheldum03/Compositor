@@ -164,13 +164,15 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
 
 CheckCompositing(output, fixtures);
 CheckLayerStructure(output, sourcePng);
+CheckNewCanvas(output);
+CheckLayerSelection(output);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
 if (args.Length == 4)
 {
     CheckMacProduced(Path.GetFullPath(args[2]), output);
     CheckMacFlatProduced(Path.GetFullPath(args[3]), output);
 }
-Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, layer add/duplicate/delete, empty project and deleted-asset undo, Normal and Gray8 mask composition" +
+Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, layer add/duplicate/delete, empty project and deleted-asset undo, unsaved new canvas and first save, Normal and Gray8 mask composition" +
     (args.Length >= 3 ? ", Mac-produced v8 continuation and non-default protection" : "") +
     (args.Length == 4 ? ", Mac-produced flat layer pixel continuation" : ""));
 
@@ -693,6 +695,164 @@ static void CheckLayerStructure(string output, string sourcePng)
     var legacySession = ImageProjectWorkflow.OpenEditable(legacy);
     try { legacySession.DeleteLayer(legacySession.Layers[0].Id); throw new Exception("Legacy structure was silently changed."); }
     catch (NotSupportedException) { }
+}
+
+static void CheckNewCanvas(string output)
+{
+    var session = ProjectSession.CreateBlank(300, 257, 300);
+    Guid layerId = session.Layers.Single().Id;
+    if (!session.CanEdit || !session.IsDirty || session.HasBeenSaved || session.SavedDirectory is not null ||
+        session.LayerName != "Layer 1" || session.ActiveLayerId != layerId || session.Undo() || session.Redo() ||
+        session.Raster is null || session.Raster.StoredBytes != 0)
+        throw new Exception("New canvas is not an unsaved transparent document with a selected initial layer.");
+    try { _ = session.SourceDirectory; throw new Exception("New canvas invented a source directory."); }
+    catch (InvalidOperationException) { }
+    TileRaster blank = new(300, 257);
+    AssertRaster(blank, ImageProjectWorkflow.RenderFlatNormal(session));
+    string beforeSave = Path.Combine(output, "new-canvas-unsaved.png");
+    ImageProjectWorkflow.ExportPng(session, beforeSave);
+    AssertRaster(blank, ImageCodec.Load(beforeSave));
+    if (!session.IsDirty || session.HasBeenSaved) throw new Exception("Unsaved export marked the document saved.");
+
+    ProjectSession current = session;
+    foreach (var invalid in new (int Width, int Height, double Resolution)[]
+    {
+        (0, 10, 72), (-1, 10, 72), (30001, 1, 72), (int.MaxValue, 1, 72),
+        (1, 0, 72), (1, -1, 72), (1, 30001, 72), (10001, 10000, 72),
+        (10, 10, 0), (10, 10, 0.5), (10, 10, 9600.1),
+        (10, 10, double.NaN), (10, 10, double.PositiveInfinity), (10, 10, double.NegativeInfinity)
+    })
+    {
+        try
+        {
+            current = ProjectSession.CreateBlank(invalid.Width, invalid.Height, invalid.Resolution);
+            throw new Exception("Invalid new canvas was accepted.");
+        }
+        catch (ArgumentOutOfRangeException) { }
+    }
+    if (!ReferenceEquals(current, session) || session.Undo() || !session.IsDirty)
+        throw new Exception("Invalid new canvas input changed the caller's existing document or history.");
+    foreach (var allowed in new[] { ProjectSession.CreateBlank(30000, 1, 1), ProjectSession.CreateBlank(1, 30000, 9600),
+        ProjectSession.CreateBlank(10000, 10000) })
+        if (allowed.Raster!.StoredBytes != 0 || allowed.HasBeenSaved || !allowed.IsDirty)
+            throw new Exception("New canvas limits allocated full pixels or marked a new document saved.");
+
+    foreach (string? missing in new string?[] { null, "" })
+    {
+        try { ImageProjectWorkflow.Save(session, missing!); throw new Exception("Missing first-save path was accepted."); }
+        catch (ArgumentException) { }
+    }
+    string existing = Path.Combine(output, "Image.comp");
+    byte[] existingManifest = File.ReadAllBytes(Path.Combine(existing, "manifest.json"));
+    try { ImageProjectWorkflow.Save(session, existing); throw new Exception("New canvas overwrote an existing project."); }
+    catch (IOException) { }
+    if (!existingManifest.SequenceEqual(File.ReadAllBytes(Path.Combine(existing, "manifest.json"))) ||
+        session.HasBeenSaved || session.SavedDirectory is not null || !session.IsDirty)
+        throw new Exception("Rejected first save changed source state or an existing project.");
+    byte[] existingExport = File.ReadAllBytes(beforeSave);
+    try { ImageProjectWorkflow.Save(session, beforeSave); throw new Exception("New canvas overwrote an existing file."); }
+    catch (IOException) { }
+    if (!existingExport.SequenceEqual(File.ReadAllBytes(beforeSave)))
+        throw new Exception("Rejected first save damaged an existing file.");
+    string noEncoder = Path.Combine(output, "NewCanvasNoEncoder.comp");
+    try { ProjectStore.Save(session, noEncoder); throw new Exception("New transparent pixels were saved without an encoder."); }
+    catch (NotSupportedException) { }
+    if (Directory.Exists(noEncoder) || Directory.GetDirectories(output, "NewCanvasNoEncoder.comp.tmp-*").Length != 0)
+        throw new Exception("Failed first save left a partial project.");
+    var failed = ProjectSession.CreateBlank(2, 2);
+    byte[] invalidPixels = new byte[16];
+    invalidPixels[0] = 1;
+    failed.ReplaceRaster(failed.Raster!.ReplaceTile(0, 0, invalidPixels));
+    string failedPath = Path.Combine(output, "NewCanvasEncodingFailed.comp");
+    try { ImageProjectWorkflow.Save(failed, failedPath); throw new Exception("Invalid first-save pixels were accepted."); }
+    catch (InvalidDataException) { }
+    if (failed.HasBeenSaved || failed.SavedDirectory is not null || !failed.IsDirty || Directory.Exists(failedPath) ||
+        Directory.GetDirectories(output, "NewCanvasEncodingFailed.comp.tmp-*").Length != 0 || !failed.Undo() || !failed.IsDirty)
+        throw new Exception("Failed first-save encoding changed saved state, lost undo or left files.");
+    ImageProjectWorkflow.Save(failed, Path.Combine(output, "NewCanvasRecovered.comp"));
+
+    session.RenameLayer("Paint layer");
+    byte[] tile = blank.ReadTileCopy(0, 0);
+    new byte[] { 20, 30, 40, 255 }.CopyTo(tile, 0);
+    TileRaster changed = blank.ReplaceTile(0, 0, tile);
+    session.ReplaceLayerRaster(layerId, changed);
+    if (!session.Undo() || !session.Undo() || !session.IsDirty || session.HasBeenSaved)
+        throw new Exception("Undo to the new document's initial state pretended it had been saved.");
+    AssertRaster(blank, ImageProjectWorkflow.RenderFlatNormal(session));
+    string destination = Path.Combine(output, "NewCanvas.comp");
+    ImageProjectWorkflow.Save(session, destination);
+    if (session.IsDirty || !session.HasBeenSaved || session.SavedDirectory != destination || session.SourceDirectory != destination)
+        throw new Exception("First save did not establish the saved source and save point.");
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(destination, "manifest.json")))!;
+    if (manifest["version"]!.GetValue<int>() != 8 || manifest["resolution"]!.GetValue<double>() != 300 ||
+        !Guid.TryParse(manifest["documentID"]!.GetValue<string>(), out _) ||
+        Guid.Parse(manifest["layers"]![0]!["id"]!.GetValue<string>()) != layerId ||
+        manifest["width"]!.GetValue<int>() != 300 || manifest["height"]!.GetValue<int>() != 257)
+        throw new Exception("New document dimensions, resolution or identity changed at first save.");
+    var reopened = ImageProjectWorkflow.OpenEditable(destination);
+    if (reopened.IsDirty || !reopened.HasBeenSaved || reopened.ActiveLayerId != layerId)
+        throw new Exception("First-saved blank document did not reopen with saved identity.");
+    AssertRaster(blank, reopened.GetLayerRaster(layerId));
+    string initial = Path.Combine(output, "NewCanvasInitial.comp");
+    ImageProjectWorkflow.Save(reopened, initial);
+    if (!session.Redo() || !session.Redo() || !session.IsDirty)
+        throw new Exception("First save lost edits on the redo branch or their dirty state.");
+    ImageProjectWorkflow.Save(session, destination);
+    AssertRaster(changed, ImageProjectWorkflow.OpenEditable(destination).GetLayerRaster(layerId));
+    if (!session.Undo() || !session.Undo() || !session.IsDirty || !session.HasBeenSaved ||
+        !session.Redo() || !session.Redo() || session.IsDirty)
+        throw new Exception("Saved new canvas no longer obeys normal history and save-point rules.");
+    ImageProjectWorkflow.ExportPng(session, Path.Combine(output, "new-canvas-saved.png"));
+    AssertRaster(changed, ImageCodec.Load(Path.Combine(output, "new-canvas-saved.png")));
+    Guid documentId = Guid.Parse(manifest["documentID"]!.GetValue<string>());
+    string independent = Path.Combine(output, "NewCanvasIndependent.comp");
+    var other = ProjectSession.CreateBlank(1, 1);
+    ImageProjectWorkflow.Save(other, independent);
+    var independentManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(independent, "manifest.json")))!;
+    if (Guid.Parse(independentManifest["documentID"]!.GetValue<string>()) == documentId || other.Layers[0].Id == layerId ||
+        independentManifest["resolution"]!.GetValue<double>() != 72)
+        throw new Exception("Independent new documents reused identity or lost the default resolution.");
+}
+
+static void CheckLayerSelection(string output)
+{
+    var session = ProjectSession.CreateBlank(16, 16);
+    Guid first = session.Layers[0].Id, second = session.AddBlankLayer("Second", 1);
+    var original = session.GetLayerRaster(first);
+    byte[] tile = original.ReadTileCopy(0, 0);
+    new byte[] { 10, 20, 30, 255 }.CopyTo(tile, 0);
+    var painted = original.ReplaceTile(0, 0, tile);
+    session.ReplaceLayerRaster(first, painted);
+    string project = Path.Combine(output, "LayerSelection.comp");
+    ImageProjectWorkflow.Save(session, project);
+    session.SelectLayer(first);
+    if (session.IsDirty || session.ActiveLayerId != first || !ReferenceEquals(session.GetLayerRaster(first), painted))
+        throw new Exception("Selecting a layer changed pixels, dirty state or active identity.");
+    if (!session.Undo() || session.ActiveLayerId != second)
+        throw new Exception("Selection mutated a prior pixel history snapshot sharing the manifest.");
+    AssertRaster(original, session.GetLayerRaster(first));
+    if (!session.Redo() || session.ActiveLayerId != first || session.IsDirty)
+        throw new Exception("Selection added an undo step or lost its saved-state revision.");
+    ImageProjectWorkflow.Save(session, project);
+    if (ImageProjectWorkflow.OpenEditable(project).ActiveLayerId != first)
+        throw new Exception("A selected layer was not persisted by explicit save.");
+    Guid third = session.AddBlankLayer("Third", 2);
+    if (!session.Undo() || session.ActiveLayerId != first || !session.Redo() || session.ActiveLayerId != third)
+        throw new Exception("Structure undo did not restore the user's selected layer.");
+    session.SelectLayer(first);
+    session.DeleteLayer(first);
+    if (session.ActiveLayerId != second || !session.Undo() || session.ActiveLayerId != first)
+        throw new Exception("Delete undo did not restore the user's selected layer and pixels.");
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (reopened.ActiveLayerId != first || reopened.Layers.Count != 3)
+        throw new Exception("Selection and restored structure did not save and reopen together.");
+    AssertRaster(painted, reopened.GetLayerRaster(first));
+    try { session.SelectLayer(Guid.NewGuid()); throw new Exception("Selecting a foreign layer was accepted."); }
+    catch (ArgumentException) { }
+    if (session.IsDirty || session.ActiveLayerId != first || !session.Undo() || session.Layers.Count != 2 ||
+        !session.Undo() || session.ActiveLayerId != second || !session.Redo() || !session.Redo())
+        throw new Exception("Rejected selection changed document state or prior history.");
 }
 
 static void CheckMacFlatProduced(string macProject, string output)
