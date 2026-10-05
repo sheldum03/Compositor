@@ -1,0 +1,12 @@
+{
+  "baseCommit": "869372f7e37d5ca21e51406018e387b5bd5dae39",
+  "overlaySha256": {
+    "windows/Compositor.App.Checks/CanvasChecks.cs": "b51a25ddd31aab82eca2c47d935e590ed2e4143fe15754f160e48e75d880a8a1",
+    "windows/Compositor.App.Checks/fixtures/soft-brush-reference.json": "adfba5e99097e6370fd36a2b7f714b657657374d745784343ad5cbf9a1e69dcf"
+  },
+  "width": 259,
+  "height": 257,
+  "rawReferenceBytesPerImage": 266252,
+  "priorLabelsIncorrect": true,
+  "originalPixelsUnchanged": true
+}

@@ -8,5 +8,7 @@
   "zipSha256": "76bdbe2db895e6af84423d17056f56eda1694c88b83c2bdf8407db5c59cdfb5a",
   "generatorRoot": "/Users/admin/.codex/visualizations/2026/10/05/production-brush-reference/generator",
   "cases": 3,
-  "format": "raw RGBA8 premultiplied sRGB, top-down row-major, 300x300; live provisional tail and settled final"
+  "format": "raw RGBA8 premultiplied sRGB, top-down row-major, 259x257; live provisional tail and settled final",
+  "width": 259,
+  "height": 257
 }

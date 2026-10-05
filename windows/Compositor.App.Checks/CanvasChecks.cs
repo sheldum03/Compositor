@@ -29,6 +29,8 @@ internal static class CanvasChecks
         using var casesStream = zip.GetEntry("cases.json")!.Open();
         var cases = JsonSerializer.Deserialize<BrushCase[]>(casesStream)!;
         var original = ImageCodec.Load(fixture);
+        Require(original.Width == metadata.RootElement.GetProperty("width").GetInt32() &&
+            original.Height == metadata.RootElement.GetProperty("height").GetInt32(), "Brush reference dimensions changed.");
         foreach (var test in cases)
         {
             var stroke = new SoftBrushStroke(original, new SoftBrushSettings(test.Diameter, test.Opacity, test.Color));
@@ -121,10 +123,10 @@ internal static class CanvasChecks
         CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
         File.WriteAllText(Path.Combine(output, "canvas-results.json"), JsonSerializer.Serialize(new
         {
-            passed = true, referenceCases = cases.Length, provisionalAndFinalExact = true,
+            passed = true, referenceCases = cases.Length, imageWidth = original.Width, imageHeight = original.Height, provisionalAndFinalExact = true,
             pointerStroke = "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
             viewport = "zoom anchor, middle-button and Space plus left-button pan in logical coordinates",
-            limits = "Headless input at 300x300; no native Windows/DPI/pressure or S02 performance claim."
+            limits = "Headless input; no native Windows/DPI/pressure or S02 performance claim."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: production soft brush matches fixed M1 pixels, real pointer commit/cancel, viewport and saved export");
 
