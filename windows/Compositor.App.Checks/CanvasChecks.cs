@@ -322,6 +322,16 @@ internal static class CanvasChecks
         resizeWorkspace.ResizeImage(130, 129);
         Require(resizeWorkspace.Session.Width == 130 && resizeWorkspace.Session.Height == 129 && resizeWorkspace.IsDirty,
             "Image resize did not scale to the requested dimensions.");
+        var rotateWorkspace = new EditorWorkspace();
+        rotateWorkspace.Open(project);
+        int rotateWidth = rotateWorkspace.Session!.Width, rotateHeight = rotateWorkspace.Session.Height;
+        rotateWorkspace.RotateDocument90(clockwise: true);
+        Require(rotateWorkspace.Session.Width == rotateHeight && rotateWorkspace.Session.Height == rotateWidth && rotateWorkspace.IsDirty,
+            "Clockwise document rotation did not exchange the canvas dimensions.");
+        Require(rotateWorkspace.Undo() && rotateWorkspace.Session.Width == rotateWidth && rotateWorkspace.Session.Height == rotateHeight && !rotateWorkspace.IsDirty,
+            "Undo did not restore the pre-rotation canvas dimensions.");
+        Require(rotateWorkspace.Redo() && rotateWorkspace.Session.Width == rotateHeight && rotateWorkspace.Session.Height == rotateWidth,
+            "Redo did not restore the rotated canvas dimensions.");
         File.WriteAllText(Path.Combine(output, "canvas-results.json"), JsonSerializer.Serialize(new
         {
             passed = true, referenceCases = cases.Length, imageWidth = original.Width, imageHeight = original.Height, provisionalAndFinalExact = true,

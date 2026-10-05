@@ -141,6 +141,12 @@ internal static class NewDocumentChecks
         Click("Undo");
         Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
             "Undo did not restore the saved image dimensions.");
+        Begin("RotateClockwise"); Pump(window);
+        Require(workspace.Session.Width == 257 && workspace.Session.Height == 259 && workspace.IsDirty,
+            "Clockwise rotation button did not exchange the document dimensions.");
+        Click("Undo");
+        Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
+            "Undo did not restore the saved dimensions after rotation.");
         window.Close(); Dispatcher.UIThread.RunJobs(); Require(!window.IsVisible, "Saved new document did not close.");
         Require(SHA256.HashData(File.ReadAllBytes(Path.Combine(project, "manifest.json"))).SequenceEqual(sourceHash),
             "New document workflow changed the source project.");

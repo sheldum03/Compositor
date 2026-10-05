@@ -398,6 +398,17 @@ public sealed class EditorWorkspace
 
     public void ResizeImage(int width, int height) => ResizeDocument(width, height, scale: true);
 
+    public void RotateDocument90(bool clockwise) {
+        RequireIdle();
+        var session = RequireSession();
+        int width = session.Width, height = session.Height;
+        var rasters = session.Layers.ToDictionary(layer => layer.Id,
+            layer => RotateRaster90(session.GetLayerRaster(layer.Id), clockwise));
+        Edit(current => current.ResizeDocument(height, width, rasters));
+        ClearSelectionWithoutHistory();
+        ResetSelectionHistory();
+    }
+
     private void ResizeDocument(int width, int height, bool scale)
     {
         RequireIdle();
@@ -558,6 +569,21 @@ public sealed class EditorWorkspace
                 .CopyTo(output.AsSpan((y * width + x) * 4, 4));
         }
         return FromRgba(width, height, output);
+    }
+
+    private static TileRaster RotateRaster90(TileRaster source, bool clockwise)
+    {
+        int width = source.Width, height = source.Height;
+        byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int targetX = clockwise ? height - 1 - y : y;
+            int targetY = clockwise ? x : width - 1 - x;
+            input.AsSpan((y * width + x) * 4, 4)
+                .CopyTo(output.AsSpan((targetY * height + targetX) * 4, 4));
+        }
+        return FromRgba(height, width, output);
     }
 
     private static Rect SelectionBoundsFor(GrayTileRaster raster)

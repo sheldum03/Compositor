@@ -69,6 +69,8 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("ActualSize", "100%", () => { canvas.ActualSize(); return Task.CompletedTask; }, document: true));
         toolbar.Children.Add(Command("CanvasSize", "画布尺寸", () => ResizeAsync(scale: false), document: true));
         toolbar.Children.Add(Command("ImageSize", "图像尺寸", () => ResizeAsync(scale: true), document: true));
+        toolbar.Children.Add(Command("RotateClockwise", "顺时针90°", () => Task.Run(() => Workspace.RotateDocument90(true)), document: true));
+        toolbar.Children.Add(Command("RotateCounterClockwise", "逆时针90°", () => Task.Run(() => Workspace.RotateDocument90(false)), document: true));
         toolbar.Children.Add(pixelGrid);
         toolbar.Children.Add(rectangleSelect);
         toolbar.Children.Add(moveSelection);
