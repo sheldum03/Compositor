@@ -21,7 +21,7 @@
 - `Compositor.Imaging.Checks`、`Compositor.App.Checks`、`Compositor.SaveCrash.Checks`、`Compositor.Workflow.Checks` 均通过，构建 0 warning / 0 error；App Checks 新增组工程按钮保护回归。
 - macOS arm64/.NET `10.0.401` Release 本地验证；Windows 原生启动、DPI、IME、字体和真实笔输入仍需在 Windows 11 x64 主机验证。
 
-可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-group-create-6338ac5`，`Compositor.App.exe` SHA-256：
+可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-group-create-6338ac5-final`，`Compositor.App.exe` SHA-256：
 
 `a170628b73a143aa489fd7a44358385c0e306a1e36e688fbbe9e3e5cfa637bb2`
 
