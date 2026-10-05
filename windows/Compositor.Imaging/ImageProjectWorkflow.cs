@@ -67,20 +67,20 @@ public static class ImageProjectWorkflow
                     string name = imageNode.GetValue<string>();
                     string image = Path.Combine(session.SourceDirectory, "images", name);
                     ProjectStore.CheckAssetHash(session, name, image);
-                    TileRaster raster = ImageCodec.Load(image);
+                    TileRaster loadedRaster = ImageCodec.Load(image);
                     ProjectStore.CheckAssetHash(session, name, image);
-                    rasters.Add(id, raster);
+                    rasters.Add(id, loadedRaster);
                 }
                 if (layer["maskFile"] is { } maskNode)
                 {
                     string maskName = maskNode.GetValue<string>();
                     string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
                     ProjectStore.CheckAssetHash(session, maskName, maskPath);
-                    GrayTileRaster mask = ImageCodec.LoadGrayMask(maskPath);
-                    if (mask.Width != session.Width || mask.Height != session.Height)
+                    GrayTileRaster loadedMask = ImageCodec.LoadGrayMask(maskPath);
+                    if (loadedMask.Width != session.Width || loadedMask.Height != session.Height)
                         throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
                     ProjectStore.CheckAssetHash(session, maskName, maskPath);
-                    masks.Add(id, mask);
+                    masks.Add(id, loadedMask);
                 }
             }
             session.AttachLayerRasters(rasters, masks.Count == 0 ? null : masks);
