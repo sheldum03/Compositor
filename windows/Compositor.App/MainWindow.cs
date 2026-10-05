@@ -75,6 +75,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(wandTolerance);
         toolbar.Children.Add(wandContiguous);
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
+        toolbar.Children.Add(Command("CopyMergedSelection", "合并复制", CopyMergedSelectionAsync, document: true));
         toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
         toolbar.Children.Add(Command("PasteSelection", "粘贴选区", PasteSelectionAsync, document: true));
         toolbar.Children.Add(Command("LoadAlphaSelection", "从图层 Alpha 载入", LoadAlphaSelectionAsync, document: true));
@@ -384,6 +385,12 @@ public sealed class MainWindow : Window
     private Task CopySelectionAsync()
     {
         Workspace.CopySelection();
+        return Task.CompletedTask;
+    }
+
+    private Task CopyMergedSelectionAsync()
+    {
+        Workspace.CopyMergedSelection();
         return Task.CompletedTask;
     }
 

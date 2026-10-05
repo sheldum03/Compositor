@@ -255,6 +255,16 @@ public sealed class EditorWorkspace
         clipboardMask = selection;
     }
 
+    public void CopyMergedSelection()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (Selection is not { } selection)
+            throw new InvalidOperationException("请先建立选区。");
+        clipboardRaster = ApplySelection(Preview ?? ImageProjectWorkflow.RenderFlatNormal(session), selection, keepSelected: true);
+        clipboardMask = selection;
+    }
+
     public void CutSelection()
     {
         CopySelection();

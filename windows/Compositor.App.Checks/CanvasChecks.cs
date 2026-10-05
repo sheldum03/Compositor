@@ -121,6 +121,8 @@ internal static class CanvasChecks
             $"Rectangle selection did not create the expected in-memory mask without history: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}, bounds={workspace.SelectionBounds}, dirty={workspace.IsDirty}.");
         Click("CopySelection");
         Require(workspace.HasClipboard && !workspace.IsDirty, "Copy selection changed document history or did not retain a clipboard snapshot.");
+        Click("CopyMergedSelection");
+        Require(workspace.HasClipboard && !workspace.IsDirty, "Copy merged selection changed document history or did not retain a clipboard snapshot.");
         Click("CutSelection");
         Require(workspace.IsDirty && !Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
             "Cut selection did not create a history step or clear selected pixels.");
