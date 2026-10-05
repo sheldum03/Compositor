@@ -301,7 +301,19 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     if (nestedReopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(nestedReopened)))
         throw new Exception("Ungrouping nested groups did not restore the flat render.");
     ImageProjectWorkflow.Save(nestedReopened, Path.Combine(output, "UngroupedCreated.comp"));
-    Console.WriteLine("PASS: root and nested raster groups preserve render through group/ungroup and save/reopen");
+    var masked = ImageProjectWorkflow.OpenEditable(grouped);
+    masked.EnsureLayerMask(groupId);
+    masked.ReplaceLayerMask(groupId, GrayTileRaster.Rectangle(masked.Width, masked.Height, 0, 0, masked.Width / 2, masked.Height));
+    TileRaster maskedReference = ImageProjectWorkflow.RenderFlatNormal(masked);
+    masked.UngroupLayer(groupId);
+    if (masked.HasGroups || !SameRaster(maskedReference, ImageProjectWorkflow.RenderFlatNormal(masked)))
+        throw new Exception("Ungrouping an unmasked-stack group mask did not preserve the render.");
+    string maskedUngrouped = Path.Combine(output, "MaskedUngrouped.comp");
+    ImageProjectWorkflow.Save(masked, maskedUngrouped);
+    var maskedReopened = ImageProjectWorkflow.OpenEditable(maskedUngrouped);
+    if (!SameRaster(maskedReference, ImageProjectWorkflow.RenderFlatNormal(maskedReopened)))
+        throw new Exception("Transferred group masks did not survive save and reopen.");
+    Console.WriteLine("PASS: root, nested and simple masked raster groups preserve render through group/ungroup and save/reopen");
 }
 
 static bool SameRaster(TileRaster first, TileRaster second)

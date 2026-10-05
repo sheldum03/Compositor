@@ -512,14 +512,51 @@ public sealed class ProjectSession
         var group = Current["layers"]![index]!;
         if (group["isGroup"]?.GetValue<bool>() != true)
             throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        GrayTileRaster? groupMask = null;
         if (group["maskFile"] is not null)
-            throw new NotSupportedException("A group with a mask must be flattened or edited before ungrouping.");
+        {
+            if (!(group["maskEnabled"]?.GetValue<bool>() ?? true))
+                throw new NotSupportedException("Disabled group masks cannot be ungrouped in this slice.");
+            groupMask = TryGetLoadedLayerMask(groupId, out var loadedGroupMask) ? loadedGroupMask
+                : throw new InvalidOperationException("Layer masks have not been loaded.");
+        }
         Guid? parentId = group["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null;
         var directChildren = Current["layers"]!.AsArray()
             .Where(node => node!["parentID"] is { } parent && Guid.Parse(parent.GetValue<string>()) == groupId)
             .Select(node => Guid.Parse(node!["id"]!.GetValue<string>())).ToArray();
+        var parentById = Current["layers"]!.AsArray().ToDictionary(node => Guid.Parse(node!["id"]!.GetValue<string>()),
+            node => node!["parentID"] is { } value ? Guid.Parse(value.GetValue<string>()) : (Guid?)null);
+        bool IsDescendantOf(Guid layerId, Guid ancestorId)
+        {
+            var seen = new HashSet<Guid>();
+            Guid? current = layerId;
+            while (current is { } id && seen.Add(id) && parentById.TryGetValue(id, out var parent))
+            {
+                if (parent == ancestorId) return true;
+                current = parent;
+            }
+            return false;
+        }
+        if (groupMask is not null && Current["layers"]!.AsArray().Any(node =>
+                node!["maskSourceID"] is not null && IsDescendantOf(Guid.Parse(node["id"]!.GetValue<string>()), groupId)))
+            throw new NotSupportedException("Ungrouping a masked group with clipping sources is not supported in this slice.");
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
+        Dictionary<Guid, GrayTileRaster>? nextMasks = snapshots[cursor].LayerMasks is { } loadedMasks
+            ? new Dictionary<Guid, GrayTileRaster>(loadedMasks) : null;
+        if (groupMask is not null)
+        {
+            if (nextMasks is null) throw new InvalidOperationException("Layer masks have not been loaded.");
+            foreach (Guid childId in directChildren)
+            {
+                var child = nextLayers.First(node => Guid.Parse(node!["id"]!.GetValue<string>()) == childId)!.AsObject();
+                GrayTileRaster? childMask = child["maskFile"] is not null &&
+                    TryGetLoadedLayerMask(childId, out var loadedChildMask) ? loadedChildMask : null;
+                nextMasks[childId] = childMask is null ? CloneMask(groupMask) : MultiplyMasks(childMask, groupMask);
+                child["maskFile"] = childId.ToString("D") + ".mask.png";
+                child["maskEnabled"] = true;
+            }
+        }
         foreach (JsonNode? node in nextLayers)
             if (node!["parentID"] is { } parentNode && Guid.Parse(parentNode.GetValue<string>()) == groupId)
             {
@@ -538,7 +575,33 @@ public sealed class ProjectSession
             if (replacement is null) next.Remove("activeLayerID");
             else next["activeLayerID"] = replacement!["id"]!.DeepClone();
         }
-        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+        if (groupMask is not null) nextMasks!.Remove(groupId);
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, nextMasks is { Count: > 0 } ? nextMasks : null, ++nextRevision));
+    }
+
+    private static GrayTileRaster CloneMask(GrayTileRaster source)
+    {
+        var result = new GrayTileRaster(source.Width, source.Height);
+        for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+            result = result.ReplaceTile(column, row, source.ReadTileCopy(column, row));
+        return result;
+    }
+
+    private static GrayTileRaster MultiplyMasks(GrayTileRaster first, GrayTileRaster second)
+    {
+        if (first.Width != second.Width || first.Height != second.Height)
+            throw new ArgumentException("Mask dimensions must match.");
+        var result = new GrayTileRaster(first.Width, first.Height);
+        for (int row = 0; row * TileRaster.TileSize < first.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
+        {
+            byte[] pixels = first.ReadTileCopy(column, row);
+            byte[] other = second.ReadTileCopy(column, row);
+            for (int i = 0; i < pixels.Length; i++) pixels[i] = (byte)((pixels[i] * other[i] + 127) / 255);
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
     }
 
     private static JsonObject CreateBlankLayer(string name, int width, int height) =>

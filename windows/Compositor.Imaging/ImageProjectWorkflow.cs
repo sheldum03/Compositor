@@ -201,7 +201,8 @@ public static class ImageProjectWorkflow
                     ? overrideMask
                     : session.TryGetLoadedLayerMask(layerId, out var loadedMask)
                     ? loadedMask : ImageCodec.LoadGrayMask(maskPath);
-                if (session.CanEdit) ProjectStore.CheckAssetHash(session, maskFile.GetValue<string>(), maskPath);
+                if (session.CanEdit && session.AssetHashes.ContainsKey(maskFile.GetValue<string>()))
+                    ProjectStore.CheckAssetHash(session, maskFile.GetValue<string>(), maskPath);
                 if (mask.Width != width || mask.Height != height)
                     throw new NotSupportedException("Only full-canvas masks at the default placement are supported.");
                 if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
