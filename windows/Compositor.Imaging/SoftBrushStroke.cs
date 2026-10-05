@@ -111,6 +111,15 @@ public sealed class SoftBrushStroke
         return result;
     }
 
+    public GrayTileRaster CoverageSnapshot()
+    {
+        Flush();
+        var result = new GrayTileRaster(source.Width, source.Height);
+        foreach (var pair in coverage)
+            result = result.ReplaceTile(pair.Key % Columns, pair.Key / Columns, pair.Value);
+        return result;
+    }
+
     private int Columns => (source.Width + TileRaster.TileSize - 1) / TileRaster.TileSize;
     private SKRectI Bounds(int key)
     {

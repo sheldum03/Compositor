@@ -120,7 +120,7 @@ public static class ImageProjectWorkflow
         RenderFlatNormal(ProjectStore.Open(projectDirectory));
 
     public static TileRaster RenderFlatNormal(ProjectSession session) =>
-        session.CanEdit ? RenderFlatNormalCore(session, null, null) : RenderCachedCore(session);
+        session.CanEdit ? RenderFlatNormalCore(session, null, null, null) : RenderCachedCore(session);
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)
     {
@@ -128,10 +128,23 @@ public static class ImageProjectWorkflow
         TileRaster current = session.GetLayerRaster(layerId);
         if (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)
             throw new ArgumentException("Preview raster dimensions do not match the layer.", nameof(overrideRaster));
-        return RenderFlatNormalCore(session, layerId, overrideRaster);
+        return RenderFlatNormalCore(session, layerId, overrideRaster, null);
     }
 
-    private static TileRaster RenderFlatNormalCore(ProjectSession session, Guid? overrideLayerId, TileRaster? overrideRaster)
+    public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster,
+        GrayTileRaster overrideMask)
+    {
+        if (!session.CanEdit) throw new NotSupportedException("Temporary previews require an editable project.");
+        TileRaster current = session.GetLayerRaster(layerId);
+        if (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)
+            throw new ArgumentException("Preview raster dimensions do not match the layer.", nameof(overrideRaster));
+        if (overrideMask.Width != session.Width || overrideMask.Height != session.Height)
+            throw new ArgumentException("Preview mask dimensions do not match the canvas.", nameof(overrideMask));
+        return RenderFlatNormalCore(session, layerId, overrideRaster, overrideMask);
+    }
+
+    private static TileRaster RenderFlatNormalCore(ProjectSession session, Guid? overrideLayerId, TileRaster? overrideRaster,
+        GrayTileRaster? overrideMask)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -166,7 +179,10 @@ public static class ImageProjectWorkflow
             if (layer["maskFile"] is { } maskFile)
             {
                 string maskPath = Path.Combine(session.SourceDirectory, "images", maskFile.GetValue<string>());
-                GrayTileRaster mask = session.TryGetLoadedLayerMask(Guid.Parse(layer["id"]!.GetValue<string>()), out var loadedMask)
+                Guid layerId = Guid.Parse(layer["id"]!.GetValue<string>());
+                GrayTileRaster mask = overrideLayerId == layerId && overrideMask is not null
+                    ? overrideMask
+                    : session.TryGetLoadedLayerMask(layerId, out var loadedMask)
                     ? loadedMask : ImageCodec.LoadGrayMask(maskPath);
                 if (session.CanEdit) ProjectStore.CheckAssetHash(session, maskFile.GetValue<string>(), maskPath);
                 if (mask.Width != width || mask.Height != height)

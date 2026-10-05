@@ -367,11 +367,35 @@ internal static class CanvasChecks
         Require(maskTransformWorkspace.Session.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
             maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 },
             "Document rotation did not keep the full-canvas layer mask aligned.");
+        var maskBrushWorkspace = new EditorWorkspace();
+        maskBrushWorkspace.Open(maskedProject);
+        var maskBrushSession = maskBrushWorkspace.Session!;
+        Guid maskBrushLayer = maskBrushSession.ActiveLayerId!.Value;
+        Require(MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 10, 10) == 255,
+            "Mask brush fixture did not start with visible coverage.");
+        maskBrushWorkspace.BeginMaskStroke(maskBrushLayer,
+            new SoftBrushSettings(9, 1, [0, 0, 0], 1), new BrushPoint(10.5, 10.5), reveal: false);
+        Require(maskBrushWorkspace.HasActiveStroke && !maskBrushWorkspace.IsDirty,
+            "Mask brush committed before pointer release.");
+        maskBrushWorkspace.CommitMaskStroke(new BrushPoint(10.5, 10.5));
+        Require(maskBrushWorkspace.IsDirty && MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 10, 10) == 0,
+            "Mask brush did not hide the painted coverage.");
+        Require(maskBrushWorkspace.Undo() && MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 10, 10) == 255 &&
+            maskBrushWorkspace.Redo() && MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 10, 10) == 0,
+            "Mask brush Undo/Redo did not restore coverage.");
+        maskBrushWorkspace.SelectRectangle(new Rect(128, 128, 1, 1));
+        maskBrushWorkspace.BeginMaskStroke(maskBrushLayer,
+            new SoftBrushSettings(9, 1, [0, 0, 0], 1), new BrushPoint(128.5, 128.5), reveal: true);
+        maskBrushWorkspace.CommitMaskStroke(new BrushPoint(128.5, 128.5));
+        Require(MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 128, 128) == 255 &&
+            MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 127, 128) == 0,
+            "Mask brush reveal did not honor the active selection.");
         var maskWindow = new MainWindow(maskWorkspace);
         maskWindow.Show(); Dispatcher.UIThread.RunJobs();
         Require(Find<Button>(maskWindow, "Save").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "ToggleMask").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "AddMask").IsEffectivelyEnabled &&
+            Find<CheckBox>(maskWindow, "MaskPaint").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "ExportPng").IsEffectivelyEnabled &&
             Find<CheckBox>(maskWindow, "RectSelect").IsEffectivelyEnabled,
             "Editable masked window did not expose mask and editing controls.");

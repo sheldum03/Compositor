@@ -18,6 +18,9 @@ public sealed class MainWindow : Window
     private readonly StackPanel toolbar = new() { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
     private readonly DockPanel sidebar = new() { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
     private readonly CheckBox paint = new() { Content = "软笔", Name = "Paint", IsChecked = true };
+    private readonly CheckBox maskPaint = new() { Content = "蒙版笔刷", Name = "MaskPaint" };
+    private readonly ComboBox maskPaintMode = new() { Name = "MaskPaintMode", Width = 75,
+        ItemsSource = new[] { "隐藏", "显示" }, SelectedIndex = 0 };
     private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
@@ -100,17 +103,19 @@ public sealed class MainWindow : Window
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
-            if (canvas.SelectionEnabled) { paint.IsChecked = false; moveSelection.IsChecked = false; }
-            canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+            if (canvas.SelectionEnabled) { paint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; }
+            UpdatePaintMode();
         };
         moveSelection.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionMoveEnabled = moveSelection.IsChecked == true;
-            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; }
-            canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; maskPaint.IsChecked = false; }
+            UpdatePaintMode();
         };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
+        brushOptions.Children.Add(maskPaint);
+        brushOptions.Children.Add(maskPaintMode);
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
         brushOptions.Children.Add(diameter);
         brushOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
@@ -177,18 +182,34 @@ public sealed class MainWindow : Window
             {
                 1 => [1, 1, 1], 2 => [0.1, 0.3, 0.9], 3 => [1, 0.3, 0.1], _ => [0, 0, 0]
             };
-            Workspace.BeginStroke(id, new SoftBrushSettings((int)(diameter.Value ?? 40),
-                (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0),
-                new BrushPoint(point.X, point.Y));
+            var settings = new SoftBrushSettings((int)(diameter.Value ?? 40),
+                (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0);
+            if (maskPaint.IsChecked == true)
+                Workspace.BeginMaskStroke(id, settings, new BrushPoint(point.X, point.Y), maskPaintMode.SelectedIndex == 1);
+            else Workspace.BeginStroke(id, settings, new BrushPoint(point.X, point.Y));
         });
-        canvas.StrokeMoved += point => PaintStep(() => Workspace.AppendStroke(new BrushPoint(point.X, point.Y)));
-        canvas.StrokeFinished += point => PaintStep(() => Workspace.CommitStroke(new BrushPoint(point.X, point.Y)));
+        canvas.StrokeMoved += point => PaintStep(() =>
+        {
+            if (maskPaint.IsChecked == true) Workspace.AppendMaskStroke(new BrushPoint(point.X, point.Y));
+            else Workspace.AppendStroke(new BrushPoint(point.X, point.Y));
+        });
+        canvas.StrokeFinished += point => PaintStep(() =>
+        {
+            if (maskPaint.IsChecked == true) Workspace.CommitMaskStroke(new BrushPoint(point.X, point.Y));
+            else Workspace.CommitStroke(new BrushPoint(point.X, point.Y));
+        });
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
         paint.IsCheckedChanged += (_, _) =>
         {
-            if (paint.IsChecked == true) rectangleSelect.IsChecked = false;
+            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; maskPaint.IsChecked = false; }
             if (paint.IsChecked == true) moveSelection.IsChecked = false;
-            canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+            UpdatePaintMode();
+        };
+        maskPaint.IsCheckedChanged += (_, _) =>
+        {
+            if (maskPaint.IsChecked == true) { paint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; }
+            maskPaintMode.IsEnabled = maskPaint.IsChecked == true;
+            UpdatePaintMode();
         };
         canvas.SelectionFinished += rectangle =>
         {
@@ -365,7 +386,7 @@ public sealed class MainWindow : Window
         layerName.IsEnabled = Workspace.CanEdit && selected is not null;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
-        canvas.PaintEnabled = Workspace.CanEdit && selected is not null && paint.IsChecked == true;
+        UpdatePaintMode();
         foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null;
         foreach (var button in maskButtons)
             button.IsEnabled = Workspace.CanEdit && selected is not null &&
@@ -373,6 +394,15 @@ public sealed class MainWindow : Window
     }
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));
+
+    private void UpdatePaintMode()
+    {
+        bool editable = Workspace.CanEdit && selectedId is not null;
+        bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
+        maskPaint.IsEnabled = hasMask;
+        maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
+        canvas.PaintEnabled = editable && (paint.IsChecked == true || maskPaint.IsChecked == true);
+    }
     private Task AddLayerAsync() => EditAsync(session =>
     {
         int index = selectedId is { } id ? session.Layers.ToList().FindIndex(layer => layer.Id == id) + 1 : session.Layers.Count;

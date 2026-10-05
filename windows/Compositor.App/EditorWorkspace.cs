@@ -8,6 +8,9 @@ public sealed class EditorWorkspace
 {
     private SoftBrushStroke? brush;
     private Guid brushLayer;
+    private SoftBrushStroke? maskBrush;
+    private Guid maskBrushLayer;
+    private bool maskBrushReveal;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private SelectionMoveHistory? selectionMoveHistory;
@@ -15,7 +18,7 @@ public sealed class EditorWorkspace
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
-    public bool HasActiveStroke => brush is not null;
+    public bool HasActiveStroke => brush is not null || maskBrush is not null;
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
@@ -152,6 +155,43 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), brushLayer, active.Snapshot());
     }
 
+    public void BeginMaskStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, bool reveal)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId != layerId || !session.Layers.Single(layer => layer.Id == layerId).HasMask)
+            throw new InvalidOperationException("当前活动图层没有蒙版。");
+        if (!session.IsLayerMaskEnabled(layerId))
+            throw new InvalidOperationException("请先启用当前图层蒙版。");
+        maskBrushLayer = layerId;
+        maskBrushReveal = reveal;
+        maskBrush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings with { Color = [1, 1, 1] }, Selection);
+        AppendMaskStroke(point);
+    }
+
+    public void AppendMaskStroke(BrushPoint point)
+    {
+        var active = maskBrush ?? throw new InvalidOperationException("No active mask stroke.");
+        active.Append(point);
+        Preview = RenderMaskStrokePreview(active.CoverageSnapshot());
+    }
+
+    public void CommitMaskStroke(BrushPoint point)
+    {
+        AppendMaskStroke(point);
+        var active = maskBrush!;
+        GrayTileRaster coverage = active.CoverageSnapshot();
+        Guid layerId = maskBrushLayer;
+        bool reveal = maskBrushReveal;
+        maskBrush = null;
+        var session = RequireSession();
+        GrayTileRaster current = session.GetLayerMask(layerId)!;
+        GrayTileRaster next = current.Combine(coverage,
+            reveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
+        if (SameCoverage(current, next)) Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        else Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
+    }
+
     public void CommitStroke(BrushPoint point)
     {
         AppendStroke(point);
@@ -167,8 +207,15 @@ public sealed class EditorWorkspace
 
     public void CancelStroke()
     {
-        if (brush is null) return;
-        brush.Cancel(); brush = null;
+        if (brush is { } currentBrush)
+        {
+            currentBrush.Cancel(); brush = null;
+        }
+        else if (maskBrush is { } currentMaskBrush)
+        {
+            currentMaskBrush.Cancel(); maskBrush = null;
+        }
+        else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
@@ -502,7 +549,7 @@ public sealed class EditorWorkspace
 
     private void RequireIdle()
     {
-        if (brush is not null) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        if (HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
     }
 
     private ProjectSession RequireSession() => Session ?? throw new InvalidOperationException("请先打开或导入工程。");
@@ -519,6 +566,25 @@ public sealed class EditorWorkspace
         for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
             if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
         return true;
+    }
+
+    private static bool SameCoverage(GrayTileRaster first, GrayTileRaster second)
+    {
+        if (first.Width != second.Width || first.Height != second.Height) return false;
+        for (int row = 0; row * TileRaster.TileSize < first.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
+            if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
+        return true;
+    }
+
+    private TileRaster RenderMaskStrokePreview(GrayTileRaster coverage)
+    {
+        var session = RequireSession();
+        GrayTileRaster current = session.GetLayerMask(maskBrushLayer)!;
+        GrayTileRaster next = current.Combine(coverage,
+            maskBrushReveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
+        return ImageProjectWorkflow.RenderFlatNormal(session, maskBrushLayer,
+            session.GetLayerRaster(maskBrushLayer), next);
     }
 
     private void ClearClipboard()
