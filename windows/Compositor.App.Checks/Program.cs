@@ -237,6 +237,15 @@ internal static class Program
             tabsWindow.Workspace.Session!.Layers[^1].Name == "中文 Overlay",
             "Switching project tabs did not restore the first workspace state.");
         tabsWindow.ActivateProjectTab(1);
+        string secondTabName = secondWorkspace.Session!.Layers[^1].Name;
+        secondWorkspace.Edit(session => session.RenameLayer(session.Layers[^1].Id, "Second tab edit"));
+        Click(tabsWindow, "Undo");
+        Require(secondWorkspace.Session.Layers[^1].Name == secondTabName && !secondWorkspace.IsDirty,
+            "Undo after switching tabs did not use the active project's history.");
+        tabsWindow.ActivateProjectTab(0);
+        Require(workspace.Session!.Layers[^1].Name == "中文 Overlay" && !workspace.IsDirty,
+            "Undo history from the second project leaked into the first project.");
+        tabsWindow.ActivateProjectTab(1);
         Click(tabsWindow, "CloseProject");
         Require(tabsWindow.ProjectCount == 1 && ReferenceEquals(tabsWindow.Workspace, workspace),
             "Closing a project tab did not preserve the remaining workspace.");
@@ -329,7 +338,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "project-tab undo history isolation",
                 "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
