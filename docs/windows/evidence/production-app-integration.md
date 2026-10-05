@@ -12,7 +12,7 @@
 - 300×300 跨瓦片预览的 RGBA 字节、alpha、行方向与核心全部一致；PNG 导出重读像素一致，PNG/JPEG 导出不清除脏状态。
 - 打开失败保留原会话，另存到已有工程被拒绝且不改变保存点。
 - 关闭取消保留文档；源资产被外部改动时保存关闭失败，窗口与未保存内容仍保留；恢复原资产后保存关闭成功；不保存关闭不会把未提交名称写入工程。
-- 保存重开后图层状态与合成像素保持。生成的[窗口截图](production-app-integration/window.png)已人工式图像检查：中文文本、图层列表、按钮和预览均显示，无明显遮挡。
+- 保存重开后图层状态与合成像素保持。生成的[窗口截图](production-app-integration/window.png)已检查图像：中文文本、图层列表、按钮和预览均显示，无明显遮挡。
 
 原始目录 `/Users/admin/.codex/visualizations/2026/10/05/production-app-integration`；[产物摘要](production-app-integration/output-sha256.json)定位完整工程及导出图片。Windows CI 源码加入第五项 App.Checks 矩阵，已验证 YAML 和项目/样本路径，未推送或执行远程 CI。
 
