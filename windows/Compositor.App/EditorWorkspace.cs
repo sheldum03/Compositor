@@ -251,6 +251,17 @@ public sealed class EditorWorkspace
         }
     }
 
+    public void SelectLayerAlpha()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId) throw new InvalidOperationException("当前工程没有活动图层。");
+        var next = GrayTileRaster.FromCoverage(session.Width, session.Height, ToAlpha(session.GetLayerRaster(layerId)));
+        if (next.CoveredPixels == 0) { ClearSelection(); return; }
+        Selection = next;
+        SelectionBounds = SelectionBoundsFor(next);
+    }
+
     private void RequireIdle()
     {
         if (brush is not null) throw new InvalidOperationException("请先结束或取消当前笔划。");
@@ -330,6 +341,21 @@ public sealed class EditorWorkspace
                     coverage.AsSpan((row * TileRaster.TileSize + y) * raster.Width + column * TileRaster.TileSize, size.Width));
         }
         return coverage;
+    }
+
+    private static byte[] ToAlpha(TileRaster raster)
+    {
+        byte[] alpha = new byte[checked(raster.Width * raster.Height)];
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] tile = raster.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+                alpha[(row * TileRaster.TileSize + y) * raster.Width + column * TileRaster.TileSize + x] = tile[(y * size.Width + x) * 4 + 3];
+        }
+        return alpha;
     }
 
     private static TileRaster FromRgba(int width, int height, ReadOnlySpan<byte> rgba)

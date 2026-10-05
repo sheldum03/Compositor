@@ -134,6 +134,9 @@ internal static class CanvasChecks
         Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
             "Undo did not restore pixels after reverse selection move.");
+        Click("LoadAlphaSelection");
+        Require(workspace.HasSelection && workspace.SelectedPixels > 0 && !workspace.IsDirty,
+            "Loading a layer alpha did not create a non-dirty selection.");
         workspace.SelectRectangle(new Rect(30, 30, 120, 90));
         canvas.SetSelectionRect(workspace.SelectionBounds);
         Find<CheckBox>(window, "MoveSelection").IsChecked = false;

@@ -74,6 +74,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
         toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
         toolbar.Children.Add(Command("PasteSelection", "粘贴选区", PasteSelectionAsync, document: true));
+        toolbar.Children.Add(Command("LoadAlphaSelection", "从图层 Alpha 载入", LoadAlphaSelectionAsync, document: true));
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
         selectionShape.SelectionChanged += (_, _) => canvas.LassoEnabled = selectionShape.SelectedIndex == 3;
@@ -367,6 +368,14 @@ public sealed class MainWindow : Window
     private Task CutSelectionAsync() => Task.Run(Workspace.CutSelection);
 
     private Task PasteSelectionAsync() => Task.Run(Workspace.PasteSelection);
+
+    private Task LoadAlphaSelectionAsync()
+    {
+        Workspace.SelectLayerAlpha();
+        canvas.SetSelectionRect(Workspace.SelectionBounds);
+        moveSelection.IsEnabled = Workspace.HasSelection;
+        return Task.CompletedTask;
+    }
 
     private GraySelectionOperation SelectionOperation() => selectionOperation.SelectedIndex switch
     {
