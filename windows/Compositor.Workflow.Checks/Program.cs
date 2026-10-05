@@ -350,6 +350,15 @@ static void CheckGroupStructureCreation(string output, string fixtures)
         throw new Exception("Editable group rotation did not render or record.");
     if (!rotated.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(rotated)) || rotated.IsDirty)
         throw new Exception("Editable group rotation undo did not restore the saved render.");
+    var moved = ImageProjectWorkflow.OpenEditable(grouped);
+    moved.MoveGroup(groupId, 12, -7);
+    TileRaster movedPreview = ImageProjectWorkflow.RenderFlatNormal(moved);
+    if (SameRaster(baseline, movedPreview) || !moved.IsDirty)
+        throw new Exception("Editable group move did not render or record.");
+    if (!moved.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(moved)) || moved.IsDirty)
+        throw new Exception("Editable group move undo did not restore the saved render.");
+    if (!moved.Redo() || !SameRaster(movedPreview, ImageProjectWorkflow.RenderFlatNormal(moved)))
+        throw new Exception("Editable group move redo did not restore the moved render.");
     Guid innerGroupId = reopened.GroupLayer(leafId, "Inner");
     Guid outerGroupId = reopened.GroupLayer(groupId, "Outer");
     if (reopened.Layers.Single(layer => layer.Id == outerGroupId).ParentId is not null ||

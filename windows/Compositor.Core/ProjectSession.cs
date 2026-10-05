@@ -500,6 +500,28 @@ public sealed class ProjectSession
             nextWidth, nextHeight, transform["rotation"]?.GetValue<double>() ?? 0);
     }
 
+    public void MoveGroup(Guid groupId, double offsetX, double offsetY)
+    {
+        RequireGroupStructureEditing();
+        if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY))
+            throw new ArgumentOutOfRangeException(nameof(offsetX));
+        int index = FindLayer(groupId);
+        var layer = Current["layers"]![index]!.AsObject();
+        if (layer["isGroup"]?.GetValue<bool>() != true)
+            throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        var transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Group transform data is missing.");
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        if (origin?.Count != 2 || size?.Count != 2)
+            throw new InvalidDataException("Group transform data is invalid.");
+        SetGroupTransform(groupId,
+            origin[0]!.GetValue<double>() + offsetX,
+            origin[1]!.GetValue<double>() + offsetY,
+            size[0]!.GetValue<double>(), size[1]!.GetValue<double>(),
+            transform["rotation"]?.GetValue<double>() ?? 0);
+    }
+
     public void RotateGroup90(Guid groupId, bool clockwise)
     {
         RequireGroupStructureEditing();

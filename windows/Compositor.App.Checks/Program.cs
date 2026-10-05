@@ -148,12 +148,18 @@ internal static class Program
         Dispatcher.UIThread.RunJobs();
         foreach (string name in new[] { "AddLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
             "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
-            "MoveLayer", "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection" })
+            "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
         foreach (string name in new[] { "FlipLayerHorizontal", "FlipLayerVertical", "ScaleGroupDown", "ScaleGroupUp",
             "RotateGroupCounterClockwise", "RotateGroupClockwise" })
             Require(Control<Button>(groupedWindow, name).IsEffectivelyEnabled,
                 "Enabled group mask did not expose group transform button: " + name);
+        Require(Control<Button>(groupedWindow, "MoveLayer").IsEffectivelyEnabled,
+            "Enabled group mask did not expose group move button.");
+        Control<NumericUpDown>(groupedWindow, "LayerMoveX").Value = 12;
+        Control<NumericUpDown>(groupedWindow, "LayerMoveY").Value = -7;
+        Click(groupedWindow, "MoveLayer");
+        Click(groupedWindow, "Undo");
         Click(groupedWindow, "ScaleGroupUp");
         Require(groupedWorkspace.Undo(), "Group scale button did not create an undo step.");
         Click(groupedWindow, "RotateGroupClockwise");

@@ -162,7 +162,7 @@ public sealed class MainWindow : Window
         move.Children.Add(layerMoveX);
         move.Children.Add(new TextBlock { Text = "Y", VerticalAlignment = VerticalAlignment.Center });
         move.Children.Add(layerMoveY);
-        move.Children.Add(Command("MoveLayer", "移动图层", MoveLayerAsync, layer: true));
+        move.Children.Add(Command("MoveLayer", "移动图层/组", MoveLayerAsync, layer: true));
         actions.Children.Add(move);
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
@@ -417,8 +417,6 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
             if (multiple && button.Name != "GroupLayer") button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
-                button.IsEnabled = false;
-            if (selected?.IsGroup == true && button.Name == "MoveLayer")
                 button.IsEnabled = false;
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && !Workspace.HasFloatingSelection;
