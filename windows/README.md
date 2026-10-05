@@ -19,4 +19,4 @@ Windows 上也可从解压后的源码根目录双击 `windows/run-smoke.cmd`。
 
 生产像素链路的独立检查：先在 `windows/` 下对 `Compositor.Workflow.Checks` 执行 `dotnet restore --locked-mode`，再运行 `dotnet run --project Compositor.Workflow.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。测试会生成新 v8 工程、编辑并撤销/重做像素、保存重开、导出 PNG/JPEG，再检查恢复旧快照、拒绝损坏输入及外部资产变化。Core 不依赖 Imaging；只有工作流调用二者。像素编辑目前仍限单层；平面多层可改名、显隐、排序并安全保存，其他完整 v8 语义和 Windows 实机执行未验收。
 
-真实保存中断检查：锁定恢复 `Compositor.SaveCrash.Checks` 后，执行 `dotnet run --project Compositor.SaveCrash.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。父进程在 PNG 写入、目录替换及备份清理边界终止本测试创建的 8 个子进程，再核对完整旧版/新版像素及备份保护。详见[进程终止证据](../docs/windows/evidence/production-save-process-kill-m2.md)；本地通过不等于 Windows 或断电持久性通过。
+真实保存中断检查：锁定恢复 `Compositor.SaveCrash.Checks` 后，执行 `dotnet run --project Compositor.SaveCrash.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。父进程在 PNG 写入、目录替换及备份清理边界终止本测试创建的 14 个子进程（8 个单层、6 个多层），再核对完整旧版/新版像素、层身份/显隐/顺序、隐藏资产及备份保护。详见[多层进程终止证据](../docs/windows/evidence/production-multilayer-save-crash.md)；本地通过不等于 Windows 或断电持久性通过。
