@@ -9,17 +9,23 @@ namespace Compositor.App;
 public sealed class CanvasView : Control
 {
     private IPointer? captured;
-    private bool panning, spaceHeld, autoFit = true;
+    private bool panning, selecting, spaceHeld, autoFit = true;
     private Point previous;
+    private Rect? selectionRect;
     public CanvasViewport Viewport { get; } = new();
     public WriteableBitmap? Bitmap { get; private set; }
     public bool PaintEnabled { get; set; }
     public bool PixelGridEnabled { get; set; }
-    public bool IsDrawing => captured is not null && !panning;
+    public bool SelectionEnabled { get; set; }
+    public bool IsDrawing => captured is not null && !panning && !selecting;
+    public bool IsSelecting => captured is not null && selecting;
+    public Rect? SelectionRect => selectionRect;
     public event Action<Point>? StrokeStarted;
     public event Action<Point>? StrokeMoved;
     public event Action<Point>? StrokeFinished;
     public event Action? StrokeCanceled;
+    public event Action<Rect>? SelectionFinished;
+    public event Action? SelectionCanceled;
 
     public CanvasView()
     {
@@ -30,10 +36,13 @@ public sealed class CanvasView : Control
             var properties = e.GetCurrentPoint(this).Properties;
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
-            if (!pan && (!PaintEnabled || !properties.IsLeftButtonPressed || document.X < 0 || document.Y < 0 ||
+            bool select = !pan && SelectionEnabled && properties.IsLeftButtonPressed;
+            if (!pan && !select && (!PaintEnabled || !properties.IsLeftButtonPressed || document.X < 0 || document.Y < 0 ||
                          document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
-            Focus(); captured = e.Pointer; panning = pan; previous = view; captured.Capture(this);
-            if (!panning) StrokeStarted?.Invoke(document);
+            if (select && (document.X < 0 || document.Y < 0 || document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
+            Focus(); captured = e.Pointer; panning = pan; selecting = select; previous = view; captured.Capture(this);
+            if (select) selectionRect = new Rect(document, new Size(0, 0));
+            else if (!panning) StrokeStarted?.Invoke(document);
             e.Handled = true;
         };
         PointerMoved += (_, e) =>
@@ -41,6 +50,7 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             Point view = e.GetPosition(this);
             if (panning) { Viewport.Pan(view - previous); previous = view; autoFit = false; InvalidateVisual(); }
+            else if (selecting) { selectionRect = Normalize(selectionRect!.Value.Position, Viewport.ToDocument(view)); InvalidateVisual(); }
             else StrokeMoved?.Invoke(Viewport.ToDocument(view));
             e.Handled = true;
         };
@@ -48,8 +58,11 @@ public sealed class CanvasView : Control
         {
             if (captured != e.Pointer) return;
             bool paint = !panning;
+            bool select = selecting;
             captured = null; e.Pointer.Capture(null);
-            if (paint) StrokeFinished?.Invoke(Viewport.ToDocument(e.GetPosition(this)));
+            selecting = false;
+            if (select) SelectionFinished?.Invoke(selectionRect!.Value);
+            else if (paint) StrokeFinished?.Invoke(Viewport.ToDocument(e.GetPosition(this)));
             e.Handled = true;
         };
         PointerCaptureLost += (_, _) => Cancel();
@@ -95,8 +108,17 @@ public sealed class CanvasView : Control
     {
         if (captured is null) return;
         bool paint = !panning;
+        bool select = selecting;
         var pointer = captured; captured = null; pointer.Capture(null);
-        if (paint) StrokeCanceled?.Invoke();
+        selecting = false;
+        if (select) { selectionRect = null; SelectionCanceled?.Invoke(); }
+        else if (paint) StrokeCanceled?.Invoke();
+    }
+
+    public void SetSelectionRect(Rect? rectangle)
+    {
+        selectionRect = rectangle;
+        InvalidateVisual();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -141,5 +163,15 @@ public sealed class CanvasView : Control
                 context.DrawLine(pen, new Point(visible.Left, viewY), new Point(visible.Right, viewY));
             }
         }
+        if (selectionRect is { } selection)
+        {
+            var topLeft = Viewport.ToView(new Point(selection.Left, selection.Top));
+            var bottomRight = Viewport.ToView(new Point(selection.Right, selection.Bottom));
+            context.DrawRectangle(null, new Pen(Brushes.Black, 1), new Rect(topLeft, bottomRight));
+        }
     }
+
+    private static Rect Normalize(Point start, Point end) => new(
+        Math.Min(start.X, end.X), Math.Min(start.Y, end.Y),
+        Math.Abs(end.X - start.X), Math.Abs(end.Y - start.Y));
 }

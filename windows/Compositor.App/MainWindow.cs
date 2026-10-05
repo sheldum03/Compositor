@@ -27,6 +27,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
+    private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
@@ -58,7 +59,15 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("Fit", "适合窗口", () => { canvas.Fit(); return Task.CompletedTask; }, document: true));
         toolbar.Children.Add(Command("ActualSize", "100%", () => { canvas.ActualSize(); return Task.CompletedTask; }, document: true));
         toolbar.Children.Add(pixelGrid);
+        toolbar.Children.Add(rectangleSelect);
+        toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
+        rectangleSelect.IsCheckedChanged += (_, _) =>
+        {
+            canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
+            if (canvas.SelectionEnabled) paint.IsChecked = false;
+            canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+        };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
@@ -118,7 +127,17 @@ public sealed class MainWindow : Window
         canvas.StrokeMoved += point => PaintStep(() => Workspace.AppendStroke(new BrushPoint(point.X, point.Y)));
         canvas.StrokeFinished += point => PaintStep(() => Workspace.CommitStroke(new BrushPoint(point.X, point.Y)));
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
-        paint.IsCheckedChanged += (_, _) => canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+        paint.IsCheckedChanged += (_, _) =>
+        {
+            if (paint.IsChecked == true) rectangleSelect.IsChecked = false;
+            canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+        };
+        canvas.SelectionFinished += rectangle =>
+        {
+            try { Workspace.SelectRectangle(rectangle); canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "矩形选区已更新。"; }
+            catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
+        };
+        canvas.SelectionCanceled += () => canvas.SetSelectionRect(Workspace.SelectionBounds);
         Content = layout;
         Deactivated += (_, _) => canvas.Cancel();
         Closing += (_, e) =>
@@ -207,6 +226,7 @@ public sealed class MainWindow : Window
         RefreshPreview();
         if (!ReferenceEquals(displayedSession, Workspace.Session)) canvas.Fit();
         displayedSession = Workspace.Session;
+        canvas.SetSelectionRect(Workspace.SelectionBounds);
         refreshing = true;
         var items = Workspace.Session?.Layers.Reverse().ToArray() ?? [];
         layers.ItemsSource = items;
@@ -214,6 +234,7 @@ public sealed class MainWindow : Window
         refreshing = false;
         foreach (var button in documentButtons) button.IsEnabled = Workspace.Session is not null;
         pixelGrid.IsEnabled = Workspace.Session is not null;
+        rectangleSelect.IsEnabled = Workspace.Session is not null;
         UpdateSelection();
     }
 
@@ -274,6 +295,12 @@ public sealed class MainWindow : Window
     {
         Guid id = selectedId!.Value;
         return EditAsync(s => s.SetLayerVisible(id, !s.Layers.Single(layer => layer.Id == id).IsVisible));
+    }
+    private Task ClearSelectionAsync()
+    {
+        Workspace.ClearSelection();
+        canvas.SetSelectionRect(null);
+        return Task.CompletedTask;
     }
     private Task MoveAsync(int offset)
     {

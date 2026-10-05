@@ -13,6 +13,7 @@ public sealed record SoftBrushSettings(int Diameter, double Opacity, double[] Co
 public sealed class SoftBrushStroke
 {
     private readonly TileRaster source;
+    private readonly GrayTileRaster? selection;
     private readonly SoftBrushSettings settings;
     private readonly byte[] tip;
     private readonly byte[] coverageColors = new byte[256 * 4];
@@ -28,13 +29,14 @@ public sealed class SoftBrushStroke
     private bool finished;
     public int TouchedTiles => pixels.Count;
 
-    public SoftBrushStroke(TileRaster source, SoftBrushSettings settings)
+    public SoftBrushStroke(TileRaster source, SoftBrushSettings settings, GrayTileRaster? selection = null)
     {
         if (settings.Diameter is < 1 or > 2000 || !double.IsFinite(settings.Opacity) ||
             settings.Opacity is < 0.01 or > 1 || settings.Color.Length != 3 ||
             settings.Color.Any(c => !double.IsFinite(c) || c is < 0 or > 1))
             throw new ArgumentException("Invalid soft brush settings");
         this.source = source;
+        this.selection = selection;
         this.settings = settings with { Color = (double[])settings.Color.Clone() };
         // Coverage is one byte, so its premultiplied paint color has only 256 possible values.
         for (int coverageValue = 0; coverageValue < 256; coverageValue++)
@@ -215,9 +217,24 @@ public sealed class SoftBrushStroke
                 pixels.Add(key, (byte[])baseline.Clone());
             }
             dirty[key] = dirty.TryGetValue(key, out var previousDirty) ? SKRectI.Union(previousDirty, touched) : touched;
-            for (int y = touched.Top; y < touched.Bottom; y++)
-                AccumulateCoverage(mask.AsSpan((y - tile.Top) * tile.Width + touched.Left - tile.Left, touched.Width),
-                    tip.AsSpan((y - top) * settings.Diameter + touched.Left - left, touched.Width));
+            if (selection is not { })
+            {
+                for (int y = touched.Top; y < touched.Bottom; y++)
+                    AccumulateCoverage(mask.AsSpan((y - tile.Top) * tile.Width + touched.Left - tile.Left, touched.Width),
+                        tip.AsSpan((y - top) * settings.Diameter + touched.Left - left, touched.Width));
+            }
+            else
+            {
+                byte[] selected = selection.ReadTileCopy(key % Columns, key / Columns);
+                for (int y = touched.Top; y < touched.Bottom; y++)
+                for (int x = touched.Left; x < touched.Right; x++)
+                {
+                    int offset = (y - tile.Top) * tile.Width + x - tile.Left;
+                    int stampOffset = (y - top) * settings.Diameter + x - left;
+                    byte allowed = (byte)((tip[stampOffset] * selected[offset] + 127) / 255);
+                    mask[offset] = (byte)(mask[offset] + (allowed * (255 - mask[offset]) + 127) / 255);
+                }
+            }
         }
     }
     internal static void AccumulateCoverage(Span<byte> mask, ReadOnlySpan<byte> stamp)

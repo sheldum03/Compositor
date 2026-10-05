@@ -87,6 +87,35 @@ internal static class CanvasChecks
             "Pixel grid did not change the zoomed canvas view or changed document state.");
         Find<CheckBox>(window, "PixelGrid").IsChecked = false; Dispatcher.UIThread.RunJobs();
         canvas.Fit();
+        byte[] selectionBaseline = Bytes(workspace.Session.GetLayerRaster(layerId));
+        Find<CheckBox>(window, "RectSelect").IsChecked = true;
+        Require(canvas.SelectionEnabled && !canvas.PaintEnabled, "Rectangle selection mode did not activate.");
+        int selectionFinished = 0, selectionCanceled = 0; Rect? selectedRect = null;
+        canvas.SelectionFinished += rect => { selectionFinished++; selectedRect = rect; };
+        canvas.SelectionCanceled += () => selectionCanceled++;
+        window.MouseDown(DocumentPoint(new Point(30, 30)), MouseButton.Left);
+        Require(canvas.IsSelecting, $"Rectangle selection did not capture pointer: selection={canvas.SelectionEnabled}, paint={canvas.PaintEnabled}, view={DocumentPoint(new Point(30, 30))}, bounds={canvas.Bounds}.");
+        window.MouseMove(DocumentPoint(new Point(150, 120)));
+        window.MouseUp(DocumentPoint(new Point(150, 120)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(!canvas.IsSelecting && canvas.SelectionRect is { Width: > 0, Height: > 0 },
+            $"Rectangle selection did not release a rectangle: selecting={canvas.IsSelecting}, rect={canvas.SelectionRect}, finished={selectionFinished}, canceled={selectionCanceled}, eventRect={selectedRect}.");
+        Require(workspace.HasSelection && workspace.SelectedPixels == 120 * 90 && !workspace.IsDirty,
+            $"Rectangle selection did not create the expected in-memory mask without history: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}, bounds={workspace.SelectionBounds}, dirty={workspace.IsDirty}.");
+        Find<CheckBox>(window, "RectSelect").IsChecked = false;
+        Find<CheckBox>(window, "Paint").IsChecked = true;
+        window.MouseDown(DocumentPoint(new Point(220, 220)), MouseButton.Left);
+        window.MouseUp(DocumentPoint(new Point(220, 220)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Painting outside the rectangle changed pixels or document state.");
+        window.MouseDown(DocumentPoint(new Point(80, 80)), MouseButton.Left);
+        window.MouseUp(DocumentPoint(new Point(80, 80)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.IsDirty && !Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Painting inside the rectangle did not change selected pixels.");
+        Click("Undo");
+        Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Undo did not restore the selected painting baseline.");
+        Click("ClearSelection");
+        Require(!workspace.HasSelection && !workspace.IsDirty, "Clear selection changed history or retained a mask.");
         var points = cases.Single(test => test.Name == "CrossTile").Points.Select(p => new Point(p[0], p[1])).ToArray();
         window.MouseDown(DocumentPoint(points[0]), MouseButton.Left);
         Require(workspace.HasActiveStroke && !workspace.IsDirty, "Pointer down committed a history step.");
@@ -136,7 +165,8 @@ internal static class CanvasChecks
         {
             passed = true, referenceCases = cases.Length, imageWidth = original.Width, imageHeight = original.Height, provisionalAndFinalExact = true,
             pointerStroke = "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
-            viewport = "zoom anchor, middle-button and Space plus left-button pan in logical coordinates",
+            viewport = "zoom anchor, middle-button and Space plus left-button pan in logical coordinates, exact 100% and pixel grid",
+            selection = "rectangle mask, non-dirty selection state, brush clipping, undo and clear",
             limits = "Headless input; no native Windows/DPI/pressure or S02 performance claim."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: production soft brush matches fixed M1 pixels, real pointer commit/cancel, viewport and saved export");

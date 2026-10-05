@@ -41,6 +41,8 @@ public sealed class ProjectSession
     public string? SavedDirectory { get; private set; }
     public bool HasBeenSaved => SavedDirectory is not null;
     public string SourceDirectory => SavedDirectory ?? throw new InvalidOperationException("This document has not been saved yet.");
+    public int Width => Current["width"]!.GetValue<int>();
+    public int Height => Current["height"]!.GetValue<int>();
     public string ImageName => Current["layers"]!.AsArray().Count == 1
         ? Current["layers"]![0]?["imageFile"]?.GetValue<string>() ?? "" : "";
     internal IReadOnlyDictionary<string, byte[]> AssetHashes { get; private set; }

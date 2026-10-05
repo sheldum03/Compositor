@@ -49,4 +49,37 @@ public sealed class GrayTileRaster
         };
         return new GrayTileRaster(Width, Height, next);
     }
+
+    public static GrayTileRaster Rectangle(int width, int height, int left, int top, int right, int bottom)
+    {
+        if (width < 1 || height < 1 || left < 0 || top < 0 || right > width || bottom > height || left >= right || top >= bottom)
+            throw new ArgumentOutOfRangeException(nameof(left));
+        var result = new GrayTileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            int tileLeft = column * TileRaster.TileSize, tileTop = row * TileRaster.TileSize;
+            byte[] coverage = new byte[size.Width * size.Height];
+            int fillLeft = Math.Max(left, tileLeft), fillTop = Math.Max(top, tileTop);
+            int fillRight = Math.Min(right, tileLeft + size.Width), fillBottom = Math.Min(bottom, tileTop + size.Height);
+            if (fillLeft < fillRight && fillTop < fillBottom)
+                for (int y = fillTop; y < fillBottom; y++)
+                    coverage.AsSpan((y - tileTop) * size.Width + fillLeft - tileLeft, fillRight - fillLeft).Fill(255);
+            result = result.ReplaceTile(column, row, coverage);
+        }
+        return result;
+    }
+
+    public long CoveredPixels
+    {
+        get
+        {
+            long count = 0;
+            for (int row = 0; row * TileRaster.TileSize < Height; row++)
+            for (int column = 0; column * TileRaster.TileSize < Width; column++)
+                count += ReadTileCopy(column, row).LongCount(value => value != 0);
+            return count;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 using Compositor.Core;
 using Compositor.Imaging;
+using Avalonia;
 
 namespace Compositor.App;
 
@@ -10,6 +11,10 @@ public sealed class EditorWorkspace
     public bool HasActiveStroke => brush is not null;
     public ProjectSession? Session { get; private set; }
     public TileRaster? Preview { get; private set; }
+    public GrayTileRaster? Selection { get; private set; }
+    public Rect? SelectionBounds { get; private set; }
+    public bool HasSelection => Selection is not null;
+    public long SelectedPixels => Selection?.CoveredPixels ?? 0;
     public bool IsDirty => Session?.IsDirty ?? false;
     public string? ProjectDirectory => Session?.SavedDirectory;
 
@@ -20,6 +25,7 @@ public sealed class EditorWorkspace
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         Session = next;
         Preview = preview;
+        ClearSelection();
     }
 
     public void Open(string directory)
@@ -29,6 +35,7 @@ public sealed class EditorWorkspace
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         Session = next;
         Preview = preview;
+        ClearSelection();
     }
 
     public void Import(string image, string directory)
@@ -38,6 +45,7 @@ public sealed class EditorWorkspace
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         Session = next;
         Preview = preview;
+        ClearSelection();
     }
 
     public void Edit(Action<ProjectSession> operation)
@@ -74,7 +82,7 @@ public sealed class EditorWorkspace
         RequireIdle();
         var session = RequireSession();
         brushLayer = layerId;
-        brush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings);
+        brush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings, Selection);
         AppendStroke(point);
     }
 
@@ -91,7 +99,11 @@ public sealed class EditorWorkspace
         var active = brush!;
         TileRaster pixels = active.Commit();
         brush = null;
-        Edit(session => session.ReplaceLayerRaster(brushLayer, pixels));
+        var session = RequireSession();
+        if (SamePixels(session.GetLayerRaster(brushLayer), pixels))
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        else
+            Edit(current => current.ReplaceLayerRaster(brushLayer, pixels));
     }
 
     public void CancelStroke()
@@ -101,10 +113,40 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
+    public void SelectRectangle(Rect rectangle)
+    {
+        var session = RequireSession();
+        double left = Math.Max(0, Math.Min(rectangle.Left, rectangle.Right));
+        double top = Math.Max(0, Math.Min(rectangle.Top, rectangle.Bottom));
+        double right = Math.Min(session.Width, Math.Max(rectangle.Left, rectangle.Right));
+        double bottom = Math.Min(session.Height, Math.Max(rectangle.Top, rectangle.Bottom));
+        const double epsilon = 1e-9;
+        int x0 = (int)Math.Floor(left + epsilon), y0 = (int)Math.Floor(top + epsilon);
+        int x1 = (int)Math.Ceiling(right - epsilon), y1 = (int)Math.Ceiling(bottom - epsilon);
+        if (x1 <= x0 || y1 <= y0) { ClearSelection(); return; }
+        Selection = GrayTileRaster.Rectangle(session.Width, session.Height, x0, y0, x1, y1);
+        SelectionBounds = new Rect(x0, y0, x1 - x0, y1 - y0);
+    }
+
+    public void ClearSelection()
+    {
+        Selection = null;
+        SelectionBounds = null;
+    }
+
     private void RequireIdle()
     {
         if (brush is not null) throw new InvalidOperationException("请先结束或取消当前笔划。");
     }
 
     private ProjectSession RequireSession() => Session ?? throw new InvalidOperationException("请先打开或导入工程。");
+
+    private static bool SamePixels(TileRaster first, TileRaster second)
+    {
+        if (first.Width != second.Width || first.Height != second.Height) return false;
+        for (int row = 0; row * TileRaster.TileSize < first.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
+            if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
+        return true;
+    }
 }
