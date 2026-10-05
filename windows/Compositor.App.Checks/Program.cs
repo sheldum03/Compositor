@@ -1,0 +1,165 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Compositor.App;
+using Compositor.Core;
+using Compositor.Imaging;
+
+internal static class Program
+{
+    [STAThread]
+    private static void Main(string[] args)
+    {
+        if (args.Length != 2) throw new ArgumentException("Usage: <image fixtures> <new output directory>");
+        string fixture = Path.GetFullPath(Path.Combine(args[0], "alpha-tiles.png"));
+        string output = Path.GetFullPath(args[1]);
+        if (Path.Exists(output)) throw new IOException("Output must not exist.");
+        Directory.CreateDirectory(output);
+        AppBuilder.Configure<CompositorApplication>().UseSkia()
+            .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
+
+        var workspace = new EditorWorkspace();
+        string source = Path.Combine(output, "Source.comp");
+        workspace.Import(fixture, source);
+        var original = workspace.Session!;
+        Reject(() => workspace.Open(Path.Combine(output, "Missing.comp")));
+        Require(ReferenceEquals(workspace.Session, original), "Failed open replaced the current document.");
+        // Make a second layer using the real v8 schema; file picker input is excluded from headless checks.
+        string manifestPath = Path.Combine(source, "manifest.json");
+        var manifest = JsonNode.Parse(File.ReadAllText(manifestPath))!;
+        var layer = manifest["layers"]![0]!.DeepClone();
+        string id = Guid.NewGuid().ToString("D"), image = id.ToUpperInvariant() + ".png";
+        File.Copy(Path.Combine(source, "images", layer["imageFile"]!.GetValue<string>()), Path.Combine(source, "images", image));
+        layer["id"] = id; layer["imageFile"] = image; layer["name"] = "Top";
+        manifest["layers"]!.AsArray().Add(layer);
+        File.WriteAllText(manifestPath, manifest.ToJsonString());
+        workspace.Open(source);
+        CheckPreview(workspace.Preview!);
+        var window = new MainWindow(workspace);
+        window.Show(); Dispatcher.UIThread.RunJobs();
+        Control<TextBox>(window, "LayerName").Text = "中文 Overlay";
+        Click(window, "Rename");
+        Require(workspace.Session!.Layers[^1].Name == "中文 Overlay" && workspace.IsDirty, "Rename button did not commit.");
+        Require(window.Title!.StartsWith("●"), "Window title did not reflect unsaved changes.");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers[^1].Name == "Top" && !workspace.IsDirty, "Undo did not return to the saved state.");
+        Click(window, "Redo");
+        Click(window, "Visibility");
+        Require(!workspace.Session.Layers[^1].IsVisible, "Visibility button did not hide selected layer.");
+        Click(window, "MoveDown");
+        Require(workspace.Session.Layers[0].Id == Guid.Parse(id), "Layer panel did not move selected layer toward the bottom.");
+        Click(window, "MoveUp");
+        Require(workspace.Session.Layers[^1].Id == Guid.Parse(id), "Layer panel did not move selected layer toward the top.");
+        string png = Path.Combine(output, "export.png"), jpeg = Path.Combine(output, "export.jpg");
+        workspace.Export(png, false); workspace.Export(jpeg, true);
+        Require(workspace.IsDirty, "Export incorrectly cleared unsaved changes.");
+        Reject(() => workspace.SaveAs(source));
+        Require(workspace.IsDirty, "Rejected Save As changed the save point.");
+        CheckEqual(workspace.Preview!, ImageCodec.Load(png));
+        using (var screenshot = new RenderTargetBitmap(new PixelSize(1120, 760), new Vector(96, 96)))
+        {
+            screenshot.Render(window);
+            screenshot.Save(Path.Combine(output, "window.png"));
+        }
+
+        window.Close(); Dispatcher.UIThread.RunJobs();
+        var cancelDialog = window.OwnedWindows.Single();
+        DialogClick(cancelDialog, "取消"); Pump(window);
+        Require(window.IsVisible && workspace.IsDirty, "Cancel close lost the dirty document.");
+        string assetPath = Path.Combine(source, "images", image);
+        byte[] assetBytes = File.ReadAllBytes(assetPath);
+        File.WriteAllBytes(assetPath, [.. assetBytes, 0]);
+        window.Close(); Dispatcher.UIThread.RunJobs();
+        DialogClick(window.OwnedWindows.Single(), "保存"); Pump(window);
+        Require(window.IsVisible && workspace.IsDirty, "Failed save on close discarded the current document.");
+        File.WriteAllBytes(assetPath, assetBytes);
+        window.Close(); Dispatcher.UIThread.RunJobs();
+        DialogClick(window.OwnedWindows.Single(), "保存"); Pump(window);
+        Require(!window.IsVisible && !workspace.IsDirty, "Save on close did not save and close.");
+        var reopened = ImageProjectWorkflow.OpenEditable(source);
+        Require(reopened.Layers[^1].Name == "中文 Overlay" && !reopened.Layers[^1].IsVisible, "Close-save lost layer state.");
+        CheckEqual(workspace.Preview!, ImageProjectWorkflow.RenderFlatNormal(reopened));
+
+        var discard = new MainWindow(workspace);
+        discard.Show(); Dispatcher.UIThread.RunJobs();
+        Control<TextBox>(discard, "LayerName").Text = "Discard me";
+        Click(discard, "Rename");
+        discard.Close(); Dispatcher.UIThread.RunJobs();
+        DialogClick(discard.OwnedWindows.Single(), "不保存"); Pump(discard);
+        Require(!discard.IsVisible, "Discard close kept the window open.");
+        Require(ImageProjectWorkflow.OpenEditable(source).Layers[^1].Name == "中文 Overlay", "Discard wrote unsaved changes to disk.");
+        File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
+        {
+            passed = true, platform = RuntimeInformation.OSDescription, headless = true,
+            checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip" },
+            limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
+        }, new JsonSerializerOptions { WriteIndented = true }));
+        Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
+    }
+
+    private static T Control<T>(Window window, string name) where T : Avalonia.Controls.Control =>
+        window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+    private static void Click(MainWindow window, string name)
+    {
+        var button = Control<Button>(window, name);
+        Require(button.IsEffectivelyEnabled, "Button is unexpectedly disabled: " + name);
+        button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Pump(window);
+    }
+    private static void DialogClick(Window dialog, string label) => dialog.GetVisualDescendants().OfType<Button>()
+        .Single(button => Equals(button.Content, label)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+    private static void Pump(MainWindow window)
+    {
+        var timer = Stopwatch.StartNew();
+        do
+        {
+            Dispatcher.UIThread.RunJobs();
+            if (timer.Elapsed > TimeSpan.FromSeconds(30)) throw new TimeoutException("Window command did not complete.");
+            Thread.Sleep(5);
+        } while (window.IsBusy);
+        Dispatcher.UIThread.RunJobs();
+    }
+    private static void CheckPreview(TileRaster raster)
+    {
+        using var bitmap = RasterBitmap.Create(raster);
+        using var frame = bitmap.Lock();
+        byte[] rowBytes = new byte[raster.Width * 4];
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] expected = raster.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+            {
+                Marshal.Copy(frame.Address + (row * TileRaster.TileSize + y) * frame.RowBytes + column * TileRaster.TileSize * 4,
+                    rowBytes, 0, size.Width * 4);
+                Require(rowBytes.AsSpan(0, size.Width * 4).SequenceEqual(expected.AsSpan(y * size.Width * 4, size.Width * 4)),
+                    "Preview changed pixel channels, alpha, orientation or tile boundaries.");
+            }
+        }
+    }
+    private static void CheckEqual(TileRaster a, TileRaster b)
+    {
+        Require(a.Width == b.Width && a.Height == b.Height, "Raster dimensions changed.");
+        for (int y = 0; y * TileRaster.TileSize < a.Height; y++)
+        for (int x = 0; x * TileRaster.TileSize < a.Width; x++)
+            Require(a.ReadTileCopy(x, y).SequenceEqual(b.ReadTileCopy(x, y)), "Raster pixels changed.");
+    }
+    private static void Require(bool condition, string message)
+    { if (!condition) throw new Exception(message); }
+    private static void Reject(Action action)
+    {
+        try { action(); }
+        catch (IOException) { return; }
+        throw new Exception("Expected file operation rejection.");
+    }
+}

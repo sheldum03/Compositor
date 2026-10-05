@@ -32,6 +32,8 @@ jobs:
             fixtures: Compositor.Imaging.Checks/fixtures
           - project: Compositor.SaveCrash.Checks
             fixtures: Compositor.Imaging.Checks/fixtures
+          - project: Compositor.App.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
     env:
       CHECK_PROJECT: ${{ matrix.project }}
       CHECK_FIXTURES: ${{ matrix.fixtures }}
