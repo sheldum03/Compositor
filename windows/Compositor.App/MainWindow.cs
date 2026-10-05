@@ -7,19 +7,28 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Compositor.Core;
+using Compositor.Imaging;
 
 namespace Compositor.App;
 
 public sealed class MainWindow : Window
 {
     private readonly DockPanel layout = new() { Margin = new Thickness(12) };
-    private readonly Image canvas = new() { Stretch = Stretch.Uniform, Margin = new Thickness(20) };
+    private readonly CanvasView canvas = new();
+    private readonly StackPanel toolbar = new() { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
+    private readonly DockPanel sidebar = new() { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
+    private readonly CheckBox paint = new() { Content = "软笔", Name = "Paint", IsChecked = true };
+    private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
+    private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
+    private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
+    private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
     private readonly ListBox layers = new() { Name = "Layers" };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
     private WriteableBitmap? preview;
+    private ProjectSession? displayedSession;
     private Guid? selectedId;
     private bool refreshing, allowClose;
     public EditorWorkspace Workspace { get; }
@@ -34,7 +43,6 @@ public sealed class MainWindow : Window
         FontFamily = new FontFamily("avares://Compositor.App/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC");
         FontSize = 13;
         RenderOptions.SetTextRenderingMode(this, TextRenderingMode.Antialias);
-        var toolbar = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
         toolbar.Children.Add(Command("Open", "打开工程", OpenAsync));
         toolbar.Children.Add(Command("Import", "导入图片", ImportAsync));
         toolbar.Children.Add(Command("Save", "保存", () => Task.Run(Workspace.Save), document: true));
@@ -43,14 +51,21 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("Redo", "重做", () => EditAsync(s => s.Redo()), document: true));
         toolbar.Children.Add(Command("ExportPng", "导出 PNG", () => ExportAsync(false), document: true));
         toolbar.Children.Add(Command("ExportJpeg", "导出 JPEG", () => ExportAsync(true), document: true));
+        toolbar.Children.Add(Command("Fit", "适合窗口", () => { canvas.Fit(); return Task.CompletedTask; }, document: true));
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
+        brushOptions.Children.Add(paint);
+        brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
+        brushOptions.Children.Add(diameter);
+        brushOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
+        brushOptions.Children.Add(opacity); brushOptions.Children.Add(color);
+        brushOptions.Children.Add(new TextBlock { Text = "滚轮缩放 · 空格/中键平移 · Esc 取消笔划", VerticalAlignment = VerticalAlignment.Center });
+        DockPanel.SetDock(brushOptions, Dock.Top); layout.Children.Add(brushOptions);
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
         {
             status,
-            new TextBlock { Text = "内部集成版 · 当前支持全画布普通图层的工程操作。画布工具仍在开发。", Foreground = Brushes.DimGray }
+            new TextBlock { Text = "内部集成版 · 当前支持全画布普通图层与软笔。选区、变换和其他工具仍在开发。", Foreground = Brushes.DimGray }
         } };
         DockPanel.SetDock(footer, Dock.Bottom); layout.Children.Add(footer);
-        var sidebar = new DockPanel { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
         var heading = new TextBlock { Text = "图层", FontSize = 17, Margin = new Thickness(0, 0, 0, 10) };
         DockPanel.SetDock(heading, Dock.Top); sidebar.Children.Add(heading);
         var actions = new StackPanel { Spacing = 8, Margin = new Thickness(0, 12, 0, 0) };
@@ -70,12 +85,28 @@ public sealed class MainWindow : Window
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
-        layout.Children.Add(new Border { Background = new SolidColorBrush(Color.Parse("#D4D4D4")), Child = canvas });
+        layout.Children.Add(canvas);
+        canvas.StrokeStarted += point => PaintStep(() =>
+        {
+            if (selectedId is not { } id) return;
+            double[] selectedColor = color.SelectedIndex switch
+            {
+                1 => [1, 1, 1], 2 => [0.1, 0.3, 0.9], 3 => [1, 0.3, 0.1], _ => [0, 0, 0]
+            };
+            Workspace.BeginStroke(id, new SoftBrushSettings((int)(diameter.Value ?? 40),
+                (double)(opacity.Value ?? 100) / 100, selectedColor), new BrushPoint(point.X, point.Y));
+        });
+        canvas.StrokeMoved += point => PaintStep(() => Workspace.AppendStroke(new BrushPoint(point.X, point.Y)));
+        canvas.StrokeFinished += point => PaintStep(() => Workspace.CommitStroke(new BrushPoint(point.X, point.Y)));
+        canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
+        paint.IsCheckedChanged += (_, _) => canvas.PaintEnabled = Workspace.Session is not null && paint.IsChecked == true;
         Content = layout;
+        Deactivated += (_, _) => canvas.Cancel();
         Closing += (_, e) =>
         {
             if (allowClose) return;
             if (IsBusy) { e.Cancel = true; return; }
+            if (Workspace.HasActiveStroke) { canvas.Cancel(); Workspace.CancelStroke(); }
             if (!Workspace.IsDirty) return;
             e.Cancel = true;
             _ = ExecuteAsync(async () =>
@@ -83,10 +114,10 @@ public sealed class MainWindow : Window
                 if (await ConfirmDiscardAsync()) { allowClose = true; Close(); }
             });
         };
-        Closed += (_, _) => { canvas.Source = null; preview?.Dispose(); preview = null; };
+        Closed += (_, _) => { canvas.Cancel(); canvas.SetBitmap(null); preview?.Dispose(); preview = null; };
         KeyDown += (_, e) =>
         {
-            if (IsBusy || e.KeyModifiers != KeyModifiers.Control) return;
+            if (IsBusy || Workspace.HasActiveStroke || e.KeyModifiers != KeyModifiers.Control) return;
             // Text fields retain their own editing shortcuts and IME behavior.
             if (e.Source is TextBox || layerName.IsKeyboardFocusWithin) return;
             Func<Task>? command = e.Key switch
@@ -114,7 +145,7 @@ public sealed class MainWindow : Window
 
     private async Task ExecuteAsync(Func<Task> operation)
     {
-        if (IsBusy) return;
+        if (IsBusy || Workspace.HasActiveStroke) return;
         IsBusy = true; layout.IsEnabled = false; status.Text = "处理中…";
         string message;
         try { await operation(); message = "操作完成。"; }
@@ -126,13 +157,36 @@ public sealed class MainWindow : Window
         status.Text = message;
     }
 
+    private void RefreshPreview()
+    {
+        var next = Workspace.Preview is { } raster ? RasterBitmap.Create(raster) : null;
+        canvas.SetBitmap(next);
+        preview?.Dispose(); preview = next;
+    }
+
+    private void PaintStep(Action step)
+    {
+        try
+        {
+            step();
+            if (Workspace.HasActiveStroke) { RefreshPreview(); status.Text = "绘制中… 松开鼠标提交，Esc 取消。"; }
+            else { Refresh(); status.Text = "笔划已结束。"; }
+        }
+        catch (Exception error)
+        {
+            canvas.Cancel(); Workspace.CancelStroke(); Refresh();
+            status.Text = "绘制未完成：" + error.Message;
+        }
+        toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = !Workspace.HasActiveStroke;
+    }
+
     private void Refresh()
     {
         Title = (Workspace.IsDirty ? "● " : "") +
             (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : "") + "Compositor";
-        var nextPreview = Workspace.Preview is { } raster ? RasterBitmap.Create(raster) : null;
-        canvas.Source = nextPreview;
-        preview?.Dispose(); preview = nextPreview;
+        RefreshPreview();
+        if (!ReferenceEquals(displayedSession, Workspace.Session)) canvas.Fit();
+        displayedSession = Workspace.Session;
         refreshing = true;
         var items = Workspace.Session?.Layers.Reverse().ToArray() ?? [];
         layers.ItemsSource = items;
@@ -148,6 +202,7 @@ public sealed class MainWindow : Window
         selectedId = selected?.Id;
         layerName.Text = selected?.Name ?? "";
         layerName.IsEnabled = selected is not null;
+        canvas.PaintEnabled = selected is not null && paint.IsChecked == true;
         foreach (var button in layerButtons) button.IsEnabled = selected is not null;
     }
 

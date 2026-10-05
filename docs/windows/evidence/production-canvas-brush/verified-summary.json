@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "platform": "macOS arm64",
+  "sourceUnchanged": true,
+  "baseCommit": "5ef92ba",
+  "overlayIdentity": "source-identity.json",
+  "commands": "verified-commands.json",
+  "windowsExecuted": false,
+  "productionPerformanceExecuted": false,
+  "rejectedEarlierAttempt": "attempt1 ran an old binary after failed build; not canvas/brush evidence",
+  "earlierBuildIssues": "Headless keyboard API was corrected to physical QWERTY overload; warnings remain errors"
+}

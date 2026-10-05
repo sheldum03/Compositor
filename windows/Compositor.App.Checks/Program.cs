@@ -96,6 +96,7 @@ internal static class Program
         DialogClick(discard.OwnedWindows.Single(), "不保存"); Pump(discard);
         Require(!discard.IsVisible, "Discard close kept the window open.");
         Require(ImageProjectWorkflow.OpenEditable(source).Layers[^1].Name == "中文 Overlay", "Discard wrote unsaved changes to disk.");
+        CanvasChecks.Run(source, fixture, output);
         File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
         {
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
