@@ -420,6 +420,9 @@ public sealed class MainWindow : Window
                     ? selected.MaskSourceId is not null
                     : selected.MaskSourceId is null && index > 0);
         }
+        if (selected?.IsGroup == true)
+            foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
+                button.IsEnabled = false;
         foreach (var button in maskButtons)
             button.IsEnabled = Workspace.CanEdit && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
@@ -430,12 +433,15 @@ public sealed class MainWindow : Window
     private void UpdatePaintMode()
     {
         bool editable = Workspace.CanEdit && selectedId is not null;
+        bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
-        canvas.PaintEnabled = editable && !Workspace.HasFloatingSelection && (paint.IsChecked == true || maskPaint.IsChecked == true);
+        paint.IsEnabled = editable && !selectedGroup;
+        canvas.PaintEnabled = editable && !selectedGroup && !Workspace.HasFloatingSelection && paint.IsChecked == true ||
+            editable && !Workspace.HasFloatingSelection && maskPaint.IsChecked == true;
         canvas.SelectionEnabled = editable && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
-        canvas.SelectionMoveEnabled = editable && (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
+        canvas.SelectionMoveEnabled = editable && !selectedGroup && (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
     private Task AddLayerAsync() => EditAsync(session =>
     {

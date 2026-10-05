@@ -120,7 +120,7 @@ internal static class Program
         Dispatcher.UIThread.RunJobs();
         foreach (string name in new[] { "AddLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
             "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
-            "FlipLayerHorizontal", "FlipLayerVertical", "MoveLayer" })
+            "FlipLayerHorizontal", "FlipLayerVertical", "MoveLayer", "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
         Require(Control<Button>(groupedWindow, "ToggleMask").IsEffectivelyEnabled,
             "Grouped project disabled supported group-mask editing.");
