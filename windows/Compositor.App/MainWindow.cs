@@ -24,6 +24,8 @@ public sealed class MainWindow : Window
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
     private readonly ListBox layers = new() { Name = "Layers" };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
+    private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
+    private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
@@ -77,6 +79,12 @@ public sealed class MainWindow : Window
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
+        var appearance = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        appearance.Children.Add(new TextBlock { Text = "透明度 %", VerticalAlignment = VerticalAlignment.Center });
+        appearance.Children.Add(layerOpacity);
+        appearance.Children.Add(layerBlendMode);
+        actions.Children.Add(appearance);
+        actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
         var reorder = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         reorder.Children.Add(Command("MoveUp", "上移", () => MoveAsync(1), layer: true));
@@ -89,6 +97,7 @@ public sealed class MainWindow : Window
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
+        layerBlendMode.ItemsSource = ProjectSession.SupportedBlendModes;
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
         layout.Children.Add(canvas);
@@ -207,9 +216,18 @@ public sealed class MainWindow : Window
     {
         var selected = layers.SelectedItem as FlatLayerInfo;
         selectedId = selected?.Id;
-        if (selectedId is { } id) Workspace.Session!.SelectLayer(id);
-        layerName.Text = selected?.Name ?? "";
+        refreshing = true;
+        try
+        {
+            if (selectedId is { } id) Workspace.Session!.SelectLayer(id);
+            layerName.Text = selected?.Name ?? "";
+            layerOpacity.Value = selected is null ? 100 : (decimal)(selected.Opacity * 100);
+            layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
+        }
+        finally { refreshing = false; }
         layerName.IsEnabled = selected is not null;
+        layerOpacity.IsEnabled = selected is not null;
+        layerBlendMode.IsEnabled = selected is not null;
         canvas.PaintEnabled = selected is not null && paint.IsChecked == true;
         foreach (var button in layerButtons) button.IsEnabled = selected is not null;
     }
@@ -235,6 +253,17 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         string name = layerName.Text ?? "";
         return EditAsync(s => s.RenameLayer(id, name));
+    }
+    private Task AppearanceAsync()
+    {
+        Guid id = selectedId!.Value;
+        double opacityValue = (double)(layerOpacity.Value ?? 100) / 100;
+        string mode = layerBlendMode.SelectedItem as string ?? "Normal";
+        return EditAsync(session =>
+        {
+            session.SetLayerOpacity(id, opacityValue);
+            session.SetLayerBlendMode(id, mode);
+        });
     }
     private Task VisibilityAsync()
     {

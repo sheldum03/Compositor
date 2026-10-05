@@ -82,6 +82,25 @@ internal static class NewDocumentChecks
         Require(!workspace.IsDirty, "Selecting a layer added a dirty history step.");
         Click("Save");
         Require(ImageProjectWorkflow.OpenEditable(saved).ActiveLayerId == firstId, "Explicit save did not persist selection.");
+        Find<NumericUpDown>(window, "LayerOpacity").Value = 25;
+        Find<ComboBox>(window, "LayerBlendMode").SelectedItem = "Multiply";
+        Click("ApplyAppearance");
+        Require(workspace.IsDirty && workspace.Session.Layers.Single(layer => layer.Id == firstId).Opacity == 0.25 &&
+            workspace.Session.Layers.Single(layer => layer.Id == firstId).BlendMode == "Multiply",
+            "Appearance controls did not commit opacity and blend mode.");
+        Click("Undo"); Click("Undo");
+        Require(!workspace.IsDirty && workspace.Session.Layers.Single(layer => layer.Id == firstId).Opacity == 1 &&
+            workspace.Session.Layers.Single(layer => layer.Id == firstId).BlendMode == "Normal",
+            "Appearance undo did not restore the saved state.");
+        Click("Redo"); Click("Redo");
+        Require(workspace.Session.Layers.Single(layer => layer.Id == firstId).Opacity == 0.25 &&
+            workspace.Session.Layers.Single(layer => layer.Id == firstId).BlendMode == "Multiply",
+            "Appearance redo did not restore both properties.");
+        Click("Save");
+        var appearanceReopened = ImageProjectWorkflow.OpenEditable(saved);
+        Require(appearanceReopened.Layers.Single(layer => layer.Id == firstId).Opacity == 0.25 &&
+            appearanceReopened.Layers.Single(layer => layer.Id == firstId).BlendMode == "Multiply",
+            "Saved appearance did not reopen.");
         Guid lastId = Guid.Empty; byte[]? lastPixels = null;
         while (workspace.Session.Layers.Count > 0)
         {
@@ -109,7 +128,7 @@ internal static class NewDocumentChecks
         {
             passed = true, width = 259, height = 257, resolution = 300,
             dialogs = "new cancellation, invalid size/integer validation, creation and unsaved close/replacement cancellation",
-            layers = "actual add/duplicate/delete/selection buttons, brush isolation, empty saved document and undo/resave restoration",
+            layers = "actual add/duplicate/delete/selection/opacity/blend buttons, brush isolation, empty saved document and undo/resave restoration",
             limits = "Headless only; first chosen save path exercised through workspace SaveAs. Native first-save folder picker/IME/DPI and Windows not executed."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: actual new/cancel/invalid dialogs, layer structure/selection buttons, unsaved close and empty save/undo restoration");
