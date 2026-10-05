@@ -572,6 +572,10 @@ internal static class CanvasChecks
         Require(maskWorkspace.IsDirty && MaskPixel(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, 10, 10) == 255,
             "White mask fill did not reveal the complete mask.");
         Require(maskWorkspace.Undo() && !maskWorkspace.IsDirty, "Undo did not restore the mask after white fill.");
+        maskWorkspace.BlurActiveLayerMask(3);
+        Require(maskWorkspace.IsDirty && HasPartialCoverage(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!),
+            "Mask blur did not create fractional edge coverage.");
+        Require(maskWorkspace.Undo() && !maskWorkspace.IsDirty, "Undo did not restore the mask after blur.");
         var maskWindow = new MainWindow(maskWorkspace);
         maskWindow.Show(); Dispatcher.UIThread.RunJobs();
         Require(Find<Button>(maskWindow, "Save").IsEffectivelyEnabled &&
@@ -579,6 +583,8 @@ internal static class CanvasChecks
             Find<Button>(maskWindow, "InvertMask").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "FillMaskWhite").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "FillMaskBlack").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "BlurMask").IsEffectivelyEnabled &&
+            Find<NumericUpDown>(maskWindow, "MaskRadius").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "AddMask").IsEffectivelyEnabled &&
             Find<CheckBox>(maskWindow, "MaskPaint").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "ExportPng").IsEffectivelyEnabled &&

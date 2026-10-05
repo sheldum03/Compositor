@@ -602,6 +602,15 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
     }
 
+    public void BlurActiveLayerMask(int radius)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || session.GetLayerMask(layerId) is not { } current)
+            throw new InvalidOperationException("当前图层没有蒙版。");
+        Edit(editSession => editSession.ReplaceLayerMask(layerId, current.Blur(radius)));
+    }
+
     public void SetActiveLayerClipping(bool enabled)
     {
         RequireIdle();

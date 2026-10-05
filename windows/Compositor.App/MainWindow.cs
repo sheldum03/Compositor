@@ -26,6 +26,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
+    private readonly NumericUpDown maskRadius = new() { Name = "MaskRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
     private readonly ListBox layers = new() { Name = "Layers", SelectionMode = SelectionMode.Multiple };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
@@ -160,6 +161,9 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("InvertMask", "反相蒙版", InvertMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("FillMaskWhite", "蒙版填白", () => FillMaskAsync(true), layer: true, mask: true));
         structure.Children.Add(Command("FillMaskBlack", "蒙版填黑", () => FillMaskAsync(false), layer: true, mask: true));
+        structure.Children.Add(new TextBlock { Text = "模糊半径", VerticalAlignment = VerticalAlignment.Center });
+        structure.Children.Add(maskRadius);
+        structure.Children.Add(Command("BlurMask", "模糊蒙版", BlurMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
         structure.Children.Add(Command("ReleaseClippingMask", "释放剪贴", () => SetClippingMaskAsync(false), layer: true));
         structure.Children.Add(Command("GroupLayer", "建立组", GroupLayerAsync, layer: true));
@@ -539,6 +543,7 @@ public sealed class MainWindow : Window
         foreach (var button in maskButtons)
             button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
+        maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
     }
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));
@@ -642,6 +647,7 @@ public sealed class MainWindow : Window
     private Task ToggleMaskAsync() => Task.Run(Workspace.ToggleActiveLayerMask);
     private Task InvertMaskAsync() => Task.Run(Workspace.InvertActiveLayerMask);
     private Task FillMaskAsync(bool reveal) => Task.Run(() => Workspace.FillActiveLayerMask(reveal));
+    private Task BlurMaskAsync() => Task.Run(() => Workspace.BlurActiveLayerMask((int)(maskRadius.Value ?? 3)));
     private Task SetClippingMaskAsync(bool enabled) => Task.Run(() => Workspace.SetActiveLayerClipping(enabled));
     private Task ApplyMaskSelectionAsync(bool reveal) => Task.Run(() => Workspace.ApplySelectionToActiveLayerMask(reveal));
     private Task ClearSelectionAsync()

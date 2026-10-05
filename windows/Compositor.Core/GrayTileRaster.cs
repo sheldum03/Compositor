@@ -179,6 +179,46 @@ public sealed class GrayTileRaster
         return result;
     }
 
+    public GrayTileRaster Blur(int radius)
+    {
+        if (radius < 1) throw new ArgumentOutOfRangeException(nameof(radius));
+        byte[] input = new byte[checked(Width * Height)];
+        for (int row = 0; row * TileRaster.TileSize < Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < Width; column++)
+        {
+            var size = TileDimensions(column, row);
+            byte[] tile = ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width, size.Width).CopyTo(input.AsSpan((row * TileRaster.TileSize + y) * Width + column * TileRaster.TileSize, size.Width));
+        }
+        byte[] horizontal = new byte[input.Length], output = new byte[input.Length];
+        for (int y = 0; y < Height; y++)
+        {
+            int sum = 0, right = Math.Min(Width - 1, radius);
+            for (int x = 0; x <= right; x++) sum += input[y * Width + x];
+            for (int x = 0; x < Width; x++)
+            {
+                int left = Math.Max(0, x - radius), nextRight = Math.Min(Width - 1, x + radius);
+                if (x - radius - 1 >= 0) sum -= input[y * Width + x - radius - 1];
+                if (nextRight > right) { sum += input[y * Width + nextRight]; right = nextRight; }
+                horizontal[y * Width + x] = (byte)Math.Clamp(Math.Round(sum / (double)(nextRight - left + 1), MidpointRounding.AwayFromZero), 0, 255);
+            }
+        }
+        for (int x = 0; x < Width; x++)
+        {
+            int sum = 0, bottom = Math.Min(Height - 1, radius);
+            for (int y = 0; y <= bottom; y++) sum += horizontal[y * Width + x];
+            for (int y = 0; y < Height; y++)
+            {
+                int top = Math.Max(0, y - radius), nextBottom = Math.Min(Height - 1, y + radius);
+                if (y - radius - 1 >= 0) sum -= horizontal[(y - radius - 1) * Width + x];
+                if (nextBottom > bottom) { sum += horizontal[nextBottom * Width + x]; bottom = nextBottom; }
+                output[y * Width + x] = (byte)Math.Clamp(Math.Round(sum / (double)(nextBottom - top + 1), MidpointRounding.AwayFromZero), 0, 255);
+            }
+        }
+        return FromCoverage(Width, Height, output);
+    }
+
     private static bool Contains(IReadOnlyList<(double X, double Y)> points, double x, double y)
     {
         bool inside = false;
