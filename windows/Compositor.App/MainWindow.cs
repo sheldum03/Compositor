@@ -148,6 +148,7 @@ public sealed class MainWindow : Window
         var structure = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
+        structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
         structure.Children.Add(Command("MergeLayerDown", "向下合并", MergeLayerDownAsync, layer: true));
         structure.Children.Add(Command("FlipLayerHorizontal", "水平翻转", () => FlipLayerAsync(true), layer: true));
@@ -264,7 +265,7 @@ public sealed class MainWindow : Window
                 else if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
                 else Workspace.SelectRectangle(rectangle, operation);
                 canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
-                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelectionControls(); status.Text = "选区已更新。";
+                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelection(); status.Text = "选区已更新。";
             }
             catch (Exception error)
             {
@@ -278,7 +279,7 @@ public sealed class MainWindow : Window
             {
                 Workspace.SelectLasso(points, SelectionOperation());
                 canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
-                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelectionControls(); status.Text = "选区已更新。";
+                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelection(); status.Text = "选区已更新。";
             }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
@@ -508,6 +509,8 @@ public sealed class MainWindow : Window
             if (multiple && button.Name is not ("GroupLayer" or "MergeLayerDown")) button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "MergeLayerDown" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
+            if (button.Name == "LayerViaCopy")
+                button.IsEnabled = Workspace.CanLayerViaCopy;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -608,6 +611,9 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         return EditAsync(session => session.DuplicateLayer(id, session.Layers.Single(layer => layer.Id == id).Name));
     }
+
+    private Task LayerViaCopyAsync() => Task.Run(() => Workspace.LayerViaCopy());
+
     private Task DeleteLayerAsync()
     {
         Guid id = selectedId!.Value;

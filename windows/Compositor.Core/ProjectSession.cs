@@ -493,7 +493,14 @@ public sealed class ProjectSession
     {
         RequireLayerStructureEditing();
         int width = Current["width"]!.GetValue<int>(), height = Current["height"]!.GetValue<int>();
-        return InsertLayer(CreateBlankLayer(name, width, height), new TileRaster(width, height), destinationIndex);
+        return AddRasterLayer(name, new TileRaster(width, height), destinationIndex);
+    }
+
+    public Guid AddRasterLayer(string name, TileRaster raster, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        CheckRasterSize(raster);
+        return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
     public Guid GroupLayer(Guid layerId, string name) => GroupLayers([layerId], name);

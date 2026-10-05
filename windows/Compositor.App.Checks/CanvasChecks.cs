@@ -33,6 +33,22 @@ internal static class CanvasChecks
         var original = ImageCodec.Load(fixture);
         Require(original.Width == metadata.RootElement.GetProperty("width").GetInt32() &&
             original.Height == metadata.RootElement.GetProperty("height").GetInt32(), "Brush reference dimensions changed.");
+        var persistedLayerViaCopy = new EditorWorkspace();
+        string persistedLayerViaCopyPath = Path.Combine(output, "LayerViaCopy.comp");
+        persistedLayerViaCopy.Open(project);
+        Guid persistedSourceId = persistedLayerViaCopy.Session!.ActiveLayerId!.Value;
+        int persistedBaselineCount = persistedLayerViaCopy.Session.Layers.Count;
+        TileRaster persistedSource = persistedLayerViaCopy.Session.GetLayerRaster(persistedSourceId);
+        persistedLayerViaCopy.SelectRectangle(new Rect(30, 30, 120, 90));
+        persistedLayerViaCopy.LayerViaCopy();
+        Guid persistedCopyId = persistedLayerViaCopy.Session.ActiveLayerId!.Value;
+        persistedLayerViaCopy.SaveAs(persistedLayerViaCopyPath);
+        var persistedReopened = ImageProjectWorkflow.OpenEditable(persistedLayerViaCopyPath);
+        Require(persistedReopened.Layers.Count == persistedBaselineCount + 1 &&
+            persistedReopened.ActiveLayerId == persistedCopyId &&
+            Pixel(persistedReopened.GetLayerRaster(persistedCopyId), 50, 50).SequenceEqual(Pixel(persistedSource, 50, 50)) &&
+            Pixel(persistedReopened.GetLayerRaster(persistedCopyId), 10, 10).SequenceEqual(new byte[4]),
+            "Layer via Copy did not survive save and reopen.");
         var hardCanvas = new TileRaster(21, 21);
         var hardStroke = new SoftBrushStroke(hardCanvas, new SoftBrushSettings(9, 1, [1, 0, 0], 1));
         hardStroke.Append(new BrushPoint(10.5, 10.5));
@@ -158,8 +174,36 @@ internal static class CanvasChecks
         Dispatcher.UIThread.RunJobs();
         Require(!workspace.HasSelection && !workspace.IsDirty,
             "Ctrl+Shift+I did not invert a full selection to empty without changing document history.");
-        workspace.SelectRectangle(new Rect(30, 30, 120, 90));
-        canvas.SetSelectionRect(workspace.SelectionBounds);
+        Find<CheckBox>(window, "RectSelect").IsChecked = true;
+        window.MouseDown(DocumentPoint(new Point(30, 30)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(150, 120)));
+        window.MouseUp(DocumentPoint(new Point(150, 120)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Guid layerViaCopySourceId = workspace.Session!.ActiveLayerId!.Value;
+        int layerViaCopyBaselineCount = workspace.Session.Layers.Count;
+        TileRaster layerViaCopySource = workspace.Session.GetLayerRaster(layerViaCopySourceId);
+        Require(Find<Button>(window, "LayerViaCopy").IsEffectivelyEnabled,
+            "Layer via Copy was not enabled for a flat, untransformed layer selection.");
+        Click("LayerViaCopy");
+        Guid layerViaCopyId = workspace.Session.ActiveLayerId!.Value;
+        TileRaster layerViaCopyRaster = workspace.Session.GetLayerRaster(layerViaCopyId);
+        Require(layerViaCopyId != layerViaCopySourceId, "Layer via Copy did not activate a new layer.");
+        Require(workspace.Session.Layers.Count == layerViaCopyBaselineCount + 1,
+            $"Layer via Copy did not add one layer: active={workspace.Session.ActiveLayerId}, source={layerViaCopySourceId}, count={workspace.Session.Layers.Count}, baseline={layerViaCopyBaselineCount}, can={workspace.CanLayerViaCopy}.");
+        Require(!workspace.HasSelection && workspace.IsDirty, "Layer via Copy did not clear the session selection or create history.");
+        Require(Pixel(layerViaCopyRaster, 50, 50).SequenceEqual(Pixel(layerViaCopySource, 50, 50)),
+            "Layer via Copy did not retain a selected pixel.");
+        Require(Pixel(layerViaCopyRaster, 10, 10).SequenceEqual(new byte[4]),
+            "Layer via Copy retained a pixel outside the selection.");
+        Click("Undo");
+        Require(workspace.Session.Layers.Count == layerViaCopyBaselineCount && !workspace.IsDirty,
+            "Undo did not remove the Layer via Copy transaction or restore the save point.");
+        Click("Redo");
+        Require(workspace.Session.Layers.Count == layerViaCopyBaselineCount + 1 && workspace.IsDirty,
+            "Redo did not restore the Layer via Copy transaction.");
+        Click("Undo");
+        window.MouseDown(DocumentPoint(new Point(30, 30)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(150, 120)));
+        window.MouseUp(DocumentPoint(new Point(150, 120)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
         Click("CopySelection");
         Require(workspace.HasClipboard && !workspace.IsDirty, "Copy selection changed document history or did not retain a clipboard snapshot.");
         Click("CopyMergedSelection");
@@ -676,6 +720,7 @@ internal static class CanvasChecks
             pointerStroke = "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
             viewport = "zoom anchor, middle-button and Space plus left-button pan in logical coordinates, exact 100% and pixel grid",
             selection = nativeAvailable ? "rectangle/ellipse/lasso/combined/native-wand masks, wand radius, traced outline, non-dirty selection state, brush clipping, undo and clear" : "rectangle/ellipse/lasso/combined mask, non-dirty selection state, brush clipping, undo and clear",
+            layerViaCopy = "selected pixels become a new in-place flat layer; button state, pixel bounds, undo/redo verified",
             limits = "Headless input; no native Windows/DPI/pressure or S02 performance claim."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: production soft brush matches fixed M1 pixels, real pointer commit/cancel, viewport and saved export");

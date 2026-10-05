@@ -458,6 +458,32 @@ public sealed class EditorWorkspace
     }
 
     public bool HasClipboard => clipboardRaster is not null && clipboardMask is not null;
+    public bool CanLayerViaCopy
+    {
+        get
+        {
+            if (!CanEdit || HasActiveStroke || HasFloatingSelection || Selection is not { CoveredPixels: > 0 } ||
+                Session is not { } session || session.HasGroups || session.ActiveLayerId is not { } layerId)
+                return false;
+            FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
+            return !layer.IsGroup && !layer.HasMask && layer.MaskSourceId is null && session.IsLayerTransformIdentity(layerId);
+        }
+    }
+
+    public void LayerViaCopy()
+    {
+        RequireIdle();
+        if (!CanLayerViaCopy)
+            throw new NotSupportedException("Layer via Copy 目前只支持无蒙版、未变换的平面图层。");
+        var session = RequireSession();
+        Guid sourceId = session.ActiveLayerId!.Value;
+        int destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == sourceId) + 1;
+        TileRaster copied = ApplySelection(session.GetLayerRaster(sourceId), Selection!, keepSelected: true);
+        Edit(current => current.AddRasterLayer("Layer via Copy", copied, destinationIndex));
+        ClearSelectionWithoutHistory();
+        ResetSelectionHistory();
+    }
+
     public bool CanPasteSelection
     {
         get
