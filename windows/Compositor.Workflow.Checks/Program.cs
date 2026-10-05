@@ -264,9 +264,11 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
     var session = ImageProjectWorkflow.OpenEditable(source);
     Guid leafId = session.Layers.Single().Id;
+    Guid secondId = session.AddBlankLayer("Second", 1);
     TileRaster baseline = ImageProjectWorkflow.RenderFlatNormal(session);
-    Guid groupId = session.GroupLayer(leafId, "Pass-through");
+    Guid groupId = session.GroupLayers([leafId, secondId], "Pass-through");
     if (!session.HasGroups || session.Layers.Single(layer => layer.Id == leafId).ParentId != groupId ||
+        session.Layers.Single(layer => layer.Id == secondId).ParentId != groupId ||
         session.Layers.Single(layer => layer.Id == groupId).HasMask ||
         !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(session)))
         throw new Exception("Grouping a root raster did not preserve the pass-through render.");
