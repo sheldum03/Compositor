@@ -4,13 +4,13 @@
 
 本文件是规划入口；实现代码位于独立实施工作区，未复制到本目录。
 
-实施分支：`codex/windows-implementation`；本次核对的已提交代码基线为 `f6030b8`，在 `136e9e0` 只读缓存边界之上加入全画布 Gray8 蒙版编辑切片，并修正单图层蒙版重开时的原始资产载入；此前提交仍包括基础画布/软笔、新建/图层、选区、M3a 工作流和双线性缩放。各证据保留实际执行的固定提交和范围，不能当作当前全部代码回归。r4 包仍固定 `1e41027`，不含上述后续功能。9 月 29 日的[路线决定](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/m1-route-decision-20260929.md)放行 W-010 起的生产工作：Avalonia 11.3.22、.NET SDK 10.0.401 / net10.0、Skia 软件绘制、现有 C 算法 DLL。Qt 保留为技术对照，不进入生产构建。原规划分支为 `windows-part`。
+实施分支：`codex/windows-implementation`；本次核对的已提交代码基线为 `220fdba`，在 `136e9e0` 只读缓存边界之上加入全画布 Gray8 蒙版编辑切片，修正单图层蒙版重开时的原始资产载入，并让图层翻转/位移与蒙版保持单步同步；此前提交仍包括基础画布/软笔、新建/图层、选区、M3a 工作流和双线性缩放。各证据保留实际执行的固定提交和范围，不能当作当前全部代码回归。r4 包仍固定 `1e41027`，不含上述后续功能。9 月 29 日的[路线决定](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/m1-route-decision-20260929.md)放行 W-010 起的生产工作：Avalonia 11.3.22、.NET SDK 10.0.401 / net10.0、Skia 软件绘制、现有 C 算法 DLL。Qt 保留为技术对照，不进入生产构建。原规划分支为 `windows-part`。
 
 产品范围保持：Windows 11 x64、v8 `.comp` 文件夹工程；原字体可用时缩放重绘，缺字体保留缓存画面与文字元数据并提示选择字体，禁止静默替换。完整目标仍按 [PRD](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/product-requirements.md)、[技术设计](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/technical-design.md)、[验证与发布](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/validation-release.md)及下文 W-001–040 验收。
 
 ### 本轮进度核对（2026-10-05）
 
-- **代码基线**：功能代码基线为 `f6030b8`；计划文档与本轮 M3b 证据已提交到实施分支，当前文件同步到 `windows-part`。
+- **代码基线**：功能代码基线为 `220fdba`；计划文档与本轮 M3b 证据已提交到实施分支，当前文件同步到 `windows-part`。
 - **本地验证**：固定 SDK 10.0.401、Avalonia Headless 的 App.Checks（无原生选择库）构建成功并通过 3 项检查；Workflow Checks 构建成功并通过 13 项核心场景；Imaging Checks 与 SaveCrash Checks 均构建成功并通过；`win-x64` self-contained 发布成功。完整命令、范围和限制见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)。
 - **已推进**：M3a 最小内部链路（新建→编辑→尺寸/旋转→保存→重开→PNG 导出）已在 macOS Headless 通过；M3b 第一条全画布 Gray8 栅格蒙版切片已接入载入、启停、选区显示/隐藏、蒙版历史、保存重开及尺寸/90°旋转同步；带缺失字体/文字变换工程仍能只读预览并导出，保存与编辑会被禁用；不支持的缓存语义会明确拒绝。
 - **仍未验证**：上述结果均不是 Windows 实机证据。当前尚未在腾讯云 Windows 服务器启动新版 `Compositor.App.exe`，也未完成 Windows 原生 DLL、文件对话框、DPI/多显示器、IME、性能和干净机部署验收。
@@ -37,7 +37,7 @@
 | M3 / W-017 | 平面图层按钮、透明度和 13 模式控件已接通，本地通过 | 实际增删复制/排序/显隐/选层、外观撤销/重做及保存重开通过；复制层独立绘画。真实 Mac 对照仅 5/13 exact，8 个模式最大 RGB 差 1；组、合并、Windows 未完成 |
 | M3 / W-018 | 基础选区/原位剪贴/像素移动及全画布 Gray8 蒙版编辑切片本地通过，完整任务未完成 | 全选、反选、矩形/椭圆/魔棒/套索替换、加选、减选、清除、从图层 Alpha 载入、当前层复制/合并复制/剪切/粘贴、正反向拖动像素移动、画布边框和软笔裁剪、魔棒点/3×3/5×5 取样、容差/连续选项及 `wand_trace` 轮廓通过且不标脏或可撤销；全画布 Gray8 蒙版可编辑、启停、选区显示/隐藏、保存重开和蒙版历史通过，见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)；浮动选区、组/剪贴蒙版和完整跨位置历史仍未接通 |
 | M3 / W-019 | 基础软/硬笔与蒙版同步切片本地通过，完整任务未完成 | 259×257 三组 M1 临时/最终软笔像素 exact；硬圆笔中心/边缘覆盖、实际提交单步历史、Esc/捕获丢失/关闭取消、旧快照/其他层保持和保存导出通过；画布尺寸和 90° 文档旋转会同步全画布蒙版。完整颜色、压力、蒙版绘制、真实 Mac 新笔划、Windows 及 S02/S05 待完成 |
-| M3 / W-020 | 受限平面变换/尺寸与蒙版同步切片本地通过，完整任务未完成 | 活动平面图层破坏式整数移动、水平/垂直翻转、画布裁剪/扩展、双线性图像缩放、顺/逆时针 90° 文档旋转、单步历史及窗口对话框回归通过；蒙版已覆盖画布裁剪/扩展、缩放和 90° 旋转同步，带蒙版图层的翻转/移动明确拒绝；非破坏 transform、自由旋转/Lanczos 或面积重采样、组/蒙版影响仍未交付 |
+| M3 / W-020 | 受限平面变换/尺寸与蒙版同步切片本地通过，完整任务未完成 | 活动平面图层破坏式整数移动、水平/垂直翻转、画布裁剪/扩展、双线性图像缩放、顺/逆时针 90° 文档旋转、单步历史及窗口对话框回归通过；蒙版已覆盖画布裁剪/扩展、缩放、90° 旋转、水平/垂直翻转和整数位移同步，并验证位移的单步 Undo/Redo；非破坏 transform、自由旋转/Lanczos 或面积重采样、组/蒙版影响仍未交付 |
 | M3 / W-021 | M3a 最小内部工作流和 M3b 蒙版切片本地通过，完整任务未完成 | 新建→笔刷/图层编辑→尺寸/旋转→保存→重开→PNG 导出已在固定 Avalonia Headless 检查串联，见[M3a 工作流证据](evidence/production-m3a-workflow.md)；蒙版编辑/启停/保存重开见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)；Windows 原生对话框/DPI/IME、浮动选区、组/剪贴蒙版、完整 Alpha 组合及跨工程工作流仍未验证 |
 | M3 / W-022 | 未完成 | Alpha 便携包、真实 Windows 验收、支持/禁用项和已知缺陷清单未交付 |
 | M4 / W-023–025 | 缓存文字/变换只读预览切片已通过，完整任务未完成 | 缺失字体工程保留缓存 PNG、文字元数据和基础旋转/镜像预览，编辑命令禁用并可导出，见[缓存文字预览证据](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/evidence/production-cached-preview-m4.md)；点/框文字编辑、IME、字体导入/去重、缺失字体选择、重新排版、v8 写回和 Windows DPI/字体验收仍未完成 |
