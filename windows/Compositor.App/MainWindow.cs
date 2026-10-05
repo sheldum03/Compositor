@@ -30,6 +30,7 @@ public sealed class MainWindow : Window
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
     private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆", "魔棒", "套索" }, SelectedIndex = 0 };
+    private readonly ComboBox wandRadius = new() { Name = "WandRadius", Width = 70, ItemsSource = new[] { "点", "3×3", "5×5" }, SelectedIndex = 0 };
     private readonly NumericUpDown wandTolerance = new() { Name = "WandTolerance", Minimum = 0, Maximum = 255, Value = 0, Width = 65 };
     private readonly CheckBox wandContiguous = new() { Name = "WandContiguous", Content = "连续" , IsChecked = true };
     private readonly ComboBox selectionOperation = new() { Name = "SelectionOperation", Width = 90, ItemsSource = new[] { "替换", "加选", "减选" }, SelectedIndex = 0 };
@@ -69,6 +70,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(selectionShape);
         toolbar.Children.Add(selectionOperation);
         toolbar.Children.Add(new TextBlock { Text = "容差", VerticalAlignment = VerticalAlignment.Center });
+        toolbar.Children.Add(wandRadius);
         toolbar.Children.Add(wandTolerance);
         toolbar.Children.Add(wandContiguous);
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
@@ -77,7 +79,13 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("LoadAlphaSelection", "从图层 Alpha 载入", LoadAlphaSelectionAsync, document: true));
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
-        selectionShape.SelectionChanged += (_, _) => canvas.LassoEnabled = selectionShape.SelectedIndex == 3;
+        selectionShape.SelectionChanged += (_, _) =>
+        {
+            canvas.LassoEnabled = selectionShape.SelectedIndex == 3;
+            bool magic = selectionShape.SelectedIndex == 2;
+            wandRadius.IsEnabled = magic; wandTolerance.IsEnabled = magic; wandContiguous.IsEnabled = magic;
+        };
+        wandRadius.IsEnabled = wandTolerance.IsEnabled = wandContiguous.IsEnabled = false;
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
@@ -166,17 +174,27 @@ public sealed class MainWindow : Window
                     _ => GraySelectionOperation.Replace
                 };
                 if (selectionShape.SelectedIndex == 2)
-                    Workspace.SelectMagicWand(rectangle.Position, (int)(wandTolerance.Value ?? 0), 0,
+                    Workspace.SelectMagicWand(rectangle.Position, (int)(wandTolerance.Value ?? 0), wandRadius.SelectedIndex,
                         wandContiguous.IsChecked == true, operation);
                 else if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
                 else Workspace.SelectRectangle(rectangle, operation);
-                canvas.SetSelectionRect(Workspace.SelectionBounds); moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。";
+                canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
+                moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。";
             }
-            catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
+            catch (Exception error)
+            {
+                canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
+                status.Text = "选区未完成：" + error.Message;
+            }
         };
         canvas.LassoFinished += points =>
         {
-            try { Workspace.SelectLasso(points, SelectionOperation()); canvas.SetSelectionRect(Workspace.SelectionBounds); moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。"; }
+            try
+            {
+                Workspace.SelectLasso(points, SelectionOperation());
+                canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
+                moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。";
+            }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
         canvas.SelectionMoveFinished += (start, end) =>
@@ -185,7 +203,8 @@ public sealed class MainWindow : Window
             {
                 int offsetX = (int)Math.Round(end.X - start.X), offsetY = (int)Math.Round(end.Y - start.Y);
                 Workspace.MoveSelection(offsetX, offsetY);
-                canvas.SetSelectionRect(Workspace.SelectionBounds); moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区像素已移动。";
+                canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
+                moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区像素已移动。";
             }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未移动：" + error.Message; }
         };
@@ -279,6 +298,7 @@ public sealed class MainWindow : Window
         if (!ReferenceEquals(displayedSession, Workspace.Session)) canvas.Fit();
         displayedSession = Workspace.Session;
         canvas.SetSelectionRect(Workspace.SelectionBounds);
+        canvas.SetSelectionOutline(Workspace.SelectionOutline);
         refreshing = true;
         var items = Workspace.Session?.Layers.Reverse().ToArray() ?? [];
         layers.ItemsSource = items;

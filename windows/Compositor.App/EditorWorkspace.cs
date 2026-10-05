@@ -15,6 +15,7 @@ public sealed class EditorWorkspace
     public TileRaster? Preview { get; private set; }
     public GrayTileRaster? Selection { get; private set; }
     public Rect? SelectionBounds { get; private set; }
+    public SelectionOutline? SelectionOutline { get; private set; }
     public bool HasSelection => Selection is not null;
     public long SelectedPixels => Selection?.CoveredPixels ?? 0;
     public bool IsDirty => Session?.IsDirty ?? false;
@@ -136,6 +137,7 @@ public sealed class EditorWorkspace
             : operation == GraySelectionOperation.Add ? next : null;
         if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = SelectionBoundsFor(Selection);
+        UpdateSelectionOutline();
     }
 
     public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
@@ -153,6 +155,7 @@ public sealed class EditorWorkspace
             : operation == GraySelectionOperation.Add ? next : null;
         if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = SelectionBoundsFor(Selection);
+        UpdateSelectionOutline();
     }
 
     private void SelectShape(Rect rectangle, GraySelectionOperation operation, bool ellipse)
@@ -175,12 +178,14 @@ public sealed class EditorWorkspace
             : operation == GraySelectionOperation.Add ? next : null;
         if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = new Rect(x0, y0, x1 - x0, y1 - y0);
+        UpdateSelectionOutline();
     }
 
     public void ClearSelection()
     {
         Selection = null;
         SelectionBounds = null;
+        SelectionOutline = null;
     }
 
     public bool HasClipboard => clipboardRaster is not null && clipboardMask is not null;
@@ -249,6 +254,7 @@ public sealed class EditorWorkspace
             Selection = nextSelection;
             SelectionBounds = SelectionBoundsFor(nextSelection);
         }
+        UpdateSelectionOutline();
     }
 
     public void SelectLayerAlpha()
@@ -260,6 +266,7 @@ public sealed class EditorWorkspace
         if (next.CoveredPixels == 0) { ClearSelection(); return; }
         Selection = next;
         SelectionBounds = SelectionBoundsFor(next);
+        UpdateSelectionOutline();
     }
 
     private void RequireIdle()
@@ -393,5 +400,19 @@ public sealed class EditorWorkspace
                 }
         }
         return new Rect(left, top, right - left + 1, bottom - top + 1);
+    }
+
+    private void UpdateSelectionOutline()
+    {
+        SelectionOutline = null;
+        if (Selection is not { } selection) return;
+        try
+        {
+            SelectionOutline = NativeSelections.Trace(ToCoverage(selection), selection.Width, selection.Height);
+        }
+        catch (DllNotFoundException) { }
+        catch (EntryPointNotFoundException) { }
+        catch (BadImageFormatException) { }
+        catch (InvalidOperationException) { }
     }
 }

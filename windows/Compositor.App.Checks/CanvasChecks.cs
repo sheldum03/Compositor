@@ -183,10 +183,16 @@ internal static class CanvasChecks
         {
             Find<ComboBox>(window, "SelectionShape").SelectedItem = "魔棒";
             Find<ComboBox>(window, "SelectionOperation").SelectedItem = "替换";
+            Find<ComboBox>(window, "WandRadius").SelectedIndex = 1;
+            Find<NumericUpDown>(window, "WandTolerance").Value = 255;
+            Require(Find<ComboBox>(window, "WandRadius").IsEffectivelyEnabled,
+                "Magic wand radius control did not activate with the magic wand tool.");
             window.MouseDown(DocumentPoint(new Point(128, 128)), MouseButton.Left);
             window.MouseUp(DocumentPoint(new Point(128, 128)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
             Require(workspace.HasSelection && workspace.SelectedPixels > 0 && !workspace.IsDirty,
                 $"Native magic wand did not create a non-dirty selection: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}.");
+            Require(workspace.SelectionOutline is { LoopLengths.Length: > 0 },
+                "Native magic wand did not expose a traced selection outline.");
         }
         Click("ClearSelection");
         Require(!workspace.HasSelection && !workspace.IsDirty, "Clear selection changed history or retained a mask.");
@@ -242,7 +248,7 @@ internal static class CanvasChecks
             passed = true, referenceCases = cases.Length, imageWidth = original.Width, imageHeight = original.Height, provisionalAndFinalExact = true,
             pointerStroke = "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
             viewport = "zoom anchor, middle-button and Space plus left-button pan in logical coordinates, exact 100% and pixel grid",
-            selection = nativeAvailable ? "rectangle/ellipse/lasso/combined/native-wand masks, non-dirty selection state, brush clipping, undo and clear" : "rectangle/ellipse/lasso/combined mask, non-dirty selection state, brush clipping, undo and clear",
+            selection = nativeAvailable ? "rectangle/ellipse/lasso/combined/native-wand masks, wand radius, traced outline, non-dirty selection state, brush clipping, undo and clear" : "rectangle/ellipse/lasso/combined mask, non-dirty selection state, brush clipping, undo and clear",
             limits = "Headless input; no native Windows/DPI/pressure or S02 performance claim."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: production soft brush matches fixed M1 pixels, real pointer commit/cancel, viewport and saved export");

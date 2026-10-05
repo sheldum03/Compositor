@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Compositor.Core;
 
 namespace Compositor.App;
 
@@ -14,6 +15,7 @@ public sealed class CanvasView : Control
     private Point selectionMoveStart;
     private Rect? selectionRect;
     private List<Point>? selectionPath;
+    private SelectionOutline? selectionOutline;
     public CanvasViewport Viewport { get; } = new();
     public WriteableBitmap? Bitmap { get; private set; }
     public bool PaintEnabled { get; set; }
@@ -52,6 +54,7 @@ public sealed class CanvasView : Control
             {
                 selectionRect = new Rect(document, new Size(0, 0));
                 selectionPath = LassoEnabled ? [document] : null;
+                selectionOutline = null;
             }
             else if (moveSelection) { selectionMoveStart = document; selectionRect = new Rect(document, new Size(0, 0)); }
             else if (!panning) StrokeStarted?.Invoke(document);
@@ -147,6 +150,12 @@ public sealed class CanvasView : Control
         InvalidateVisual();
     }
 
+    public void SetSelectionOutline(SelectionOutline? outline)
+    {
+        selectionOutline = outline;
+        InvalidateVisual();
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -189,7 +198,24 @@ public sealed class CanvasView : Control
                 context.DrawLine(pen, new Point(visible.Left, viewY), new Point(visible.Right, viewY));
             }
         }
-        if (selectionRect is { } selection)
+        if (selectionOutline is { } outline && outline.LoopLengths.Length > 0)
+        {
+            var pen = new Pen(Brushes.Black, Math.Max(1, 1 / Viewport.Scale));
+            int start = 0;
+            foreach (int length in outline.LoopLengths)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    int first = (start + i) * 2;
+                    int second = (start + (i + 1) % length) * 2;
+                    context.DrawLine(pen,
+                        Viewport.ToView(new Point(outline.Coordinates[first], outline.Coordinates[first + 1])),
+                        Viewport.ToView(new Point(outline.Coordinates[second], outline.Coordinates[second + 1])));
+                }
+                start += length;
+            }
+        }
+        else if (selectionRect is { } selection)
         {
             var topLeft = Viewport.ToView(new Point(selection.Left, selection.Top));
             var bottomRight = Viewport.ToView(new Point(selection.Right, selection.Bottom));
