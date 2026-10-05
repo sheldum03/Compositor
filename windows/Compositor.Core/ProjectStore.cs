@@ -257,6 +257,8 @@ public static class ProjectStore
     {
         var byId = layers.Select(node => node!.AsObject())
             .ToDictionary(layer => Guid.Parse(layer["id"]!.GetValue<string>()));
+        var order = layers.Select(node => Guid.Parse(node!["id"]!.GetValue<string>()))
+            .Select((id, index) => (id, index)).ToDictionary(pair => pair.id, pair => pair.index);
         foreach (var (id, layer) in byId)
         {
             if (layer["isGroup"]?.GetValue<bool>() == true && layer["imageFile"] is not null)
@@ -282,6 +284,7 @@ public static class ProjectStore
                 if (currentLayer["isGroup"]?.GetValue<bool>() == true ||
                     !byId.TryGetValue(source.Value, out var sourceLayer) ||
                     sourceLayer["isGroup"]?.GetValue<bool>() == true ||
+                    order[source.Value] >= order[id] ||
                     sourceLayer["adjustment"] is not null)
                     throw new InvalidDataException("Invalid mask source.");
                 current = source;

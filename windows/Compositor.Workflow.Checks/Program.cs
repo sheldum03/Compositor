@@ -174,7 +174,7 @@ if (args.Length == 4)
     CheckMacProduced(Path.GetFullPath(args[2]), output);
     CheckMacFlatProduced(Path.GetFullPath(args[3]), output);
 }
-Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, layer add/duplicate/delete, empty project and deleted-asset undo, unsaved new canvas and first save, Normal and Gray8 mask composition" +
+Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, layer add/duplicate/delete, empty project and deleted-asset undo, unsaved new canvas and first save, Normal and Gray8 mask composition, flat clipping-mask alpha composition" +
     (args.Length >= 3 ? ", Mac-produced v8 continuation and non-default protection" : "") +
     (args.Length == 4 ? ", Mac-produced flat layer pixel continuation" : ""));
 
@@ -556,6 +556,23 @@ static void CheckClippingMask(string output)
     if (!Pixel(result, 0, 0).SequenceEqual(new byte[] { 0, 0, 128, 128 }) ||
         !Pixel(result, 1, 0).SequenceEqual(new byte[] { 0, 0, 255, 255 }))
         throw new Exception("Clipping-mask source alpha was not applied without using source RGB or visibility.");
+    string saved = Path.Combine(output, "ClippingMaskSaved.comp");
+    ImageProjectWorkflow.Save(reopened, saved);
+    var persisted = ImageProjectWorkflow.OpenEditable(saved);
+    if (!Pixel(ImageProjectWorkflow.RenderFlatNormal(persisted), 0, 0).SequenceEqual(new byte[] { 0, 0, 128, 128 }))
+        throw new Exception("Clipping-mask relationship was not preserved by save and reopen.");
+    try
+    {
+        persisted.DeleteLayer(sourceId);
+        throw new Exception("A clipping-mask source was deleted without an explicit release operation.");
+    }
+    catch (NotSupportedException) { }
+    try
+    {
+        persisted.MoveLayer(targetId, 0);
+        throw new Exception("Clipping-mask layers were reordered without a placement policy.");
+    }
+    catch (NotSupportedException) { }
 }
 
 static void SaveGrayMask(string path, int width, int height)

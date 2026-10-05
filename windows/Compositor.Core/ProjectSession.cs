@@ -345,6 +345,8 @@ public sealed class ProjectSession
         if ((uint)destinationIndex >= layers.Count) throw new ArgumentOutOfRangeException(nameof(destinationIndex));
         int sourceIndex = FindLayer(layerId);
         if (sourceIndex == destinationIndex) return;
+        if (layers.Any(layer => layer!["maskSourceID"] is not null))
+            throw new NotSupportedException("Reordering layers with clipping masks is not supported in this slice.");
         var next = (JsonObject)Current.DeepClone();
         var reordered = next["layers"]!.AsArray();
         JsonNode layer = reordered[sourceIndex]!;
@@ -446,6 +448,9 @@ public sealed class ProjectSession
     {
         RequireLayerStructureEditing();
         int index = FindLayer(layerId);
+        if (Current["layers"]!.AsArray().Any(layer => layer!["maskSourceID"]?.GetValue<string>() is { } source &&
+            Guid.TryParse(source, out var sourceId) && sourceId == layerId))
+            throw new NotSupportedException("Deleting a clipping-mask source is not supported in this slice.");
         var next = (JsonObject)Current.DeepClone();
         var layers = next["layers"]!.AsArray();
         layers.RemoveAt(index);
