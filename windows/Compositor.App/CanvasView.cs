@@ -12,11 +12,13 @@ public sealed class CanvasView : Control
     private bool panning, selecting, spaceHeld, autoFit = true;
     private Point previous;
     private Rect? selectionRect;
+    private List<Point>? selectionPath;
     public CanvasViewport Viewport { get; } = new();
     public WriteableBitmap? Bitmap { get; private set; }
     public bool PaintEnabled { get; set; }
     public bool PixelGridEnabled { get; set; }
     public bool SelectionEnabled { get; set; }
+    public bool LassoEnabled { get; set; }
     public bool IsDrawing => captured is not null && !panning && !selecting;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
@@ -25,6 +27,7 @@ public sealed class CanvasView : Control
     public event Action<Point>? StrokeFinished;
     public event Action? StrokeCanceled;
     public event Action<Rect>? SelectionFinished;
+    public event Action<IReadOnlyList<Point>>? LassoFinished;
     public event Action? SelectionCanceled;
 
     public CanvasView()
@@ -41,7 +44,11 @@ public sealed class CanvasView : Control
                          document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
             if (select && (document.X < 0 || document.Y < 0 || document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
             Focus(); captured = e.Pointer; panning = pan; selecting = select; previous = view; captured.Capture(this);
-            if (select) selectionRect = new Rect(document, new Size(0, 0));
+            if (select)
+            {
+                selectionRect = new Rect(document, new Size(0, 0));
+                selectionPath = LassoEnabled ? [document] : null;
+            }
             else if (!panning) StrokeStarted?.Invoke(document);
             e.Handled = true;
         };
@@ -50,7 +57,13 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             Point view = e.GetPosition(this);
             if (panning) { Viewport.Pan(view - previous); previous = view; autoFit = false; InvalidateVisual(); }
-            else if (selecting) { selectionRect = Normalize(selectionRect!.Value.Position, Viewport.ToDocument(view)); InvalidateVisual(); }
+            else if (selecting)
+            {
+                Point document = Viewport.ToDocument(view);
+                selectionRect = Normalize(selectionRect!.Value.Position, document);
+                if (LassoEnabled && (selectionPath is null || Math.Abs(document.X - selectionPath[^1].X) + Math.Abs(document.Y - selectionPath[^1].Y) > 0.5)) selectionPath?.Add(document);
+                InvalidateVisual();
+            }
             else StrokeMoved?.Invoke(Viewport.ToDocument(view));
             e.Handled = true;
         };
@@ -61,7 +74,12 @@ public sealed class CanvasView : Control
             bool select = selecting;
             captured = null; e.Pointer.Capture(null);
             selecting = false;
-            if (select) SelectionFinished?.Invoke(selectionRect!.Value);
+            if (select)
+            {
+                if (LassoEnabled) LassoFinished?.Invoke(selectionPath?.ToArray() ?? []);
+                else SelectionFinished?.Invoke(selectionRect!.Value);
+                selectionPath = null;
+            }
             else if (paint) StrokeFinished?.Invoke(Viewport.ToDocument(e.GetPosition(this)));
             e.Handled = true;
         };
@@ -111,7 +129,7 @@ public sealed class CanvasView : Control
         bool select = selecting;
         var pointer = captured; captured = null; pointer.Capture(null);
         selecting = false;
-        if (select) { selectionRect = null; SelectionCanceled?.Invoke(); }
+        if (select) { selectionRect = null; selectionPath = null; SelectionCanceled?.Invoke(); }
         else if (paint) StrokeCanceled?.Invoke();
     }
 
@@ -168,6 +186,11 @@ public sealed class CanvasView : Control
             var topLeft = Viewport.ToView(new Point(selection.Left, selection.Top));
             var bottomRight = Viewport.ToView(new Point(selection.Right, selection.Bottom));
             context.DrawRectangle(null, new Pen(Brushes.Black, 1), new Rect(topLeft, bottomRight));
+        }
+        if (selectionPath is { Count: > 1 } path)
+        {
+            var pen = new Pen(Brushes.Black, 1);
+            for (int i = 1; i < path.Count; i++) context.DrawLine(pen, Viewport.ToView(path[i - 1]), Viewport.ToView(path[i]));
         }
     }
 

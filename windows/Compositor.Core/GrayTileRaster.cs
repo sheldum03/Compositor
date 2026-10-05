@@ -91,6 +91,30 @@ public sealed class GrayTileRaster
         return result;
     }
 
+    public static GrayTileRaster Polygon(int width, int height, IReadOnlyList<(double X, double Y)> points)
+    {
+        if (points.Count < 3) throw new ArgumentException("A polygon needs at least three points.", nameof(points));
+        var result = new GrayTileRaster(width, height);
+        double left = points.Min(point => point.X), top = points.Min(point => point.Y);
+        double right = points.Max(point => point.X), bottom = points.Max(point => point.Y);
+        int x0 = Math.Max(0, (int)Math.Floor(left)), y0 = Math.Max(0, (int)Math.Floor(top));
+        int x1 = Math.Min(width, (int)Math.Ceiling(right)), y1 = Math.Min(height, (int)Math.Ceiling(bottom));
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            int tileLeft = column * TileRaster.TileSize, tileTop = row * TileRaster.TileSize;
+            byte[] coverage = new byte[size.Width * size.Height];
+            int fillLeft = Math.Max(x0, tileLeft), fillTop = Math.Max(y0, tileTop);
+            int fillRight = Math.Min(x1, tileLeft + size.Width), fillBottom = Math.Min(y1, tileTop + size.Height);
+            for (int y = fillTop; y < fillBottom; y++)
+            for (int x = fillLeft; x < fillRight; x++)
+                if (Contains(points, x + 0.5, y + 0.5)) coverage[(y - tileTop) * size.Width + x - tileLeft] = 255;
+            result = result.ReplaceTile(column, row, coverage);
+        }
+        return result;
+    }
+
     public static GrayTileRaster Ellipse(int width, int height, int left, int top, int right, int bottom)
     {
         if (width < 1 || height < 1 || left < 0 || top < 0 || right > width || bottom > height || left >= right || top >= bottom)
@@ -139,6 +163,20 @@ public sealed class GrayTileRaster
             result = result.ReplaceTile(column, row, first);
         }
         return result;
+    }
+
+    private static bool Contains(IReadOnlyList<(double X, double Y)> points, double x, double y)
+    {
+        bool inside = false;
+        for (int i = 0, previous = points.Count - 1; i < points.Count; previous = i++)
+        {
+            var currentPoint = points[i]; var previousPoint = points[previous];
+            if ((currentPoint.Y > y) != (previousPoint.Y > y) &&
+                x < (previousPoint.X - currentPoint.X) * (y - currentPoint.Y) /
+                    (previousPoint.Y - currentPoint.Y) + currentPoint.X)
+                inside = !inside;
+        }
+        return inside;
     }
 
     public long CoveredPixels

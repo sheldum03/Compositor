@@ -28,7 +28,7 @@ public sealed class MainWindow : Window
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
-    private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆", "魔棒" }, SelectedIndex = 0 };
+    private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆", "魔棒", "套索" }, SelectedIndex = 0 };
     private readonly NumericUpDown wandTolerance = new() { Name = "WandTolerance", Minimum = 0, Maximum = 255, Value = 0, Width = 65 };
     private readonly CheckBox wandContiguous = new() { Name = "WandContiguous", Content = "连续" , IsChecked = true };
     private readonly ComboBox selectionOperation = new() { Name = "SelectionOperation", Width = 90, ItemsSource = new[] { "替换", "加选", "减选" }, SelectedIndex = 0 };
@@ -71,6 +71,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(wandContiguous);
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
+        selectionShape.SelectionChanged += (_, _) => canvas.LassoEnabled = selectionShape.SelectedIndex == 3;
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
@@ -158,6 +159,11 @@ public sealed class MainWindow : Window
                 else Workspace.SelectRectangle(rectangle, operation);
                 canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区已更新。";
             }
+            catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
+        };
+        canvas.LassoFinished += points =>
+        {
+            try { Workspace.SelectLasso(points, SelectionOperation()); canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区已更新。"; }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
         canvas.SelectionCanceled += () => canvas.SetSelectionRect(Workspace.SelectionBounds);
@@ -327,6 +333,13 @@ public sealed class MainWindow : Window
         canvas.SetSelectionRect(null);
         return Task.CompletedTask;
     }
+
+    private GraySelectionOperation SelectionOperation() => selectionOperation.SelectedIndex switch
+    {
+        1 => GraySelectionOperation.Add,
+        2 => GraySelectionOperation.Subtract,
+        _ => GraySelectionOperation.Replace
+    };
     private Task MoveAsync(int offset)
     {
         Guid id = selectedId!.Value;

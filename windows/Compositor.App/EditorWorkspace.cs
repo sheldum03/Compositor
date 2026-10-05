@@ -119,6 +119,20 @@ public sealed class EditorWorkspace
     public void SelectEllipse(Rect rectangle, GraySelectionOperation operation = GraySelectionOperation.Replace) =>
         SelectShape(rectangle, operation, true);
 
+    public void SelectLasso(IReadOnlyList<Point> points, GraySelectionOperation operation = GraySelectionOperation.Replace)
+    {
+        var session = RequireSession();
+        if (points.Count < 3) { ClearSelection(); return; }
+        var polygon = points.Select(point => (point.X, point.Y)).ToArray();
+        var next = GrayTileRaster.Polygon(session.Width, session.Height, polygon);
+        Selection = operation == GraySelectionOperation.Replace
+            ? next
+            : Selection is { } current ? current.Combine(next, operation)
+            : operation == GraySelectionOperation.Add ? next : null;
+        if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
+        SelectionBounds = SelectionBoundsFor(Selection);
+    }
+
     public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
         GraySelectionOperation operation = GraySelectionOperation.Replace)
     {

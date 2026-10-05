@@ -132,6 +132,14 @@ internal static class CanvasChecks
         window.MouseUp(DocumentPoint(new Point(180, 140)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
         Require(workspace.SelectedPixels > 0 && workspace.SelectedPixels < 120 * 100,
             $"Ellipse selection produced an invalid coverage count: {workspace.SelectedPixels}.");
+        Find<ComboBox>(window, "SelectionShape").SelectedItem = "套索";
+        window.MouseDown(DocumentPoint(new Point(60, 60)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(180, 70)));
+        window.MouseMove(DocumentPoint(new Point(140, 160)));
+        window.MouseMove(DocumentPoint(new Point(60, 60)));
+        window.MouseUp(DocumentPoint(new Point(60, 60)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.SelectedPixels > 0 && workspace.SelectedPixels < 120 * 100,
+            $"Lasso selection produced an invalid coverage count: {workspace.SelectedPixels}.");
         if (nativeAvailable)
         {
             Find<ComboBox>(window, "SelectionShape").SelectedItem = "魔棒";
@@ -195,7 +203,7 @@ internal static class CanvasChecks
             passed = true, referenceCases = cases.Length, imageWidth = original.Width, imageHeight = original.Height, provisionalAndFinalExact = true,
             pointerStroke = "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
             viewport = "zoom anchor, middle-button and Space plus left-button pan in logical coordinates, exact 100% and pixel grid",
-            selection = nativeAvailable ? "rectangle/ellipse/combined/native-wand masks, non-dirty selection state, brush clipping, undo and clear" : "rectangle/ellipse/combined mask, non-dirty selection state, brush clipping, undo and clear",
+            selection = nativeAvailable ? "rectangle/ellipse/lasso/combined/native-wand masks, non-dirty selection state, brush clipping, undo and clear" : "rectangle/ellipse/lasso/combined mask, non-dirty selection state, brush clipping, undo and clear",
             limits = "Headless input; no native Windows/DPI/pressure or S02 performance claim."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: production soft brush matches fixed M1 pixels, real pointer commit/cancel, viewport and saved export");
