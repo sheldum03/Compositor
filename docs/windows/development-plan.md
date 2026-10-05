@@ -4,14 +4,14 @@
 
 本文件是规划入口；实现代码位于独立实施工作区，未复制到本目录。
 
-实施分支：`codex/windows-implementation`；本次核对的已提交代码基线为 `2702d92`，在 `0be6f8c` 受限缓存组预览之上加入 v8 pass-through 组的编辑加载、组蒙版内存资产、蒙版切换/替换/撤销/保存重开、组显隐/透明度历史、组蒙版笔刷边界及结构操作拒绝保护；此前提交仍包括全画布 Gray8 蒙版编辑、受限平面剪贴蒙版、剪贴关系 UI、浮动选区事务、基础画布/软笔、新建/图层、选区、M3a 工作流和双线性缩放。各证据保留实际执行的固定提交和范围，不能当作当前全部代码回归。r4 包仍固定 `1e41027`，不含上述后续功能。9 月 29 日的[路线决定](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/m1-route-decision-20260929.md)放行 W-010 起的生产工作：Avalonia 11.3.22、.NET SDK 10.0.401 / net10.0、Skia 软件绘制、现有 C 算法 DLL。Qt 保留为技术对照，不进入生产构建。原规划分支为 `windows-part`。
+实施分支：`codex/windows-implementation`；本次核对的已提交代码基线为 `3db13af`，在 `0be6f8c` 受限缓存组预览之上加入 v8 pass-through 组的编辑加载、组蒙版内存资产、蒙版切换/替换/撤销/保存重开、组显隐/透明度历史、组蒙版笔刷边界、结构操作拒绝保护及窗口按钮保护；此前提交仍包括全画布 Gray8 蒙版编辑、受限平面剪贴蒙版、剪贴关系 UI、浮动选区事务、基础画布/软笔、新建/图层、选区、M3a 工作流和双线性缩放。各证据保留实际执行的固定提交和范围，不能当作当前全部代码回归。r4 包仍固定 `1e41027`，不含上述后续功能。9 月 29 日的[路线决定](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/m1-route-decision-20260929.md)放行 W-010 起的生产工作：Avalonia 11.3.22、.NET SDK 10.0.401 / net10.0、Skia 软件绘制、现有 C 算法 DLL。Qt 保留为技术对照，不进入生产构建。原规划分支为 `windows-part`。
 
 产品范围保持：Windows 11 x64、v8 `.comp` 文件夹工程；原字体可用时缩放重绘，缺字体保留缓存画面与文字元数据并提示选择字体，禁止静默替换。完整目标仍按 [PRD](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/product-requirements.md)、[技术设计](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/technical-design.md)、[验证与发布](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/validation-release.md)及下文 W-001–040 验收。
 
 ### 本轮进度核对（2026-10-06）
 
-- **代码基线**：功能代码基线为 `2702d92`；计划文档与本轮 M3b 证据已提交到实施分支，并已同步到 `windows-part`。
-- **本地验证**：固定 SDK 10.0.401、Avalonia Headless 的 App.Checks（无原生选择库）构建成功并通过 3 项检查；Workflow Checks 构建成功并通过缓存 F02/F05/F06、v8 组蒙版可编辑加载/切换/替换/撤销/保存重开、组显隐/透明度历史、组结构操作拒绝、13 项核心场景及受限剪贴蒙版回归；Imaging Checks 与 SaveCrash Checks 均构建成功并通过；`win-x64` self-contained 发布成功（224 文件，入口 SHA-256 为 `a04aae7190470c957abf2836641a39bec64b8fa309772edaa4ad995b9cbd3ad0`）。完整命令、范围和限制见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)、[剪贴蒙版证据](evidence/production-clipping-mask-m3b.md)、[缓存组蒙版证据](evidence/production-cached-group-mask-m3b.md)、[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)和[浮动选区证据](evidence/production-floating-selection-m3c.md)。
+- **代码基线**：功能代码基线为 `3db13af`；计划文档与本轮 M3b 证据已提交到实施分支，并已同步到 `windows-part`。
+- **本地验证**：固定 SDK 10.0.401、Avalonia Headless 的 App.Checks（无原生选择库）构建成功并通过 3 项检查；Workflow Checks 构建成功并通过缓存 F02/F05/F06、v8 组蒙版可编辑加载/切换/替换/撤销/保存重开、组显隐/透明度历史、组结构操作拒绝、13 项核心场景及受限剪贴蒙版回归；Imaging Checks 与 SaveCrash Checks 均构建成功并通过；App Checks 新增组工程按钮保护回归；`win-x64` self-contained 发布成功（224 文件，入口 SHA-256 为 `20048c90fc7554816589a8eb1d4d83fe441cb6560df2381d815beb514177aa79`）。完整命令、范围和限制见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)、[剪贴蒙版证据](evidence/production-clipping-mask-m3b.md)、[缓存组蒙版证据](evidence/production-cached-group-mask-m3b.md)、[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)和[浮动选区证据](evidence/production-floating-selection-m3c.md)。
 - **已推进**：M3a 最小内部链路（新建→编辑→尺寸/旋转→保存→重开→PNG 导出）已在 macOS Headless 通过；M3b 第一条全画布 Gray8 栅格蒙版切片已接入载入、启停、选区显示/隐藏、蒙版笔刷显示/隐藏、压力传递、蒙版历史、保存重开及尺寸/90°旋转同步；缓存预览已接通受限 pass-through 组、组蒙版和连续剪贴栈，v8 pass-through 组蒙版现可在受限工程中编辑并保存重开，见[缓存组蒙版证据](evidence/production-cached-group-mask-m3b.md)与[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)；带缺失字体/文字变换工程仍能只读预览并导出，保存与编辑会被禁用；不支持的缓存语义会明确拒绝。
 - **仍未验证**：上述结果均不是 Windows 实机证据。当前尚未在腾讯云 Windows 服务器启动新版 `Compositor.App.exe`，也未完成 Windows 原生 DLL、文件对话框、DPI/多显示器、IME、性能和干净机部署验收。
 - **下一道闸门**：先用本轮同一实现提交生成的 `win-x64` 包完成 Windows 实机启动与 Core/Imaging/Workflow 检查，再继续 M3b 的完整 Alpha 组合、跨位置历史、组结构编辑边界与真实压感回归；在此之前不把 M3a 或便携包标为 Alpha。
