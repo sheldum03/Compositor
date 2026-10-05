@@ -67,6 +67,8 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("ExportJpeg", "导出 JPEG", () => ExportAsync(true), document: true));
         toolbar.Children.Add(Command("Fit", "适合窗口", () => { canvas.Fit(); return Task.CompletedTask; }, document: true));
         toolbar.Children.Add(Command("ActualSize", "100%", () => { canvas.ActualSize(); return Task.CompletedTask; }, document: true));
+        toolbar.Children.Add(Command("CanvasSize", "画布尺寸", () => ResizeAsync(scale: false), document: true));
+        toolbar.Children.Add(Command("ImageSize", "图像尺寸", () => ResizeAsync(scale: true), document: true));
         toolbar.Children.Add(pixelGrid);
         toolbar.Children.Add(rectangleSelect);
         toolbar.Children.Add(moveSelection);
@@ -505,6 +507,41 @@ public sealed class MainWindow : Window
         {
             new TextBlock { Text = "宽度（像素）" }, width, new TextBlock { Text = "高度（像素）" }, height,
             new TextBlock { Text = "分辨率（DPI）" }, resolution, error,
+            new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { submit, cancel } }
+        } };
+        await dialog.ShowDialog(this);
+    }
+
+    private async Task ResizeAsync(bool scale)
+    {
+        if (Workspace.Session is not { } session) return;
+        var dialog = Dialog(scale ? "图像尺寸" : "画布尺寸");
+        var width = new NumericUpDown { Name = "ResizeWidth", Minimum = 1, Maximum = 30000, Value = session.Width, Width = 220 };
+        var height = new NumericUpDown { Name = "ResizeHeight", Minimum = 1, Maximum = 30000, Value = session.Height, Width = 220 };
+        var error = new TextBlock { Foreground = Brushes.DarkRed, TextWrapping = TextWrapping.Wrap, MaxWidth = 320 };
+        var submit = new Button { Name = "ApplyResize", Content = "应用" };
+        var cancel = new Button { Content = "取消" };
+        bool resizing = false;
+        cancel.Click += (_, _) => dialog.Close();
+        dialog.Closing += (_, e) => { if (resizing) e.Cancel = true; };
+        submit.Click += async (_, _) =>
+        {
+            if (width.Value is not { } w || height.Value is not { } h || w != decimal.Truncate(w) || h != decimal.Truncate(h))
+            { error.Text = "请输入整数像素宽高。"; return; }
+            if (w * h > 100_000_000) { error.Text = "画布总像素不得超过一亿。"; return; }
+            resizing = true; submit.IsEnabled = cancel.IsEnabled = false;
+            try
+            {
+                if (scale) await Task.Run(() => Workspace.ResizeImage((int)w, (int)h));
+                else await Task.Run(() => Workspace.ResizeCanvas((int)w, (int)h));
+                resizing = false; dialog.Close();
+            }
+            catch (Exception exception) { error.Text = exception.Message; }
+            finally { resizing = false; submit.IsEnabled = cancel.IsEnabled = true; }
+        };
+        dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 10, Children =
+        {
+            new TextBlock { Text = "宽度（像素）" }, width, new TextBlock { Text = "高度（像素）" }, height, error,
             new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { submit, cancel } }
         } };
         await dialog.ShowDialog(this);

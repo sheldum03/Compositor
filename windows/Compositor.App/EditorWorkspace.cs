@@ -394,6 +394,23 @@ public sealed class EditorWorkspace
         if (!SamePixels(current, next)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
     }
 
+    public void ResizeCanvas(int width, int height) => ResizeDocument(width, height, scale: false);
+
+    public void ResizeImage(int width, int height) => ResizeDocument(width, height, scale: true);
+
+    private void ResizeDocument(int width, int height, bool scale)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (width == session.Width && height == session.Height)
+            throw new ArgumentException("新尺寸必须与当前画布不同。");
+        var rasters = session.Layers.ToDictionary(layer => layer.Id,
+            layer => ResizeRaster(session.GetLayerRaster(layer.Id), width, height, scale));
+        Edit(current => current.ResizeDocument(width, height, rasters));
+        ClearSelectionWithoutHistory();
+        ResetSelectionHistory();
+    }
+
     public void SelectLayerAlpha()
     {
         selectionMoveHistory = null;
@@ -526,6 +543,21 @@ public sealed class EditorWorkspace
             result = result.ReplaceTile(column, row, tile);
         }
         return result;
+    }
+
+    private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale)
+    {
+        byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int sourceX = scale ? Math.Min(source.Width - 1, x * source.Width / width) : x;
+            int sourceY = scale ? Math.Min(source.Height - 1, y * source.Height / height) : y;
+            if ((uint)sourceX >= (uint)source.Width || (uint)sourceY >= (uint)source.Height) continue;
+            input.AsSpan((sourceY * source.Width + sourceX) * 4, 4)
+                .CopyTo(output.AsSpan((y * width + x) * 4, 4));
+        }
+        return FromRgba(width, height, output);
     }
 
     private static Rect SelectionBoundsFor(GrayTileRaster raster)

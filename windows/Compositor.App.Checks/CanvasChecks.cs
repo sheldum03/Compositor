@@ -307,6 +307,21 @@ internal static class CanvasChecks
         Require(!window.IsVisible && !workspace.HasActiveStroke && !workspace.IsDirty,
             "Closing the saved document did not cancel the active stroke.");
         CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
+        var resizeWorkspace = new EditorWorkspace();
+        resizeWorkspace.Open(project);
+        int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;
+        byte[] originalTopLeft = resizeWorkspace.Session.GetLayerRaster(resizeWorkspace.Session.Layers[^1].Id).ReadTileCopy(0, 0);
+        resizeWorkspace.ResizeCanvas(originalWidth - 1, originalHeight - 2);
+        Require(resizeWorkspace.Session.Width == originalWidth - 1 && resizeWorkspace.Session.Height == originalHeight - 2 &&
+            resizeWorkspace.Session.GetLayerRaster(resizeWorkspace.Session.Layers[^1].Id).ReadTileCopy(0, 0).AsSpan(0, 4).SequenceEqual(originalTopLeft.AsSpan(0, 4)) && resizeWorkspace.IsDirty,
+            "Canvas resize did not crop to the requested size or preserve the top-left pixel.");
+        Require(resizeWorkspace.Undo() && resizeWorkspace.Session.Width == originalWidth && resizeWorkspace.Session.Height == originalHeight && !resizeWorkspace.IsDirty,
+            "Undo did not restore the original canvas dimensions.");
+        Require(resizeWorkspace.Redo() && resizeWorkspace.Session.Width == originalWidth - 1 && resizeWorkspace.Session.Height == originalHeight - 2,
+            "Redo did not restore the resized canvas dimensions.");
+        resizeWorkspace.ResizeImage(130, 129);
+        Require(resizeWorkspace.Session.Width == 130 && resizeWorkspace.Session.Height == 129 && resizeWorkspace.IsDirty,
+            "Image resize did not scale to the requested dimensions.");
         File.WriteAllText(Path.Combine(output, "canvas-results.json"), JsonSerializer.Serialize(new
         {
             passed = true, referenceCases = cases.Length, imageWidth = original.Width, imageHeight = original.Height, provisionalAndFinalExact = true,

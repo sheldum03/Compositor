@@ -229,6 +229,28 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
     }
 
+    public void ResizeDocument(int width, int height, IReadOnlyDictionary<Guid, TileRaster> rasters)
+    {
+        RequireLayerStructureEditing();
+        if (width is < 1 or > 30000 || height is < 1 or > 30000 || (long)width * height > 100_000_000)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (rasters.Count != Layers.Count || rasters.Any(pair => !Layers.Any(layer => layer.Id == pair.Key) ||
+                pair.Value.Width != width || pair.Value.Height != height))
+            throw new ArgumentException("Resized layer rasters do not match the document.", nameof(rasters));
+        if (Current["width"]!.GetValue<int>() == width && Current["height"]!.GetValue<int>() == height &&
+            rasters.All(pair => ReferenceEquals(pair.Value, GetLayerRaster(pair.Key)))) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["width"] = width; next["height"] = height;
+        foreach (JsonNode? node in next["layers"]!.AsArray())
+        {
+            var transform = node!["transform"]?.AsObject();
+            if (transform is null) throw new NotSupportedException("Layer transform data is missing.");
+            transform["origin"] = new JsonArray(0d, 0d);
+            transform["size"] = new JsonArray((double)width, (double)height);
+        }
+        Commit(new Snapshot(next, new Dictionary<Guid, TileRaster>(rasters), ++nextRevision));
+    }
+
     public void SelectLayer(Guid layerId)
     {
         FindLayer(layerId);

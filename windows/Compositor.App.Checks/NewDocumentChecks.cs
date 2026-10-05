@@ -121,6 +121,26 @@ internal static class NewDocumentChecks
         var reopened = ImageProjectWorkflow.OpenEditable(saved);
         Require(reopened.ActiveLayerId == lastId && Pixels(reopened.GetLayerRaster(lastId)).SequenceEqual(lastPixels!),
             "Resaving the restored layer did not recreate the asset.");
+        Begin("CanvasSize");
+        var resizeDialog = window.OwnedWindows.Single();
+        Find<NumericUpDown>(resizeDialog, "ResizeWidth").Value = 240;
+        Find<NumericUpDown>(resizeDialog, "ResizeHeight").Value = 250;
+        DialogClick(resizeDialog, "应用"); Pump(window);
+        Require(workspace.Session.Width == 240 && workspace.Session.Height == 250 && workspace.IsDirty,
+            "Canvas size dialog did not commit the requested dimensions.");
+        Click("Undo");
+        Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
+            "Undo did not restore the saved canvas dimensions.");
+        Begin("ImageSize");
+        resizeDialog = window.OwnedWindows.Single();
+        Find<NumericUpDown>(resizeDialog, "ResizeWidth").Value = 130;
+        Find<NumericUpDown>(resizeDialog, "ResizeHeight").Value = 129;
+        DialogClick(resizeDialog, "应用"); Pump(window);
+        Require(workspace.Session.Width == 130 && workspace.Session.Height == 129 && workspace.IsDirty,
+            "Image size dialog did not commit the requested dimensions.");
+        Click("Undo");
+        Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
+            "Undo did not restore the saved image dimensions.");
         window.Close(); Dispatcher.UIThread.RunJobs(); Require(!window.IsVisible, "Saved new document did not close.");
         Require(SHA256.HashData(File.ReadAllBytes(Path.Combine(project, "manifest.json"))).SequenceEqual(sourceHash),
             "New document workflow changed the source project.");
