@@ -124,6 +124,37 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         var session = RequireSession();
+        var selected = ValidateMergeSelection(session, layerIds);
+
+        TileRaster merged = new TileRaster(session.Width, session.Height);
+        var byId = selected.ToDictionary(item => item.Layer.Id, item => item.Layer);
+        var resolved = new Dictionary<Guid, TileRaster>();
+        TileRaster Resolve(FlatLayerInfo layer)
+        {
+            if (resolved.TryGetValue(layer.Id, out var cached)) return cached;
+            TileRaster raster = MergeSource(session, layer);
+            if (layer.MaskSourceId is { } sourceId)
+                raster = RasterCompositor.ApplyAlphaMask(raster, Resolve(byId[sourceId]), byId[sourceId].Opacity);
+            resolved[layer.Id] = raster;
+            return raster;
+        }
+        foreach (var item in selected)
+            if (item.Layer.IsVisible)
+                merged = LayerCompositor.Composite(merged, Resolve(item.Layer), item.Layer.Opacity, "Normal");
+        Edit(editSession => editSession.MergeLayers(selected.Select(item => item.Layer.Id).ToArray(), merged));
+    }
+
+    public bool CanMergeSelectedLayers(IReadOnlyList<Guid> layerIds)
+    {
+        if (!CanEdit || HasActiveStroke || HasFloatingSelection || Session is null) return false;
+        try { _ = ValidateMergeSelection(Session, layerIds); return true; }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or NotSupportedException)
+        { return false; }
+    }
+
+    private static (FlatLayerInfo Layer, int Index)[] ValidateMergeSelection(ProjectSession session,
+        IReadOnlyList<Guid> layerIds)
+    {
         Guid[] distinctIds = layerIds.Distinct().ToArray();
         if (distinctIds.Length < 2)
             throw new InvalidOperationException("请至少选择两个图层。");
@@ -136,19 +167,22 @@ public sealed class EditorWorkspace
         }).OrderBy(item => item.Index).ToArray();
         if (selected[^1].Index - selected[0].Index + 1 != selected.Length)
             throw new InvalidOperationException("只能合并连续图层。");
-        if (selected.Any(item => item.Layer.IsGroup))
+        if (session.HasGroups || selected.Any(item => item.Layer.IsGroup))
             throw new NotSupportedException("组图层暂不支持合并。");
         if (selected.Any(item => item.Layer.BlendMode != "Normal"))
             throw new NotSupportedException("当前切片只支持 Normal 图层合并。");
         if (selected.Any(item => !session.IsLayerTransformIdentity(item.Layer.Id)))
             throw new NotSupportedException("变换图层合并前请先烘焙变换。");
-        if (session.Layers.Any(layer => layer.MaskSourceId is not null))
-            throw new NotSupportedException("带剪贴关系的图层暂不支持合并。");
-
-        TileRaster merged = new TileRaster(session.Width, session.Height);
-        foreach (var item in selected)
-            merged = LayerCompositor.Composite(merged, MergeSource(session, item.Layer), item.Layer.Opacity, "Normal");
-        Edit(editSession => editSession.MergeLayers(selected.Select(item => item.Layer.Id).ToArray(), merged));
+        var selectedIds = selected.Select(item => item.Layer.Id).ToHashSet();
+        foreach (FlatLayerInfo layer in session.Layers)
+        {
+            bool targetSelected = selectedIds.Contains(layer.Id);
+            if (targetSelected && layer.MaskSourceId is { } targetSource && !selectedIds.Contains(targetSource))
+                throw new NotSupportedException("剪贴目标必须与其源图层一起合并。");
+            if (targetSelected && session.Layers.Any(candidate => candidate.MaskSourceId == layer.Id && !selectedIds.Contains(candidate.Id)))
+                throw new NotSupportedException("剪贴源不能在目标图层之外被合并。");
+        }
+        return selected;
     }
 
     public bool Undo()
@@ -901,7 +935,6 @@ public sealed class EditorWorkspace
 
     private static TileRaster MergeSource(ProjectSession session, FlatLayerInfo layer)
     {
-        if (!layer.IsVisible) return new TileRaster(session.Width, session.Height);
         TileRaster raster = session.GetLayerRaster(layer.Id);
         if (layer.HasMask && layer.MaskEnabled)
             raster = RasterCompositor.ApplyMask(raster, session.GetLayerMask(layer.Id)!);

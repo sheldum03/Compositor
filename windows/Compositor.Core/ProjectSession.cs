@@ -1090,11 +1090,18 @@ public sealed class ProjectSession
             throw new InvalidOperationException("只能合并连续图层。");
         if (mergedRaster.Width != Width || mergedRaster.Height != Height)
             throw new ArgumentException("Merged raster dimensions do not match the canvas.", nameof(mergedRaster));
-        if (Layers.Any(layer => layer.MaskSourceId is not null))
-            throw new NotSupportedException("带剪贴关系的图层暂不支持合并。");
         FlatLayerInfo[] selected = indexes.Select(index => Layers[index]).ToArray();
         if (selected.Any(layer => layer.IsGroup))
             throw new NotSupportedException("组图层暂不支持合并。");
+        var selectedIds = selected.Select(layer => layer.Id).ToHashSet();
+        foreach (FlatLayerInfo layer in Layers)
+        {
+            bool targetSelected = selectedIds.Contains(layer.Id);
+            if (targetSelected && layer.MaskSourceId is { } targetSource && !selectedIds.Contains(targetSource))
+                throw new NotSupportedException("剪贴目标必须与其源图层一起合并。");
+            if (targetSelected && Layers.Any(candidate => candidate.MaskSourceId == layer.Id && !selectedIds.Contains(candidate.Id)))
+                throw new NotSupportedException("剪贴源不能在目标图层之外被合并。");
+        }
         FlatLayerInfo lower = selected[0];
         string mergedName = string.Join(" + ", selected.Select(layer => layer.Name));
         if (mergedName.Length > 1000) mergedName = lower.Name;

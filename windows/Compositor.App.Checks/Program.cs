@@ -224,6 +224,62 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedMultiMerge), expectedMultiMerge);
         multiMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string clippingMergeProject = Path.Combine(output, "ClippingMerge.comp");
+        var clippingMergeWorkspace = new EditorWorkspace();
+        clippingMergeWorkspace.Import(fixture, clippingMergeProject);
+        Guid clipMergeSourceId = clippingMergeWorkspace.Session!.Layers[0].Id;
+        Guid clipMergeTargetId = clippingMergeWorkspace.Session.AddBlankLayer("Clipped", 1);
+        TileRaster clippingSourceRaster = clippingMergeWorkspace.Session.GetLayerRaster(clipMergeSourceId);
+        TileRaster clippingTargetRaster = clippingMergeWorkspace.Session.GetLayerRaster(clipMergeTargetId);
+        var clippingSize = clippingSourceRaster.TileDimensions(0, 0);
+        byte[] clippingSourceTile = clippingSourceRaster.ReadTileCopy(0, 0);
+        byte[] clippingTargetTile = clippingTargetRaster.ReadTileCopy(0, 0);
+        int clippingOffset = (18 * clippingSize.Width + 18) * 4;
+        clippingSourceTile[clippingOffset] = 90; clippingSourceTile[clippingOffset + 1] = 90;
+        clippingSourceTile[clippingOffset + 2] = 90; clippingSourceTile[clippingOffset + 3] = 128;
+        clippingTargetTile[clippingOffset] = 140; clippingTargetTile[clippingOffset + 1] = 60;
+        clippingTargetTile[clippingOffset + 2] = 40; clippingTargetTile[clippingOffset + 3] = 200;
+        clippingMergeWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(clipMergeSourceId, 0.75);
+            session.SetLayerOpacity(clipMergeTargetId, 0.8);
+            session.ReplaceLayerRaster(clipMergeSourceId, clippingSourceRaster.ReplaceTile(0, 0, clippingSourceTile));
+            session.ReplaceLayerRaster(clipMergeTargetId, clippingTargetRaster.ReplaceTile(0, 0, clippingTargetTile));
+        });
+        clippingMergeWorkspace.Edit(session => session.SetLayerMaskSource(clipMergeTargetId, clipMergeSourceId));
+        clippingMergeWorkspace.Save();
+        TileRaster expectedClippingMerge = ImageProjectWorkflow.RenderFlatNormal(clippingMergeWorkspace.Session);
+        var clippingMergeWindow = new MainWindow(clippingMergeWorkspace);
+        clippingMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var clippingLayerList = Control<ListBox>(clippingMergeWindow, "Layers");
+        clippingLayerList.SelectedItems!.Clear();
+        foreach (FlatLayerInfo layerInfo in clippingLayerList.ItemsView!.Cast<FlatLayerInfo>()
+            .Where(layerInfo => layerInfo.Id == clipMergeSourceId || layerInfo.Id == clipMergeTargetId))
+            clippingLayerList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(clippingMergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "A contiguous clipping stack did not enable the restricted merge command.");
+        Click(clippingMergeWindow, "MergeLayerDown");
+        Require(clippingMergeWorkspace.Session.Layers.Count == 1 && clippingMergeWorkspace.IsDirty,
+            "Clipping stack merge did not produce one merged layer.");
+        FlatLayerInfo mergedClippingLayer = clippingMergeWorkspace.Session.Layers.Single();
+        Require(mergedClippingLayer.MaskSourceId is null && mergedClippingLayer.Opacity == 1 &&
+            mergedClippingLayer.BlendMode == "Normal", "Clipping stack merge left invalid relationship metadata.");
+        CheckEqual(clippingMergeWorkspace.Preview!, expectedClippingMerge);
+        Click(clippingMergeWindow, "Undo");
+        Require(clippingMergeWorkspace.Session.Layers.Count == 2 && !clippingMergeWorkspace.IsDirty,
+            "Undo did not restore the clipping stack and saved state.");
+        CheckEqual(clippingMergeWorkspace.Preview!, expectedClippingMerge);
+        Click(clippingMergeWindow, "Redo");
+        Require(clippingMergeWorkspace.Session.Layers.Count == 1 && clippingMergeWorkspace.IsDirty,
+            "Redo did not restore the clipping stack merge.");
+        clippingMergeWorkspace.Save();
+        var reopenedClippingMerge = ImageProjectWorkflow.OpenEditable(clippingMergeProject);
+        Require(reopenedClippingMerge.Layers.Count == 1 && reopenedClippingMerge.Layers[0].MaskSourceId is null,
+            "Saved clipping stack merge did not reopen as a flat layer.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedClippingMerge), expectedClippingMerge);
+        clippingMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         var secondWorkspace = new EditorWorkspace();
         secondWorkspace.Open(source);
         var tabsWindow = new MainWindow(workspace);
@@ -338,7 +394,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "project-tab undo history isolation",
                 "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));

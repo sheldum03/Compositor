@@ -534,19 +534,13 @@ public sealed class MainWindow : Window
                     .Select(item => (Layer: item, Index: layerList.FindIndex(layer => layer.Id == item.Id)))
                     .OrderBy(item => item.Index)
                     .ToArray();
-                bool contiguous = ordered.Length >= 2 && ordered[0].Index >= 0 &&
-                    ordered[^1].Index - ordered[0].Index + 1 == ordered.Length;
+                Guid[] mergeIds = multiple
+                    ? selectedItems.Select(item => item.Id).ToArray()
+                    : ordered.Length == 1 && ordered[0].Index > 0
+                        ? [layerList[ordered[0].Index - 1].Id, ordered[0].Layer.Id]
+                        : [];
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && !Workspace.HasFloatingSelection &&
-                    Workspace.Session is not null &&
-                    (multiple
-                        ? contiguous && ordered.All(item => !item.Layer.IsGroup && item.Layer.BlendMode == "Normal" &&
-                            Workspace.Session.IsLayerTransformIdentity(item.Layer.Id))
-                        : selected is { IsGroup: false } && ordered.Length == 1 && ordered[0].Index > 0 &&
-                            !layerList[ordered[0].Index - 1].IsGroup &&
-                            selected.BlendMode == "Normal" && layerList[ordered[0].Index - 1].BlendMode == "Normal" &&
-                            Workspace.Session.IsLayerTransformIdentity(selected.Id) &&
-                            Workspace.Session.IsLayerTransformIdentity(layerList[ordered[0].Index - 1].Id)) &&
-                    Workspace.Session.Layers.All(layer => layer.MaskSourceId is null);
+                    Workspace.CanMergeSelectedLayers(mergeIds);
             }
         }
         if (Workspace.Session is { } session && selected is not null)
