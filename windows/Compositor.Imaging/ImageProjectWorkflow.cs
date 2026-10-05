@@ -81,7 +81,18 @@ public static class ImageProjectWorkflow
     public static TileRaster RenderFlatNormal(string projectDirectory) =>
         RenderFlatNormal(ProjectStore.Open(projectDirectory));
 
-    public static TileRaster RenderFlatNormal(ProjectSession session)
+    public static TileRaster RenderFlatNormal(ProjectSession session) => RenderFlatNormalCore(session, null, null);
+
+    public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)
+    {
+        if (!session.CanEdit) throw new NotSupportedException("Temporary pixel previews require an editable project.");
+        TileRaster current = session.GetLayerRaster(layerId);
+        if (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)
+            throw new ArgumentException("Preview raster dimensions do not match the layer.", nameof(overrideRaster));
+        return RenderFlatNormalCore(session, layerId, overrideRaster);
+    }
+
+    private static TileRaster RenderFlatNormalCore(ProjectSession session, Guid? overrideLayerId, TileRaster? overrideRaster)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -101,7 +112,8 @@ public static class ImageProjectWorkflow
             string imageName = layer["imageFile"]!.GetValue<string>();
             string image = Path.Combine(session.SourceDirectory, "images", imageName);
             TileRaster raster;
-            if (session.Raster is { } memory && imageName == session.ImageName) raster = memory;
+            if (overrideLayerId == Guid.Parse(layer["id"]!.GetValue<string>())) raster = overrideRaster!;
+            else if (session.Raster is { } memory && imageName == session.ImageName) raster = memory;
             else if (session.TryGetLoadedLayerRaster(Guid.Parse(layer["id"]!.GetValue<string>()), out var layerRaster))
                 raster = layerRaster;
             else

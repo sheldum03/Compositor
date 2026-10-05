@@ -47,6 +47,9 @@ changedTile[2] = 23;
 changedTile[3] = 255;
 TileRaster edited = session.Raster.ReplaceTile(0, 0, changedTile);
 changedTile[0] = 0;
+AssertRaster(edited, ImageProjectWorkflow.RenderFlatNormal(session, Guid.Parse(importedId), edited));
+if (session.IsDirty || session.Undo()) throw new Exception("Temporary single-layer preview changed history.");
+AssertRaster(ImageCodec.Load(sourcePng), ImageProjectWorkflow.RenderFlatNormal(session));
 session.ReplaceRaster(edited);
 session.RenameLayer("Edited image");
 if (!session.IsDirty || session.LayerName != "Edited image" || session.Raster!.ReadTileCopy(0, 0)[0] != 17)
@@ -350,6 +353,24 @@ static void CheckCompositing(string output, string fixtures)
     byte[] pixelTile = originalTop.ReadTileCopy(0, 0);
     new byte[] { 200, 0, 0, 200 }.CopyTo(pixelTile, 0);
     TileRaster changedTop = originalTop.ReplaceTile(0, 0, pixelTile);
+    AssertRaster(RasterCompositor.SourceOver(bottom, changedTop),
+        ImageProjectWorkflow.RenderFlatNormal(pixelSession, topLayerId, changedTop));
+    AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(pixelSession));
+    if (pixelSession.IsDirty || pixelSession.Undo() ||
+        !ReferenceEquals(pixelSession.GetLayerRaster(topLayerId), originalTop))
+        throw new Exception("Temporary layer preview changed pixels or history.");
+    try
+    {
+        ImageProjectWorkflow.RenderFlatNormal(pixelSession, topLayerId, new TileRaster(1, 1));
+        throw new Exception("Preview accepted mismatched layer dimensions.");
+    }
+    catch (ArgumentException) { }
+    try
+    {
+        ImageProjectWorkflow.RenderFlatNormal(pixelSession, Guid.NewGuid(), changedTop);
+        throw new Exception("Preview accepted a layer outside the document.");
+    }
+    catch (ArgumentException) { }
     pixelSession.ReplaceLayerRaster(topLayerId, changedTop);
     pixelSession.RenameLayer(bottomLayerId, "Background");
     pixelSession.SetLayerVisible(topLayerId, false);
@@ -357,6 +378,7 @@ static void CheckCompositing(string output, string fixtures)
         !Pixel(originalTop, 0, 0).SequenceEqual(new byte[] { 80, 20, 40, 128 }))
         throw new Exception("Editing one layer changed another layer or an old pixel snapshot.");
     AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(pixelSession));
+    AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(pixelSession, topLayerId, changedTop));
     if (!pixelSession.Undo()) throw new Exception("Multi-layer visibility did not undo.");
     TileRaster changedComposite = RasterCompositor.SourceOver(bottom, changedTop);
     AssertRaster(changedComposite, ImageProjectWorkflow.RenderFlatNormal(pixelSession));
@@ -417,6 +439,12 @@ static void CheckCompositing(string output, string fixtures)
     SaveGrayMask(maskPath, 300, 300);
     if (ProjectStore.Open(masked).CanEdit)
         throw new Exception("Masked project became editable without mask save support.");
+    try
+    {
+        ImageProjectWorkflow.RenderFlatNormal(ProjectStore.Open(masked), topLayerId, changedTop);
+        throw new Exception("Temporary pixel preview bypassed read-only protection.");
+    }
+    catch (NotSupportedException) { }
     GrayTileRaster gray = ImageCodec.LoadGrayMask(maskPath);
     byte[] changedMaskTile = gray.ReadTileCopy(0, 0);
     changedMaskTile[0] = 255;

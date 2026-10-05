@@ -33,3 +33,7 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-restore 
 已归档输出与文件 SHA-256：`/Users/admin/.codex/visualizations/2026/10/05/production-layer-pixels-m2/`，含 `workflow/` 中三个新多层工程、PNG 导出、各检查输出、保存中断原始子进程日志和 `validation-summary.json`。该 summary 是工具观察记录，不冒充原始控制台日志。
 
 本次未执行 Windows 实机、正式笔刷性能或资源压力验收；真实 Mac 再次打开这三个新输出工程仍需取得独立证据。r4 固定 Windows 包不含本切片，M2/M3 及 Windows 1.0 不据此关闭。
+
+## 临时像素预览补充
+
+`RenderFlatNormal(session, layerId, overrideRaster)` 通过同一合成器预览某一层的临时像素，不提交文档和历史。单层及多层预览、取消后原合成保留、隐藏层不参与合成、错误尺寸/外部图层 ID 拒绝、只读工程保护已加入工作流检查。2026-10-05 macOS arm64 Release 全部工作流（含两个真实 Mac 输入）再次退出 0，输出 `/tmp/compositor-layer-preview-final-20261005`。正式窗口笔划操作及 Windows 验收仍由后续集成检查覆盖。
