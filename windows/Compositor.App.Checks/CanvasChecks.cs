@@ -56,6 +56,17 @@ internal static class CanvasChecks
             "Undo did not restore the previous session selection without a pixel transaction.");
         Require(selectionHistoryWorkspace.Redo() && selectionHistoryWorkspace.SelectionBounds is { X: 10, Y: 10 } && !selectionHistoryWorkspace.IsDirty,
             "Redo did not restore the next session selection without a pixel transaction.");
+        selectionHistoryWorkspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        GrayTileRaster selectionHistoryBeforeFeather = selectionHistoryWorkspace.Selection!;
+        selectionHistoryWorkspace.FeatherSelection(3);
+        GrayTileRaster selectionHistoryFeathered = selectionHistoryWorkspace.Selection!;
+        Require(!SameCoverage(selectionHistoryBeforeFeather, selectionHistoryFeathered) &&
+            HasPartialCoverage(selectionHistoryFeathered) && !selectionHistoryWorkspace.IsDirty,
+            "Selection feather did not create fractional coverage in the session-only path.");
+        Require(selectionHistoryWorkspace.Undo() && SameCoverage(selectionHistoryBeforeFeather, selectionHistoryWorkspace.Selection!) &&
+            !selectionHistoryWorkspace.IsDirty && selectionHistoryWorkspace.Redo() &&
+            SameCoverage(selectionHistoryFeathered, selectionHistoryWorkspace.Selection!),
+            "Selection feather did not participate in session-only Undo/Redo history.");
         foreach (var test in cases)
         {
             var stroke = new SoftBrushStroke(original, new SoftBrushSettings(test.Diameter, test.Opacity, test.Color));
@@ -129,6 +140,13 @@ internal static class CanvasChecks
             $"Rectangle selection did not release a rectangle: selecting={canvas.IsSelecting}, rect={canvas.SelectionRect}, finished={selectionFinished}, canceled={selectionCanceled}, eventRect={selectedRect}.");
         Require(workspace.HasSelection && workspace.SelectedPixels == 120 * 90 && !workspace.IsDirty,
             $"Rectangle selection did not create the expected in-memory mask without history: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}, bounds={workspace.SelectionBounds}, dirty={workspace.IsDirty}.");
+        Find<NumericUpDown>(window, "SelectionFeatherRadius").Value = 3;
+        Require(Find<Button>(window, "FeatherSelection").IsEffectivelyEnabled,
+            "Selection feather controls were not enabled for a non-empty selection.");
+        Click("FeatherSelection");
+        GrayTileRaster featheredSelection = workspace.Selection!;
+        Require(HasPartialCoverage(featheredSelection) && !workspace.IsDirty,
+            "Selection feather did not create fractional edge coverage without changing document history.");
         window.KeyPressQwerty(PhysicalKey.A, RawInputModifiers.Control);
         window.KeyReleaseQwerty(PhysicalKey.A, RawInputModifiers.Control);
         Dispatcher.UIThread.RunJobs();

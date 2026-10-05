@@ -43,6 +43,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown wandTolerance = new() { Name = "WandTolerance", Minimum = 0, Maximum = 255, Value = 0, Width = 65 };
     private readonly CheckBox wandContiguous = new() { Name = "WandContiguous", Content = "连续" , IsChecked = true };
     private readonly ComboBox selectionOperation = new() { Name = "SelectionOperation", Width = 90, ItemsSource = new[] { "替换", "加选", "减选" }, SelectedIndex = 0 };
+    private readonly NumericUpDown selectionFeatherRadius = new() { Name = "SelectionFeatherRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
@@ -94,6 +95,9 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(wandContiguous);
         toolbar.Children.Add(Command("SelectAll", "全选", SelectAllAsync, document: true));
         toolbar.Children.Add(Command("InvertSelection", "反选", InvertSelectionAsync, document: true));
+        toolbar.Children.Add(new TextBlock { Text = "羽化半径", VerticalAlignment = VerticalAlignment.Center });
+        toolbar.Children.Add(selectionFeatherRadius);
+        toolbar.Children.Add(Command("FeatherSelection", "羽化选区", FeatherSelectionAsync, document: true));
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
         toolbar.Children.Add(Command("CopyMergedSelection", "合并复制", CopyMergedSelectionAsync, document: true));
         toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
@@ -259,7 +263,7 @@ public sealed class MainWindow : Window
                 else if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
                 else Workspace.SelectRectangle(rectangle, operation);
                 canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
-                moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。";
+                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelectionControls(); status.Text = "选区已更新。";
             }
             catch (Exception error)
             {
@@ -273,7 +277,7 @@ public sealed class MainWindow : Window
             {
                 Workspace.SelectLasso(points, SelectionOperation());
                 canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
-                moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。";
+                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelectionControls(); status.Text = "选区已更新。";
             }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
@@ -284,7 +288,7 @@ public sealed class MainWindow : Window
                 int offsetX = (int)Math.Round(end.X - start.X), offsetY = (int)Math.Round(end.Y - start.Y);
                 Workspace.MoveSelection(offsetX, offsetY);
                 canvas.SetSelectionRect(Workspace.SelectionBounds); canvas.SetSelectionOutline(Workspace.SelectionOutline);
-                moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区像素已移动。";
+                moveSelection.IsEnabled = Workspace.HasSelection; UpdateSelectionControls(); status.Text = "选区像素已移动。";
             }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未移动：" + error.Message; }
         };
@@ -544,6 +548,15 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
         maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
+        UpdateSelectionControls();
+    }
+
+    private void UpdateSelectionControls()
+    {
+        bool enabled = Workspace.CanEdit && Workspace.HasSelection && !Workspace.HasFloatingSelection;
+        selectionFeatherRadius.IsEnabled = enabled;
+        foreach (var button in documentButtons.Where(button => button.Name == "FeatherSelection"))
+            button.IsEnabled = enabled;
     }
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));
@@ -670,6 +683,15 @@ public sealed class MainWindow : Window
     private Task InvertSelectionAsync()
     {
         Workspace.InvertSelection();
+        canvas.SetSelectionRect(Workspace.SelectionBounds);
+        canvas.SetSelectionOutline(Workspace.SelectionOutline);
+        moveSelection.IsEnabled = Workspace.HasSelection;
+        return Task.CompletedTask;
+    }
+
+    private Task FeatherSelectionAsync()
+    {
+        Workspace.FeatherSelection((int)(selectionFeatherRadius.Value ?? 3));
         canvas.SetSelectionRect(Workspace.SelectionBounds);
         canvas.SetSelectionOutline(Workspace.SelectionOutline);
         moveSelection.IsEnabled = Workspace.HasSelection;

@@ -302,6 +302,23 @@ public sealed class EditorWorkspace
         UpdateSelectionOutline();
     }
 
+    public void FeatherSelection(int radius)
+    {
+        RequireIdle();
+        selectionMoveHistory = null;
+        if (Selection is not { } selection) throw new InvalidOperationException("请先建立选区。");
+        GrayTileRaster next = selection.Blur(radius);
+        if (next.CoveredPixels == 0)
+        {
+            ClearSelection();
+            return;
+        }
+        Selection = next;
+        SelectionBounds = SelectionBoundsFor(next);
+        RecordSelectionState();
+        UpdateSelectionOutline();
+    }
+
     public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
         GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
