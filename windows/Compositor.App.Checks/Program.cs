@@ -113,14 +113,20 @@ internal static class Program
         string groupCreation = Path.Combine(output, "GroupCreation.comp");
         var groupCreationWorkspace = new EditorWorkspace();
         groupCreationWorkspace.Import(fixture, groupCreation);
+        groupCreationWorkspace.Edit(session => session.AddBlankLayer("Second", 1));
         var groupCreationWindow = new MainWindow(groupCreationWorkspace);
         groupCreationWindow.Show(); Dispatcher.UIThread.RunJobs();
-        var rootItem = Control<ListBox>(groupCreationWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => !layer.IsGroup);
-        Control<ListBox>(groupCreationWindow, "Layers").SelectedItem = rootItem;
+        var layerList = Control<ListBox>(groupCreationWindow, "Layers");
+        var rootItems = layerList.ItemsView!.Cast<FlatLayerInfo>().Where(layer => !layer.IsGroup).ToArray();
+        layerList.SelectedItems!.Clear();
+        foreach (var item in rootItems) layerList.SelectedItems!.Add(item);
         Dispatcher.UIThread.RunJobs();
         Click(groupCreationWindow, "GroupLayer");
         Require(groupCreationWorkspace.Session!.HasGroups, "Group button did not create a pass-through group.");
         var createdGroup = Control<ListBox>(groupCreationWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.IsGroup);
+        Require(groupCreationWorkspace.Session.Layers.Count(layer => !layer.IsGroup) == 2 &&
+            groupCreationWorkspace.Session.Layers.Where(layer => !layer.IsGroup).All(layer => layer.ParentId == createdGroup.Id),
+            "Multi-select group button did not group both selected sibling layers.");
         Control<ListBox>(groupCreationWindow, "Layers").SelectedItem = createdGroup;
         Dispatcher.UIThread.RunJobs();
         Require(Control<Button>(groupCreationWindow, "FlipLayerHorizontal").IsEffectivelyEnabled &&

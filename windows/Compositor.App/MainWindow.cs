@@ -26,7 +26,7 @@ public sealed class MainWindow : Window
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
-    private readonly ListBox layers = new() { Name = "Layers" };
+    private readonly ListBox layers = new() { Name = "Layers", SelectionMode = SelectionMode.Multiple };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly NumericUpDown layerMoveX = new() { Name = "LayerMoveX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
@@ -390,7 +390,9 @@ public sealed class MainWindow : Window
 
     private void UpdateSelection()
     {
-        var selected = layers.SelectedItem as FlatLayerInfo;
+        var selectedItems = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).ToArray();
+        var selected = selectedItems.FirstOrDefault();
+        bool multiple = selectedItems.Length > 1;
         selectedId = selected?.Id;
         refreshing = true;
         try
@@ -401,14 +403,15 @@ public sealed class MainWindow : Window
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
         }
         finally { refreshing = false; }
-        layerName.IsEnabled = Workspace.CanEdit && selected is not null;
-        layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null;
-        layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
+        layerName.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
+        layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
+        layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         UpdatePaintMode();
         bool groupedProject = Workspace.Session?.HasGroups == true;
         foreach (var button in layerButtons)
         {
             button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
+            if (multiple && button.Name != "GroupLayer") button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
             if (selected?.IsGroup == true && button.Name == "MoveLayer")
@@ -416,7 +419,7 @@ public sealed class MainWindow : Window
             if (selected?.IsGroup == true && selected.MaskEnabled && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical")
                 button.IsEnabled = false;
             if (button.Name == "GroupLayer")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && !selected.HasMask && !Workspace.HasFloatingSelection;
         }
@@ -424,15 +427,18 @@ public sealed class MainWindow : Window
         {
             int index = session.Layers.ToList().FindIndex(layer => layer.Id == selected.Id);
             foreach (var button in layerButtons.Where(button => button.Name is "SetClippingMask" or "ReleaseClippingMask"))
-                button.IsEnabled = Workspace.CanEdit && (button.Name == "ReleaseClippingMask"
+                button.IsEnabled = Workspace.CanEdit && !multiple && (button.Name == "ReleaseClippingMask"
                     ? selected.MaskSourceId is not null
                     : selected.MaskSourceId is null && index > 0);
         }
         if (selected?.IsGroup == true)
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
+        if (multiple)
+            foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
+                button.IsEnabled = false;
         foreach (var button in maskButtons)
-            button.IsEnabled = Workspace.CanEdit && selected is not null &&
+            button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
     }
 
@@ -440,7 +446,8 @@ public sealed class MainWindow : Window
 
     private void UpdatePaintMode()
     {
-        bool editable = Workspace.CanEdit && selectedId is not null;
+        bool multiple = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).Take(2).Count() > 1;
+        bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
         maskPaint.IsEnabled = hasMask;
@@ -469,8 +476,10 @@ public sealed class MainWindow : Window
 
     private Task GroupLayerAsync()
     {
-        Guid id = selectedId!.Value;
-        return EditAsync(session => session.GroupLayer(id, session.Layers.Single(layer => layer.Id == id).Name + " Group"));
+        Guid[] ids = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).Select(layer => layer.Id).ToArray();
+        if (ids.Length == 0 && selectedId is { } id) ids = [id];
+        return EditAsync(session => session.GroupLayers(ids,
+            session.Layers.Single(layer => layer.Id == ids[0]).Name + " Group"));
     }
 
     private Task UngroupLayerAsync() => EditAsync(session => session.UngroupLayer(selectedId!.Value));
