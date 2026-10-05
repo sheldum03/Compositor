@@ -65,6 +65,7 @@ public static class ProjectStore
         string imageName = "";
         if (layers.Count == 1) imageName = layers[0]?["imageFile"]?.GetValue<string>() ?? "";
         bool allImageSizesMatch = true;
+        bool allMaskSizesMatch = true;
         foreach (var layerNode in layers)
         {
             var layer = layerNode!.AsObject();
@@ -82,18 +83,23 @@ public static class ProjectStore
                 CheckPlain(asset);
                 if (new FileInfo(asset).Length > 512L * 1024 * 1024)
                     throw new InvalidDataException("Asset exceeds 512 MiB.");
-                var dimensions = CheckPng(asset);
-                if (key == "imageFile" && dimensions != ((uint)width, (uint)height))
-                    allImageSizesMatch = false;
+                var dimensions = CheckPng(asset, key == "maskFile");
+                if (dimensions != ((uint)width, (uint)height))
+                {
+                    if (key == "imageFile") allImageSizesMatch = false;
+                    else allMaskSizesMatch = false;
+                }
             }
         }
         bool canEdit = version is 1 or 8 && (version == 8 || layers.Count == 1) &&
+            (version == 8 || layers.All(layer => layer!["maskFile"] is null)) &&
             (version == 8 || layers.All(layer => (layer!["opacity"]?.GetValue<double>() ?? 1) == 1 &&
                 (layer["blendMode"]?.GetValue<string>() ?? "Normal") == "Normal")) &&
             (long)layers.Count * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             layers.All(node => IsFlatEditableLayer(node!.AsObject(), width, height)) &&
-            allImageSizesMatch && Directory.GetFiles(images).Length == layers.Count &&
+            allImageSizesMatch && allMaskSizesMatch &&
+            Directory.GetFiles(images).Length == layers.Count + layers.Count(node => node!["maskFile"] is not null) &&
             Directory.GetDirectories(images).Length == 0;
         var assetHashes = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         ReadOnlyMemory<byte> imageHash = default;
@@ -104,6 +110,12 @@ public static class ProjectStore
                 string name = layerNode!["imageFile"]!.GetValue<string>();
                 using var stream = File.OpenRead(Path.Combine(images, name));
                 assetHashes.Add(name, SHA256.HashData(stream));
+                if (layerNode["maskFile"] is { } maskNode)
+                {
+                    string maskName = maskNode.GetValue<string>();
+                    using var maskStream = File.OpenRead(Path.Combine(images, maskName));
+                    assetHashes.Add(maskName, SHA256.HashData(maskStream));
+                }
             }
             if (layers.Count == 1) imageHash = assetHashes[imageName];
             else imageName = "";
@@ -117,12 +129,17 @@ public static class ProjectStore
     internal static void Save(ProjectSession session, string directory, Action<TileRaster, string> encodeRaster) =>
         Save(session, directory, path => Directory.Delete(path, recursive: true), encodeRaster: encodeRaster);
 
+    internal static void Save(ProjectSession session, string directory, Action<TileRaster, string> encodeRaster,
+        Action<GrayTileRaster, string> encodeMask) =>
+        Save(session, directory, path => Directory.Delete(path, recursive: true), encodeRaster: encodeRaster, encodeMask: encodeMask);
+
     public static void SaveNew(ProjectSession session, string directory) =>
         Save(session, directory, path => Directory.Delete(path, recursive: true), requireNew: true);
 
     internal static void Save(ProjectSession session, string directory, Action<string> deleteBackup,
         Action<SaveStage>? afterStage = null, bool requireNew = false,
-        Action<TileRaster, string>? encodeRaster = null)
+        Action<TileRaster, string>? encodeRaster = null,
+        Action<GrayTileRaster, string>? encodeMask = null)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
         requireNew |= !session.HasBeenSaved;
@@ -155,6 +172,24 @@ public static class ProjectStore
                 {
                     File.Copy(sourceImage ?? throw new InvalidOperationException("Unsaved layer pixels have not been loaded."), copiedImage);
                     CheckAssetHash(session, name, copiedImage);
+                }
+            }
+            foreach (string name in session.CurrentMaskNames)
+            {
+                string copiedMask = Path.Combine(temporary, "images", name);
+                string? sourceMask = session.AssetHashes.ContainsKey(name)
+                    ? Path.Combine(session.SourceDirectory, "images", name) : null;
+                if (session.TryGetMaskForEncoding(name, out GrayTileRaster mask))
+                {
+                    if (encodeMask is null) throw new NotSupportedException("Mask encoder is required for mask edits.");
+                    if (sourceMask is not null) CheckAssetHash(session, name, sourceMask);
+                    encodeMask(mask, copiedMask);
+                    if (sourceMask is not null) CheckAssetHash(session, name, sourceMask);
+                }
+                else
+                {
+                    File.Copy(sourceMask ?? throw new InvalidOperationException("Unsaved layer masks have not been loaded."), copiedMask);
+                    CheckAssetHash(session, name, copiedMask);
                 }
             }
             File.WriteAllText(Path.Combine(temporary, "manifest.json"), session.Current.ToJsonString(JsonOptions));
@@ -264,9 +299,11 @@ public static class ProjectStore
 
     private static bool IsFlatEditableLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "name", "opacity", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
+            layer["maskEnabled"] is not null && layer["maskFile"] is null ||
+            layer["maskFile"] is { } mask && !string.Equals(mask.GetValue<string>(), id.ToString("D") + ".mask.png", StringComparison.OrdinalIgnoreCase) ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>()) ||
             !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase)) return false;
@@ -281,12 +318,14 @@ public static class ProjectStore
             transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
     }
 
-    private static (uint Width, uint Height) CheckPng(string path)
+    private static (uint Width, uint Height) CheckPng(string path, bool grayMask = false)
     {
         using var stream = File.OpenRead(path);
-        Span<byte> header = stackalloc byte[24];
+        Span<byte> header = stackalloc byte[26];
         if (stream.Read(header) != header.Length || !header[..8].SequenceEqual(PngSignature) ||
             !header[12..16].SequenceEqual("IHDR"u8)) throw new InvalidDataException("Invalid PNG header.");
+        if (grayMask && (header[24] != 8 || header[25] != 0))
+            throw new InvalidDataException("Mask must be an 8-bit grayscale PNG without alpha.");
         uint width = BinaryPrimitives.ReadUInt32BigEndian(header[16..20]);
         uint height = BinaryPrimitives.ReadUInt32BigEndian(header[20..24]);
         if (width == 0 || height == 0 || width > 30000 || height > 30000 || (ulong)width * height > 100_000_000)

@@ -6,6 +6,7 @@ public sealed class GrayTileRaster
 {
     private readonly Dictionary<int, byte[]> tiles;
     private int Columns => (Width + TileRaster.TileSize - 1) / TileRaster.TileSize;
+    internal IEnumerable<byte[]> Buffers => tiles.Values;
     public int Width { get; }
     public int Height { get; }
 

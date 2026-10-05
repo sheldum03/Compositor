@@ -441,14 +441,27 @@ static void CheckCompositing(string output, string fixtures)
     File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
     string maskPath = Path.Combine(maskedImages, maskName);
     SaveGrayMask(maskPath, 300, 300);
-    if (ProjectStore.Open(masked).CanEdit)
-        throw new Exception("Masked project became editable without mask save support.");
-    try
-    {
-        ImageProjectWorkflow.RenderFlatNormal(ProjectStore.Open(masked), topLayerId, changedTop);
-        throw new Exception("Temporary pixel preview bypassed read-only protection.");
-    }
-    catch (NotSupportedException) { }
+    var maskedSession = ImageProjectWorkflow.OpenEditable(masked);
+    if (!maskedSession.CanEdit || maskedSession.GetLayerMask(topLayerId) is not { } loadedMask)
+        throw new Exception("Full-canvas Gray8 mask project did not open as editable.");
+    byte[] editableMaskTile = loadedMask.ReadTileCopy(0, 0);
+    editableMaskTile[0] = 255;
+    maskedSession.ReplaceLayerMask(topLayerId, loadedMask.ReplaceTile(0, 0, editableMaskTile));
+    if (!Pixel(ImageProjectWorkflow.RenderFlatNormal(maskedSession), 0, 0)
+            .SequenceEqual(new byte[] { 100, 60, 100, 228 }))
+        throw new Exception("Editing a layer mask did not update the composite.");
+    maskedSession.SetLayerMaskEnabled(topLayerId, false);
+    AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(maskedSession));
+    maskedSession.SetLayerMaskEnabled(topLayerId, true);
+    string maskedEdited = Path.Combine(output, "MaskedEdited.comp");
+    ImageProjectWorkflow.Save(maskedSession, maskedEdited);
+    var reopenedMasked = ImageProjectWorkflow.OpenEditable(maskedEdited);
+    if (reopenedMasked.GetLayerMask(topLayerId) is not { } reopenedMask ||
+        reopenedMask.ReadTileCopy(0, 0)[0] != 255 ||
+        Pixel(ImageProjectWorkflow.RenderFlatNormal(reopenedMasked), 0, 0)[0] != 100)
+        throw new Exception("Edited layer mask did not survive save and reopen.");
+    if (!maskedSession.Undo() || !maskedSession.Undo() || !maskedSession.Redo() || !maskedSession.Redo())
+        throw new Exception("Layer mask enable/edit history did not undo and redo.");
     GrayTileRaster gray = ImageCodec.LoadGrayMask(maskPath);
     byte[] changedMaskTile = gray.ReadTileCopy(0, 0);
     changedMaskTile[0] = 255;

@@ -60,6 +60,42 @@ public static class ImageCodec
     public static void SavePng(TileRaster raster, string output) =>
         Save(raster, output, SKEncodedImageFormat.Png, 100, null);
 
+    public static unsafe void SaveGrayMask(GrayTileRaster raster, string output)
+    {
+        CheckDimensions(raster.Width, raster.Height);
+        using var bitmap = new SKBitmap(new SKImageInfo(raster.Width, raster.Height,
+            SKColorType.Gray8, SKAlphaType.Opaque));
+        var pixels = (byte*)bitmap.GetPixels();
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] tile = raster.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width, size.Width).CopyTo(new Span<byte>(
+                    pixels + (row * TileRaster.TileSize + y) * bitmap.RowBytes + column * TileRaster.TileSize,
+                    size.Width));
+        }
+        using var image = SKImage.FromBitmap(bitmap);
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100)
+            ?? throw new IOException("Mask encoding failed.");
+        string destination = Path.GetFullPath(output);
+        string temporary = destination + ".tmp-" + Guid.NewGuid().ToString("N");
+        try
+        {
+            using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write))
+            {
+                data.SaveTo(stream);
+                stream.Flush(flushToDisk: true);
+            }
+            File.Move(temporary, destination);
+        }
+        finally
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+        }
+    }
+
     public static unsafe GrayTileRaster LoadGrayMask(string path)
     {
         using var stream = File.OpenRead(path);

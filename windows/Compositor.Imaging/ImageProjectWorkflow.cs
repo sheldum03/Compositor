@@ -55,23 +55,49 @@ public static class ImageProjectWorkflow
         if (session.ImageName.Length == 0)
         {
             var rasters = new Dictionary<Guid, TileRaster>();
+            var masks = new Dictionary<Guid, GrayTileRaster>();
             foreach (JsonNode? node in session.Current["layers"]!.AsArray())
             {
-                string name = node!["imageFile"]!.GetValue<string>();
+                var layer = node!.AsObject();
+                Guid id = Guid.Parse(layer["id"]!.GetValue<string>());
+                string name = layer["imageFile"]!.GetValue<string>();
                 string image = Path.Combine(session.SourceDirectory, "images", name);
                 ProjectStore.CheckAssetHash(session, name, image);
                 TileRaster raster = ImageCodec.Load(image);
                 ProjectStore.CheckAssetHash(session, name, image);
-                rasters.Add(Guid.Parse(node["id"]!.GetValue<string>()), raster);
+                rasters.Add(id, raster);
+                if (layer["maskFile"] is { } maskNode)
+                {
+                    string maskName = maskNode.GetValue<string>();
+                    string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
+                    ProjectStore.CheckAssetHash(session, maskName, maskPath);
+                    GrayTileRaster mask = ImageCodec.LoadGrayMask(maskPath);
+                    if (mask.Width != session.Width || mask.Height != session.Height)
+                        throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
+                    ProjectStore.CheckAssetHash(session, maskName, maskPath);
+                    masks.Add(id, mask);
+                }
             }
-            session.AttachLayerRasters(rasters);
+            session.AttachLayerRasters(rasters, masks.Count == 0 ? null : masks);
             return session;
         }
         string temporary = Path.Combine(Path.GetTempPath(), "compositor-image-" + Guid.NewGuid().ToString("N") + ".png");
         try
         {
             ProjectStore.ExportPng(session, temporary);
-            session.AttachRaster(ImageCodec.Load(temporary));
+            TileRaster raster = ImageCodec.Load(temporary);
+            GrayTileRaster? mask = null;
+            if (session.Layers[0].HasMask)
+            {
+                var layer = session.Current["layers"]![0]!.AsObject();
+                string maskName = layer["maskFile"]!.GetValue<string>();
+                string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
+                ProjectStore.CheckAssetHash(session, maskName, maskPath);
+                mask = ImageCodec.LoadGrayMask(maskPath);
+                if (mask.Width != session.Width || mask.Height != session.Height)
+                    throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
+            }
+            session.AttachRaster(raster, mask);
             return session;
         }
         finally
@@ -130,7 +156,9 @@ public static class ImageProjectWorkflow
             if (layer["maskFile"] is { } maskFile)
             {
                 string maskPath = Path.Combine(session.SourceDirectory, "images", maskFile.GetValue<string>());
-                GrayTileRaster mask = ImageCodec.LoadGrayMask(maskPath);
+                GrayTileRaster mask = session.TryGetLoadedLayerMask(Guid.Parse(layer["id"]!.GetValue<string>()), out var loadedMask)
+                    ? loadedMask : ImageCodec.LoadGrayMask(maskPath);
+                if (session.CanEdit) ProjectStore.CheckAssetHash(session, maskFile.GetValue<string>(), maskPath);
                 if (mask.Width != width || mask.Height != height)
                     throw new NotSupportedException("Only full-canvas masks at the default placement are supported.");
                 if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
@@ -265,7 +293,9 @@ public static class ImageProjectWorkflow
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be saved yet.");
         foreach (var layer in session.Layers) session.GetLayerRaster(layer.Id);
-        ProjectStore.Save(session, projectDirectory, EncodeRaster);
+        foreach (var layer in session.Layers)
+            if (layer.HasMask) session.GetLayerMask(layer.Id);
+        ProjectStore.Save(session, projectDirectory, EncodeRaster, EncodeMask);
     }
 
     public static void ExportPng(ProjectSession session, string output)
@@ -304,5 +334,13 @@ public static class ImageProjectWorkflow
         var decoded = ImageCodec.Load(path);
         if (decoded.Width != raster.Width || decoded.Height != raster.Height)
             throw new InvalidDataException("Encoded project image has the wrong dimensions.");
+    }
+
+    private static void EncodeMask(GrayTileRaster mask, string path)
+    {
+        ImageCodec.SaveGrayMask(mask, path);
+        GrayTileRaster decoded = ImageCodec.LoadGrayMask(path);
+        if (decoded.Width != mask.Width || decoded.Height != mask.Height)
+            throw new InvalidDataException("Encoded project mask has the wrong dimensions.");
     }
 }

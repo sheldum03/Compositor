@@ -365,6 +365,8 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("当前工程没有活动图层。");
+        if (session.Layers.Single(layer => layer.Id == layerId).HasMask)
+            throw new NotSupportedException("带蒙版图层的翻转尚未接通，请先关闭或移除蒙版。");
         TileRaster current = session.GetLayerRaster(layerId);
         byte[] source = ToRgba(current), flipped = new byte[source.Length];
         for (int y = 0; y < session.Height; y++)
@@ -385,6 +387,8 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("当前工程没有活动图层。");
+        if (session.Layers.Single(layer => layer.Id == layerId).HasMask)
+            throw new NotSupportedException("带蒙版图层的移动尚未接通，请先关闭或移除蒙版。");
         if (offsetX == 0 && offsetY == 0) return;
         TileRaster current = session.GetLayerRaster(layerId);
         byte[] source = ToRgba(current), moved = new byte[source.Length];
@@ -400,6 +404,37 @@ public sealed class EditorWorkspace
         if (!SamePixels(current, next)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
     }
 
+    public void AddActiveLayerMask()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        Edit(editSession => editSession.EnsureLayerMask(layerId));
+    }
+
+    public void ToggleActiveLayerMask()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).HasMask)
+            throw new InvalidOperationException("当前图层没有蒙版。");
+        bool enabled = session.IsLayerMaskEnabled(layerId);
+        Edit(editSession => editSession.SetLayerMaskEnabled(layerId, !enabled));
+    }
+
+    public void ApplySelectionToActiveLayerMask(bool reveal)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("请先建立选区并选择图层。");
+        if (session.GetLayerMask(layerId) is not { } current)
+            throw new InvalidOperationException("当前图层没有蒙版，请先添加蒙版。");
+        var next = current.Combine(selection, reveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
+        Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
+    }
+
     public void ResizeCanvas(int width, int height) => ResizeDocument(width, height, scale: false);
 
     public void ResizeImage(int width, int height) => ResizeDocument(width, height, scale: true);
@@ -410,7 +445,9 @@ public sealed class EditorWorkspace
         int width = session.Width, height = session.Height;
         var rasters = session.Layers.ToDictionary(layer => layer.Id,
             layer => RotateRaster90(session.GetLayerRaster(layer.Id), clockwise));
-        Edit(current => current.ResizeDocument(height, width, rasters));
+        var masks = session.Layers.Where(layer => layer.HasMask).ToDictionary(layer => layer.Id,
+            layer => RotateMask90(session.GetLayerMask(layer.Id)!, clockwise));
+        Edit(current => current.ResizeDocument(height, width, rasters, masks.Count == 0 ? null : masks));
         ClearSelectionWithoutHistory();
         ResetSelectionHistory();
     }
@@ -423,7 +460,9 @@ public sealed class EditorWorkspace
             throw new ArgumentException("新尺寸必须与当前画布不同。");
         var rasters = session.Layers.ToDictionary(layer => layer.Id,
             layer => ResizeRaster(session.GetLayerRaster(layer.Id), width, height, scale));
-        Edit(current => current.ResizeDocument(width, height, rasters));
+        var masks = session.Layers.Where(layer => layer.HasMask).ToDictionary(layer => layer.Id,
+            layer => ResizeMask(session.GetLayerMask(layer.Id)!, width, height, scale));
+        Edit(current => current.ResizeDocument(width, height, rasters, masks.Count == 0 ? null : masks));
         ClearSelectionWithoutHistory();
         ResetSelectionHistory();
     }
@@ -619,6 +658,49 @@ public sealed class EditorWorkspace
                 .CopyTo(output.AsSpan((targetY * height + targetX) * 4, 4));
         }
         return FromRgba(height, width, output);
+    }
+
+    private static GrayTileRaster ResizeMask(GrayTileRaster source, int width, int height, bool scale)
+    {
+        byte[] input = ToCoverage(source), output = new byte[checked(width * height)];
+        if (scale)
+        {
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+            {
+                double sourceX = (x + 0.5) * source.Width / width - 0.5;
+                double sourceY = (y + 0.5) * source.Height / height - 0.5;
+                int x0 = Math.Clamp((int)Math.Floor(sourceX), 0, source.Width - 1),
+                    y0 = Math.Clamp((int)Math.Floor(sourceY), 0, source.Height - 1);
+                int x1 = Math.Min(source.Width - 1, x0 + 1), y1 = Math.Min(source.Height - 1, y0 + 1);
+                double xWeight = Math.Clamp(sourceX - Math.Floor(sourceX), 0, 1),
+                    yWeight = Math.Clamp(sourceY - Math.Floor(sourceY), 0, 1);
+                double top = input[y0 * source.Width + x0] * (1 - xWeight) + input[y0 * source.Width + x1] * xWeight;
+                double bottom = input[y1 * source.Width + x0] * (1 - xWeight) + input[y1 * source.Width + x1] * xWeight;
+                output[y * width + x] = (byte)Math.Clamp(
+                    Math.Round(top * (1 - yWeight) + bottom * yWeight, MidpointRounding.AwayFromZero), 0, 255);
+            }
+            return GrayTileRaster.FromCoverage(width, height, output);
+        }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+            if ((uint)x < (uint)source.Width && (uint)y < (uint)source.Height)
+                output[y * width + x] = input[y * source.Width + x];
+        return GrayTileRaster.FromCoverage(width, height, output);
+    }
+
+    private static GrayTileRaster RotateMask90(GrayTileRaster source, bool clockwise)
+    {
+        int width = source.Width, height = source.Height;
+        byte[] input = ToCoverage(source), output = new byte[checked(width * height)];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int targetX = clockwise ? height - 1 - y : y;
+            int targetY = clockwise ? x : width - 1 - x;
+            output[targetY * height + targetX] = input[y * width + x];
+        }
+        return GrayTileRaster.FromCoverage(height, width, output);
     }
 
     private static Rect SelectionBoundsFor(GrayTileRaster raster)

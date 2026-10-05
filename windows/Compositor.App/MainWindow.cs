@@ -40,6 +40,7 @@ public sealed class MainWindow : Window
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
+    private readonly List<Button> maskButtons = [];
     private WriteableBitmap? preview;
     private ProjectSession? displayedSession;
     private Guid? selectedId;
@@ -131,6 +132,8 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
         structure.Children.Add(Command("FlipLayerHorizontal", "水平翻转", () => FlipLayerAsync(true), layer: true));
         structure.Children.Add(Command("FlipLayerVertical", "垂直翻转", () => FlipLayerAsync(false), layer: true));
+        structure.Children.Add(Command("AddMask", "添加蒙版", AddMaskAsync, layer: true, mask: true));
+        structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
@@ -148,6 +151,10 @@ public sealed class MainWindow : Window
         actions.Children.Add(move);
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
+        var maskEdit = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        maskEdit.Children.Add(Command("RevealMaskSelection", "选区显示", () => ApplyMaskSelectionAsync(true), layer: true, mask: true));
+        maskEdit.Children.Add(Command("HideMaskSelection", "选区隐藏", () => ApplyMaskSelectionAsync(false), layer: true, mask: true));
+        actions.Children.Add(maskEdit);
         var reorder = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         reorder.Children.Add(Command("MoveUp", "上移", () => MoveAsync(1), layer: true));
         reorder.Children.Add(Command("MoveDown", "下移", () => MoveAsync(-1), layer: true));
@@ -270,12 +277,13 @@ public sealed class MainWindow : Window
         status.Text = Workspace.Session is null ? "新建画布、打开 .comp 工程文件夹，或导入 PNG / JPEG 图片开始。" : "工程已打开。";
     }
 
-    private Button Command(string name, string title, Func<Task> action, bool document = false, bool layer = false)
+    private Button Command(string name, string title, Func<Task> action, bool document = false, bool layer = false, bool mask = false)
     {
         var button = new Button { Name = name, Content = title };
         button.Click += async (_, _) => await ExecuteAsync(action);
         if (document) documentButtons.Add(button);
         if (layer) layerButtons.Add(button);
+        if (mask) maskButtons.Add(button);
         return button;
     }
 
@@ -359,6 +367,9 @@ public sealed class MainWindow : Window
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
         canvas.PaintEnabled = Workspace.CanEdit && selected is not null && paint.IsChecked == true;
         foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null;
+        foreach (var button in maskButtons)
+            button.IsEnabled = Workspace.CanEdit && selected is not null &&
+                (button.Name == "AddMask" || selected.HasMask);
     }
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));
@@ -407,6 +418,9 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         return EditAsync(s => s.SetLayerVisible(id, !s.Layers.Single(layer => layer.Id == id).IsVisible));
     }
+    private Task AddMaskAsync() => Task.Run(Workspace.AddActiveLayerMask);
+    private Task ToggleMaskAsync() => Task.Run(Workspace.ToggleActiveLayerMask);
+    private Task ApplyMaskSelectionAsync(bool reveal) => Task.Run(() => Workspace.ApplySelectionToActiveLayerMask(reveal));
     private Task ClearSelectionAsync()
     {
         Workspace.ClearSelection();

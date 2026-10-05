@@ -309,35 +309,59 @@ internal static class CanvasChecks
         Require(!window.IsVisible && !workspace.HasActiveStroke && !workspace.IsDirty,
             "Closing the saved document did not cancel the active stroke.");
         CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
-        string maskedProject = Path.Combine(output, "ReadOnlyMask.comp");
+        string maskedProject = Path.Combine(output, "EditableMask.comp");
         CopyDirectory(project, maskedProject);
         var maskedManifestPath = Path.Combine(maskedProject, "manifest.json");
         var maskedManifest = JsonNode.Parse(File.ReadAllText(maskedManifestPath))!.AsObject();
         var maskedLayers = maskedManifest["layers"]!.AsArray();
         var maskedLayer = maskedLayers[maskedLayers.Count - 1]!.AsObject();
+        foreach (JsonNode? node in maskedLayers) node!["isVisible"] = false;
+        maskedLayer["isVisible"] = true;
         string maskName = maskedLayer["id"]!.GetValue<string>().ToUpperInvariant() + ".mask.png";
         maskedLayer["maskFile"] = maskName;
         maskedLayer["maskEnabled"] = true;
         File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
         SaveGrayMask(Path.Combine(maskedProject, "images", maskName), workspace.Session.Width, workspace.Session.Height);
-        var readOnlyWorkspace = new EditorWorkspace();
-        readOnlyWorkspace.Open(maskedProject);
-        Require(!readOnlyWorkspace.CanEdit && readOnlyWorkspace.Session is { } readOnlySession &&
-            readOnlySession.Layers.Count == workspace.Session.Layers.Count && readOnlyWorkspace.Preview is not null,
-            "Masked project did not open as a read-only cached preview.");
-        string readOnlyExport = Path.Combine(output, "readonly-mask-export.png");
-        readOnlyWorkspace.Export(readOnlyExport, jpeg: false);
-        var readOnlyExported = ImageCodec.Load(readOnlyExport);
-        Require(readOnlyExported.Width == workspace.Session.Width && readOnlyExported.Height == workspace.Session.Height,
-            "Read-only masked project did not export its cached composite.");
-        var readOnlyWindow = new MainWindow(readOnlyWorkspace);
-        readOnlyWindow.Show(); Dispatcher.UIThread.RunJobs();
-        Require(!Find<Button>(readOnlyWindow, "Save").IsEffectivelyEnabled &&
-            !Find<Button>(readOnlyWindow, "RotateClockwise").IsEffectivelyEnabled &&
-            Find<Button>(readOnlyWindow, "ExportPng").IsEffectivelyEnabled &&
-            !Find<CheckBox>(readOnlyWindow, "RectSelect").IsEffectivelyEnabled,
-            "Read-only masked window did not disable editing while retaining export and view access.");
-        readOnlyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var maskWorkspace = new EditorWorkspace();
+        maskWorkspace.Open(maskedProject);
+        var maskSession = maskWorkspace.Session!;
+        Require(maskWorkspace.CanEdit &&
+            maskSession.Layers.Count == workspace.Session.Layers.Count && maskSession.GetLayerMask(maskSession.ActiveLayerId!.Value) is not null &&
+            maskWorkspace.Preview is not null,
+            "Full-canvas masked project did not open as an editable preview.");
+        int beforeMaskAlpha = Pixel(maskWorkspace.Preview!, 128, 128)[3];
+        maskWorkspace.SelectRectangle(new Rect(120, 120, 16, 16));
+        maskWorkspace.ApplySelectionToActiveLayerMask(reveal: false);
+        Require(maskWorkspace.IsDirty && beforeMaskAlpha == 254 && Pixel(maskWorkspace.Preview!, 128, 128)[3] == 0,
+            "Mask selection edit did not hide the selected pixels.");
+        maskWorkspace.ToggleActiveLayerMask();
+        Require(Pixel(maskWorkspace.Preview!, 128, 128)[3] == 254,
+            "Mask disable did not restore the underlying layer pixels.");
+        maskWorkspace.ToggleActiveLayerMask();
+        maskWorkspace.Save();
+        var reopenedMaskWorkspace = new EditorWorkspace();
+        reopenedMaskWorkspace.Open(maskedProject);
+        Require(reopenedMaskWorkspace.CanEdit && reopenedMaskWorkspace.Session!.GetLayerMask(reopenedMaskWorkspace.Session.ActiveLayerId!.Value)!.ReadTileCopy(0, 0)[128 * 256 + 128] == 0,
+            "Mask edit did not survive save and reopen.");
+        var maskTransformWorkspace = new EditorWorkspace();
+        maskTransformWorkspace.Open(maskedProject);
+        maskTransformWorkspace.ResizeImage(128, 128);
+        Require(maskTransformWorkspace.Session!.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
+            maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 },
+            "Image resize did not keep the full-canvas layer mask aligned.");
+        maskTransformWorkspace.RotateDocument90(clockwise: true);
+        Require(maskTransformWorkspace.Session.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
+            maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 },
+            "Document rotation did not keep the full-canvas layer mask aligned.");
+        var maskWindow = new MainWindow(maskWorkspace);
+        maskWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Require(Find<Button>(maskWindow, "Save").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "ToggleMask").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "AddMask").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "ExportPng").IsEffectivelyEnabled &&
+            Find<CheckBox>(maskWindow, "RectSelect").IsEffectivelyEnabled,
+            "Editable masked window did not expose mask and editing controls.");
+        maskWindow.Close(); Dispatcher.UIThread.RunJobs();
         string cachedTextProject = Path.Combine(output, "CachedText.comp");
         CopyDirectory(project, cachedTextProject);
         var cachedTextManifestPath = Path.Combine(cachedTextProject, "manifest.json");
@@ -442,6 +466,13 @@ internal static class CanvasChecks
             if (!a.ReadTileCopy(column, row).SequenceEqual(b.ReadTileCopy(column, row))) return false;
         return true;
     }
+    private static byte[] Pixel(TileRaster raster, int x, int y)
+    {
+        int column = x / TileRaster.TileSize, row = y / TileRaster.TileSize;
+        var size = raster.TileDimensions(column, row);
+        byte[] tile = raster.ReadTileCopy(column, row);
+        return tile.AsSpan(((y % TileRaster.TileSize) * size.Width + x % TileRaster.TileSize) * 4, 4).ToArray();
+    }
     private static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
     private static void CopyDirectory(string source, string destination)
     {
@@ -453,7 +484,6 @@ internal static class CanvasChecks
     {
         using var bitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Gray8, SKAlphaType.Opaque));
         byte[] pixels = Enumerable.Repeat((byte)255, bitmap.RowBytes * height).ToArray();
-        pixels[0] = 0;
         Marshal.Copy(pixels, 0, bitmap.GetPixels(), pixels.Length);
         using var image = SKImage.FromBitmap(bitmap);
         using var data = image.Encode(SKEncodedImageFormat.Png, 100) ?? throw new IOException("Cannot encode Gray8 mask.");
