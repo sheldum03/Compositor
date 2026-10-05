@@ -84,8 +84,18 @@ public static class ImageProjectWorkflow
         string temporary = Path.Combine(Path.GetTempPath(), "compositor-image-" + Guid.NewGuid().ToString("N") + ".png");
         try
         {
-            ProjectStore.ExportPng(session, temporary);
-            TileRaster raster = ImageCodec.Load(temporary);
+            TileRaster raster;
+            if (session.Layers[0].HasMask)
+            {
+                string imagePath = Path.Combine(session.SourceDirectory, "images", session.ImageName);
+                ProjectStore.CheckAssetHash(session, session.ImageName, imagePath);
+                raster = ImageCodec.Load(imagePath);
+            }
+            else
+            {
+                ProjectStore.ExportPng(session, temporary);
+                raster = ImageCodec.Load(temporary);
+            }
             GrayTileRaster? mask = null;
             if (session.Layers[0].HasMask)
             {

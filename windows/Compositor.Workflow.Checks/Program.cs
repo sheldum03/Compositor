@@ -462,6 +462,24 @@ static void CheckCompositing(string output, string fixtures)
         throw new Exception("Edited layer mask did not survive save and reopen.");
     if (!maskedSession.Undo() || !maskedSession.Undo() || !maskedSession.Redo() || !maskedSession.Redo())
         throw new Exception("Layer mask enable/edit history did not undo and redo.");
+    string singleMasked = Path.Combine(output, "SingleMasked.comp");
+    string singleMaskedImages = Path.Combine(singleMasked, "images");
+    Directory.CreateDirectory(singleMaskedImages);
+    string singleSource = Path.Combine(output, "Image.comp");
+    var singleManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(singleSource, "manifest.json")))!.AsObject();
+    var singleLayer = singleManifest["layers"]![0]!.AsObject();
+    string singleImageName = singleLayer["imageFile"]!.GetValue<string>();
+    File.Copy(Path.Combine(singleSource, "images", singleImageName), Path.Combine(singleMaskedImages, singleImageName));
+    string singleMaskName = Guid.Parse(singleLayer["id"]!.GetValue<string>()).ToString("D").ToUpperInvariant() + ".mask.png";
+    singleLayer["maskFile"] = singleMaskName;
+    singleLayer["maskEnabled"] = true;
+    File.WriteAllText(Path.Combine(singleMasked, "manifest.json"), singleManifest.ToJsonString());
+    string singleMaskPath = Path.Combine(singleMaskedImages, singleMaskName);
+    SaveGrayMask(singleMaskPath, singleManifest["width"]!.GetValue<int>(), singleManifest["height"]!.GetValue<int>());
+    var singleMaskedSession = ImageProjectWorkflow.OpenEditable(singleMasked);
+    TileRaster singleRaw = ImageCodec.Load(Path.Combine(singleMaskedImages, singleImageName));
+    AssertRaster(RasterCompositor.ApplyMask(singleRaw, ImageCodec.LoadGrayMask(singleMaskPath)),
+        ImageProjectWorkflow.RenderFlatNormal(singleMaskedSession));
     GrayTileRaster gray = ImageCodec.LoadGrayMask(maskPath);
     byte[] changedMaskTile = gray.ReadTileCopy(0, 0);
     changedMaskTile[0] = 255;
