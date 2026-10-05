@@ -700,9 +700,7 @@ public sealed class EditorWorkspace
         for (int x = 0; x < session.Width; x++)
         {
             Point document = LayerToDocumentPoint(session, layerId, new Point(x + 0.5, y + 0.5));
-            int documentX = (int)Math.Floor(document.X), documentY = (int)Math.Floor(document.Y);
-            if ((uint)documentX < (uint)session.Width && (uint)documentY < (uint)session.Height)
-                layerCoverage[y * session.Width + x] = documentCoverage[documentY * session.Width + documentX];
+            layerCoverage[y * session.Width + x] = SampleCoverage(documentCoverage, session.Width, session.Height, document);
         }
         return GrayTileRaster.FromCoverage(session.Width, session.Height, layerCoverage);
     }
@@ -715,15 +713,25 @@ public sealed class EditorWorkspace
         for (int y = 0; y < session.Height; y++)
         for (int x = 0; x < session.Width; x++)
         {
-            Point document = LayerToDocumentPoint(session, layerId, new Point(x + 0.5, y + 0.5));
-            int documentX = (int)Math.Floor(document.X), documentY = (int)Math.Floor(document.Y);
-            if ((uint)documentX < (uint)session.Width && (uint)documentY < (uint)session.Height)
-            {
-                int index = documentY * session.Width + documentX;
-                documentCoverage[index] = Math.Max(documentCoverage[index], sourceCoverage[y * session.Width + x]);
-            }
+            Point layer = DocumentToLayerPoint(session, layerId, new Point(x + 0.5, y + 0.5));
+            documentCoverage[y * session.Width + x] = SampleCoverage(sourceCoverage, session.Width, session.Height, layer);
         }
         return GrayTileRaster.FromCoverage(session.Width, session.Height, documentCoverage);
+    }
+
+    private static byte SampleCoverage(byte[] coverage, int width, int height, Point point)
+    {
+        if (point.X < 0 || point.Y < 0 || point.X >= width || point.Y >= height)
+            return 0;
+        double sourceX = point.X - 0.5, sourceY = point.Y - 0.5;
+        int x0 = Math.Clamp((int)Math.Floor(sourceX), 0, width - 1);
+        int y0 = Math.Clamp((int)Math.Floor(sourceY), 0, height - 1);
+        int x1 = Math.Min(width - 1, x0 + 1), y1 = Math.Min(height - 1, y0 + 1);
+        double xWeight = Math.Clamp(sourceX - Math.Floor(sourceX), 0, 1);
+        double yWeight = Math.Clamp(sourceY - Math.Floor(sourceY), 0, 1);
+        double top = coverage[y0 * width + x0] * (1 - xWeight) + coverage[y0 * width + x1] * xWeight;
+        double bottom = coverage[y1 * width + x0] * (1 - xWeight) + coverage[y1 * width + x1] * xWeight;
+        return (byte)Math.Clamp(Math.Round(top * (1 - yWeight) + bottom * yWeight, MidpointRounding.AwayFromZero), 0, 255);
     }
 
     private static GrayTileRaster TranslateSelection(GrayTileRaster selection, int offsetX, int offsetY)

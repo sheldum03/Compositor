@@ -392,6 +392,16 @@ internal static class CanvasChecks
         GrayTileRaster mappedMask = mappedMaskWorkspace.Session.GetLayerMask(mappedMaskLayerId)!;
         Require(MaskPixel(mappedMask, 110, 110) == 0 && MaskPixel(mappedMask, 90, 90) == 255,
             "A translated layer did not map the document selection into its editable mask.");
+        var scaledMaskWorkspace = new EditorWorkspace();
+        scaledMaskWorkspace.Open(project);
+        Guid scaledMaskLayerId = scaledMaskWorkspace.Session!.ActiveLayerId!.Value;
+        scaledMaskWorkspace.ScaleActiveLayer(enlarge: false);
+        scaledMaskWorkspace.AddActiveLayerMask();
+        scaledMaskWorkspace.SelectRectangle(new Rect(100, 100, 31, 31));
+        scaledMaskWorkspace.ApplySelectionToActiveLayerMask(reveal: false);
+        GrayTileRaster scaledMask = scaledMaskWorkspace.Session.GetLayerMask(scaledMaskLayerId)!;
+        Require(HasPartialCoverage(scaledMask),
+            "A scaled layer did not preserve fractional selection coverage when mapping into its editable mask.");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);
@@ -630,6 +640,16 @@ internal static class CanvasChecks
         int column = x / TileRaster.TileSize, row = y / TileRaster.TileSize;
         var size = raster.TileDimensions(column, row);
         return raster.ReadTileCopy(column, row)[(y % TileRaster.TileSize) * size.Width + x % TileRaster.TileSize];
+    }
+    private static bool HasPartialCoverage(GrayTileRaster raster)
+    {
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            byte[] tile = raster.ReadTileCopy(column, row);
+            if (tile.Any(value => value is > 0 and < 255)) return true;
+        }
+        return false;
     }
     private static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
     private static void CopyDirectory(string source, string destination)
