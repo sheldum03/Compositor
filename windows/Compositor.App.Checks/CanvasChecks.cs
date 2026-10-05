@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -14,6 +15,7 @@ using Avalonia.VisualTree;
 using Compositor.App;
 using Compositor.Core;
 using Compositor.Imaging;
+using SkiaSharp;
 
 internal static class CanvasChecks
 {
@@ -307,6 +309,35 @@ internal static class CanvasChecks
         Require(!window.IsVisible && !workspace.HasActiveStroke && !workspace.IsDirty,
             "Closing the saved document did not cancel the active stroke.");
         CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
+        string maskedProject = Path.Combine(output, "ReadOnlyMask.comp");
+        CopyDirectory(project, maskedProject);
+        var maskedManifestPath = Path.Combine(maskedProject, "manifest.json");
+        var maskedManifest = JsonNode.Parse(File.ReadAllText(maskedManifestPath))!.AsObject();
+        var maskedLayers = maskedManifest["layers"]!.AsArray();
+        var maskedLayer = maskedLayers[maskedLayers.Count - 1]!.AsObject();
+        string maskName = maskedLayer["id"]!.GetValue<string>().ToUpperInvariant() + ".mask.png";
+        maskedLayer["maskFile"] = maskName;
+        maskedLayer["maskEnabled"] = true;
+        File.WriteAllText(maskedManifestPath, maskedManifest.ToJsonString());
+        SaveGrayMask(Path.Combine(maskedProject, "images", maskName), workspace.Session.Width, workspace.Session.Height);
+        var readOnlyWorkspace = new EditorWorkspace();
+        readOnlyWorkspace.Open(maskedProject);
+        Require(!readOnlyWorkspace.CanEdit && readOnlyWorkspace.Session is { } readOnlySession &&
+            readOnlySession.Layers.Count == workspace.Session.Layers.Count && readOnlyWorkspace.Preview is not null,
+            "Masked project did not open as a read-only cached preview.");
+        string readOnlyExport = Path.Combine(output, "readonly-mask-export.png");
+        readOnlyWorkspace.Export(readOnlyExport, jpeg: false);
+        var readOnlyExported = ImageCodec.Load(readOnlyExport);
+        Require(readOnlyExported.Width == workspace.Session.Width && readOnlyExported.Height == workspace.Session.Height,
+            "Read-only masked project did not export its cached composite.");
+        var readOnlyWindow = new MainWindow(readOnlyWorkspace);
+        readOnlyWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Require(!Find<Button>(readOnlyWindow, "Save").IsEffectivelyEnabled &&
+            !Find<Button>(readOnlyWindow, "RotateClockwise").IsEffectivelyEnabled &&
+            Find<Button>(readOnlyWindow, "ExportPng").IsEffectivelyEnabled &&
+            !Find<CheckBox>(readOnlyWindow, "RectSelect").IsEffectivelyEnabled,
+            "Read-only masked window did not disable editing while retaining export and view access.");
+        readOnlyWindow.Close(); Dispatcher.UIThread.RunJobs();
         var resizeWorkspace = new EditorWorkspace();
         resizeWorkspace.Open(project);
         int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;
@@ -386,6 +417,23 @@ internal static class CanvasChecks
         return true;
     }
     private static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+    private static void CopyDirectory(string source, string destination)
+    {
+        Directory.CreateDirectory(destination);
+        foreach (string file in Directory.GetFiles(source)) File.Copy(file, Path.Combine(destination, Path.GetFileName(file)));
+        foreach (string directory in Directory.GetDirectories(source)) CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
+    }
+    private static void SaveGrayMask(string path, int width, int height)
+    {
+        using var bitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Gray8, SKAlphaType.Opaque));
+        byte[] pixels = Enumerable.Repeat((byte)255, bitmap.RowBytes * height).ToArray();
+        pixels[0] = 0;
+        Marshal.Copy(pixels, 0, bitmap.GetPixels(), pixels.Length);
+        using var image = SKImage.FromBitmap(bitmap);
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100) ?? throw new IOException("Cannot encode Gray8 mask.");
+        using var stream = File.Create(path);
+        data.SaveTo(stream);
+    }
     private static void CheckGolden(TileRaster raster, ZipArchive zip, string entry)
     {
         using var stream = zip.GetEntry(entry)!.Open(); using var memory = new MemoryStream(); stream.CopyTo(memory);

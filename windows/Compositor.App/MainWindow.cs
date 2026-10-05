@@ -330,12 +330,14 @@ public sealed class MainWindow : Window
         layers.ItemsSource = items;
         layers.SelectedItem = items.FirstOrDefault(layer => layer.Id == Workspace.Session?.ActiveLayerId) ?? items.FirstOrDefault();
         refreshing = false;
-        foreach (var button in documentButtons) button.IsEnabled = Workspace.Session is not null;
+        foreach (var button in documentButtons)
+            button.IsEnabled = Workspace.Session is not null &&
+                (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
         pixelGrid.IsEnabled = Workspace.Session is not null;
-        rectangleSelect.IsEnabled = Workspace.Session is not null;
-        moveSelection.IsEnabled = Workspace.Session is not null && Workspace.HasSelection;
-        selectionShape.IsEnabled = Workspace.Session is not null;
-        selectionOperation.IsEnabled = Workspace.Session is not null;
+        rectangleSelect.IsEnabled = Workspace.CanEdit;
+        moveSelection.IsEnabled = Workspace.CanEdit && Workspace.HasSelection;
+        selectionShape.IsEnabled = Workspace.CanEdit;
+        selectionOperation.IsEnabled = Workspace.CanEdit;
         UpdateSelection();
     }
 
@@ -352,11 +354,11 @@ public sealed class MainWindow : Window
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
         }
         finally { refreshing = false; }
-        layerName.IsEnabled = selected is not null;
-        layerOpacity.IsEnabled = selected is not null;
-        layerBlendMode.IsEnabled = selected is not null;
-        canvas.PaintEnabled = selected is not null && paint.IsChecked == true;
-        foreach (var button in layerButtons) button.IsEnabled = selected is not null;
+        layerName.IsEnabled = Workspace.CanEdit && selected is not null;
+        layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null;
+        layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
+        canvas.PaintEnabled = Workspace.CanEdit && selected is not null && paint.IsChecked == true;
+        foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null;
     }
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));

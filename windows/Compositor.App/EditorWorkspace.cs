@@ -17,6 +17,7 @@ public sealed class EditorWorkspace
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null;
     public ProjectSession? Session { get; private set; }
+    public bool CanEdit => Session?.CanEdit == true;
     public TileRaster? Preview { get; private set; }
     public GrayTileRaster? Selection { get; private set; }
     public Rect? SelectionBounds { get; private set; }
@@ -41,8 +42,9 @@ public sealed class EditorWorkspace
     public void Open(string directory)
     {
         RequireIdle();
-        var next = ImageProjectWorkflow.OpenEditable(directory);
+        var next = ProjectStore.Open(directory);
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
+        if (next.CanEdit) next = ImageProjectWorkflow.OpenEditable(directory);
         Session = next;
         Preview = preview;
         ClearClipboard();
@@ -66,6 +68,7 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         var session = RequireSession();
+        RequireEditableSession();
         selectionMoveHistory = null;
         operation(session);
         Preview = null;
@@ -449,6 +452,11 @@ public sealed class EditorWorkspace
     }
 
     private ProjectSession RequireSession() => Session ?? throw new InvalidOperationException("请先打开或导入工程。");
+
+    private void RequireEditableSession()
+    {
+        if (!CanEdit) throw new NotSupportedException("当前工程包含未支持的语义，只读预览不可编辑。");
+    }
 
     private static bool SamePixels(TileRaster first, TileRaster second)
     {
