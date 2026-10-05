@@ -1,5 +1,7 @@
 namespace Compositor.Core;
 
+public enum GraySelectionOperation { Replace, Add, Subtract }
+
 public sealed class GrayTileRaster
 {
     private readonly Dictionary<int, byte[]> tiles;
@@ -67,6 +69,56 @@ public sealed class GrayTileRaster
                 for (int y = fillTop; y < fillBottom; y++)
                     coverage.AsSpan((y - tileTop) * size.Width + fillLeft - tileLeft, fillRight - fillLeft).Fill(255);
             result = result.ReplaceTile(column, row, coverage);
+        }
+        return result;
+    }
+
+    public static GrayTileRaster Ellipse(int width, int height, int left, int top, int right, int bottom)
+    {
+        if (width < 1 || height < 1 || left < 0 || top < 0 || right > width || bottom > height || left >= right || top >= bottom)
+            throw new ArgumentOutOfRangeException(nameof(left));
+        var result = new GrayTileRaster(width, height);
+        double centerX = (left + right) / 2.0, centerY = (top + bottom) / 2.0;
+        double radiusX = (right - left) / 2.0, radiusY = (bottom - top) / 2.0;
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            int tileLeft = column * TileRaster.TileSize, tileTop = row * TileRaster.TileSize;
+            byte[] coverage = new byte[size.Width * size.Height];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                double dx = (tileLeft + x + 0.5 - centerX) / radiusX;
+                double dy = (tileTop + y + 0.5 - centerY) / radiusY;
+                if (dx * dx + dy * dy <= 1) coverage[y * size.Width + x] = 255;
+            }
+            result = result.ReplaceTile(column, row, coverage);
+        }
+        return result;
+    }
+
+    public GrayTileRaster Combine(GrayTileRaster other, GraySelectionOperation operation)
+    {
+        if (Width != other.Width || Height != other.Height)
+            throw new ArgumentException("Selection dimensions must match.", nameof(other));
+        var result = new GrayTileRaster(Width, Height);
+        for (int row = 0; row * TileRaster.TileSize < Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < Width; column++)
+        {
+            byte[] first = ReadTileCopy(column, row), second = other.ReadTileCopy(column, row);
+            for (int i = 0; i < first.Length; i++)
+            {
+                int a = first[i], b = second[i];
+                first[i] = operation switch
+                {
+                    GraySelectionOperation.Replace => (byte)b,
+                    GraySelectionOperation.Add => (byte)(a + (b * (255 - a) + 127) / 255),
+                    GraySelectionOperation.Subtract => (byte)((a * (255 - b) + 127) / 255),
+                    _ => throw new ArgumentOutOfRangeException(nameof(operation))
+                };
+            }
+            result = result.ReplaceTile(column, row, first);
         }
         return result;
     }

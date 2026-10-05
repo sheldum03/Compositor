@@ -28,6 +28,8 @@ public sealed class MainWindow : Window
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
+    private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆" }, SelectedIndex = 0 };
+    private readonly ComboBox selectionOperation = new() { Name = "SelectionOperation", Width = 90, ItemsSource = new[] { "替换", "加选", "减选" }, SelectedIndex = 0 };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
@@ -60,6 +62,8 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("ActualSize", "100%", () => { canvas.ActualSize(); return Task.CompletedTask; }, document: true));
         toolbar.Children.Add(pixelGrid);
         toolbar.Children.Add(rectangleSelect);
+        toolbar.Children.Add(selectionShape);
+        toolbar.Children.Add(selectionOperation);
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
         rectangleSelect.IsCheckedChanged += (_, _) =>
@@ -134,7 +138,18 @@ public sealed class MainWindow : Window
         };
         canvas.SelectionFinished += rectangle =>
         {
-            try { Workspace.SelectRectangle(rectangle); canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "矩形选区已更新。"; }
+            try
+            {
+                var operation = selectionOperation.SelectedIndex switch
+                {
+                    1 => GraySelectionOperation.Add,
+                    2 => GraySelectionOperation.Subtract,
+                    _ => GraySelectionOperation.Replace
+                };
+                if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
+                else Workspace.SelectRectangle(rectangle, operation);
+                canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区已更新。";
+            }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
         canvas.SelectionCanceled += () => canvas.SetSelectionRect(Workspace.SelectionBounds);
@@ -235,6 +250,8 @@ public sealed class MainWindow : Window
         foreach (var button in documentButtons) button.IsEnabled = Workspace.Session is not null;
         pixelGrid.IsEnabled = Workspace.Session is not null;
         rectangleSelect.IsEnabled = Workspace.Session is not null;
+        selectionShape.IsEnabled = Workspace.Session is not null;
+        selectionOperation.IsEnabled = Workspace.Session is not null;
         UpdateSelection();
     }
 

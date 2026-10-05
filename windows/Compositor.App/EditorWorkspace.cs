@@ -113,7 +113,13 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
-    public void SelectRectangle(Rect rectangle)
+    public void SelectRectangle(Rect rectangle, GraySelectionOperation operation = GraySelectionOperation.Replace) =>
+        SelectShape(rectangle, operation, false);
+
+    public void SelectEllipse(Rect rectangle, GraySelectionOperation operation = GraySelectionOperation.Replace) =>
+        SelectShape(rectangle, operation, true);
+
+    private void SelectShape(Rect rectangle, GraySelectionOperation operation, bool ellipse)
     {
         var session = RequireSession();
         double left = Math.Max(0, Math.Min(rectangle.Left, rectangle.Right));
@@ -124,7 +130,14 @@ public sealed class EditorWorkspace
         int x0 = (int)Math.Floor(left + epsilon), y0 = (int)Math.Floor(top + epsilon);
         int x1 = (int)Math.Ceiling(right - epsilon), y1 = (int)Math.Ceiling(bottom - epsilon);
         if (x1 <= x0 || y1 <= y0) { ClearSelection(); return; }
-        Selection = GrayTileRaster.Rectangle(session.Width, session.Height, x0, y0, x1, y1);
+        var next = ellipse
+            ? GrayTileRaster.Ellipse(session.Width, session.Height, x0, y0, x1, y1)
+            : GrayTileRaster.Rectangle(session.Width, session.Height, x0, y0, x1, y1);
+        Selection = operation == GraySelectionOperation.Replace
+            ? next
+            : Selection is { } current ? current.Combine(next, operation)
+            : operation == GraySelectionOperation.Add ? next : null;
+        if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = new Rect(x0, y0, x1 - x0, y1 - y0);
     }
 

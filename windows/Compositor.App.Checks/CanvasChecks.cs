@@ -114,8 +114,28 @@ internal static class CanvasChecks
         Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
             "Undo did not restore the selected painting baseline.");
+        Find<ComboBox>(window, "SelectionOperation").SelectedItem = "加选";
+        Find<CheckBox>(window, "RectSelect").IsChecked = true;
+        window.MouseDown(DocumentPoint(new Point(120, 80)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(200, 160)));
+        window.MouseUp(DocumentPoint(new Point(200, 160)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.SelectedPixels == 16000, $"Add selection produced {workspace.SelectedPixels} pixels instead of 16000.");
+        Find<ComboBox>(window, "SelectionOperation").SelectedItem = "减选";
+        window.MouseDown(DocumentPoint(new Point(50, 50)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(100, 90)));
+        window.MouseUp(DocumentPoint(new Point(100, 90)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.SelectedPixels == 14000, $"Subtract selection produced {workspace.SelectedPixels} pixels instead of 14000.");
+        Find<ComboBox>(window, "SelectionShape").SelectedItem = "椭圆";
+        Find<ComboBox>(window, "SelectionOperation").SelectedItem = "替换";
+        window.MouseDown(DocumentPoint(new Point(60, 40)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(180, 140)));
+        window.MouseUp(DocumentPoint(new Point(180, 140)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.SelectedPixels > 0 && workspace.SelectedPixels < 120 * 100,
+            $"Ellipse selection produced an invalid coverage count: {workspace.SelectedPixels}.");
         Click("ClearSelection");
         Require(!workspace.HasSelection && !workspace.IsDirty, "Clear selection changed history or retained a mask.");
+        Find<CheckBox>(window, "RectSelect").IsChecked = false;
+        Find<CheckBox>(window, "Paint").IsChecked = true;
         var points = cases.Single(test => test.Name == "CrossTile").Points.Select(p => new Point(p[0], p[1])).ToArray();
         window.MouseDown(DocumentPoint(points[0]), MouseButton.Left);
         Require(workspace.HasActiveStroke && !workspace.IsDirty, "Pointer down committed a history step.");
