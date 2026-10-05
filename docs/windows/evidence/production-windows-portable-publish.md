@@ -2,7 +2,7 @@
 
 ## 结果
 
-在 macOS arm64 主机使用固定的 .NET SDK 10.0.401、Avalonia 11.3.22 和 `codex/windows-implementation` 提交 `dbccb7b`，为生产窗口执行了 `win-x64` self-contained 发布：
+在 macOS arm64 主机使用固定的 .NET SDK 10.0.401、Avalonia 11.3.22 和 `codex/windows-implementation` 提交 `cb8b520`，为生产窗口执行了 `win-x64` self-contained 发布：
 
 ```text
 dotnet restore windows/Compositor.App/Compositor.App.csproj \
@@ -10,10 +10,10 @@ dotnet restore windows/Compositor.App/Compositor.App.csproj \
 dotnet publish windows/Compositor.App/Compositor.App.csproj -c Release \
   -r win-x64 --self-contained true --no-restore \
   -p:RestorePackagesPath=/tmp/compositor-nuget-packages \
-  -o /tmp/compositor-publish-win-x64-selfcontained-dbccb7b
+  -o /tmp/compositor-publish-win-x64-selfcontained-cb8b520
 ```
 
-两步均退出 0，构建无警告/错误。发布目录包含 `Compositor.App.exe`、`coreclr.dll`、`hostfxr.dll` 和 `hostpolicy.dll`，共 224 个文件，未包含 `compositor_native.dll`。按发布目录生成的压缩包为 `/tmp/Compositor.App-win-x64-selfcontained-dbccb7b.zip`，SHA-256 为 `138bfabdc348743fb04f10645103df12595c3cfdfd4d5efcaaa70f75f3419ef2`。
+两步均退出 0，构建无警告/错误。发布目录包含 `Compositor.App.exe`、`coreclr.dll`、`hostfxr.dll` 和 `hostpolicy.dll`，共 224 个文件，未包含 `compositor_native.dll`。按发布目录生成的压缩包为 `/tmp/Compositor.App-win-x64-selfcontained-cb8b520.zip`，SHA-256 为 `29a38516f621a34312ec86cf525bf0cab9926f721ebd7be2245c6c8f4628c6cc`。
 
 ## 边界
 
