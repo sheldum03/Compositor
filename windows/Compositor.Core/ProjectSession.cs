@@ -600,12 +600,16 @@ public sealed class ProjectSession
             throw new ArgumentException("Group name must contain 1 to 1000 characters.", nameof(name));
         var layers = Current["layers"]!.AsArray();
         var distinctIds = layerIds.Distinct().ToArray();
+        var selectedSet = distinctIds.ToHashSet();
         var indexes = distinctIds.Select(FindLayer).OrderBy(index => index).ToArray();
         var parentIds = indexes.Select(index => layers[index]!["parentID"] is { } parent
             ? Guid.Parse(parent.GetValue<string>()) : (Guid?)null).Distinct().ToArray();
-        if (indexes.Length != layerIds.Count || parentIds.Length != 1 ||
-            indexes.Any(index => layers[index]!["maskSourceID"] is not null))
-            throw new NotSupportedException("Only sibling layers without clipping sources can be grouped in this slice.");
+        if (indexes.Length != layerIds.Count || parentIds.Length != 1)
+            throw new NotSupportedException("Only sibling layers can be grouped in this slice.");
+        foreach (int index in indexes)
+            if (layers[index]!["maskSourceID"] is { } sourceNode &&
+                !selectedSet.Contains(Guid.Parse(sourceNode.GetValue<string>())))
+                throw new NotSupportedException("A clipping source must be selected with its target layer.");
         var siblingIndexes = layers.Select((layer, index) => (layer, index))
             .Where(pair => pair.layer!["parentID"] is { } parent
                 ? Guid.Parse(parent.GetValue<string>()) == parentIds[0]
@@ -658,22 +662,6 @@ public sealed class ProjectSession
         var directChildren = Current["layers"]!.AsArray()
             .Where(node => node!["parentID"] is { } parent && Guid.Parse(parent.GetValue<string>()) == groupId)
             .Select(node => Guid.Parse(node!["id"]!.GetValue<string>())).ToArray();
-        var parentById = Current["layers"]!.AsArray().ToDictionary(node => Guid.Parse(node!["id"]!.GetValue<string>()),
-            node => node!["parentID"] is { } value ? Guid.Parse(value.GetValue<string>()) : (Guid?)null);
-        bool IsDescendantOf(Guid layerId, Guid ancestorId)
-        {
-            var seen = new HashSet<Guid>();
-            Guid? current = layerId;
-            while (current is { } id && seen.Add(id) && parentById.TryGetValue(id, out var parent))
-            {
-                if (parent == ancestorId) return true;
-                current = parent;
-            }
-            return false;
-        }
-        if (groupMask is not null && Current["layers"]!.AsArray().Any(node =>
-                node!["maskSourceID"] is not null && IsDescendantOf(Guid.Parse(node["id"]!.GetValue<string>()), groupId)))
-            throw new NotSupportedException("Ungrouping a masked group with clipping sources is not supported in this slice.");
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
         Dictionary<Guid, GrayTileRaster>? nextMasks = snapshots[cursor].LayerMasks is { } loadedMasks
@@ -684,6 +672,7 @@ public sealed class ProjectSession
             foreach (Guid childId in directChildren)
             {
                 var child = nextLayers.First(node => Guid.Parse(node!["id"]!.GetValue<string>()) == childId)!.AsObject();
+                if (child["maskSourceID"] is not null) continue;
                 GrayTileRaster? childMask = child["maskFile"] is not null &&
                     TryGetLoadedLayerMask(childId, out var loadedChildMask) ? loadedChildMask : null;
                 nextMasks[childId] = childMask is null ? CloneMask(groupMask) : MultiplyMasks(childMask, groupMask);

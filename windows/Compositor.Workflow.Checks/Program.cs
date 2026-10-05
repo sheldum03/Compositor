@@ -405,6 +405,23 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var maskedReopened = ImageProjectWorkflow.OpenEditable(maskedUngrouped);
     if (!SameRaster(disabledMaskReference, ImageProjectWorkflow.RenderFlatNormal(maskedReopened)))
         throw new Exception("Disabled group-mask ungroup did not survive save and reopen.");
+    var clipped = ImageProjectWorkflow.OpenEditable(source);
+    Guid clippedBaseId = clipped.Layers.Single().Id;
+    Guid clippedChildId = clipped.AddBlankLayer("Clipped", 1);
+    clipped.SetLayerMaskSource(clippedChildId, clippedBaseId);
+    Guid clippedGroupId = clipped.GroupLayers([clippedBaseId, clippedChildId], "Clipped group");
+    clipped.EnsureLayerMask(clippedGroupId);
+    clipped.ReplaceLayerMask(clippedGroupId,
+        GrayTileRaster.Rectangle(clipped.Width, clipped.Height, 0, 0, clipped.Width / 2, clipped.Height));
+    TileRaster clippedReference = ImageProjectWorkflow.RenderFlatNormal(clipped);
+    clipped.UngroupLayer(clippedGroupId);
+    if (clipped.HasGroups || !SameRaster(clippedReference, ImageProjectWorkflow.RenderFlatNormal(clipped)))
+        throw new Exception("Ungrouping a masked clipping stack did not preserve the preview.");
+    string clippedUngrouped = Path.Combine(output, "ClippedUngrouped.comp");
+    ImageProjectWorkflow.Save(clipped, clippedUngrouped);
+    var clippedReopened = ImageProjectWorkflow.OpenEditable(clippedUngrouped);
+    if (!SameRaster(clippedReference, ImageProjectWorkflow.RenderFlatNormal(clippedReopened)))
+        throw new Exception("Masked clipping-stack ungroup did not survive save and reopen.");
     Console.WriteLine("PASS: root, nested and transformed masked groups preserve render through group/ungroup and save/reopen");
 }
 
