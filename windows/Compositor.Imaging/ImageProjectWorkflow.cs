@@ -169,13 +169,31 @@ public static class ImageProjectWorkflow
             }
             var transform = layer["transform"]?.AsObject()
                 ?? throw new NotSupportedException("Cached layer transform data is missing.");
+            if (layer["text"] is null && !IsIdentityTransform(transform, width, height))
+                throw new NotSupportedException("Cached non-text layer transforms are not supported.");
             var transformed = TransformCachedRaster(raster, transform, width, height);
             if (layer["isVisible"]?.GetValue<bool>() ?? true)
-                result = LayerCompositor.Composite(result, transformed,
-                    layer["opacity"]?.GetValue<double>() ?? 1,
-                    layer["blendMode"]?.GetValue<string>() ?? "Normal");
+            {
+                double opacity = layer["opacity"]?.GetValue<double>() ?? 1;
+                string mode = layer["blendMode"]?.GetValue<string>() ?? "Normal";
+                if (!double.IsFinite(opacity) || opacity is < 0 or > 1 || !ProjectSession.SupportedBlendModes.Contains(mode))
+                    throw new NotSupportedException("Cached layer appearance is not supported.");
+                result = LayerCompositor.Composite(result, transformed, opacity, mode);
+            }
         }
         return result;
+    }
+
+    private static bool IsIdentityTransform(JsonObject transform, int width, int height)
+    {
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        return origin?.Count == 2 && size?.Count == 2 &&
+            origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
+            size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
+            (transform["rotation"]?.GetValue<double>() ?? 0) == 0 &&
+            (transform["flipX"]?.GetValue<bool>() ?? false) == false &&
+            (transform["flipY"]?.GetValue<bool>() ?? false) == false;
     }
 
     private static TileRaster TransformCachedRaster(TileRaster source, JsonObject transform, int width, int height)
