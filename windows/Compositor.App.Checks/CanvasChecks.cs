@@ -293,6 +293,19 @@ internal static class CanvasChecks
         Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(baselineBytes), "One undo did not remove the whole stroke.");
         Click("Redo"); CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
+        Find<NumericUpDown>(window, "BrushDiameter").Value = 9;
+        Find<NumericUpDown>(window, "BrushOpacity").Value = 100;
+        Find<ComboBox>(window, "BrushType").SelectedIndex = 1;
+        Find<ComboBox>(window, "BrushColor").SelectedIndex = 0;
+        TileRaster lineBefore = workspace.Session.GetLayerRaster(layerId);
+        window.KeyPressQwerty(PhysicalKey.ShiftLeft, RawInputModifiers.Shift);
+        window.MouseDown(DocumentPoint(new Point(50, 50)), MouseButton.Left, RawInputModifiers.Shift);
+        window.MouseMove(DocumentPoint(new Point(150, 90)), RawInputModifiers.Shift);
+        window.MouseUp(DocumentPoint(new Point(150, 90)), MouseButton.Left, RawInputModifiers.Shift);
+        window.KeyReleaseQwerty(PhysicalKey.ShiftLeft, RawInputModifiers.Shift); Dispatcher.UIThread.RunJobs();
+        Require(workspace.IsDirty && IsHorizontalStroke(lineBefore, workspace.Session.GetLayerRaster(layerId), 50, 8),
+            "Shift-drag did not commit a constrained straight brush line.");
+        Click("Undo");
         byte[] flipBaseline = Bytes(workspace.Session.GetLayerRaster(layerId));
         TileRaster previewBeforeFlip = workspace.Preview!;
         Click("FlipLayerHorizontal");
@@ -541,10 +554,31 @@ internal static class CanvasChecks
         Require(MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 128, 128) == 255 &&
             MaskPixel(maskBrushSession.GetLayerMask(maskBrushLayer)!, 127, 128) == 0,
             "Mask brush reveal did not honor the active selection.");
+        GrayTileRaster maskBeforeInvert = maskWorkspace.Session!.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!;
+        maskWorkspace.InvertActiveLayerMask();
+        Require(maskWorkspace.IsDirty &&
+            MaskPixel(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, 128, 128) == 255 &&
+            MaskPixel(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, 10, 10) == 0,
+            "Mask inversion did not reverse Gray8 coverage.");
+        Require(maskWorkspace.Undo() && SameCoverage(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, maskBeforeInvert) &&
+            maskWorkspace.Redo() && MaskPixel(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, 128, 128) == 255,
+            "Mask inversion did not participate in Undo/Redo history.");
+        Require(maskWorkspace.Undo() && !maskWorkspace.IsDirty, "Undo did not restore the saved mask before fill checks.");
+        maskWorkspace.FillActiveLayerMask(reveal: false);
+        Require(maskWorkspace.IsDirty && MaskPixel(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, 10, 10) == 0,
+            "Black mask fill did not clear the complete mask.");
+        Require(maskWorkspace.Undo() && !maskWorkspace.IsDirty, "Undo did not restore the mask after black fill.");
+        maskWorkspace.FillActiveLayerMask(reveal: true);
+        Require(maskWorkspace.IsDirty && MaskPixel(maskWorkspace.Session.GetLayerMask(maskWorkspace.Session.ActiveLayerId!.Value)!, 10, 10) == 255,
+            "White mask fill did not reveal the complete mask.");
+        Require(maskWorkspace.Undo() && !maskWorkspace.IsDirty, "Undo did not restore the mask after white fill.");
         var maskWindow = new MainWindow(maskWorkspace);
         maskWindow.Show(); Dispatcher.UIThread.RunJobs();
         Require(Find<Button>(maskWindow, "Save").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "ToggleMask").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "InvertMask").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "FillMaskWhite").IsEffectivelyEnabled &&
+            Find<Button>(maskWindow, "FillMaskBlack").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "AddMask").IsEffectivelyEnabled &&
             Find<CheckBox>(maskWindow, "MaskPaint").IsEffectivelyEnabled &&
             Find<Button>(maskWindow, "ExportPng").IsEffectivelyEnabled &&
@@ -654,6 +688,29 @@ internal static class CanvasChecks
         for (int column = 0; column * TileRaster.TileSize < a.Width; column++)
             if (!a.ReadTileCopy(column, row).SequenceEqual(b.ReadTileCopy(column, row))) return false;
         return true;
+    }
+
+    private static bool SameCoverage(GrayTileRaster a, GrayTileRaster b)
+    {
+        if (a.Width != b.Width || a.Height != b.Height) return false;
+        for (int row = 0; row * TileRaster.TileSize < a.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < a.Width; column++)
+            if (!a.ReadTileCopy(column, row).AsSpan().SequenceEqual(b.ReadTileCopy(column, row))) return false;
+        return true;
+    }
+
+    private static bool IsHorizontalStroke(TileRaster before, TileRaster after, int centerY, int margin)
+    {
+        byte[] first = Bytes(before), second = Bytes(after);
+        int left = after.Width, top = after.Height, right = -1, bottom = -1;
+        for (int y = 0; y < after.Height; y++)
+        for (int x = 0; x < after.Width; x++)
+        {
+            int offset = (y * after.Width + x) * 4;
+            if (first.AsSpan(offset, 4).SequenceEqual(second.AsSpan(offset, 4))) continue;
+            left = Math.Min(left, x); top = Math.Min(top, y); right = Math.Max(right, x); bottom = Math.Max(bottom, y);
+        }
+        return right - left >= 50 && top >= centerY - margin && bottom <= centerY + margin;
     }
     private static int MaxDifference(TileRaster a, TileRaster b)
     {

@@ -151,6 +151,9 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("RotateLayerCustom", "应用旋转", RotateLayerCustomAsync, layer: true));
         structure.Children.Add(Command("AddMask", "添加蒙版", AddMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
+        structure.Children.Add(Command("InvertMask", "反相蒙版", InvertMaskAsync, layer: true, mask: true));
+        structure.Children.Add(Command("FillMaskWhite", "蒙版填白", () => FillMaskAsync(true), layer: true, mask: true));
+        structure.Children.Add(Command("FillMaskBlack", "蒙版填黑", () => FillMaskAsync(false), layer: true, mask: true));
         structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
         structure.Children.Add(Command("ReleaseClippingMask", "释放剪贴", () => SetClippingMaskAsync(false), layer: true));
         structure.Children.Add(Command("GroupLayer", "建立组", GroupLayerAsync, layer: true));
@@ -569,6 +572,8 @@ public sealed class MainWindow : Window
     }
     private Task AddMaskAsync() => Task.Run(Workspace.AddActiveLayerMask);
     private Task ToggleMaskAsync() => Task.Run(Workspace.ToggleActiveLayerMask);
+    private Task InvertMaskAsync() => Task.Run(Workspace.InvertActiveLayerMask);
+    private Task FillMaskAsync(bool reveal) => Task.Run(() => Workspace.FillActiveLayerMask(reveal));
     private Task SetClippingMaskAsync(bool enabled) => Task.Run(() => Workspace.SetActiveLayerClipping(enabled));
     private Task ApplyMaskSelectionAsync(bool reveal) => Task.Run(() => Workspace.ApplySelectionToActiveLayerMask(reveal));
     private Task ClearSelectionAsync()

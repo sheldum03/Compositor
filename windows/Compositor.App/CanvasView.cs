@@ -11,8 +11,9 @@ namespace Compositor.App;
 public sealed class CanvasView : Control
 {
     private IPointer? captured;
-    private bool panning, selecting, movingSelection, spaceHeld, autoFit = true;
+    private bool panning, selecting, movingSelection, spaceHeld, shiftHeld, autoFit = true;
     private Point previous;
+    private Point strokeStart;
     private Point selectionMoveStart;
     private Rect? selectionRect;
     private List<Point>? selectionPath;
@@ -42,6 +43,7 @@ public sealed class CanvasView : Control
         PointerPressed += (_, e) =>
         {
             if (Bitmap is null || captured is not null) return;
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             var properties = e.GetCurrentPoint(this).Properties;
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
@@ -58,12 +60,17 @@ public sealed class CanvasView : Control
                 selectionOutline = null;
             }
             else if (moveSelection) { selectionMoveStart = document; selectionRect = new Rect(document, new Size(0, 0)); }
-            else if (!panning) StrokeStarted?.Invoke(StrokePoint(e.GetCurrentPoint(this), document));
+            else if (!panning)
+            {
+                strokeStart = document;
+                StrokeStarted?.Invoke(StrokePoint(e.GetCurrentPoint(this), ConstrainStroke(document)));
+            }
             e.Handled = true;
         };
         PointerMoved += (_, e) =>
         {
             if (captured != e.Pointer) return;
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             Point view = e.GetPosition(this);
             if (panning) { Viewport.Pan(view - previous); previous = view; autoFit = false; InvalidateVisual(); }
             else if (selecting || movingSelection)
@@ -73,12 +80,13 @@ public sealed class CanvasView : Control
                 if (selecting && LassoEnabled && (selectionPath is null || Math.Abs(document.X - selectionPath[^1].X) + Math.Abs(document.Y - selectionPath[^1].Y) > 0.5)) selectionPath?.Add(document);
                 InvalidateVisual();
             }
-            else StrokeMoved?.Invoke(StrokePoint(e.GetCurrentPoint(this), Viewport.ToDocument(view)));
+            else StrokeMoved?.Invoke(StrokePoint(e.GetCurrentPoint(this), ConstrainStroke(Viewport.ToDocument(view))));
             e.Handled = true;
         };
         PointerReleased += (_, e) =>
         {
             if (captured != e.Pointer) return;
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             bool paint = !panning && !movingSelection;
             bool select = selecting;
             bool moveSelection = movingSelection;
@@ -93,7 +101,7 @@ public sealed class CanvasView : Control
             }
             else if (moveSelection) SelectionMoveFinished?.Invoke(selectionMoveStart, Viewport.ToDocument(e.GetPosition(this)));
             else if (paint)
-                StrokeFinished?.Invoke(StrokePoint(e.GetCurrentPoint(this), Viewport.ToDocument(e.GetPosition(this))));
+                StrokeFinished?.Invoke(StrokePoint(e.GetCurrentPoint(this), ConstrainStroke(Viewport.ToDocument(e.GetPosition(this)))));
             e.Handled = true;
         };
         PointerCaptureLost += (_, _) => Cancel();
@@ -106,10 +114,15 @@ public sealed class CanvasView : Control
         KeyDown += (_, e) =>
         {
             if (e.Key == Key.Space) { spaceHeld = true; e.Handled = true; }
+            if (e.Key is Key.LeftShift or Key.RightShift) { shiftHeld = true; e.Handled = true; }
             if (e.Key == Key.Escape) { Cancel(); e.Handled = true; }
         };
-        KeyUp += (_, e) => { if (e.Key == Key.Space) { spaceHeld = false; e.Handled = true; } };
-        LostFocus += (_, _) => { spaceHeld = false; Cancel(); };
+        KeyUp += (_, e) =>
+        {
+            if (e.Key == Key.Space) { spaceHeld = false; e.Handled = true; }
+            if (e.Key is Key.LeftShift or Key.RightShift) { shiftHeld = false; e.Handled = true; }
+        };
+        LostFocus += (_, _) => { spaceHeld = shiftHeld = false; Cancel(); };
     }
 
     public void SetBitmap(WriteableBitmap? bitmap)
@@ -152,6 +165,15 @@ public sealed class CanvasView : Control
         double pressure = point.Pointer.Type == PointerType.Pen && double.IsFinite(rawPressure)
             ? Math.Clamp(rawPressure, 0, 1) : 1;
         return new BrushPoint(document.X, document.Y, pressure);
+    }
+
+    private Point ConstrainStroke(Point point)
+    {
+        if (!shiftHeld) return point;
+        Vector delta = point - strokeStart;
+        return Math.Abs(delta.X) >= Math.Abs(delta.Y)
+            ? new Point(point.X, strokeStart.Y)
+            : new Point(strokeStart.X, point.Y);
     }
 
     public void SetSelectionRect(Rect? rectangle)

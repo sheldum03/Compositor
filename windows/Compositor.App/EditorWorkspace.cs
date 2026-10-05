@@ -581,6 +581,27 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.SetLayerMaskEnabled(layerId, !enabled));
     }
 
+    public void InvertActiveLayerMask()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || session.GetLayerMask(layerId) is not { } current)
+            throw new InvalidOperationException("当前图层没有蒙版。");
+        Edit(editSession => editSession.ReplaceLayerMask(layerId, current.Invert()));
+    }
+
+    public void FillActiveLayerMask(bool reveal)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || session.GetLayerMask(layerId) is null)
+            throw new InvalidOperationException("当前图层没有蒙版。");
+        GrayTileRaster next = reveal
+            ? GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width, session.Height)
+            : new GrayTileRaster(session.Width, session.Height);
+        Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
+    }
+
     public void SetActiveLayerClipping(bool enabled)
     {
         RequireIdle();
