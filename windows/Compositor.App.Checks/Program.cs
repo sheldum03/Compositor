@@ -280,6 +280,36 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedClippingMerge), expectedClippingMerge);
         clippingMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string clippingGuardProject = Path.Combine(output, "ClippingMergeGuard.comp");
+        var clippingGuardWorkspace = new EditorWorkspace();
+        clippingGuardWorkspace.Import(fixture, clippingGuardProject);
+        Guid guardSourceId = clippingGuardWorkspace.Session!.Layers[0].Id;
+        Guid guardTargetId = clippingGuardWorkspace.Session.AddBlankLayer("Clipped", 1);
+        Guid guardExternalId = clippingGuardWorkspace.Session.AddBlankLayer("External", 2);
+        clippingGuardWorkspace.Edit(session =>
+        {
+            session.SetLayerMaskSource(guardTargetId, guardSourceId);
+            session.SetLayerMaskSource(guardExternalId, guardSourceId);
+        });
+        var clippingGuardWindow = new MainWindow(clippingGuardWorkspace);
+        clippingGuardWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var clippingGuardLayerList = Control<ListBox>(clippingGuardWindow, "Layers");
+        clippingGuardLayerList.SelectedItems!.Clear();
+        foreach (FlatLayerInfo layerInfo in clippingGuardLayerList.ItemsView!.Cast<FlatLayerInfo>()
+            .Where(layerInfo => layerInfo.Id == guardSourceId || layerInfo.Id == guardTargetId))
+            clippingGuardLayerList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(!Control<Button>(clippingGuardWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "The merge command allowed a clipping source with an external target.");
+        clippingGuardLayerList.SelectedItems.Clear();
+        foreach (FlatLayerInfo layerInfo in clippingGuardLayerList.ItemsView!.Cast<FlatLayerInfo>()
+            .Where(layerInfo => layerInfo.Id == guardTargetId || layerInfo.Id == guardExternalId))
+            clippingGuardLayerList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(!Control<Button>(clippingGuardWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "The merge command allowed a clipping target without its source.");
+        clippingGuardWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         var secondWorkspace = new EditorWorkspace();
         secondWorkspace.Open(source);
         var tabsWindow = new MainWindow(workspace);
@@ -394,7 +424,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "project-tab undo history isolation",
                 "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
