@@ -963,6 +963,8 @@ public sealed class EditorWorkspace
     private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale)
     {
         byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        if (scale && width < source.Width && height < source.Height)
+            return ResizeRasterArea(source, width, height);
         if (scale)
         {
             for (int y = 0; y < height; y++)
@@ -999,6 +1001,53 @@ public sealed class EditorWorkspace
         return FromRgba(width, height, output);
     }
 
+    private static TileRaster ResizeRasterArea(TileRaster source, int width, int height)
+    {
+        byte[] input = ToRgba(source), horizontal = new byte[checked(width * source.Height * 4)], output = new byte[checked(width * height * 4)];
+        double[] sums = new double[4];
+        for (int y = 0; y < source.Height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            double start = x * (double)source.Width / width, end = (x + 1) * (double)source.Width / width;
+            int first = (int)Math.Floor(start), last = (int)Math.Ceiling(end);
+            double weightSum = 0;
+            Array.Clear(sums);
+            for (int sourceX = first; sourceX < last; sourceX++)
+            {
+                double weight = Math.Min(end, sourceX + 1) - Math.Max(start, sourceX);
+                if (weight <= 0) continue;
+                weightSum += weight;
+                for (int channel = 0; channel < 4; channel++)
+                    sums[channel] += input[(y * source.Width + sourceX) * 4 + channel] * weight;
+            }
+            int destination = (y * width + x) * 4;
+            for (int channel = 0; channel < 4; channel++)
+                horizontal[destination + channel] = (byte)Math.Clamp(
+                    Math.Round(sums[channel] / weightSum, MidpointRounding.AwayFromZero), 0, 255);
+        }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            double start = y * (double)source.Height / height, end = (y + 1) * (double)source.Height / height;
+            int first = (int)Math.Floor(start), last = (int)Math.Ceiling(end);
+            double weightSum = 0;
+            Array.Clear(sums);
+            for (int sourceY = first; sourceY < last; sourceY++)
+            {
+                double weight = Math.Min(end, sourceY + 1) - Math.Max(start, sourceY);
+                if (weight <= 0) continue;
+                weightSum += weight;
+                for (int channel = 0; channel < 4; channel++)
+                    sums[channel] += horizontal[(sourceY * width + x) * 4 + channel] * weight;
+            }
+            int destination = (y * width + x) * 4;
+            for (int channel = 0; channel < 4; channel++)
+                output[destination + channel] = (byte)Math.Clamp(
+                    Math.Round(sums[channel] / weightSum, MidpointRounding.AwayFromZero), 0, 255);
+        }
+        return FromRgba(width, height, output);
+    }
+
     private static TileRaster RotateRaster90(TileRaster source, bool clockwise)
     {
         int width = source.Width, height = source.Height;
@@ -1017,6 +1066,8 @@ public sealed class EditorWorkspace
     private static GrayTileRaster ResizeMask(GrayTileRaster source, int width, int height, bool scale)
     {
         byte[] input = ToCoverage(source), output = new byte[checked(width * height)];
+        if (scale && width < source.Width && height < source.Height)
+            return ResizeMaskArea(source, width, height);
         if (scale)
         {
             for (int y = 0; y < height; y++)
@@ -1040,6 +1091,44 @@ public sealed class EditorWorkspace
         for (int x = 0; x < width; x++)
             if ((uint)x < (uint)source.Width && (uint)y < (uint)source.Height)
                 output[y * width + x] = input[y * source.Width + x];
+        return GrayTileRaster.FromCoverage(width, height, output);
+    }
+
+    private static GrayTileRaster ResizeMaskArea(GrayTileRaster source, int width, int height)
+    {
+        byte[] input = ToCoverage(source), horizontal = new byte[checked(width * source.Height)], output = new byte[checked(width * height)];
+        for (int y = 0; y < source.Height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            double start = x * (double)source.Width / width, end = (x + 1) * (double)source.Width / width;
+            int first = (int)Math.Floor(start), last = (int)Math.Ceiling(end);
+            double sum = 0, weightSum = 0;
+            for (int sourceX = first; sourceX < last; sourceX++)
+            {
+                double weight = Math.Min(end, sourceX + 1) - Math.Max(start, sourceX);
+                if (weight <= 0) continue;
+                sum += input[y * source.Width + sourceX] * weight;
+                weightSum += weight;
+            }
+            horizontal[y * width + x] = (byte)Math.Clamp(
+                Math.Round(sum / weightSum, MidpointRounding.AwayFromZero), 0, 255);
+        }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            double start = y * (double)source.Height / height, end = (y + 1) * (double)source.Height / height;
+            int first = (int)Math.Floor(start), last = (int)Math.Ceiling(end);
+            double sum = 0, weightSum = 0;
+            for (int sourceY = first; sourceY < last; sourceY++)
+            {
+                double weight = Math.Min(end, sourceY + 1) - Math.Max(start, sourceY);
+                if (weight <= 0) continue;
+                sum += horizontal[sourceY * width + x] * weight;
+                weightSum += weight;
+            }
+            output[y * width + x] = (byte)Math.Clamp(
+                Math.Round(sum / weightSum, MidpointRounding.AwayFromZero), 0, 255);
+        }
         return GrayTileRaster.FromCoverage(width, height, output);
     }
 

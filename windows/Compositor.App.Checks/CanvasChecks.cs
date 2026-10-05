@@ -429,6 +429,14 @@ internal static class CanvasChecks
             transformedFloatingWorkspace.Undo() &&
             SamePixels(transformedFloatingBefore, transformedFloatingWorkspace.Session.GetLayerRaster(transformedFloatingLayerId)),
             "Committing a transformed floating selection did not create an undoable source edit.");
+        var areaWorkspace = new EditorWorkspace();
+        areaWorkspace.Open(project);
+        Guid areaLayerId = areaWorkspace.Session!.ActiveLayerId!.Value;
+        TileRaster areaSource = areaWorkspace.Session.GetLayerRaster(areaLayerId);
+        areaWorkspace.ResizeImage(128, 128);
+        Require(Pixel(areaWorkspace.Session.GetLayerRaster(areaLayerId), 64, 64)
+                .SequenceEqual(AreaPixel(areaSource, 64, 64, 128, 128)),
+            "Image downscale did not use the expected area coverage for premultiplied pixels.");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);
@@ -499,9 +507,12 @@ internal static class CanvasChecks
         Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 134, 128) == 0 &&
             !SamePixels(maskPreviewBeforeFlip, maskTransformWorkspace.Preview!),
             "Layer flip did not preserve the source mask while changing the transformed preview.");
+        GrayTileRaster maskBeforeResize = transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!;
+        byte expectedAreaMask = AreaCoveragePixel(maskBeforeResize, 64, 64, 128, 128);
         maskTransformWorkspace.ResizeImage(128, 128);
         Require(maskTransformWorkspace.Session!.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
-            maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 },
+            maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 } resizedMask &&
+            MaskPixel(resizedMask, 64, 64) == expectedAreaMask,
             "Image resize did not keep the full-canvas layer mask aligned.");
         maskTransformWorkspace.RotateDocument90(clockwise: true);
         Require(maskTransformWorkspace.Session.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
@@ -712,6 +723,62 @@ internal static class CanvasChecks
                 tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(bytes.AsSpan(((row * 256 + y) * raster.Width + column * 256) * 4));
         }
         return bytes;
+    }
+
+    private static byte[] AreaPixel(TileRaster source, int x, int y, int width, int height)
+    {
+        byte[] input = Bytes(source), result = new byte[4];
+        double startX = x * (double)source.Width / width, endX = (x + 1) * (double)source.Width / width;
+        double startY = y * (double)source.Height / height, endY = (y + 1) * (double)source.Height / height;
+        int firstY = (int)Math.Floor(startY), lastY = (int)Math.Ceiling(endY);
+        double[] vertical = new double[4];
+        double yWeightSum = 0;
+        for (int sourceY = firstY; sourceY < lastY; sourceY++)
+        {
+            double yWeight = Math.Min(endY, sourceY + 1) - Math.Max(startY, sourceY);
+            if (yWeight <= 0) continue;
+            int firstX = (int)Math.Floor(startX), lastX = (int)Math.Ceiling(endX);
+            double[] horizontal = new double[4];
+            double xWeightSum = 0;
+            for (int sourceX = firstX; sourceX < lastX; sourceX++)
+            {
+                double xWeight = Math.Min(endX, sourceX + 1) - Math.Max(startX, sourceX);
+                if (xWeight <= 0) continue;
+                xWeightSum += xWeight;
+                int offset = (sourceY * source.Width + sourceX) * 4;
+                for (int channel = 0; channel < 4; channel++) horizontal[channel] += input[offset + channel] * xWeight;
+            }
+            for (int channel = 0; channel < 4; channel++)
+                vertical[channel] += Math.Round(horizontal[channel] / xWeightSum, MidpointRounding.AwayFromZero) * yWeight;
+            yWeightSum += yWeight;
+        }
+        for (int channel = 0; channel < 4; channel++)
+            result[channel] = (byte)Math.Clamp(Math.Round(vertical[channel] / yWeightSum, MidpointRounding.AwayFromZero), 0, 255);
+        return result;
+    }
+
+    private static byte AreaCoveragePixel(GrayTileRaster source, int x, int y, int width, int height)
+    {
+        double startX = x * (double)source.Width / width, endX = (x + 1) * (double)source.Width / width;
+        double startY = y * (double)source.Height / height, endY = (y + 1) * (double)source.Height / height;
+        int firstY = (int)Math.Floor(startY), lastY = (int)Math.Ceiling(endY);
+        double sum = 0, yWeightSum = 0;
+        for (int sourceY = firstY; sourceY < lastY; sourceY++)
+        {
+            double yWeight = Math.Min(endY, sourceY + 1) - Math.Max(startY, sourceY);
+            if (yWeight <= 0) continue;
+            double horizontal = 0, xWeightSum = 0;
+            for (int sourceX = (int)Math.Floor(startX); sourceX < (int)Math.Ceiling(endX); sourceX++)
+            {
+                double xWeight = Math.Min(endX, sourceX + 1) - Math.Max(startX, sourceX);
+                if (xWeight <= 0) continue;
+                horizontal += MaskPixel(source, sourceX, sourceY) * xWeight;
+                xWeightSum += xWeight;
+            }
+            sum += Math.Round(horizontal / xWeightSum, MidpointRounding.AwayFromZero) * yWeight;
+            yWeightSum += yWeight;
+        }
+        return (byte)Math.Clamp(Math.Round(sum / yWeightSum, MidpointRounding.AwayFromZero), 0, 255);
     }
 
     private static void Require(bool condition, string message) { if (!condition) throw new Exception(message); }
