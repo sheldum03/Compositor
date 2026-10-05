@@ -147,6 +147,19 @@ internal static class NewDocumentChecks
         Click("Undo");
         Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
             "Undo did not restore the saved dimensions after rotation.");
+        Begin("RotateClockwise"); Pump(window);
+        Click("Save");
+        var rotatedReopened = ImageProjectWorkflow.OpenEditable(saved);
+        Require(rotatedReopened.Width == 257 && rotatedReopened.Height == 259,
+            "Saved rotated document did not reopen with exchanged dimensions.");
+        Click("Undo");
+        Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && workspace.IsDirty,
+            "Undo after saving rotation did not restore the previous dimensions.");
+        Click("Redo");
+        Require(workspace.Session.Width == 257 && workspace.Session.Height == 259 && !workspace.IsDirty,
+            "Redo after saving rotation did not restore the saved rotated dimensions.");
+        Click("Save");
+        Require(!workspace.IsDirty, "Saving the reopened rotation state did not restore the save point.");
         window.Close(); Dispatcher.UIThread.RunJobs(); Require(!window.IsVisible, "Saved new document did not close.");
         Require(SHA256.HashData(File.ReadAllBytes(Path.Combine(project, "manifest.json"))).SequenceEqual(sourceHash),
             "New document workflow changed the source project.");
