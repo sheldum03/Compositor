@@ -13,6 +13,8 @@ public sealed class EditorWorkspace
     private SelectionMoveHistory? selectionMoveHistory;
     private bool selectionMoveUndone;
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
+    private readonly List<GrayTileRaster?> selectionHistory = [null];
+    private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null;
     public ProjectSession? Session { get; private set; }
     public TileRaster? Preview { get; private set; }
@@ -33,6 +35,7 @@ public sealed class EditorWorkspace
         Preview = preview;
         ClearClipboard();
         ClearSelection();
+        ResetSelectionHistory();
     }
 
     public void Open(string directory)
@@ -44,6 +47,7 @@ public sealed class EditorWorkspace
         Preview = preview;
         ClearClipboard();
         ClearSelection();
+        ResetSelectionHistory();
     }
 
     public void Import(string image, string directory)
@@ -55,6 +59,7 @@ public sealed class EditorWorkspace
         Preview = preview;
         ClearClipboard();
         ClearSelection();
+        ResetSelectionHistory();
     }
 
     public void Edit(Action<ProjectSession> operation)
@@ -71,7 +76,12 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         var session = RequireSession();
-        if (!session.Undo()) return false;
+        if (!session.Undo())
+        {
+            if (selectionHistoryCursor == 0) return false;
+            ApplySelectionState(selectionHistory[--selectionHistoryCursor]);
+            return true;
+        }
         if (selectionMoveHistory is { } move && !selectionMoveUndone)
         {
             RestoreSelection(move.Before);
@@ -85,7 +95,12 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         var session = RequireSession();
-        if (!session.Redo()) return false;
+        if (!session.Redo())
+        {
+            if (selectionHistoryCursor >= selectionHistory.Count - 1) return false;
+            ApplySelectionState(selectionHistory[++selectionHistoryCursor]);
+            return true;
+        }
         if (selectionMoveHistory is { } move && selectionMoveUndone)
         {
             RestoreSelection(move.After);
@@ -170,6 +185,7 @@ public sealed class EditorWorkspace
             : operation == GraySelectionOperation.Add ? next : null;
         if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = SelectionBoundsFor(Selection);
+        RecordSelectionState();
         UpdateSelectionOutline();
     }
 
@@ -189,6 +205,7 @@ public sealed class EditorWorkspace
             : operation == GraySelectionOperation.Add ? next : null;
         if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = SelectionBoundsFor(Selection);
+        RecordSelectionState();
         UpdateSelectionOutline();
     }
 
@@ -213,6 +230,7 @@ public sealed class EditorWorkspace
             : operation == GraySelectionOperation.Add ? next : null;
         if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
         SelectionBounds = new Rect(x0, y0, x1 - x0, y1 - y0);
+        RecordSelectionState();
         UpdateSelectionOutline();
     }
 
@@ -222,6 +240,7 @@ public sealed class EditorWorkspace
         Selection = null;
         SelectionBounds = null;
         SelectionOutline = null;
+        RecordSelectionState();
     }
 
     public bool HasClipboard => clipboardRaster is not null && clipboardMask is not null;
@@ -307,6 +326,7 @@ public sealed class EditorWorkspace
         if (next.CoveredPixels == 0) { ClearSelection(); return; }
         Selection = next;
         SelectionBounds = SelectionBoundsFor(next);
+        RecordSelectionState();
         UpdateSelectionOutline();
     }
 
@@ -448,6 +468,37 @@ public sealed class EditorWorkspace
                 }
         }
         return new Rect(left, top, right - left + 1, bottom - top + 1);
+    }
+
+    private void ApplySelectionState(GrayTileRaster? selection)
+    {
+        if (selection is null) ClearSelectionWithoutHistory();
+        else RestoreSelection(selection);
+    }
+
+    private void RecordSelectionState()
+    {
+        selectionMoveHistory = null;
+        if (ReferenceEquals(selectionHistory[selectionHistoryCursor], Selection)) return;
+        if (selectionHistoryCursor < selectionHistory.Count - 1)
+            selectionHistory.RemoveRange(selectionHistoryCursor + 1, selectionHistory.Count - selectionHistoryCursor - 1);
+        selectionHistory.Add(Selection);
+        selectionHistoryCursor++;
+    }
+
+    private void ResetSelectionHistory()
+    {
+        selectionHistory.Clear();
+        selectionHistory.Add(Selection);
+        selectionHistoryCursor = 0;
+        selectionMoveHistory = null;
+    }
+
+    private void ClearSelectionWithoutHistory()
+    {
+        Selection = null;
+        SelectionBounds = null;
+        SelectionOutline = null;
     }
 
     private void UpdateSelectionOutline()

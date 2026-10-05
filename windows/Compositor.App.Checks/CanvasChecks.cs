@@ -38,6 +38,14 @@ internal static class CanvasChecks
         byte[] hardTile = hardResult.ReadTileCopy(0, 0);
         Require(hardTile[(10 * 21 + 10) * 4 + 3] == 255 && hardTile[3] == 0,
             "Hard brush did not produce a hard circular edge.");
+        var selectionHistoryWorkspace = new EditorWorkspace();
+        selectionHistoryWorkspace.Import(fixture, Path.Combine(output, "SelectionHistory.comp"));
+        selectionHistoryWorkspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        selectionHistoryWorkspace.SelectRectangle(new Rect(10, 10, 20, 20));
+        Require(selectionHistoryWorkspace.Undo() && selectionHistoryWorkspace.SelectionBounds is { X: 30, Y: 30 } && !selectionHistoryWorkspace.IsDirty,
+            "Undo did not restore the previous session selection without a pixel transaction.");
+        Require(selectionHistoryWorkspace.Redo() && selectionHistoryWorkspace.SelectionBounds is { X: 10, Y: 10 } && !selectionHistoryWorkspace.IsDirty,
+            "Redo did not restore the next session selection without a pixel transaction.");
         foreach (var test in cases)
         {
             var stroke = new SoftBrushStroke(original, new SoftBrushSettings(test.Diameter, test.Opacity, test.Color));
