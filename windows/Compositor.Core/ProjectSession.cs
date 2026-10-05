@@ -1090,6 +1090,9 @@ public sealed class ProjectSession
         var nextLayers = next["layers"]!.AsArray();
         var lowerNode = nextLayers[upperIndex - 1]!.AsObject();
         lowerNode["name"] = mergedName;
+        lowerNode["isVisible"] = lower.IsVisible || upper.IsVisible;
+        lowerNode["opacity"] = 1d;
+        lowerNode["blendMode"] = "Normal";
         lowerNode.Remove("maskFile");
         lowerNode.Remove("maskEnabled");
         lowerNode.Remove("maskSourceID");

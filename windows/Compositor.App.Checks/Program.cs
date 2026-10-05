@@ -106,17 +106,24 @@ internal static class Program
         var mergeWorkspace = new EditorWorkspace();
         mergeWorkspace.Import(fixture, mergeProject);
         Guid mergeTopId = mergeWorkspace.Session!.AddBlankLayer("Top", 1);
+        Guid mergeLowerId = mergeWorkspace.Session.Layers[0].Id;
         TileRaster blankTop = mergeWorkspace.Session.GetLayerRaster(mergeTopId);
         var topSize = blankTop.TileDimensions(0, 0);
         byte[] topTile = blankTop.ReadTileCopy(0, 0);
         int topOffset = (10 * topSize.Width + 10) * 4;
         topTile[topOffset] = 128; topTile[topOffset + 3] = 128;
-        mergeWorkspace.Edit(session => session.ReplaceLayerRaster(mergeTopId, blankTop.ReplaceTile(0, 0, topTile)));
+        mergeWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(mergeLowerId, 0.6);
+            session.SetLayerOpacity(mergeTopId, 0.7);
+            session.ReplaceLayerRaster(mergeTopId, blankTop.ReplaceTile(0, 0, topTile));
+        });
         mergeWorkspace.Save();
-        Guid mergeLowerId = mergeWorkspace.Session.Layers[0].Id;
+        FlatLayerInfo mergeLower = mergeWorkspace.Session.Layers.Single(layer => layer.Id == mergeLowerId);
+        FlatLayerInfo mergeTop = mergeWorkspace.Session.Layers.Single(layer => layer.Id == mergeTopId);
         TileRaster expectedMerge = LayerCompositor.Composite(new TileRaster(mergeWorkspace.Session.Width, mergeWorkspace.Session.Height),
-            mergeWorkspace.Session.GetLayerRaster(mergeLowerId), 1, "Normal");
-        expectedMerge = LayerCompositor.Composite(expectedMerge, mergeWorkspace.Session.GetLayerRaster(mergeTopId), 1, "Normal");
+            mergeWorkspace.Session.GetLayerRaster(mergeLowerId), mergeLower.Opacity, "Normal");
+        expectedMerge = LayerCompositor.Composite(expectedMerge, mergeWorkspace.Session.GetLayerRaster(mergeTopId), mergeTop.Opacity, "Normal");
         TileRaster mergeBefore = ImageProjectWorkflow.RenderFlatNormal(mergeWorkspace.Session);
         var mergeWindow = new MainWindow(mergeWorkspace);
         mergeWindow.Show(); Dispatcher.UIThread.RunJobs();
@@ -127,6 +134,9 @@ internal static class Program
         Click(mergeWindow, "MergeLayerDown");
         Require(mergeWorkspace.Session.Layers.Count == 1 && mergeWorkspace.Session.ActiveLayerId == mergeLowerId &&
             mergeWorkspace.IsDirty, "Merge-down did not produce one active merged layer.");
+        FlatLayerInfo mergedLayer = mergeWorkspace.Session.Layers.Single();
+        Require(mergedLayer.IsVisible && mergedLayer.Opacity == 1 && mergedLayer.BlendMode == "Normal",
+            "Merge-down did not normalize the merged layer appearance metadata.");
         CheckEqual(mergeWorkspace.Preview!, expectedMerge);
         Click(mergeWindow, "Undo");
         Require(mergeWorkspace.Session.Layers.Count == 2 && !mergeWorkspace.IsDirty,
