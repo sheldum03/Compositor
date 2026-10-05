@@ -2,14 +2,14 @@
 
 实现提交：`ed0f6e2`（`Enable editable pass-through group masks`）、`be885fe`（`Add root group and ungroup editing`）、`421b4f2`（`Support nested group structure editing`）、`83b925e`（`Support simple masked group ungrouping`）；回归提交：`6b759f3`（`Verify editable group appearance history`）、`2702d92`（`Guard grouped layer reordering`）、`3db13af`（`Protect grouped project controls`）、`155a82a`（`Disable raster tools on group selection`）、`6338ac5`（`Cover multi-layer root grouping`）。
 
-本切片把 v8 的受限 pass-through 组从只读缓存预览推进到可编辑加载。范围是全画布栅格资产、全画布 Gray8 蒙版、组变换为 identity；组内叶子可以保留已有画布内变换和连续 clipping stack。组结构、组变换、调整层、文本/形状编辑仍不在本切片范围，结构操作在含组工程中继续拒绝。
+本切片把 v8 的受限 pass-through 组从只读缓存预览推进到可编辑加载。范围是全画布栅格资产、全画布 Gray8 蒙版、组变换为 identity；组内叶子可以保留已有画布内变换和连续 clipping stack。连续同级建组、嵌套建组以及无剪贴栈带组蒙版解组已纳入；组变换、调整层、文本/形状编辑仍不在本切片范围。
 
 已实现：
 
 - `ProjectStore` 允许符合白名单的 v8 组/父子层，并为嵌套组和组蒙版建立资产哈希；组层不再被误当作必须有 image asset 的平面层。
 - `ProjectSession` 暴露 `IsGroup`/`ParentId`，只为叶子加载像素；组蒙版可创建、切换、替换，并共享撤销/重做快照；组显隐和透明度也通过同一历史事务渲染。
 - 支持同级连续普通图层或组建立 pass-through 嵌套组，并支持无剪贴栈的启用组蒙版根级/嵌套组安全解组；带剪贴栈或禁用组蒙版解组、复杂排序和多选 UI 仍不在本切片范围。
-- 含组工程的增删、复制、删除、排序和剪贴关系结构变更继续明确拒绝；排序路径已补统一保护，避免同位置移动绕过拒绝检查。
+- 除上述建组/解组外，含组工程的增删、复制、删除、排序和剪贴关系结构变更继续明确拒绝；排序路径已补统一保护，避免同位置移动绕过拒绝检查。
 - `ImageProjectWorkflow.OpenEditable` 加载叶子栅格和组/叶子蒙版；编辑预览从内存资产渲染，保存时只写入实际像素资产和蒙版资产。
 - 应用层的蒙版笔刷对组使用画布尺寸作为笔刷边界，避免向无像素资产的组请求 raster。
 - 窗口层对组工程禁用增删、复制、排序、剪贴结构、文档尺寸/旋转等未实现操作；选中组时进一步禁用像素复制/剪切/粘贴、Alpha 载入和组层像素变换，同时保留组蒙版启停与编辑按钮；Headless UI 回归覆盖这些按钮状态。
