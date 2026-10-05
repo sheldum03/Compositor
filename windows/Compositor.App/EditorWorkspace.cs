@@ -482,6 +482,21 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.SetLayerMaskEnabled(layerId, !enabled));
     }
 
+    public void SetActiveLayerClipping(bool enabled)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        int index = session.Layers.ToList().FindIndex(layer => layer.Id == layerId);
+        if (enabled)
+        {
+            if (index <= 0) throw new InvalidOperationException("当前图层下方没有可用剪贴源。");
+            Edit(editSession => editSession.SetLayerMaskSource(layerId, editSession.Layers[index - 1].Id));
+        }
+        else Edit(editSession => editSession.SetLayerMaskSource(layerId, null));
+    }
+
     public void ApplySelectionToActiveLayerMask(bool reveal)
     {
         RequireIdle();

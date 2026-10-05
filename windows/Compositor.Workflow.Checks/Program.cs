@@ -543,12 +543,9 @@ static void CheckClippingMask(string output)
     Guid targetId = session.AddBlankLayer("Clipped", 1);
     var target = new TileRaster(2, 1).ReplaceTile(0, 0, [0, 0, 255, 255, 0, 0, 255, 255]);
     session.ReplaceLayerRaster(targetId, target);
+    session.SetLayerMaskSource(targetId, sourceId);
+    session.SetLayerVisible(sourceId, false);
     ImageProjectWorkflow.Save(session, project);
-    string manifestPath = Path.Combine(project, "manifest.json");
-    var manifest = JsonNode.Parse(File.ReadAllText(manifestPath))!.AsObject();
-    manifest["layers"]![1]!["maskSourceID"] = sourceId.ToString("D");
-    manifest["layers"]![0]!["isVisible"] = false;
-    File.WriteAllText(manifestPath, manifest.ToJsonString());
     var reopened = ImageProjectWorkflow.OpenEditable(project);
     if (!reopened.CanEdit || reopened.Layers.Count != 2)
         throw new Exception("A valid flat clipping-mask project was not editable.");
@@ -573,6 +570,10 @@ static void CheckClippingMask(string output)
         throw new Exception("Clipping-mask layers were reordered without a placement policy.");
     }
     catch (NotSupportedException) { }
+    persisted.SetLayerMaskSource(targetId, null);
+    persisted.DeleteLayer(sourceId);
+    if (persisted.Layers.Count != 1 || persisted.Layers[0].MaskSourceId is not null)
+        throw new Exception("Releasing a clipping relationship did not restore ordinary layer editing.");
 }
 
 static void SaveGrayMask(string path, int width, int height)

@@ -8,6 +8,7 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
     public string BlendMode { get; init; } = "Normal";
     public bool HasMask { get; init; }
     public bool MaskEnabled { get; init; }
+    public Guid? MaskSourceId { get; init; }
 }
 
 public sealed class ProjectSession
@@ -64,7 +65,8 @@ public sealed class ProjectSession
             Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
             HasMask = layer["maskFile"] is not null,
-            MaskEnabled = layer["maskFile"] is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true)
+            MaskEnabled = layer["maskFile"] is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true),
+            MaskSourceId = layer["maskSourceID"] is { } source ? Guid.Parse(source.GetValue<string>()) : null
         }).ToArray();
     public TileRaster? Raster => ImageName.Length != 0 &&
         TryGetLoadedLayerRaster(Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>()), out var raster) ? raster : null;
@@ -352,6 +354,31 @@ public sealed class ProjectSession
         JsonNode layer = reordered[sourceIndex]!;
         reordered.RemoveAt(sourceIndex);
         reordered.Insert(destinationIndex, layer);
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    public void SetLayerMaskSource(Guid layerId, Guid? sourceLayerId)
+    {
+        RequireLayerStructureEditing();
+        int targetIndex = FindLayer(layerId);
+        var layers = Current["layers"]!.AsArray();
+        if (sourceLayerId is { } sourceId)
+        {
+            if (sourceId == layerId) throw new ArgumentException("A layer cannot clip itself.", nameof(sourceLayerId));
+            int sourceIndex = FindLayer(sourceId);
+            if (sourceIndex >= targetIndex)
+                throw new InvalidOperationException("剪贴源必须位于目标图层下方。");
+            if (layers[targetIndex]!["isGroup"]?.GetValue<bool>() == true ||
+                layers[sourceIndex]!["isGroup"]?.GetValue<bool>() == true)
+                throw new NotSupportedException("组图层不能作为当前剪贴关系。");
+        }
+        var current = layers[targetIndex]!;
+        Guid? existing = current["maskSourceID"] is { } value ? Guid.Parse(value.GetValue<string>()) : null;
+        if (existing == sourceLayerId) return;
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayer = next["layers"]![targetIndex]!.AsObject();
+        if (sourceLayerId is { } id) nextLayer["maskSourceID"] = id.ToString("D");
+        else nextLayer.Remove("maskSourceID");
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 

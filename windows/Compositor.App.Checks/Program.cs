@@ -65,6 +65,13 @@ internal static class Program
         Require(workspace.Session.Layers[0].Id == Guid.Parse(id), "Layer panel did not move selected layer toward the bottom.");
         Click(window, "MoveUp");
         Require(workspace.Session.Layers[^1].Id == Guid.Parse(id), "Layer panel did not move selected layer toward the top.");
+        Guid clippingSourceId = workspace.Session.Layers[0].Id;
+        Click(window, "SetClippingMask");
+        Require(workspace.Session.Layers[^1].MaskSourceId == clippingSourceId,
+            "Clipping relationship button did not use the lower layer as the source.");
+        Click(window, "ReleaseClippingMask");
+        Require(workspace.Session.Layers[^1].MaskSourceId is null,
+            "Release clipping button did not clear the relationship.");
         string png = Path.Combine(output, "export.png"), jpeg = Path.Combine(output, "export.jpg");
         workspace.Export(png, false); workspace.Export(jpeg, true);
         Require(workspace.IsDirty, "Export incorrectly cleared unsaved changes.");
@@ -109,6 +116,7 @@ internal static class Program
         {
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
+                "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));

@@ -139,6 +139,8 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("FlipLayerVertical", "垂直翻转", () => FlipLayerAsync(false), layer: true));
         structure.Children.Add(Command("AddMask", "添加蒙版", AddMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
+        structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
+        structure.Children.Add(Command("ReleaseClippingMask", "释放剪贴", () => SetClippingMaskAsync(false), layer: true));
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
@@ -167,7 +169,8 @@ public sealed class MainWindow : Window
         DockPanel.SetDock(actions, Dock.Bottom); sidebar.Children.Add(actions);
         layers.ItemTemplate = new FuncDataTemplate<FlatLayerInfo>((item, _) => new TextBlock
         {
-            Text = item is null ? "" : (item.IsVisible ? "●  " : "○  ") + item.Name,
+            Text = item is null ? "" : (item.IsVisible ? "●  " : "○  ") +
+                (item.MaskSourceId is not null ? "[剪贴] " : "") + item.Name,
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
@@ -388,6 +391,14 @@ public sealed class MainWindow : Window
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
         UpdatePaintMode();
         foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null;
+        if (Workspace.Session is { } session && selected is not null)
+        {
+            int index = session.Layers.ToList().FindIndex(layer => layer.Id == selected.Id);
+            foreach (var button in layerButtons.Where(button => button.Name is "SetClippingMask" or "ReleaseClippingMask"))
+                button.IsEnabled = Workspace.CanEdit && (button.Name == "ReleaseClippingMask"
+                    ? selected.MaskSourceId is not null
+                    : selected.MaskSourceId is null && index > 0);
+        }
         foreach (var button in maskButtons)
             button.IsEnabled = Workspace.CanEdit && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
@@ -450,6 +461,7 @@ public sealed class MainWindow : Window
     }
     private Task AddMaskAsync() => Task.Run(Workspace.AddActiveLayerMask);
     private Task ToggleMaskAsync() => Task.Run(Workspace.ToggleActiveLayerMask);
+    private Task SetClippingMaskAsync(bool enabled) => Task.Run(() => Workspace.SetActiveLayerClipping(enabled));
     private Task ApplyMaskSelectionAsync(bool reveal) => Task.Run(() => Workspace.ApplySelectionToActiveLayerMask(reveal));
     private Task ClearSelectionAsync()
     {
