@@ -14,6 +14,7 @@ public sealed class CanvasView : Control
     public CanvasViewport Viewport { get; } = new();
     public WriteableBitmap? Bitmap { get; private set; }
     public bool PaintEnabled { get; set; }
+    public bool PixelGridEnabled { get; set; }
     public bool IsDrawing => captured is not null && !panning;
     public event Action<Point>? StrokeStarted;
     public event Action<Point>? StrokeMoved;
@@ -83,6 +84,13 @@ public sealed class CanvasView : Control
         InvalidateVisual();
     }
 
+    public void ActualSize()
+    {
+        if (Bitmap is { } bitmap) Viewport.ActualSize(new Size(bitmap.PixelSize.Width, bitmap.PixelSize.Height), Bounds.Size);
+        autoFit = false;
+        InvalidateVisual();
+    }
+
     public void Cancel()
     {
         if (captured is null) return;
@@ -115,5 +123,23 @@ public sealed class CanvasView : Control
                     new Rect(destination.Left + x * 12, destination.Top + y * 12, 12, 12));
         }
         context.DrawImage(bitmap, source, destination);
+        if (PixelGridEnabled && Viewport.Scale >= 4)
+        {
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(160, 80, 80, 80)), 1);
+            int left = Math.Max(0, (int)Math.Floor((visible.Left - destination.Left) / Viewport.Scale));
+            int top = Math.Max(0, (int)Math.Floor((visible.Top - destination.Top) / Viewport.Scale));
+            int right = Math.Min(bitmap.PixelSize.Width, (int)Math.Ceiling((visible.Right - destination.Left) / Viewport.Scale));
+            int bottom = Math.Min(bitmap.PixelSize.Height, (int)Math.Ceiling((visible.Bottom - destination.Top) / Viewport.Scale));
+            for (int x = left; x <= right; x++)
+            {
+                double viewX = destination.Left + x * Viewport.Scale;
+                context.DrawLine(pen, new Point(viewX, visible.Top), new Point(viewX, visible.Bottom));
+            }
+            for (int y = top; y <= bottom; y++)
+            {
+                double viewY = destination.Top + y * Viewport.Scale;
+                context.DrawLine(pen, new Point(visible.Left, viewY), new Point(visible.Right, viewY));
+            }
+        }
     }
 }

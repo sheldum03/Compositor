@@ -26,6 +26,7 @@ public sealed class MainWindow : Window
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
+    private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
@@ -55,6 +56,9 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("ExportPng", "导出 PNG", () => ExportAsync(false), document: true));
         toolbar.Children.Add(Command("ExportJpeg", "导出 JPEG", () => ExportAsync(true), document: true));
         toolbar.Children.Add(Command("Fit", "适合窗口", () => { canvas.Fit(); return Task.CompletedTask; }, document: true));
+        toolbar.Children.Add(Command("ActualSize", "100%", () => { canvas.ActualSize(); return Task.CompletedTask; }, document: true));
+        toolbar.Children.Add(pixelGrid);
+        pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
@@ -209,6 +213,7 @@ public sealed class MainWindow : Window
         layers.SelectedItem = items.FirstOrDefault(layer => layer.Id == Workspace.Session?.ActiveLayerId) ?? items.FirstOrDefault();
         refreshing = false;
         foreach (var button in documentButtons) button.IsEnabled = Workspace.Session is not null;
+        pixelGrid.IsEnabled = Workspace.Session is not null;
         UpdateSelection();
     }
 

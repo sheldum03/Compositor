@@ -75,6 +75,17 @@ internal static class CanvasChecks
         window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Dispatcher.UIThread.RunJobs();
         Require((canvas.Viewport.Offset - offset - new Vector(17, -11)).Length < 1e-8 && !workspace.HasActiveStroke && !workspace.IsDirty,
             "Space plus left-button pan painted pixels or failed to move the viewport.");
+        Click("ActualSize");
+        Require(Math.Abs(canvas.Viewport.Scale - 1) < 1e-8 && !workspace.IsDirty,
+            "100% view changed the document or failed to set exact scale.");
+        canvas.Viewport.Zoom(new Point(560, 380), 6);
+        canvas.InvalidateVisual(); Dispatcher.UIThread.RunJobs();
+        var gridOff = RenderWindow(window, Path.Combine(output, "pixel-grid-off.png"));
+        Find<CheckBox>(window, "PixelGrid").IsChecked = true; Dispatcher.UIThread.RunJobs();
+        var gridOn = RenderWindow(window, Path.Combine(output, "pixel-grid-on.png"));
+        Require(!SamePixels(gridOff, gridOn) && !workspace.IsDirty,
+            "Pixel grid did not change the zoomed canvas view or changed document state.");
+        Find<CheckBox>(window, "PixelGrid").IsChecked = false; Dispatcher.UIThread.RunJobs();
         canvas.Fit();
         var points = cases.Single(test => test.Name == "CrossTile").Points.Select(p => new Point(p[0], p[1])).ToArray();
         window.MouseDown(DocumentPoint(points[0]), MouseButton.Left);
@@ -148,6 +159,20 @@ internal static class CanvasChecks
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
     private static bool Near(Point a, Point b) => Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) < 1e-8;
+    private static TileRaster RenderWindow(Window window, string path)
+    {
+        using var screenshot = new RenderTargetBitmap(new PixelSize(1120, 760), new Vector(96, 96));
+        screenshot.Render(window); screenshot.Save(path);
+        return ImageCodec.Load(path);
+    }
+    private static bool SamePixels(TileRaster a, TileRaster b)
+    {
+        if (a.Width != b.Width || a.Height != b.Height) return false;
+        for (int row = 0; row * TileRaster.TileSize < a.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < a.Width; column++)
+            if (!a.ReadTileCopy(column, row).SequenceEqual(b.ReadTileCopy(column, row))) return false;
+        return true;
+    }
     private static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
     private static void CheckGolden(TileRaster raster, ZipArchive zip, string entry)
     {

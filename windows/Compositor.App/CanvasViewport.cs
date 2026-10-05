@@ -25,5 +25,12 @@ public sealed class CanvasViewport
         Offset = new Vector(anchor.X - pixel.X * Scale, anchor.Y - pixel.Y * Scale);
     }
 
+    public void ActualSize(Size document, Size view)
+    {
+        if (document.Width <= 0 || document.Height <= 0 || view.Width <= 0 || view.Height <= 0) return;
+        Scale = 1;
+        Offset = new Vector((view.Width - document.Width) / 2, (view.Height - document.Height) / 2);
+    }
+
     public void Pan(Vector delta) => Offset += delta;
 }
