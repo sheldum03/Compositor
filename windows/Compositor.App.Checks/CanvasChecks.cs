@@ -101,6 +101,20 @@ internal static class CanvasChecks
             $"Rectangle selection did not release a rectangle: selecting={canvas.IsSelecting}, rect={canvas.SelectionRect}, finished={selectionFinished}, canceled={selectionCanceled}, eventRect={selectedRect}.");
         Require(workspace.HasSelection && workspace.SelectedPixels == 120 * 90 && !workspace.IsDirty,
             $"Rectangle selection did not create the expected in-memory mask without history: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}, bounds={workspace.SelectionBounds}, dirty={workspace.IsDirty}.");
+        Click("CopySelection");
+        Require(workspace.HasClipboard && !workspace.IsDirty, "Copy selection changed document history or did not retain a clipboard snapshot.");
+        Click("CutSelection");
+        Require(workspace.IsDirty && !Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Cut selection did not create a history step or clear selected pixels.");
+        Click("Undo");
+        Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Undo did not restore the cut selection baseline.");
+        Click("CutSelection"); Click("PasteSelection");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Paste selection did not restore the copied pixels at their original position.");
+        Click("Undo"); Click("Undo");
+        Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Undo did not remove the cut and paste selection history.");
         Find<CheckBox>(window, "RectSelect").IsChecked = false;
         Find<CheckBox>(window, "Paint").IsChecked = true;
         window.MouseDown(DocumentPoint(new Point(220, 220)), MouseButton.Left);

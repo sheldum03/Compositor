@@ -8,6 +8,8 @@ public sealed class EditorWorkspace
 {
     private SoftBrushStroke? brush;
     private Guid brushLayer;
+    private TileRaster? clipboardRaster;
+    private GrayTileRaster? clipboardMask;
     public bool HasActiveStroke => brush is not null;
     public ProjectSession? Session { get; private set; }
     public TileRaster? Preview { get; private set; }
@@ -25,6 +27,7 @@ public sealed class EditorWorkspace
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         Session = next;
         Preview = preview;
+        ClearClipboard();
         ClearSelection();
     }
 
@@ -35,6 +38,7 @@ public sealed class EditorWorkspace
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         Session = next;
         Preview = preview;
+        ClearClipboard();
         ClearSelection();
     }
 
@@ -45,6 +49,7 @@ public sealed class EditorWorkspace
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         Session = next;
         Preview = preview;
+        ClearClipboard();
         ClearSelection();
     }
 
@@ -178,6 +183,37 @@ public sealed class EditorWorkspace
         SelectionBounds = null;
     }
 
+    public bool HasClipboard => clipboardRaster is not null && clipboardMask is not null;
+
+    public void CopySelection()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("请先建立选区。");
+        clipboardRaster = ApplySelection(session.GetLayerRaster(layerId), selection, keepSelected: true);
+        clipboardMask = selection;
+    }
+
+    public void CutSelection()
+    {
+        CopySelection();
+        var session = RequireSession();
+        Guid layerId = session.ActiveLayerId!.Value;
+        var next = ApplySelection(session.GetLayerRaster(layerId), Selection!, keepSelected: false);
+        if (!SamePixels(session.GetLayerRaster(layerId), next)) Edit(current => current.ReplaceLayerRaster(layerId, next));
+    }
+
+    public void PasteSelection()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (clipboardRaster is not { } source || clipboardMask is not { } mask || session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("没有可粘贴的选区。");
+        var next = ReplaceSelection(session.GetLayerRaster(layerId), source, mask);
+        if (!SamePixels(session.GetLayerRaster(layerId), next)) Edit(current => current.ReplaceLayerRaster(layerId, next));
+    }
+
     private void RequireIdle()
     {
         if (brush is not null) throw new InvalidOperationException("请先结束或取消当前笔划。");
@@ -192,6 +228,40 @@ public sealed class EditorWorkspace
         for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
             if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
         return true;
+    }
+
+    private void ClearClipboard()
+    {
+        clipboardRaster = null;
+        clipboardMask = null;
+    }
+
+    private static TileRaster ApplySelection(TileRaster source, GrayTileRaster selection, bool keepSelected)
+    {
+        var result = new TileRaster(source.Width, source.Height);
+        for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+        {
+            byte[] pixels = source.ReadTileCopy(column, row), mask = selection.ReadTileCopy(column, row);
+            for (int i = 0; i < mask.Length; i++)
+                if ((mask[i] != 0) != keepSelected) pixels.AsSpan(i * 4, 4).Clear();
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+    }
+
+    private static TileRaster ReplaceSelection(TileRaster target, TileRaster source, GrayTileRaster selection)
+    {
+        var result = new TileRaster(target.Width, target.Height);
+        for (int row = 0; row * TileRaster.TileSize < target.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < target.Width; column++)
+        {
+            byte[] pixels = target.ReadTileCopy(column, row), sourcePixels = source.ReadTileCopy(column, row), mask = selection.ReadTileCopy(column, row);
+            for (int i = 0; i < mask.Length; i++)
+                if (mask[i] != 0) sourcePixels.AsSpan(i * 4, 4).CopyTo(pixels.AsSpan(i * 4, 4));
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
     }
 
     private static byte[] ToRgba(TileRaster raster)

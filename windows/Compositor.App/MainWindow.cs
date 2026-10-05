@@ -69,6 +69,9 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(new TextBlock { Text = "容差", VerticalAlignment = VerticalAlignment.Center });
         toolbar.Children.Add(wandTolerance);
         toolbar.Children.Add(wandContiguous);
+        toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
+        toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
+        toolbar.Children.Add(Command("PasteSelection", "粘贴选区", PasteSelectionAsync, document: true));
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
         selectionShape.SelectionChanged += (_, _) => canvas.LassoEnabled = selectionShape.SelectedIndex == 3;
@@ -333,6 +336,16 @@ public sealed class MainWindow : Window
         canvas.SetSelectionRect(null);
         return Task.CompletedTask;
     }
+
+    private Task CopySelectionAsync()
+    {
+        Workspace.CopySelection();
+        return Task.CompletedTask;
+    }
+
+    private Task CutSelectionAsync() => Task.Run(Workspace.CutSelection);
+
+    private Task PasteSelectionAsync() => Task.Run(Workspace.PasteSelection);
 
     private GraySelectionOperation SelectionOperation() => selectionOperation.SelectedIndex switch
     {
