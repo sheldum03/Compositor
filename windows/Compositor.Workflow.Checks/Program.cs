@@ -163,6 +163,7 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
     throw new Exception("A new edit retained an abandoned redo branch.");
 
 CheckCompositing(output, fixtures);
+CheckClippingMask(output);
 CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
 CheckLayerSelection(output);
@@ -530,6 +531,31 @@ static void CheckCompositing(string output, string fixtures)
         throw new Exception("Invalid premultiplied source was accepted.");
     }
     catch (InvalidDataException) { }
+}
+
+static void CheckClippingMask(string output)
+{
+    string project = Path.Combine(output, "ClippingMask.comp");
+    var session = ProjectSession.CreateBlank(2, 1);
+    Guid sourceId = session.ActiveLayerId!.Value;
+    var source = new TileRaster(2, 1).ReplaceTile(0, 0, [64, 0, 0, 128, 64, 0, 0, 255]);
+    session.ReplaceRaster(source);
+    Guid targetId = session.AddBlankLayer("Clipped", 1);
+    var target = new TileRaster(2, 1).ReplaceTile(0, 0, [0, 0, 255, 255, 0, 0, 255, 255]);
+    session.ReplaceLayerRaster(targetId, target);
+    ImageProjectWorkflow.Save(session, project);
+    string manifestPath = Path.Combine(project, "manifest.json");
+    var manifest = JsonNode.Parse(File.ReadAllText(manifestPath))!.AsObject();
+    manifest["layers"]![1]!["maskSourceID"] = sourceId.ToString("D");
+    manifest["layers"]![0]!["isVisible"] = false;
+    File.WriteAllText(manifestPath, manifest.ToJsonString());
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2)
+        throw new Exception("A valid flat clipping-mask project was not editable.");
+    TileRaster result = ImageProjectWorkflow.RenderFlatNormal(reopened);
+    if (!Pixel(result, 0, 0).SequenceEqual(new byte[] { 0, 0, 128, 128 }) ||
+        !Pixel(result, 1, 0).SequenceEqual(new byte[] { 0, 0, 255, 255 }))
+        throw new Exception("Clipping-mask source alpha was not applied without using source RGB or visibility.");
 }
 
 static void SaveGrayMask(string path, int width, int height)

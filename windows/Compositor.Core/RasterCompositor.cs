@@ -25,6 +25,32 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyAlphaMask(TileRaster image, TileRaster source, double sourceOpacity = 1)
+    {
+        if (image.Width != source.Width || image.Height != source.Height)
+            throw new ArgumentException("Image and source dimensions must match.");
+        if (!double.IsFinite(sourceOpacity) || sourceOpacity is < 0 or > 1)
+            throw new ArgumentOutOfRangeException(nameof(sourceOpacity));
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            byte[] sourcePixels = source.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < pixels.Length; pixel += 4)
+            {
+                int alpha = (int)Math.Round(sourcePixels[pixel + 3] * sourceOpacity, MidpointRounding.AwayFromZero);
+                if (pixels[pixel] > pixels[pixel + 3] || pixels[pixel + 1] > pixels[pixel + 3] || pixels[pixel + 2] > pixels[pixel + 3] ||
+                    sourcePixels[pixel] > sourcePixels[pixel + 3] || sourcePixels[pixel + 1] > sourcePixels[pixel + 3] || sourcePixels[pixel + 2] > sourcePixels[pixel + 3])
+                    throw new InvalidDataException("Layer contains invalid premultiplied RGBA.");
+                for (int channel = 0; channel < 4; channel++)
+                    pixels[pixel + channel] = (byte)((pixels[pixel + channel] * alpha + 127) / 255);
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+    }
+
     public static TileRaster SourceOver(TileRaster bottom, TileRaster top)
     {
         if (bottom.Width != top.Width || bottom.Height != top.Height)

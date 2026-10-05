@@ -8,6 +8,8 @@ namespace Compositor.Imaging;
 
 public static class ImageProjectWorkflow
 {
+    private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster Raster);
+
     public static ProjectSession Import(string imagePath, string projectDirectory)
     {
         TileRaster raster = ImageCodec.Load(imagePath);
@@ -155,7 +157,7 @@ public static class ImageProjectWorkflow
         var layers = manifest["layers"]!.AsArray();
         if ((long)layers.Count * width * height > 100_000_000)
             throw new NotSupportedException("Flat layer source pixels exceed the rendering limit.");
-        var result = new TileRaster(width, height);
+        var prepared = new List<FlatLayerRender>(layers.Count);
         foreach (JsonNode? node in layers)
         {
             var layer = node!.AsObject();
@@ -190,9 +192,36 @@ public static class ImageProjectWorkflow
                 if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
                     raster = RasterCompositor.ApplyMask(raster, mask);
             }
-            if (layer["isVisible"]!.GetValue<bool>())
-                result = LayerCompositor.Composite(result, raster, layer["opacity"]?.GetValue<double>() ?? 1,
-                    layer["blendMode"]?.GetValue<string>() ?? "Normal");
+            prepared.Add(new FlatLayerRender(layer, Guid.Parse(layer["id"]!.GetValue<string>()), raster));
+        }
+        var byId = prepared.ToDictionary(layer => layer.Id);
+        var resolved = new Dictionary<Guid, TileRaster>();
+        var resolving = new HashSet<Guid>();
+        TileRaster Resolve(Guid layerId)
+        {
+            if (resolved.TryGetValue(layerId, out var cached)) return cached;
+            if (!resolving.Add(layerId)) throw new InvalidDataException("Invalid mask source cycle.");
+            var layer = byId[layerId];
+            TileRaster raster = layer.Raster;
+            if (layer.Manifest["maskSourceID"] is { } sourceNode)
+            {
+                Guid sourceId = Guid.Parse(sourceNode.GetValue<string>());
+                if (!byId.ContainsKey(sourceId)) throw new InvalidDataException("Invalid mask source.");
+                var source = byId[sourceId];
+                raster = RasterCompositor.ApplyAlphaMask(raster, Resolve(sourceId),
+                    source.Manifest["opacity"]?.GetValue<double>() ?? 1);
+            }
+            resolving.Remove(layerId);
+            resolved[layerId] = raster;
+            return raster;
+        }
+
+        var result = new TileRaster(width, height);
+        foreach (var layer in prepared)
+        {
+            if (layer.Manifest["isVisible"]!.GetValue<bool>())
+                result = LayerCompositor.Composite(result, Resolve(layer.Id), layer.Manifest["opacity"]?.GetValue<double>() ?? 1,
+                    layer.Manifest["blendMode"]?.GetValue<string>() ?? "Normal");
         }
         return result;
     }
@@ -337,9 +366,10 @@ public static class ImageProjectWorkflow
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "transform" }.Contains(pair.Key)) ||
             layer["imageFile"] is null || layer["isVisible"] is null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
+            layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>())) return false;

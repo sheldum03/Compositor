@@ -299,10 +299,11 @@ public static class ProjectStore
 
     private static bool IsFlatEditableLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
+            layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
             layer["maskFile"] is { } mask && !string.Equals(mask.GetValue<string>(), id.ToString("D") + ".mask.png", StringComparison.OrdinalIgnoreCase) ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>()) ||
