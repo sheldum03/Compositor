@@ -505,7 +505,7 @@ public sealed class MainWindow : Window
         foreach (var button in layerButtons)
         {
             button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
-            if (multiple && button.Name != "GroupLayer") button.IsEnabled = false;
+            if (multiple && button.Name is not ("GroupLayer" or "MergeLayerDown")) button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "MergeLayerDown" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
@@ -529,12 +529,23 @@ public sealed class MainWindow : Window
                     !groupedProject && !Workspace.Session!.IsLayerTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
             if (button.Name == "MergeLayerDown")
             {
-                int index = currentSession?.Layers.ToList().FindIndex(layer => layer.Id == selected?.Id) ?? -1;
-                FlatLayerInfo? lower = index > 0 ? currentSession!.Layers[index - 1] : null;
-                button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false } && lower is { IsGroup: false } &&
-                    !multiple && !groupedProject && !Workspace.HasFloatingSelection &&
-                    selected.BlendMode == "Normal" && lower.BlendMode == "Normal" &&
-                    Workspace.Session!.IsLayerTransformIdentity(selected.Id) &&
+                var layerList = currentSession?.Layers.ToList() ?? [];
+                var ordered = selectedItems
+                    .Select(item => (Layer: item, Index: layerList.FindIndex(layer => layer.Id == item.Id)))
+                    .OrderBy(item => item.Index)
+                    .ToArray();
+                bool contiguous = ordered.Length >= 2 && ordered[0].Index >= 0 &&
+                    ordered[^1].Index - ordered[0].Index + 1 == ordered.Length;
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && !Workspace.HasFloatingSelection &&
+                    Workspace.Session is not null &&
+                    (multiple
+                        ? contiguous && ordered.All(item => !item.Layer.IsGroup && item.Layer.BlendMode == "Normal" &&
+                            Workspace.Session.IsLayerTransformIdentity(item.Layer.Id))
+                        : selected is { IsGroup: false } && ordered.Length == 1 && ordered[0].Index > 0 &&
+                            !layerList[ordered[0].Index - 1].IsGroup &&
+                            selected.BlendMode == "Normal" && layerList[ordered[0].Index - 1].BlendMode == "Normal" &&
+                            Workspace.Session.IsLayerTransformIdentity(selected.Id) &&
+                            Workspace.Session.IsLayerTransformIdentity(layerList[ordered[0].Index - 1].Id)) &&
                     Workspace.Session.Layers.All(layer => layer.MaskSourceId is null);
             }
         }
@@ -605,7 +616,14 @@ public sealed class MainWindow : Window
         return EditAsync(session => session.DeleteLayer(id));
     }
 
-    private Task MergeLayerDownAsync() => Task.Run(Workspace.MergeActiveLayerDown);
+    private Task MergeLayerDownAsync()
+    {
+        Guid[] ids = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>())
+            .Select(layer => layer.Id).ToArray();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.MergeSelectedLayers(ids))
+            : Task.Run(Workspace.MergeActiveLayerDown);
+    }
 
     private Task GroupLayerAsync()
     {

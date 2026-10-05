@@ -1074,41 +1074,53 @@ public sealed class ProjectSession
 
     public void MergeLayerDown(Guid upperLayerId, TileRaster mergedRaster)
     {
-        RequireLayerStructureEditing();
         int upperIndex = FindLayer(upperLayerId);
         if (upperIndex == 0) throw new InvalidOperationException("当前图层下方没有可合并的图层。");
+        MergeLayers([Layers[upperIndex - 1].Id, upperLayerId], mergedRaster);
+    }
+
+    public void MergeLayers(IReadOnlyList<Guid> layerIds, TileRaster mergedRaster)
+    {
+        RequireLayerStructureEditing();
+        Guid[] distinctIds = layerIds.Distinct().ToArray();
+        if (distinctIds.Length < 2)
+            throw new InvalidOperationException("请至少选择两个图层。");
+        int[] indexes = distinctIds.Select(FindLayer).OrderBy(index => index).ToArray();
+        if (indexes[^1] - indexes[0] + 1 != indexes.Length)
+            throw new InvalidOperationException("只能合并连续图层。");
         if (mergedRaster.Width != Width || mergedRaster.Height != Height)
             throw new ArgumentException("Merged raster dimensions do not match the canvas.", nameof(mergedRaster));
         if (Layers.Any(layer => layer.MaskSourceId is not null))
-            throw new NotSupportedException("带剪贴关系的图层暂不支持向下合并。");
-        FlatLayerInfo upper = Layers[upperIndex], lower = Layers[upperIndex - 1];
-        if (upper.IsGroup || lower.IsGroup)
-            throw new NotSupportedException("组图层暂不支持向下合并。");
-        string mergedName = lower.Name + " + " + upper.Name;
+            throw new NotSupportedException("带剪贴关系的图层暂不支持合并。");
+        FlatLayerInfo[] selected = indexes.Select(index => Layers[index]).ToArray();
+        if (selected.Any(layer => layer.IsGroup))
+            throw new NotSupportedException("组图层暂不支持合并。");
+        FlatLayerInfo lower = selected[0];
+        string mergedName = string.Join(" + ", selected.Select(layer => layer.Name));
         if (mergedName.Length > 1000) mergedName = lower.Name;
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
-        var lowerNode = nextLayers[upperIndex - 1]!.AsObject();
+        var lowerNode = nextLayers[indexes[0]]!.AsObject();
         lowerNode["name"] = mergedName;
-        lowerNode["isVisible"] = lower.IsVisible || upper.IsVisible;
+        lowerNode["isVisible"] = selected.Any(layer => layer.IsVisible);
         lowerNode["opacity"] = 1d;
         lowerNode["blendMode"] = "Normal";
         lowerNode.Remove("maskFile");
         lowerNode.Remove("maskEnabled");
         lowerNode.Remove("maskSourceID");
-        nextLayers.RemoveAt(upperIndex);
+        for (int index = indexes[^1]; index >= indexes[0]; index--)
+            if (index != indexes[0]) nextLayers.RemoveAt(index);
         next["activeLayerID"] = lower.Id.ToString("D");
         var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
         {
             [lower.Id] = mergedRaster
         };
-        rasters.Remove(upper.Id);
+        foreach (FlatLayerInfo layer in selected.Skip(1)) rasters.Remove(layer.Id);
         Dictionary<Guid, GrayTileRaster>? masks = null;
         if (snapshots[cursor].LayerMasks is { } loadedMasks)
         {
             masks = new Dictionary<Guid, GrayTileRaster>(loadedMasks);
-            masks.Remove(lower.Id);
-            masks.Remove(upper.Id);
+            foreach (FlatLayerInfo layer in selected) masks.Remove(layer.Id);
             if (masks.Count == 0) masks = null;
         }
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));

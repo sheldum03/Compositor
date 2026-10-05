@@ -152,6 +152,78 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedMerge), expectedMerge);
         mergeWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string multiMergeProject = Path.Combine(output, "MultiMerge.comp");
+        var multiMergeWorkspace = new EditorWorkspace();
+        multiMergeWorkspace.Import(fixture, multiMergeProject);
+        Guid multiLowerId = multiMergeWorkspace.Session!.Layers[0].Id;
+        Guid multiMiddleId = multiMergeWorkspace.Session.AddBlankLayer("Middle", 1);
+        Guid multiTopId = multiMergeWorkspace.Session.AddBlankLayer("Top", 2);
+        Guid multiTopmostId = multiMergeWorkspace.Session.AddBlankLayer("Topmost", 3);
+        TileRaster middleRaster = multiMergeWorkspace.Session.GetLayerRaster(multiMiddleId);
+        TileRaster topRaster = multiMergeWorkspace.Session.GetLayerRaster(multiTopId);
+        var middleSize = middleRaster.TileDimensions(0, 0);
+        byte[] middleTile = middleRaster.ReadTileCopy(0, 0);
+        byte[] topTileMulti = topRaster.ReadTileCopy(0, 0);
+        int middleOffset = (12 * middleSize.Width + 12) * 4;
+        int topOffsetMulti = (12 * middleSize.Width + 12) * 4;
+        middleTile[middleOffset] = 40; middleTile[middleOffset + 1] = 160;
+        middleTile[middleOffset + 2] = 80; middleTile[middleOffset + 3] = 192;
+        topTileMulti[topOffsetMulti] = 140; topTileMulti[topOffsetMulti + 1] = 60;
+        topTileMulti[topOffsetMulti + 2] = 40; topTileMulti[topOffsetMulti + 3] = 160;
+        multiMergeWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(multiLowerId, 0.5);
+            session.SetLayerOpacity(multiMiddleId, 0.75);
+            session.SetLayerOpacity(multiTopId, 0.6);
+            session.SetLayerOpacity(multiTopmostId, 0.4);
+            session.ReplaceLayerRaster(multiMiddleId, middleRaster.ReplaceTile(0, 0, middleTile));
+            session.ReplaceLayerRaster(multiTopId, topRaster.ReplaceTile(0, 0, topTileMulti));
+        });
+        multiMergeWorkspace.Save();
+        FlatLayerInfo[] multiLayers = multiMergeWorkspace.Session.Layers.ToArray();
+        TileRaster expectedMultiMerge = new TileRaster(multiMergeWorkspace.Session.Width, multiMergeWorkspace.Session.Height);
+        foreach (FlatLayerInfo layerInfo in multiLayers)
+            expectedMultiMerge = LayerCompositor.Composite(expectedMultiMerge,
+                multiMergeWorkspace.Session.GetLayerRaster(layerInfo.Id), layerInfo.Opacity, "Normal");
+        TileRaster multiMergeBefore = ImageProjectWorkflow.RenderFlatNormal(multiMergeWorkspace.Session);
+        var multiMergeWindow = new MainWindow(multiMergeWorkspace);
+        multiMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var multiLayerList = Control<ListBox>(multiMergeWindow, "Layers");
+        multiLayerList.SelectedItems!.Clear();
+        foreach (FlatLayerInfo layerInfo in multiLayerList.ItemsView!.Cast<FlatLayerInfo>()
+            .Where(layerInfo => new[] { multiLowerId, multiMiddleId, multiTopmostId }.Contains(layerInfo.Id)))
+            multiLayerList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(!Control<Button>(multiMergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "Non-contiguous multi-selection incorrectly enabled the merge command.");
+        multiLayerList.SelectedItems.Clear();
+        foreach (FlatLayerInfo layerInfo in multiLayerList.ItemsView!.Cast<FlatLayerInfo>())
+            multiLayerList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(multiMergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "Contiguous normal flat multi-selection did not enable the merge command.");
+        Click(multiMergeWindow, "MergeLayerDown");
+        Require(multiMergeWorkspace.Session.Layers.Count == 1 &&
+            multiMergeWorkspace.Session.ActiveLayerId == multiLowerId && multiMergeWorkspace.IsDirty,
+            "Multi-layer merge did not produce one active merged layer.");
+        FlatLayerInfo multiMergedLayer = multiMergeWorkspace.Session.Layers.Single();
+        Require(multiMergedLayer.IsVisible && multiMergedLayer.Opacity == 1 && multiMergedLayer.BlendMode == "Normal",
+            "Multi-layer merge did not normalize the merged layer appearance metadata.");
+        CheckEqual(multiMergeWorkspace.Preview!, expectedMultiMerge);
+        Click(multiMergeWindow, "Undo");
+        Require(multiMergeWorkspace.Session.Layers.Count == 4 && !multiMergeWorkspace.IsDirty,
+            "Undo did not restore all source layers and the saved state after multi-layer merge.");
+        CheckEqual(multiMergeWorkspace.Preview!, multiMergeBefore);
+        Click(multiMergeWindow, "Redo");
+        Require(multiMergeWorkspace.Session.Layers.Count == 1 && multiMergeWorkspace.IsDirty,
+            "Redo did not restore the multi-layer merge.");
+        CheckEqual(multiMergeWorkspace.Preview!, expectedMultiMerge);
+        multiMergeWorkspace.Save();
+        var reopenedMultiMerge = ImageProjectWorkflow.OpenEditable(multiMergeProject);
+        Require(reopenedMultiMerge.Layers.Count == 1, "Saved multi-layer merge did not reopen as one layer.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedMultiMerge), expectedMultiMerge);
+        multiMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         var secondWorkspace = new EditorWorkspace();
         secondWorkspace.Open(source);
         var tabsWindow = new MainWindow(workspace);
@@ -257,7 +329,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen",
                 "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));

@@ -117,22 +117,38 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("当前工程没有活动图层。");
         int upperIndex = session.Layers.ToList().FindIndex(layer => layer.Id == upperId);
         if (upperIndex <= 0) throw new InvalidOperationException("当前图层下方没有可合并的图层。");
-        FlatLayerInfo upper = session.Layers[upperIndex], lower = session.Layers[upperIndex - 1];
-        if (upper.IsGroup || lower.IsGroup)
-            throw new NotSupportedException("组图层暂不支持向下合并。");
-        if (upper.BlendMode != "Normal" || lower.BlendMode != "Normal")
-            throw new NotSupportedException("当前切片只支持 Normal 图层向下合并。");
-        if (!session.IsLayerTransformIdentity(upper.Id) || !session.IsLayerTransformIdentity(lower.Id))
-            throw new NotSupportedException("变换图层向下合并前请先烘焙变换。");
-        if (session.Layers.Any(layer => layer.MaskSourceId is not null))
-            throw new NotSupportedException("带剪贴关系的图层暂不支持向下合并。");
+        MergeSelectedLayers([session.Layers[upperIndex - 1].Id, upperId]);
+    }
 
-        TileRaster bottom = MergeSource(session, lower);
-        TileRaster top = MergeSource(session, upper);
-        TileRaster merged = LayerCompositor.Composite(new TileRaster(session.Width, session.Height), bottom,
-            lower.Opacity, "Normal");
-        merged = LayerCompositor.Composite(merged, top, upper.Opacity, "Normal");
-        Edit(editSession => editSession.MergeLayerDown(upper.Id, merged));
+    public void MergeSelectedLayers(IReadOnlyList<Guid> layerIds)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        Guid[] distinctIds = layerIds.Distinct().ToArray();
+        if (distinctIds.Length < 2)
+            throw new InvalidOperationException("请至少选择两个图层。");
+        FlatLayerInfo[] layers = session.Layers.ToArray();
+        var selected = distinctIds.Select(id =>
+        {
+            int index = Array.FindIndex(layers, layer => layer.Id == id);
+            if (index < 0) throw new ArgumentException("图层不属于当前工程。", nameof(layerIds));
+            return (Layer: layers[index], Index: index);
+        }).OrderBy(item => item.Index).ToArray();
+        if (selected[^1].Index - selected[0].Index + 1 != selected.Length)
+            throw new InvalidOperationException("只能合并连续图层。");
+        if (selected.Any(item => item.Layer.IsGroup))
+            throw new NotSupportedException("组图层暂不支持合并。");
+        if (selected.Any(item => item.Layer.BlendMode != "Normal"))
+            throw new NotSupportedException("当前切片只支持 Normal 图层合并。");
+        if (selected.Any(item => !session.IsLayerTransformIdentity(item.Layer.Id)))
+            throw new NotSupportedException("变换图层合并前请先烘焙变换。");
+        if (session.Layers.Any(layer => layer.MaskSourceId is not null))
+            throw new NotSupportedException("带剪贴关系的图层暂不支持合并。");
+
+        TileRaster merged = new TileRaster(session.Width, session.Height);
+        foreach (var item in selected)
+            merged = LayerCompositor.Composite(merged, MergeSource(session, item.Layer), item.Layer.Opacity, "Normal");
+        Edit(editSession => editSession.MergeLayers(selected.Select(item => item.Layer.Id).ToArray(), merged));
     }
 
     public bool Undo()
