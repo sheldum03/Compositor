@@ -40,6 +40,7 @@ public sealed class ProjectSession
 
     public string? SavedDirectory { get; private set; }
     public bool HasBeenSaved => SavedDirectory is not null;
+    public bool HasTextLayers => Current["layers"]!.AsArray().Any(layer => layer?["text"] is not null);
     public string SourceDirectory => SavedDirectory ?? throw new InvalidOperationException("This document has not been saved yet.");
     public int Width => Current["width"]!.GetValue<int>();
     public int Height => Current["height"]!.GetValue<int>();

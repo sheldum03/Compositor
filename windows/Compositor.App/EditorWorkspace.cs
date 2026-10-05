@@ -18,6 +18,9 @@ public sealed class EditorWorkspace
     public bool HasActiveStroke => brush is not null;
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true;
+    public string ReadOnlyNotice => Session?.HasTextLayers == true
+        ? "只读缓存预览：文字字体或文字语义未就绪，请先选择字体后再编辑。"
+        : "只读缓存预览：当前工程包含暂不支持的语义，编辑功能已禁用。";
     public TileRaster? Preview { get; private set; }
     public GrayTileRaster? Selection { get; private set; }
     public Rect? SelectionBounds { get; private set; }
