@@ -1,6 +1,6 @@
 # M3C 受限组工程编辑证据
 
-实现提交：`ed0f6e2`（`Enable editable pass-through group masks`）、`be885fe`（`Add root group and ungroup editing`）、`421b4f2`（`Support nested group structure editing`）、`83b925e`（`Support simple masked group ungrouping`）、`0d9a503`（`Render cached group transforms`）、`1975380`（`Support editable group flips`）、`009d244`（`Add multi-select group UI`）、`1d4045c`（`Support editable group transforms`）、`f2daed9`（`Support editable group movement`）、`4e69194`（`Support masked clipping-stack ungroup`）、`fce864b`（`Bake transformed groups before ungrouping`）、`90d596d`（`Add non-destructive flat layer transforms`）、`49d00ca`（`Fix editable image loader variable scopes`）、`2cc4f79`（`Add non-destructive free rotation`）、`da97123`（`Add arbitrary angle rotation control`）、`865deac`（`Map editing coordinates through layer transforms`）；回归提交：`6b759f3`（`Verify editable group appearance history`）、`2702d92`（`Guard grouped layer reordering`）、`3db13af`（`Protect grouped project controls`）、`155a82a`（`Disable raster tools on group selection`）、`6338ac5`（`Cover multi-layer root grouping`）。
+实现提交：`ed0f6e2`（`Enable editable pass-through group masks`）、`be885fe`（`Add root group and ungroup editing`）、`421b4f2`（`Support nested group structure editing`）、`83b925e`（`Support simple masked group ungrouping`）、`0d9a503`（`Render cached group transforms`）、`1975380`（`Support editable group flips`）、`009d244`（`Add multi-select group UI`）、`1d4045c`（`Support editable group transforms`）、`f2daed9`（`Support editable group movement`）、`4e69194`（`Support masked clipping-stack ungroup`）、`fce864b`（`Bake transformed groups before ungrouping`）、`90d596d`（`Add non-destructive flat layer transforms`）、`49d00ca`（`Fix editable image loader variable scopes`）、`2cc4f79`（`Add non-destructive free rotation`）、`da97123`（`Add arbitrary angle rotation control`）、`865deac`（`Map editing coordinates through layer transforms`）、`6f4cdf8`（`Use interpolated coverage for transformed editing`）；回归提交：`6b759f3`（`Verify editable group appearance history`）、`2702d92`（`Guard grouped layer reordering`）、`3db13af`（`Protect grouped project controls`）、`155a82a`（`Disable raster tools on group selection`）、`6338ac5`（`Cover multi-layer root grouping`）。
 
 本切片把 v8 的受限 pass-through 组从只读缓存预览推进到可编辑加载，并为缓存组增加非恒等变换预览；同时覆盖平面图层的非破坏移动、翻转、缩放、90° 旋转、任意角度旋转和显式烘焙。可编辑范围是全画布栅格资产、全画布 Gray8 蒙版；组支持水平/垂直翻转、以组中心缩放和 90° 旋转元数据事务，启用组蒙版跟随组变换，禁用组蒙版和带剪贴栈组蒙版可安全解组。变换组支持显式烘焙解组：使用同一缓存渲染器生成组子树栅格，保留组的可见性、透明度、混合模式和父层关系，移除原子层并写入可编辑普通栅格层；缓存预览允许组执行翻转/缩放/旋转取样。调整层、文本/形状编辑仍不在本切片范围。
 
@@ -16,17 +16,17 @@
 - `ImageProjectWorkflow.OpenEditable` 加载叶子栅格和组/叶子蒙版；编辑预览从内存资产渲染，保存时只写入实际像素资产和蒙版资产。
 - 应用层的蒙版笔刷对组使用画布尺寸作为笔刷边界，避免向无像素资产的组请求 raster。
 - 窗口层对组工程禁用增删、复制、排序、剪贴结构、文档尺寸/旋转等未实现操作；选中组时进一步禁用像素复制/剪切/粘贴和 Alpha 载入，同时保留组移动、翻转/缩放/90°旋转、组蒙版启停与编辑按钮；变换组关闭普通解组并启用“烘焙解组”，Headless UI 回归覆盖这些按钮状态。
-- 平面图层变换写入 manifest，原始 PNG/蒙版不被重采样；任意角度旋转以 15° 步进按钮和数值角度输入接入平面图层和组，控件值先在 UI 线程读取后再进入后台编辑；平移/90° 旋转后的选区、软笔和全画布蒙版编辑会通过逆/正向 transform 映射回源栅格，变换图层的逐层复制/剪切/粘贴仍要求先烘焙，显式烘焙用一个历史事务物化栅格并同步蒙版，且保留撤销/重做、保存重开和编辑蒙版能力。
+- 平面图层变换写入 manifest，原始 PNG/蒙版不被重采样；任意角度旋转以 15° 步进按钮和数值角度输入接入平面图层和组，控件值先在 UI 线程读取后再进入后台编辑；平移/90° 旋转后的选区、软笔和全画布蒙版编辑会通过逆/正向 transform 映射回源栅格，缩放边界使用双线性覆盖采样，变换图层的逐层复制/剪切/粘贴仍要求先烘焙，显式烘焙用一个历史事务物化栅格并同步蒙版，且保留撤销/重做、保存重开和编辑蒙版能力。
 
 验证：
 
 - `Compositor.Workflow.Checks`：F02/F05/F06 缓存预览仍与 macOS 参考逐 tile 相等。
-- 新增 v8 F06 编辑回归：组蒙版 editable load、组显隐/透明度、蒙版 toggle、replacement、undo、save/reopen，以及结构操作拒绝全部通过；新增根级与嵌套组建组/解组、启用组蒙版随组翻转、禁用组蒙版解组保存重开、带剪贴栈组蒙版解组及保存重开、变换组烘焙解组撤销/重做/保存重开、无启用组蒙版组移动/缩放/90°旋转撤销/重做与正式窗口按钮回归；平面图层非破坏移动/翻转/缩放/90°旋转/任意角度旋转、原始资产保持、蒙版同步、显式烘焙、像素工具保护、撤销/重做及保存重开回归通过；组任意角度旋转的历史回归、15°快捷按钮和数值角度输入正式窗口按钮回归通过；平移/90° 旋转图层的选区、笔刷和蒙版坐标映射回归通过；F02 缓存组水平翻转逐像素回归通过。
+- 新增 v8 F06 编辑回归：组蒙版 editable load、组显隐/透明度、蒙版 toggle、replacement、undo、save/reopen，以及结构操作拒绝全部通过；新增根级与嵌套组建组/解组、启用组蒙版随组翻转、禁用组蒙版解组保存重开、带剪贴栈组蒙版解组及保存重开、变换组烘焙解组撤销/重做/保存重开、无启用组蒙版组移动/缩放/90°旋转撤销/重做与正式窗口按钮回归；平面图层非破坏移动/翻转/缩放/90°旋转/任意角度旋转、原始资产保持、蒙版同步、显式烘焙、像素工具保护、撤销/重做及保存重开回归通过；组任意角度旋转的历史回归、15°快捷按钮和数值角度输入正式窗口按钮回归通过；平移/90° 旋转图层的选区、笔刷和蒙版坐标映射、缩放边界的部分覆盖回归通过；F02 缓存组水平翻转逐像素回归通过。
 - `Compositor.Imaging.Checks`、`Compositor.App.Checks`、`Compositor.SaveCrash.Checks`、`Compositor.Workflow.Checks` 均通过，构建 0 warning / 0 error；App Checks 新增两层多选建组及单选操作禁用、组工程按钮保护和变换组烘焙解组回归。
 - macOS arm64/.NET `10.0.401` Release 本地验证；Windows 原生启动、DPI、IME、字体和真实笔输入仍需在 Windows 11 x64 主机验证。
 
-可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-transform-selection-1791238302`，`Compositor.App.exe` SHA-256：
+可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-transform-coverage-1791239001`，`Compositor.App.exe` SHA-256：
 
-`a50e7a4c02950827a41c62a040278653cb72c00facb9e16b8389761dfa25ccc6`
+`9b7b8b1f444e88ae9c99b35116c7303dfc387b29f24c01a502dff200e12e8fdd`
 
 该包是发布产物，不代表 Windows 启动已经通过；当前环境没有可用的 Windows 运行器，仍需在腾讯云 Windows 服务器执行原生启动和交互检查。
