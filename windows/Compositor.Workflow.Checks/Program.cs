@@ -224,6 +224,15 @@ static void CheckEditableGroupMask(string output, string fixtures)
     Guid groupId = session.Layers.Single(layer => layer.IsGroup).Id;
     TileRaster reference = ImageCodec.Load(Path.Combine(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), "F06-mac.png"));
     AssertRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session));
+    session.SetLayerVisible(groupId, false);
+    AssertRaster(new TileRaster(session.Width, session.Height), ImageProjectWorkflow.RenderFlatNormal(session));
+    if (!session.Undo() || !SameRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Group visibility undo did not restore the preview.");
+    session.SetLayerOpacity(groupId, 0.5);
+    TileRaster halfOpacity = ImageProjectWorkflow.RenderFlatNormal(session);
+    if (SameRaster(reference, halfOpacity)) throw new Exception("Group opacity did not affect the preview.");
+    if (!session.Undo() || !SameRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Group opacity undo did not restore the preview.");
     session.SetLayerMaskEnabled(groupId, false);
     TileRaster disabled = ImageProjectWorkflow.RenderFlatNormal(session);
     if (SameRaster(reference, disabled)) throw new Exception("Disabling an editable group mask did not change the preview.");
