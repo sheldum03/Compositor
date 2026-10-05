@@ -164,6 +164,7 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
 
 CheckCompositing(output, fixtures);
 CheckCachedGroupRendering(output, fixtures);
+CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
 CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
@@ -204,6 +205,50 @@ static void CheckCachedGroupRendering(string output, string fixtures)
         catch (Exception error) { throw new Exception($"Cached group fixture {name} differs: {error.Message}", error); }
     }
     Console.WriteLine("PASS: cached pass-through groups, child visibility, raster masks, clipping alpha and group masks match F02/F05/F06 references");
+}
+
+static void CheckEditableGroupMask(string output, string fixtures)
+{
+    string sourceRoot = Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures", "F06.comp"));
+    string project = Path.Combine(output, "EditableGroup.comp");
+    Directory.CreateDirectory(Path.Combine(project, "images"));
+    foreach (string asset in Directory.GetFiles(Path.Combine(sourceRoot, "images")))
+        File.Copy(asset, Path.Combine(project, "images", Path.GetFileName(asset)));
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(sourceRoot, "manifest.json")))!.AsObject();
+    manifest["version"] = 8;
+    File.WriteAllText(Path.Combine(project, "manifest.json"), manifest.ToJsonString());
+
+    var opened = ProjectStore.Open(project);
+    if (!opened.CanEdit || !opened.HasGroups) throw new Exception("v8 group project was not accepted for editable loading.");
+    var session = ImageProjectWorkflow.OpenEditable(project);
+    Guid groupId = session.Layers.Single(layer => layer.IsGroup).Id;
+    TileRaster reference = ImageCodec.Load(Path.Combine(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), "F06-mac.png"));
+    AssertRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session));
+    session.SetLayerMaskEnabled(groupId, false);
+    TileRaster disabled = ImageProjectWorkflow.RenderFlatNormal(session);
+    if (SameRaster(reference, disabled)) throw new Exception("Disabling an editable group mask did not change the preview.");
+    if (!session.Undo() || !SameRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Group mask undo did not restore the preview.");
+    var replacement = GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height);
+    session.ReplaceLayerMask(groupId, replacement);
+    TileRaster edited = ImageProjectWorkflow.RenderFlatNormal(session);
+    if (SameRaster(reference, edited) || !session.IsDirty) throw new Exception("Editable group mask replacement was not rendered or recorded.");
+    string saved = Path.Combine(output, "EditableGroupSaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    AssertRaster(edited, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    if (reopened.IsDirty || !reopened.Layers.Single(layer => layer.IsGroup).HasMask)
+        throw new Exception("Saved editable group mask did not reopen cleanly.");
+    Console.WriteLine("PASS: v8 pass-through group mask editable load, toggle, replacement, undo and save/reopen");
+}
+
+static bool SameRaster(TileRaster first, TileRaster second)
+{
+    if (first.Width != second.Width || first.Height != second.Height) return false;
+    for (int row = 0; row * TileRaster.TileSize < first.Height; row++)
+    for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
+        if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
+    return true;
 }
 
 static void CheckCompositing(string output, string fixtures)

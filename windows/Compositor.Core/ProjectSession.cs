@@ -4,6 +4,8 @@ namespace Compositor.Core;
 
 public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
 {
+    public bool IsGroup { get; init; }
+    public Guid? ParentId { get; init; }
     public double Opacity { get; init; } = 1;
     public string BlendMode { get; init; } = "Normal";
     public bool HasMask { get; init; }
@@ -46,6 +48,7 @@ public sealed class ProjectSession
     public string? SavedDirectory { get; private set; }
     public bool HasBeenSaved => SavedDirectory is not null;
     public bool HasTextLayers => Current["layers"]!.AsArray().Any(layer => layer?["text"] is not null);
+    public bool HasGroups => Layers.Any(layer => layer.IsGroup);
     public string SourceDirectory => SavedDirectory ?? throw new InvalidOperationException("This document has not been saved yet.");
     public int Width => Current["width"]!.GetValue<int>();
     public int Height => Current["height"]!.GetValue<int>();
@@ -62,6 +65,8 @@ public sealed class ProjectSession
         .Select(layer => new FlatLayerInfo(Guid.Parse(layer!["id"]!.GetValue<string>()),
             layer["name"]!.GetValue<string>(), layer["isVisible"]?.GetValue<bool>() ?? true)
         {
+            IsGroup = layer["isGroup"]?.GetValue<bool>() ?? false,
+            ParentId = layer["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null,
             Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
             HasMask = layer["maskFile"] is not null,
@@ -73,6 +78,7 @@ public sealed class ProjectSession
     internal bool RequiresRasterEncoding => ImageName.Length != 0 && TryGetRasterForEncoding(ImageName, out _);
     internal JsonObject Current => snapshots[cursor].Manifest;
     internal IEnumerable<string> CurrentImageNames => Current["layers"]!.AsArray()
+        .Where(layer => layer!["imageFile"] is not null)
         .Select(layer => layer!["imageFile"]!.GetValue<string>());
     internal IEnumerable<string> CurrentMaskNames => Current["layers"]!.AsArray()
         .Where(layer => layer!["maskFile"] is not null)
@@ -170,8 +176,8 @@ public sealed class ProjectSession
         IReadOnlyDictionary<Guid, GrayTileRaster>? masks = null)
     {
         if (!CanEdit || ImageName.Length != 0 || snapshots.Count != 1 || snapshots[0].LayerRasters is not null ||
-            rasters.Count != Layers.Count || Layers.Any(layer => !rasters.ContainsKey(layer.Id)))
-            throw new InvalidOperationException("Layer rasters can only be attached to a newly opened flat project.");
+            rasters.Count != Layers.Count(layer => !layer.IsGroup) || Layers.Where(layer => !layer.IsGroup).Any(layer => !rasters.ContainsKey(layer.Id)))
+            throw new InvalidOperationException("Layer rasters can only be attached to a newly opened editable project.");
         foreach (TileRaster raster in rasters.Values) CheckRasterSize(raster);
         if (masks is not null)
         {
@@ -188,7 +194,9 @@ public sealed class ProjectSession
 
     public TileRaster GetLayerRaster(Guid layerId)
     {
-        FindLayer(layerId);
+        int index = FindLayer(layerId);
+        if (Current["layers"]![index]!["isGroup"]?.GetValue<bool>() == true)
+            throw new InvalidOperationException("Group layers do not have a raster asset.");
         return TryGetLoadedLayerRaster(layerId, out var raster) ? raster
             : throw new InvalidOperationException("Layer rasters have not been loaded.");
     }
@@ -203,7 +211,7 @@ public sealed class ProjectSession
 
     public void EnsureLayerMask(Guid layerId)
     {
-        RequireLayerStructureEditing();
+        RequireMaskEditing();
         int index = FindLayer(layerId);
         if (Current["layers"]![index]!["maskFile"] is not null) return;
         var next = (JsonObject)Current.DeepClone();
@@ -521,6 +529,18 @@ public sealed class ProjectSession
     {
         if (!CanEdit || Current["version"]!.GetValue<int>() != 8)
             throw new NotSupportedException("Layer structure changes require a flat editable v8 project.");
+        if (snapshots[cursor].LayerRasters is null)
+            throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
+        if (HasGroups)
+            throw new NotSupportedException("Layer structure changes are not supported for grouped projects in this slice.");
+    }
+
+    private void RequireMaskEditing()
+    {
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8)
+            throw new NotSupportedException("Mask edits require an editable v8 project.");
+        if (snapshots[cursor].LayerMasks is null && Layers.Any(layer => layer.HasMask))
+            throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
         if (snapshots[cursor].LayerRasters is null)
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
     }

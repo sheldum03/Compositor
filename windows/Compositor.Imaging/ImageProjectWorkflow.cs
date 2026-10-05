@@ -62,12 +62,15 @@ public static class ImageProjectWorkflow
             {
                 var layer = node!.AsObject();
                 Guid id = Guid.Parse(layer["id"]!.GetValue<string>());
-                string name = layer["imageFile"]!.GetValue<string>();
-                string image = Path.Combine(session.SourceDirectory, "images", name);
-                ProjectStore.CheckAssetHash(session, name, image);
-                TileRaster raster = ImageCodec.Load(image);
-                ProjectStore.CheckAssetHash(session, name, image);
-                rasters.Add(id, raster);
+                if (layer["imageFile"] is { } imageNode)
+                {
+                    string name = imageNode.GetValue<string>();
+                    string image = Path.Combine(session.SourceDirectory, "images", name);
+                    ProjectStore.CheckAssetHash(session, name, image);
+                    TileRaster raster = ImageCodec.Load(image);
+                    ProjectStore.CheckAssetHash(session, name, image);
+                    rasters.Add(id, raster);
+                }
                 if (layer["maskFile"] is { } maskNode)
                 {
                     string maskName = maskNode.GetValue<string>();
@@ -122,27 +125,39 @@ public static class ImageProjectWorkflow
         RenderFlatNormal(ProjectStore.Open(projectDirectory));
 
     public static TileRaster RenderFlatNormal(ProjectSession session) =>
-        session.CanEdit ? RenderFlatNormalCore(session, null, null, null) : RenderCachedCore(session);
+        session.CanEdit
+            ? session.HasGroups ? RenderCachedCore(session, useLoadedAssets: true) : RenderFlatNormalCore(session, null, null, null)
+            : RenderCachedCore(session);
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)
     {
         if (!session.CanEdit) throw new NotSupportedException("Temporary pixel previews require an editable project.");
-        TileRaster current = session.GetLayerRaster(layerId);
-        if (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)
+        FlatLayerInfo layerInfo = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        TileRaster? current = layerInfo.IsGroup ? null : session.GetLayerRaster(layerId);
+        if ((current is not null && (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)) ||
+            (current is null && (overrideRaster.Width != session.Width || overrideRaster.Height != session.Height)))
             throw new ArgumentException("Preview raster dimensions do not match the layer.", nameof(overrideRaster));
-        return RenderFlatNormalCore(session, layerId, overrideRaster, null);
+        return session.HasGroups
+            ? RenderCachedCore(session, true, layerId, overrideRaster, null)
+            : RenderFlatNormalCore(session, layerId, overrideRaster, null);
     }
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster,
         GrayTileRaster overrideMask)
     {
         if (!session.CanEdit) throw new NotSupportedException("Temporary previews require an editable project.");
-        TileRaster current = session.GetLayerRaster(layerId);
-        if (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)
+        FlatLayerInfo layerInfo = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        TileRaster? current = layerInfo.IsGroup ? null : session.GetLayerRaster(layerId);
+        if ((current is not null && (overrideRaster.Width != current.Width || overrideRaster.Height != current.Height)) ||
+            (current is null && (overrideRaster.Width != session.Width || overrideRaster.Height != session.Height)))
             throw new ArgumentException("Preview raster dimensions do not match the layer.", nameof(overrideRaster));
         if (overrideMask.Width != session.Width || overrideMask.Height != session.Height)
             throw new ArgumentException("Preview mask dimensions do not match the canvas.", nameof(overrideMask));
-        return RenderFlatNormalCore(session, layerId, overrideRaster, overrideMask);
+        return session.HasGroups
+            ? RenderCachedCore(session, true, layerId, overrideRaster, overrideMask)
+            : RenderFlatNormalCore(session, layerId, overrideRaster, overrideMask);
     }
 
     private static TileRaster RenderFlatNormalCore(ProjectSession session, Guid? overrideLayerId, TileRaster? overrideRaster,
@@ -228,7 +243,8 @@ public static class ImageProjectWorkflow
 
     private sealed record CachedLayer(JsonObject Manifest, Guid Id, TileRaster? Raster, GrayTileRaster? Mask);
 
-    private static TileRaster RenderCachedCore(ProjectSession session)
+    private static TileRaster RenderCachedCore(ProjectSession session, bool useLoadedAssets = false,
+        Guid? overrideLayerId = null, TileRaster? overrideRaster = null, GrayTileRaster? overrideMask = null)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -247,7 +263,12 @@ public static class ImageProjectWorkflow
             if (layer["maskFile"] is { } maskNode)
             {
                 string maskName = maskNode.GetValue<string>();
-                mask = ImageCodec.LoadGrayMask(Path.Combine(session.SourceDirectory, "images", maskName));
+                Guid layerId = Guid.Parse(layer["id"]!.GetValue<string>());
+                mask = overrideLayerId == layerId && overrideMask is not null
+                    ? overrideMask
+                    : useLoadedAssets && session.TryGetLoadedLayerMask(layerId, out var loadedMask)
+                    ? loadedMask
+                    : ImageCodec.LoadGrayMask(Path.Combine(session.SourceDirectory, "images", maskName));
                 if (mask.Width != width || mask.Height != height)
                     throw new NotSupportedException("Only full-canvas masks are supported in cached previews.");
             }
@@ -265,7 +286,11 @@ public static class ImageProjectWorkflow
             if (layer["imageFile"] is not { } imageNode || layer["adjustment"] is not null)
                 throw new NotSupportedException("Cached non-raster layers are not supported.");
             string imageName = imageNode.GetValue<string>();
-            TileRaster raster = ImageCodec.Load(Path.Combine(session.SourceDirectory, "images", imageName));
+            TileRaster raster = overrideLayerId == id && overrideRaster is not null
+                ? overrideRaster
+                : useLoadedAssets && session.TryGetLoadedLayerRaster(id, out var loadedRaster)
+                ? loadedRaster
+                : ImageCodec.Load(Path.Combine(session.SourceDirectory, "images", imageName));
             if (mask is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true))
                 raster = RasterCompositor.ApplyMask(raster, mask);
             var layerTransform = layer["transform"]?.AsObject()
@@ -519,7 +544,7 @@ public static class ImageProjectWorkflow
     public static void Save(ProjectSession session, string projectDirectory)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be saved yet.");
-        foreach (var layer in session.Layers) session.GetLayerRaster(layer.Id);
+        foreach (var layer in session.Layers.Where(layer => !layer.IsGroup)) session.GetLayerRaster(layer.Id);
         foreach (var layer in session.Layers)
             if (layer.HasMask) session.GetLayerMask(layer.Id);
         ProjectStore.Save(session, projectDirectory, EncodeRaster, EncodeMask);

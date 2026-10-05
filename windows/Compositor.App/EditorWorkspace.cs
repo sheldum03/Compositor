@@ -172,7 +172,10 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("请先启用当前图层蒙版。");
         maskBrushLayer = layerId;
         maskBrushReveal = reveal;
-        maskBrush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings with { Color = [1, 1, 1] }, Selection);
+        TileRaster brushBounds = session.Layers.Single(layer => layer.Id == layerId).IsGroup
+            ? new TileRaster(session.Width, session.Height)
+            : session.GetLayerRaster(layerId);
+        maskBrush = new SoftBrushStroke(brushBounds, settings with { Color = [1, 1, 1] }, Selection);
         AppendMaskStroke(point);
     }
 
@@ -639,8 +642,10 @@ public sealed class EditorWorkspace
         GrayTileRaster current = session.GetLayerMask(maskBrushLayer)!;
         GrayTileRaster next = current.Combine(coverage,
             maskBrushReveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
-        return ImageProjectWorkflow.RenderFlatNormal(session, maskBrushLayer,
-            session.GetLayerRaster(maskBrushLayer), next);
+        TileRaster brushBounds = session.Layers.Single(layer => layer.Id == maskBrushLayer).IsGroup
+            ? new TileRaster(session.Width, session.Height)
+            : session.GetLayerRaster(maskBrushLayer);
+        return ImageProjectWorkflow.RenderFlatNormal(session, maskBrushLayer, brushBounds, next);
     }
 
     private void ClearClipboard()

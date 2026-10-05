@@ -91,15 +91,18 @@ public static class ProjectStore
                 }
             }
         }
+        int imageLayerCount = layers.Count(layer => layer!["imageFile"] is not null);
+        int maskCount = layers.Count(layer => layer!["maskFile"] is not null);
         bool canEdit = version is 1 or 8 && (version == 8 || layers.Count == 1) &&
+            (version == 8 || layers.All(layer => layer!["isGroup"]?.GetValue<bool>() != true && layer["parentID"] is null)) &&
             (version == 8 || layers.All(layer => layer!["maskFile"] is null)) &&
             (version == 8 || layers.All(layer => (layer!["opacity"]?.GetValue<double>() ?? 1) == 1 &&
                 (layer["blendMode"]?.GetValue<string>() ?? "Normal") == "Normal")) &&
-            (long)layers.Count * width * height <= 100_000_000 &&
+            (long)imageLayerCount * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
-            layers.All(node => IsFlatEditableLayer(node!.AsObject(), width, height)) &&
+            layers.All(node => IsEditableLayer(node!.AsObject(), width, height, version == 8)) &&
             allImageSizesMatch && allMaskSizesMatch &&
-            Directory.GetFiles(images).Length == layers.Count + layers.Count(node => node!["maskFile"] is not null) &&
+            Directory.GetFiles(images).Length == imageLayerCount + maskCount &&
             Directory.GetDirectories(images).Length == 0;
         var assetHashes = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         ReadOnlyMemory<byte> imageHash = default;
@@ -107,9 +110,12 @@ public static class ProjectStore
         {
             foreach (var layerNode in layers)
             {
-                string name = layerNode!["imageFile"]!.GetValue<string>();
-                using var stream = File.OpenRead(Path.Combine(images, name));
-                assetHashes.Add(name, SHA256.HashData(stream));
+                if (layerNode!["imageFile"] is { } imageNode)
+                {
+                    string name = imageNode.GetValue<string>();
+                    using var stream = File.OpenRead(Path.Combine(images, name));
+                    assetHashes.Add(name, SHA256.HashData(stream));
+                }
                 if (layerNode["maskFile"] is { } maskNode)
                 {
                     string maskName = maskNode.GetValue<string>();
@@ -117,7 +123,7 @@ public static class ProjectStore
                     assetHashes.Add(maskName, SHA256.HashData(maskStream));
                 }
             }
-            if (layers.Count == 1) imageHash = assetHashes[imageName];
+            if (layers.Count == 1 && imageName.Length != 0) imageHash = assetHashes[imageName];
             else imageName = "";
         }
         return new ProjectSession(source, manifest, imageName, canEdit, imageHash, assetHashes);
@@ -300,21 +306,32 @@ public static class ProjectStore
         return id;
     }
 
-    private static bool IsFlatEditableLayer(JsonObject layer, int width, int height)
+    private static bool IsEditableLayer(JsonObject layer, int width, int height, bool allowGroups)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
-            layer["isGroup"] is { } group && group.GetValue<bool>() ||
+            !allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null) ||
+            layer["isGroup"]?.GetValue<bool>() == true && layer["parentID"] is not null ||
+            layer["isGroup"]?.GetValue<bool>() == true && layer["maskSourceID"] is not null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
             layer["maskFile"] is { } mask && !string.Equals(mask.GetValue<string>(), id.ToString("D") + ".mask.png", StringComparison.OrdinalIgnoreCase) ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>()) ||
-            !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase)) return false;
+            layer["isGroup"]?.GetValue<bool>() != true &&
+            !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase) ||
+            layer["isGroup"]?.GetValue<bool>() == true && layer["imageFile"] is not null) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();
         var size = transform["size"]?.AsArray();
+        if (allowGroups && layer["parentID"] is not null)
+        {
+            return origin?.Count == 2 && size?.Count == 2 &&
+                origin.All(value => double.IsFinite(value!.GetValue<double>())) &&
+                size.All(value => double.IsFinite(value!.GetValue<double>()) && value.GetValue<double>() > 0) &&
+                double.IsFinite(transform["rotation"]?.GetValue<double>() ?? 0);
+        }
         return origin?.Count == 2 && size?.Count == 2 &&
             origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
             size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
