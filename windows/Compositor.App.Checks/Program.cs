@@ -18,11 +18,17 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        if (args.Length != 2) throw new ArgumentException("Usage: <image fixtures> <new output directory>");
+        if (args.Length is not (2 or 3)) throw new ArgumentException("Usage: <image fixtures> <new output directory> [native library]");
         string fixture = Path.GetFullPath(Path.Combine(args[0], "alpha-tiles.png"));
         string output = Path.GetFullPath(args[1]);
         if (Path.Exists(output)) throw new IOException("Output must not exist.");
         Directory.CreateDirectory(output);
+        if (args.Length == 3)
+        {
+            nint library = NativeLibrary.Load(Path.GetFullPath(args[2]));
+            NativeLibrary.SetDllImportResolver(typeof(NativeSelections).Assembly,
+                (name, _, _) => name == "compositor_native" ? library : 0);
+        }
         AppBuilder.Configure<CompositorApplication>().UseSkia()
             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
 
@@ -97,7 +103,7 @@ internal static class Program
         DialogClick(discard.OwnedWindows.Single(), "不保存"); Pump(discard);
         Require(!discard.IsVisible, "Discard close kept the window open.");
         Require(ImageProjectWorkflow.OpenEditable(source).Layers[^1].Name == "中文 Overlay", "Discard wrote unsaved changes to disk.");
-        CanvasChecks.Run(source, fixture, output);
+        CanvasChecks.Run(source, fixture, output, args.Length == 3);
         NewDocumentChecks.Run(source, output);
         File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
         {

@@ -73,6 +73,24 @@ public sealed class GrayTileRaster
         return result;
     }
 
+    public static GrayTileRaster FromCoverage(int width, int height, ReadOnlySpan<byte> coverage)
+    {
+        if (coverage.Length != (long)width * height)
+            throw new ArgumentException("Mask data length does not match its dimensions.", nameof(coverage));
+        var result = new GrayTileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height];
+            for (int y = 0; y < size.Height; y++)
+                coverage.Slice((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize, size.Width)
+                    .CopyTo(tile.AsSpan(y * size.Width, size.Width));
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+    }
+
     public static GrayTileRaster Ellipse(int width, int height, int left, int top, int right, int bottom)
     {
         if (width < 1 || height < 1 || left < 0 || top < 0 || right > width || bottom > height || left >= right || top >= bottom)

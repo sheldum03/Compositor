@@ -119,6 +119,23 @@ public sealed class EditorWorkspace
     public void SelectEllipse(Rect rectangle, GraySelectionOperation operation = GraySelectionOperation.Replace) =>
         SelectShape(rectangle, operation, true);
 
+    public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
+        GraySelectionOperation operation = GraySelectionOperation.Replace)
+    {
+        var session = RequireSession();
+        var raster = Preview ?? ImageProjectWorkflow.RenderFlatNormal(session);
+        int x = (int)Math.Floor(point.X), y = (int)Math.Floor(point.Y);
+        var wand = NativeSelections.Select(ToRgba(raster), session.Width, session.Height, session.Width * 4,
+            x, y, radius, tolerance, contiguous);
+        var next = GrayTileRaster.FromCoverage(session.Width, session.Height, wand.Mask);
+        Selection = operation == GraySelectionOperation.Replace
+            ? next
+            : Selection is { } current ? current.Combine(next, operation)
+            : operation == GraySelectionOperation.Add ? next : null;
+        if (Selection is null || Selection.CoveredPixels == 0) { ClearSelection(); return; }
+        SelectionBounds = SelectionBoundsFor(Selection);
+    }
+
     private void SelectShape(Rect rectangle, GraySelectionOperation operation, bool ellipse)
     {
         var session = RequireSession();
@@ -161,5 +178,41 @@ public sealed class EditorWorkspace
         for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
             if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
         return true;
+    }
+
+    private static byte[] ToRgba(TileRaster raster)
+    {
+        byte[] rgba = new byte[checked(raster.Width * raster.Height * 4)];
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] tile = raster.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(
+                    rgba.AsSpan(((row * TileRaster.TileSize + y) * raster.Width + column * TileRaster.TileSize) * 4,
+                        size.Width * 4));
+        }
+        return rgba;
+    }
+
+    private static Rect SelectionBoundsFor(GrayTileRaster raster)
+    {
+        int left = raster.Width, top = raster.Height, right = -1, bottom = -1;
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] tile = raster.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+                if (tile[y * size.Width + x] != 0)
+                {
+                    int documentX = column * TileRaster.TileSize + x, documentY = row * TileRaster.TileSize + y;
+                    left = Math.Min(left, documentX); top = Math.Min(top, documentY);
+                    right = Math.Max(right, documentX); bottom = Math.Max(bottom, documentY);
+                }
+        }
+        return new Rect(left, top, right - left + 1, bottom - top + 1);
     }
 }

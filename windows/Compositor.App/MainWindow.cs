@@ -28,7 +28,9 @@ public sealed class MainWindow : Window
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
-    private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆" }, SelectedIndex = 0 };
+    private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆", "魔棒" }, SelectedIndex = 0 };
+    private readonly NumericUpDown wandTolerance = new() { Name = "WandTolerance", Minimum = 0, Maximum = 255, Value = 0, Width = 65 };
+    private readonly CheckBox wandContiguous = new() { Name = "WandContiguous", Content = "连续" , IsChecked = true };
     private readonly ComboBox selectionOperation = new() { Name = "SelectionOperation", Width = 90, ItemsSource = new[] { "替换", "加选", "减选" }, SelectedIndex = 0 };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
@@ -64,6 +66,9 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(rectangleSelect);
         toolbar.Children.Add(selectionShape);
         toolbar.Children.Add(selectionOperation);
+        toolbar.Children.Add(new TextBlock { Text = "容差", VerticalAlignment = VerticalAlignment.Center });
+        toolbar.Children.Add(wandTolerance);
+        toolbar.Children.Add(wandContiguous);
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
         rectangleSelect.IsCheckedChanged += (_, _) =>
@@ -146,7 +151,10 @@ public sealed class MainWindow : Window
                     2 => GraySelectionOperation.Subtract,
                     _ => GraySelectionOperation.Replace
                 };
-                if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
+                if (selectionShape.SelectedIndex == 2)
+                    Workspace.SelectMagicWand(rectangle.Position, (int)(wandTolerance.Value ?? 0), 0,
+                        wandContiguous.IsChecked == true, operation);
+                else if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
                 else Workspace.SelectRectangle(rectangle, operation);
                 canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区已更新。";
             }
