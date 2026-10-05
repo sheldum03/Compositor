@@ -559,11 +559,35 @@ public sealed class EditorWorkspace
     private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale)
     {
         byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        if (scale)
+        {
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+            {
+                double sourceX = (x + 0.5) * source.Width / width - 0.5;
+                double sourceY = (y + 0.5) * source.Height / height - 0.5;
+                int x0 = Math.Clamp((int)Math.Floor(sourceX), 0, source.Width - 1),
+                    y0 = Math.Clamp((int)Math.Floor(sourceY), 0, source.Height - 1);
+                int x1 = Math.Min(source.Width - 1, x0 + 1), y1 = Math.Min(source.Height - 1, y0 + 1);
+                double xWeight = Math.Clamp(sourceX - Math.Floor(sourceX), 0, 1),
+                    yWeight = Math.Clamp(sourceY - Math.Floor(sourceY), 0, 1);
+                int destination = (y * width + x) * 4;
+                for (int channel = 0; channel < 4; channel++)
+                {
+                    double top = input[(y0 * source.Width + x0) * 4 + channel] * (1 - xWeight) +
+                        input[(y0 * source.Width + x1) * 4 + channel] * xWeight;
+                    double bottom = input[(y1 * source.Width + x0) * 4 + channel] * (1 - xWeight) +
+                        input[(y1 * source.Width + x1) * 4 + channel] * xWeight;
+                    output[destination + channel] = (byte)Math.Clamp(
+                        Math.Round(top * (1 - yWeight) + bottom * yWeight, MidpointRounding.AwayFromZero), 0, 255);
+                }
+            }
+            return FromRgba(width, height, output);
+        }
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
         {
-            int sourceX = scale ? Math.Min(source.Width - 1, x * source.Width / width) : x;
-            int sourceY = scale ? Math.Min(source.Height - 1, y * source.Height / height) : y;
+            int sourceX = x, sourceY = y;
             if ((uint)sourceX >= (uint)source.Width || (uint)sourceY >= (uint)source.Height) continue;
             input.AsSpan((sourceY * source.Width + sourceX) * 4, 4)
                 .CopyTo(output.AsSpan((y * width + x) * 4, 4));

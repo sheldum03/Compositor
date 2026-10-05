@@ -322,6 +322,16 @@ internal static class CanvasChecks
         resizeWorkspace.ResizeImage(130, 129);
         Require(resizeWorkspace.Session.Width == 130 && resizeWorkspace.Session.Height == 129 && resizeWorkspace.IsDirty,
             "Image resize did not scale to the requested dimensions.");
+        var qualityWorkspace = new EditorWorkspace();
+        qualityWorkspace.New(2, 2, 72);
+        var corners = new TileRaster(2, 2).ReplaceTile(0, 0,
+            [0, 0, 0, 255, 255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255]);
+        qualityWorkspace.Edit(session => session.ReplaceLayerRaster(session.ActiveLayerId!.Value, corners));
+        qualityWorkspace.ResizeImage(3, 3);
+        byte[] center = qualityWorkspace.Session!.GetLayerRaster(qualityWorkspace.Session.ActiveLayerId!.Value).ReadTileCopy(0, 0);
+        Require(center[16] is >= 63 and <= 65 && center[17] is >= 63 and <= 65 &&
+            center[18] is >= 63 and <= 65 && center[19] == 255,
+            "Image resize did not bilinearly resample the center pixel.");
         var rotateWorkspace = new EditorWorkspace();
         rotateWorkspace.Open(project);
         int rotateWidth = rotateWorkspace.Session!.Width, rotateHeight = rotateWorkspace.Session.Height;
