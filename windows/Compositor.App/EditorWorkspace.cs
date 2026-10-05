@@ -496,6 +496,33 @@ public sealed class EditorWorkspace
         }
     }
 
+    public bool CanPasteSelectionFrom(EditorWorkspace source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        if (ReferenceEquals(this, source)) return CanPasteSelection;
+        if (!CanEdit || HasActiveStroke || HasFloatingSelection || source.HasActiveStroke ||
+            source.clipboardRaster is not { } raster || source.clipboardMask is null ||
+            Session is not { } session || session.ActiveLayerId is not { } layerId ||
+            session.Width != raster.Width || session.Height != raster.Height)
+            return false;
+        FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
+        return !layer.IsGroup && session.IsLayerTransformIdentity(layerId) && source.clipboardLayerTransform is null;
+    }
+
+    public void PasteSelectionFrom(EditorWorkspace source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        RequireIdle();
+        source.RequireIdle();
+        if (!CanPasteSelectionFrom(source))
+            throw new NotSupportedException("跨工程粘贴目前只支持相同画布尺寸的未变换平面图层。");
+        clipboardRaster = source.clipboardRaster;
+        clipboardMask = source.clipboardMask;
+        clipboardLayerId = source.clipboardLayerId;
+        clipboardLayerTransform = source.clipboardLayerTransform;
+        PasteSelection();
+    }
+
     public void CopySelection()
     {
         RequireIdle();

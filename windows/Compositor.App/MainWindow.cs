@@ -54,6 +54,7 @@ public sealed class MainWindow : Window
     private Guid? selectedId;
     private int activeProjectIndex;
     private bool refreshing, allowClose;
+    private EditorWorkspace? clipboardProject;
     public EditorWorkspace Workspace => projects[activeProjectIndex];
     public int ProjectCount => projects.Count;
     public int ActiveProjectIndex => activeProjectIndex;
@@ -416,11 +417,13 @@ public sealed class MainWindow : Window
         if (!await ConfirmDiscardAsync()) return;
         if (projects.Count == 1)
         {
+            if (ReferenceEquals(clipboardProject, Workspace)) clipboardProject = null;
             projects[0] = new EditorWorkspace();
             activeProjectIndex = 0;
         }
         else
         {
+            if (ReferenceEquals(clipboardProject, Workspace)) clipboardProject = null;
             projects.RemoveAt(activeProjectIndex);
             activeProjectIndex = Math.Min(activeProjectIndex, projects.Count - 1);
         }
@@ -563,8 +566,9 @@ public sealed class MainWindow : Window
                 button.IsEnabled = false;
         if (selected is { IsGroup: false } && Workspace.Session is { } selectedSession &&
             !selectedSession.IsLayerTransformIdentity(selected.Id))
-            foreach (var button in documentButtons.Where(button => button.Name == "PasteSelection"))
-                button.IsEnabled = Workspace.CanPasteSelection;
+        foreach (var button in documentButtons.Where(button => button.Name == "PasteSelection"))
+            button.IsEnabled = Workspace.CanPasteSelection ||
+                (clipboardProject is { } source && Workspace.CanPasteSelectionFrom(source));
         if (multiple)
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
@@ -737,18 +741,34 @@ public sealed class MainWindow : Window
     private Task CopySelectionAsync()
     {
         Workspace.CopySelection();
+        clipboardProject = Workspace;
         return Task.CompletedTask;
     }
 
     private Task CopyMergedSelectionAsync()
     {
         Workspace.CopyMergedSelection();
+        clipboardProject = Workspace;
         return Task.CompletedTask;
     }
 
-    private Task CutSelectionAsync() => Task.Run(Workspace.CutSelection);
+    private async Task CutSelectionAsync()
+    {
+        EditorWorkspace workspace = Workspace;
+        await Task.Run(workspace.CutSelection);
+        clipboardProject = workspace;
+    }
 
-    private Task PasteSelectionAsync() => Task.Run(Workspace.PasteSelection);
+    private Task PasteSelectionAsync()
+    {
+        EditorWorkspace? source = clipboardProject;
+        return Task.Run(() =>
+        {
+            if (source is not null && !ReferenceEquals(source, Workspace) && Workspace.CanPasteSelectionFrom(source))
+                Workspace.PasteSelectionFrom(source);
+            else Workspace.PasteSelection();
+        });
+    }
     private Task CommitFloatingSelectionAsync() => Task.Run(Workspace.CommitFloatingSelection);
     private Task CancelFloatingSelectionAsync() => Task.Run(Workspace.CancelFloatingSelection);
 

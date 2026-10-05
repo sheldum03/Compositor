@@ -363,6 +363,22 @@ internal static class Program
         Require(tabsWindow.ActiveProjectIndex == 0 && ReferenceEquals(tabsWindow.Workspace, workspace) &&
             tabsWindow.Workspace.Session!.Layers[^1].Name == "中文 Overlay",
             "Switching project tabs did not restore the first workspace state.");
+        workspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        tabsWindow.ActivateProjectTab(1);
+        tabsWindow.ActivateProjectTab(0);
+        Click(tabsWindow, "CopySelection");
+        TileRaster secondTabBeforePaste = secondWorkspace.Session!.GetLayerRaster(secondWorkspace.Session.ActiveLayerId!.Value);
+        tabsWindow.ActivateProjectTab(1);
+        Require(Control<Button>(tabsWindow, "PasteSelection").IsEffectivelyEnabled,
+            "Copying in one project did not enable paste in a compatible project tab.");
+        Click(tabsWindow, "PasteSelection");
+        Require(secondWorkspace.HasFloatingSelection &&
+            CheckEqualNoThrow(secondWorkspace.Session.GetLayerRaster(secondWorkspace.Session.ActiveLayerId!.Value), secondTabBeforePaste),
+            "Cross-project paste changed target pixels before committing the floating selection.");
+        Click(tabsWindow, "CancelFloatingSelection");
+        Require(!secondWorkspace.HasFloatingSelection,
+            "Cross-project paste did not cancel without changing the target document.");
+        tabsWindow.ActivateProjectTab(0);
         tabsWindow.ActivateProjectTab(1);
         string secondTabName = secondWorkspace.Session!.Layers[^1].Name;
         secondWorkspace.Edit(session => session.RenameLayer(session.Layers[^1].Id, "Second tab edit"));
@@ -466,7 +482,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
@@ -519,6 +535,14 @@ internal static class Program
         for (int y = 0; y * TileRaster.TileSize < a.Height; y++)
         for (int x = 0; x * TileRaster.TileSize < a.Width; x++)
             Require(a.ReadTileCopy(x, y).SequenceEqual(b.ReadTileCopy(x, y)), "Raster pixels changed.");
+    }
+    private static bool CheckEqualNoThrow(TileRaster a, TileRaster b)
+    {
+        if (a.Width != b.Width || a.Height != b.Height) return false;
+        for (int y = 0; y * TileRaster.TileSize < a.Height; y++)
+        for (int x = 0; x * TileRaster.TileSize < a.Width; x++)
+            if (!a.ReadTileCopy(x, y).SequenceEqual(b.ReadTileCopy(x, y))) return false;
+        return true;
     }
     private static void Require(bool condition, string message)
     { if (!condition) throw new Exception(message); }
