@@ -2,7 +2,7 @@
 
 更新日期：2026-10-05。
 
-本轮在 `codex/windows-implementation` 工作树继续提交后，以 macOS arm64、.NET SDK 10.0.401、Release 配置验证 M3b 的第一条可交付切片。实现范围是 v8 平面图层的全画布 Gray8 栅格蒙版：载入、启用/停用、选区显示/隐藏、蒙版历史、保存/重开，以及画布尺寸变化、90°文档旋转、图层翻转和整数位移时的蒙版同步。蒙版以 `<layer-id>.mask.png` 保存，并核验 8-bit grayscale、无 alpha、尺寸等于画布。`maskSourceID`、组/剪贴蒙版、调整层蒙版、任意位置蒙版和蒙版绘制/压力仍被拒绝或保留为后续范围。
+本轮在 `codex/windows-implementation` 工作树提交 `220fdba`，以 macOS arm64、.NET SDK 10.0.401、Release 配置验证 M3b 的第一条可交付切片。实现范围是 v8 平面图层的全画布 Gray8 栅格蒙版：载入、启用/停用、选区显示/隐藏、蒙版历史、保存/重开，以及画布尺寸变化、90°文档旋转、图层翻转和整数位移时的蒙版同步。蒙版以 `<layer-id>.mask.png` 保存，并核验 8-bit grayscale、无 alpha、尺寸等于画布。`maskSourceID`、组/剪贴蒙版、调整层蒙版、任意位置蒙版和蒙版绘制/压力仍被拒绝或保留为后续范围。
 
 ## 验证结果
 
