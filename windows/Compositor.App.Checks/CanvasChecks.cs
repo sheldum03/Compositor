@@ -64,6 +64,29 @@ internal static class CanvasChecks
             Pixel(persistedReopened.GetLayerRaster(persistedCopyId), 10, 10).SequenceEqual(new byte[4]) &&
             sawFeatheredPixel,
             "Layer via Copy did not survive save and reopen.");
+        var visibleResultCopy = new EditorWorkspace();
+        visibleResultCopy.Open(project);
+        Guid visibleSourceId = visibleResultCopy.Session!.ActiveLayerId!.Value;
+        TileRaster visibleSourceRaster = visibleResultCopy.Session.GetLayerRaster(visibleSourceId);
+        Guid visibleTargetId = visibleResultCopy.Session.AddBlankLayer("Masked target", 1);
+        int visibleBaselineCount = visibleResultCopy.Session.Layers.Count;
+        visibleResultCopy.Edit(session => session.ReplaceLayerRaster(visibleTargetId, visibleSourceRaster));
+        visibleResultCopy.AddActiveLayerMask();
+        visibleResultCopy.SelectRectangle(new Rect(0, 0, visibleResultCopy.Session.Width / 2, visibleResultCopy.Session.Height));
+        visibleResultCopy.ApplySelectionToActiveLayerMask(reveal: false);
+        visibleResultCopy.SetActiveLayerClipping(enabled: true);
+        GrayTileRaster visibleMask = visibleResultCopy.Session.GetLayerMask(visibleTargetId)!;
+        TileRaster expectedVisibleResult = RasterCompositor.ApplyAlphaMask(
+            RasterCompositor.ApplyMask(visibleSourceRaster, visibleMask), visibleSourceRaster);
+        visibleResultCopy.SelectAll();
+        Require(visibleResultCopy.CanLayerViaCopy, "Layer via Copy did not allow a supported masked clipping layer.");
+        visibleResultCopy.LayerViaCopy();
+        TileRaster visibleCopyRaster = visibleResultCopy.Session.GetLayerRaster(visibleResultCopy.Session.ActiveLayerId!.Value);
+        Require(Bytes(visibleCopyRaster).SequenceEqual(Bytes(expectedVisibleResult)),
+            "Layer via Copy did not preserve the masked clipping visible result.");
+        bool visibleCopyUndone = visibleResultCopy.Undo();
+        Require(visibleCopyUndone && visibleResultCopy.Session.Layers.Count == visibleBaselineCount,
+            $"Undo did not remove the masked clipping Layer via Copy result: undone={visibleCopyUndone}, layers={visibleResultCopy.Session.Layers.Count}.");
         var hardCanvas = new TileRaster(21, 21);
         var hardStroke = new SoftBrushStroke(hardCanvas, new SoftBrushSettings(9, 1, [1, 0, 0], 1));
         hardStroke.Append(new BrushPoint(10.5, 10.5));
