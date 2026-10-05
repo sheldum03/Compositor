@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Compositor.Core;
+using SkiaSharp;
 
 namespace Compositor.Imaging;
 
@@ -81,7 +83,8 @@ public static class ImageProjectWorkflow
     public static TileRaster RenderFlatNormal(string projectDirectory) =>
         RenderFlatNormal(ProjectStore.Open(projectDirectory));
 
-    public static TileRaster RenderFlatNormal(ProjectSession session) => RenderFlatNormalCore(session, null, null);
+    public static TileRaster RenderFlatNormal(ProjectSession session) =>
+        session.CanEdit ? RenderFlatNormalCore(session, null, null) : RenderCachedCore(session);
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)
     {
@@ -136,6 +139,106 @@ public static class ImageProjectWorkflow
             if (layer["isVisible"]!.GetValue<bool>())
                 result = LayerCompositor.Composite(result, raster, layer["opacity"]?.GetValue<double>() ?? 1,
                     layer["blendMode"]?.GetValue<string>() ?? "Normal");
+        }
+        return result;
+    }
+
+    private static TileRaster RenderCachedCore(ProjectSession session)
+    {
+        var manifest = session.Current;
+        int width = manifest["width"]!.GetValue<int>(), height = manifest["height"]!.GetValue<int>();
+        if (manifest["version"]!.GetValue<int>() is not (1 or 8) ||
+            (long)manifest["layers"]!.AsArray().Count * width * height > 100_000_000)
+            throw new NotSupportedException("This project exceeds the cached preview limits.");
+        var result = new TileRaster(width, height);
+        foreach (JsonNode? node in manifest["layers"]!.AsArray())
+        {
+            var layer = node!.AsObject();
+            if (layer["imageFile"] is not { } imageNode) continue;
+            if (layer["maskSourceID"] is not null || layer["adjustment"] is not null)
+                throw new NotSupportedException("Cached previews do not yet render mask sources or adjustments.");
+            string imageName = imageNode.GetValue<string>();
+            string image = Path.Combine(session.SourceDirectory, "images", imageName);
+            TileRaster raster = ImageCodec.Load(image);
+            if (layer["maskFile"] is { } maskNode)
+            {
+                GrayTileRaster mask = ImageCodec.LoadGrayMask(Path.Combine(session.SourceDirectory, "images", maskNode.GetValue<string>()));
+                if (mask.Width != width || mask.Height != height)
+                    throw new NotSupportedException("Only full-canvas masks are supported in cached previews.");
+                if (layer["maskEnabled"]?.GetValue<bool>() ?? true) raster = RasterCompositor.ApplyMask(raster, mask);
+            }
+            var transform = layer["transform"]?.AsObject()
+                ?? throw new NotSupportedException("Cached layer transform data is missing.");
+            var transformed = TransformCachedRaster(raster, transform, width, height);
+            if (layer["isVisible"]?.GetValue<bool>() ?? true)
+                result = LayerCompositor.Composite(result, transformed,
+                    layer["opacity"]?.GetValue<double>() ?? 1,
+                    layer["blendMode"]?.GetValue<string>() ?? "Normal");
+        }
+        return result;
+    }
+
+    private static TileRaster TransformCachedRaster(TileRaster source, JsonObject transform, int width, int height)
+    {
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        if (origin?.Count != 2 || size?.Count != 2) throw new NotSupportedException("Cached layer transform data is invalid.");
+        double x = origin[0]!.GetValue<double>(), y = origin[1]!.GetValue<double>();
+        double targetWidth = size[0]!.GetValue<double>(), targetHeight = size[1]!.GetValue<double>();
+        double rotation = transform["rotation"]?.GetValue<double>() ?? 0;
+        if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(targetWidth) || !double.IsFinite(targetHeight) ||
+            !double.IsFinite(rotation) || targetWidth <= 0 || targetHeight <= 0)
+            throw new NotSupportedException("Cached layer transform data is invalid.");
+        using var srgb = SKColorSpace.CreateSrgb();
+        using var sourceBitmap = new SKBitmap(new SKImageInfo(source.Width, source.Height, SKColorType.Rgba8888, SKAlphaType.Premul, srgb));
+        using var targetBitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul, srgb));
+        CopyToBitmap(source, sourceBitmap);
+        using (var canvas = new SKCanvas(targetBitmap))
+        using (var paint = new SKPaint { FilterQuality = SKFilterQuality.High, IsAntialias = true })
+        {
+            canvas.Clear(SKColors.Transparent);
+            canvas.Save();
+            canvas.Translate((float)(x + targetWidth / 2), (float)(y + targetHeight / 2));
+            canvas.RotateDegrees((float)rotation);
+            canvas.Scale(transform["flipX"]?.GetValue<bool>() == true ? -1 : 1,
+                transform["flipY"]?.GetValue<bool>() == true ? -1 : 1);
+            canvas.Translate((float)(-targetWidth / 2), (float)(-targetHeight / 2));
+            canvas.DrawBitmap(sourceBitmap, new SKRect(0, 0, source.Width, source.Height),
+                new SKRect(0, 0, (float)targetWidth, (float)targetHeight), paint);
+            canvas.Restore();
+        }
+        return FromBitmap(targetBitmap, width, height);
+    }
+
+    private static void CopyToBitmap(TileRaster raster, SKBitmap bitmap)
+    {
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] tile = raster.ReadTileCopy(column, row);
+            for (int i = 0; i < tile.Length; i += 4)
+                if (tile[i] > tile[i + 3] || tile[i + 1] > tile[i + 3] || tile[i + 2] > tile[i + 3])
+                    throw new InvalidDataException("Layer contains invalid premultiplied RGBA.");
+            for (int y = 0; y < size.Height; y++)
+                Marshal.Copy(tile, y * size.Width * 4,
+                    bitmap.GetPixels() + (row * TileRaster.TileSize + y) * bitmap.RowBytes + column * TileRaster.TileSize * 4,
+                    size.Width * 4);
+        }
+    }
+
+    private static TileRaster FromBitmap(SKBitmap bitmap, int width, int height)
+    {
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+                Marshal.Copy(bitmap.GetPixels() + (row * TileRaster.TileSize + y) * bitmap.RowBytes + column * TileRaster.TileSize * 4,
+                    tile, y * size.Width * 4, size.Width * 4);
+            result = result.ReplaceTile(column, row, tile);
         }
         return result;
     }

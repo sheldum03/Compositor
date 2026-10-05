@@ -338,6 +338,32 @@ internal static class CanvasChecks
             !Find<CheckBox>(readOnlyWindow, "RectSelect").IsEffectivelyEnabled,
             "Read-only masked window did not disable editing while retaining export and view access.");
         readOnlyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        string cachedTextProject = Path.Combine(output, "CachedText.comp");
+        CopyDirectory(project, cachedTextProject);
+        var cachedTextManifestPath = Path.Combine(cachedTextProject, "manifest.json");
+        var cachedTextManifest = JsonNode.Parse(File.ReadAllText(cachedTextManifestPath))!.AsObject();
+        var cachedTextLayers = cachedTextManifest["layers"]!.AsArray();
+        var cachedTextLayer = cachedTextLayers[cachedTextLayers.Count - 1]!.AsObject();
+        cachedTextLayer["text"] = new JsonObject
+        {
+            ["content"] = "Missing font cache",
+            ["fontPostScriptName"] = "Compositor-Missing-Font",
+            ["fontSizePoints"] = 18
+        };
+        cachedTextLayer["transform"] = new JsonObject
+        {
+            ["origin"] = new JsonArray(20d, 16d), ["size"] = new JsonArray(120d, 80d),
+            ["rotation"] = 15d, ["flipX"] = true, ["flipY"] = false, ["sampling"] = "High quality"
+        };
+        File.WriteAllText(cachedTextManifestPath, cachedTextManifest.ToJsonString());
+        var cachedTextWorkspace = new EditorWorkspace();
+        cachedTextWorkspace.Open(cachedTextProject);
+        Require(!cachedTextWorkspace.CanEdit && cachedTextWorkspace.Preview is { Width: > 0, Height: > 0 },
+            "Text cache project with a missing font did not open as a read-only transformed preview.");
+        string cachedTextExport = Path.Combine(output, "cached-text-export.png");
+        cachedTextWorkspace.Export(cachedTextExport, jpeg: false);
+        Require(ImageCodec.Load(cachedTextExport).Width == workspace.Session.Width,
+            "Missing-font cached preview did not preserve document export dimensions.");
         var resizeWorkspace = new EditorWorkspace();
         resizeWorkspace.Open(project);
         int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;
