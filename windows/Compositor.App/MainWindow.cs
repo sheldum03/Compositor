@@ -185,18 +185,18 @@ public sealed class MainWindow : Window
             var settings = new SoftBrushSettings((int)(diameter.Value ?? 40),
                 (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0);
             if (maskPaint.IsChecked == true)
-                Workspace.BeginMaskStroke(id, settings, new BrushPoint(point.X, point.Y), maskPaintMode.SelectedIndex == 1);
-            else Workspace.BeginStroke(id, settings, new BrushPoint(point.X, point.Y));
+                Workspace.BeginMaskStroke(id, settings, point, maskPaintMode.SelectedIndex == 1);
+            else Workspace.BeginStroke(id, settings, point);
         });
         canvas.StrokeMoved += point => PaintStep(() =>
         {
-            if (maskPaint.IsChecked == true) Workspace.AppendMaskStroke(new BrushPoint(point.X, point.Y));
-            else Workspace.AppendStroke(new BrushPoint(point.X, point.Y));
+            if (maskPaint.IsChecked == true) Workspace.AppendMaskStroke(point);
+            else Workspace.AppendStroke(point);
         });
         canvas.StrokeFinished += point => PaintStep(() =>
         {
-            if (maskPaint.IsChecked == true) Workspace.CommitMaskStroke(new BrushPoint(point.X, point.Y));
-            else Workspace.CommitStroke(new BrushPoint(point.X, point.Y));
+            if (maskPaint.IsChecked == true) Workspace.CommitMaskStroke(point);
+            else Workspace.CommitStroke(point);
         });
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
         paint.IsCheckedChanged += (_, _) =>

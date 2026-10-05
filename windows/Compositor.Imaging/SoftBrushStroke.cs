@@ -6,7 +6,7 @@ using Compositor.Core;
 
 namespace Compositor.Imaging;
 
-public readonly record struct BrushPoint(double X, double Y);
+public readonly record struct BrushPoint(double X, double Y, double Pressure = 1);
 public sealed record SoftBrushSettings(int Diameter, double Opacity, double[] Color, double Hardness = 0);
 
 // Untransformed, unselected color painting only. CPU dabs follow Mac BrushStroke's event/tail rules.
@@ -69,7 +69,8 @@ public sealed class SoftBrushStroke
     public void Append(BrushPoint point)
     {
         EnsureActive();
-        if (!double.IsFinite(point.X) || !double.IsFinite(point.Y) || Math.Abs(point.X) > 10_000_000 || Math.Abs(point.Y) > 10_000_000)
+        if (!double.IsFinite(point.X) || !double.IsFinite(point.Y) || !double.IsFinite(point.Pressure) ||
+            point.Pressure is < 0 or > 1 || Math.Abs(point.X) > 10_000_000 || Math.Abs(point.Y) > 10_000_000)
             throw new ArgumentException("Invalid pointer coordinate");
         if (samples.Count > 0 && samples[^1] == point) return;
         RemoveTail();
@@ -180,7 +181,8 @@ public sealed class SoftBrushStroke
         static double Knot(double t, BrushPoint a, BrushPoint b) => t + Math.Max(0.0001, Math.Sqrt(Distance(a, b)));
         static BrushPoint Mix(BrushPoint a, BrushPoint b, double ta, double tb, double t) =>
             new(a.X * ((tb - t) / (tb - ta)) + b.X * ((t - ta) / (tb - ta)),
-                a.Y * ((tb - t) / (tb - ta)) + b.Y * ((t - ta) / (tb - ta)));
+                a.Y * ((tb - t) / (tb - ta)) + b.Y * ((t - ta) / (tb - ta)),
+                a.Pressure * ((tb - t) / (tb - ta)) + b.Pressure * ((t - ta) / (tb - ta)));
         double t0 = 0, t1 = Knot(t0, before, start), t2 = Knot(t1, start, end), t3 = Knot(t2, end, after);
         int pieces = Math.Max(1, (int)Math.Ceiling(Distance(start, end) / 2));
         for (int index = 1; index <= pieces; index++)
@@ -203,8 +205,10 @@ public sealed class SoftBrushStroke
                 double distance = distanceToNext;
                 while (distance <= length)
                 {
-                    Dab(new BrushPoint(start.X + (point.X - start.X) * distance / length,
-                        start.Y + (point.Y - start.Y) * distance / length));
+                    double amount = distance / length;
+                    Dab(new BrushPoint(start.X + (point.X - start.X) * amount,
+                        start.Y + (point.Y - start.Y) * amount,
+                        start.Pressure + (point.Pressure - start.Pressure) * amount));
                     distance += spacing;
                 }
                 distanceToNext = distance - length;
@@ -235,7 +239,7 @@ public sealed class SoftBrushStroke
             {
                 for (int y = touched.Top; y < touched.Bottom; y++)
                     AccumulateCoverage(mask.AsSpan((y - tile.Top) * tile.Width + touched.Left - tile.Left, touched.Width),
-                        tip.AsSpan((y - top) * settings.Diameter + touched.Left - left, touched.Width));
+                        tip.AsSpan((y - top) * settings.Diameter + touched.Left - left, touched.Width), point.Pressure);
             }
             else
             {
@@ -245,14 +249,25 @@ public sealed class SoftBrushStroke
                 {
                     int offset = (y - tile.Top) * tile.Width + x - tile.Left;
                     int stampOffset = (y - top) * settings.Diameter + x - left;
-                    byte allowed = (byte)((tip[stampOffset] * selected[offset] + 127) / 255);
+                    byte tipCoverage = ScaleCoverage(tip[stampOffset], point.Pressure);
+                    byte allowed = (byte)((tipCoverage * selected[offset] + 127) / 255);
                     mask[offset] = (byte)(mask[offset] + (allowed * (255 - mask[offset]) + 127) / 255);
                 }
             }
         }
     }
-    internal static void AccumulateCoverage(Span<byte> mask, ReadOnlySpan<byte> stamp)
+    internal static void AccumulateCoverage(Span<byte> mask, ReadOnlySpan<byte> stamp, double pressure = 1)
     {
+        if (pressure <= 0) return;
+        if (pressure < 1)
+        {
+            for (int j = 0; j < mask.Length; j++)
+            {
+                byte scaled = ScaleCoverage(stamp[j], pressure);
+                mask[j] = (byte)(mask[j] + (scaled * (255 - mask[j]) + 127) / 255);
+            }
+            return;
+        }
         int i = 0;
         if (Vector.IsHardwareAccelerated)
         {
@@ -273,6 +288,9 @@ public sealed class SoftBrushStroke
         for (; i < mask.Length; i++)
             mask[i] = (byte)(mask[i] + (stamp[i] * (255 - mask[i]) + 127) / 255);
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static byte ScaleCoverage(byte coverage, double pressure) =>
+        (byte)Math.Clamp(Math.Floor(coverage * pressure + 0.5), 0, 255);
     private void Publish()
     {
         foreach (var pair in dirty)

@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Compositor.Core;
+using Compositor.Imaging;
 
 namespace Compositor.App;
 
@@ -26,9 +27,9 @@ public sealed class CanvasView : Control
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
-    public event Action<Point>? StrokeStarted;
-    public event Action<Point>? StrokeMoved;
-    public event Action<Point>? StrokeFinished;
+    public event Action<BrushPoint>? StrokeStarted;
+    public event Action<BrushPoint>? StrokeMoved;
+    public event Action<BrushPoint>? StrokeFinished;
     public event Action? StrokeCanceled;
     public event Action<Rect>? SelectionFinished;
     public event Action<IReadOnlyList<Point>>? LassoFinished;
@@ -57,7 +58,7 @@ public sealed class CanvasView : Control
                 selectionOutline = null;
             }
             else if (moveSelection) { selectionMoveStart = document; selectionRect = new Rect(document, new Size(0, 0)); }
-            else if (!panning) StrokeStarted?.Invoke(document);
+            else if (!panning) StrokeStarted?.Invoke(StrokePoint(e.GetCurrentPoint(this), document));
             e.Handled = true;
         };
         PointerMoved += (_, e) =>
@@ -72,7 +73,7 @@ public sealed class CanvasView : Control
                 if (selecting && LassoEnabled && (selectionPath is null || Math.Abs(document.X - selectionPath[^1].X) + Math.Abs(document.Y - selectionPath[^1].Y) > 0.5)) selectionPath?.Add(document);
                 InvalidateVisual();
             }
-            else StrokeMoved?.Invoke(Viewport.ToDocument(view));
+            else StrokeMoved?.Invoke(StrokePoint(e.GetCurrentPoint(this), Viewport.ToDocument(view)));
             e.Handled = true;
         };
         PointerReleased += (_, e) =>
@@ -91,7 +92,8 @@ public sealed class CanvasView : Control
                 selectionPath = null;
             }
             else if (moveSelection) SelectionMoveFinished?.Invoke(selectionMoveStart, Viewport.ToDocument(e.GetPosition(this)));
-            else if (paint) StrokeFinished?.Invoke(Viewport.ToDocument(e.GetPosition(this)));
+            else if (paint)
+                StrokeFinished?.Invoke(StrokePoint(e.GetCurrentPoint(this), Viewport.ToDocument(e.GetPosition(this))));
             e.Handled = true;
         };
         PointerCaptureLost += (_, _) => Cancel();
@@ -142,6 +144,14 @@ public sealed class CanvasView : Control
         selecting = false;
         if (select || movingSelection) { selectionRect = null; selectionPath = null; movingSelection = false; SelectionCanceled?.Invoke(); }
         else if (paint) StrokeCanceled?.Invoke();
+    }
+
+    private static BrushPoint StrokePoint(PointerPoint point, Point document)
+    {
+        double rawPressure = point.Properties.Pressure;
+        double pressure = point.Pointer.Type == PointerType.Pen && double.IsFinite(rawPressure)
+            ? Math.Clamp(rawPressure, 0, 1) : 1;
+        return new BrushPoint(document.X, document.Y, pressure);
     }
 
     public void SetSelectionRect(Rect? rectangle)

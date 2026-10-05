@@ -40,6 +40,14 @@ internal static class CanvasChecks
         byte[] hardTile = hardResult.ReadTileCopy(0, 0);
         Require(hardTile[(10 * 21 + 10) * 4 + 3] == 255 && hardTile[3] == 0,
             "Hard brush did not produce a hard circular edge.");
+        var lowPressure = new SoftBrushStroke(new TileRaster(21, 21), new SoftBrushSettings(9, 1, [1, 0, 0], 1));
+        lowPressure.Append(new BrushPoint(10.5, 10.5, 0.25));
+        byte lowAlpha = lowPressure.Commit().ReadTileCopy(0, 0)[(10 * 21 + 10) * 4 + 3];
+        var highPressure = new SoftBrushStroke(new TileRaster(21, 21), new SoftBrushSettings(9, 1, [1, 0, 0], 1));
+        highPressure.Append(new BrushPoint(10.5, 10.5, 0.75));
+        byte highAlpha = highPressure.Commit().ReadTileCopy(0, 0)[(10 * 21 + 10) * 4 + 3];
+        Require(lowAlpha > 0 && highAlpha > lowAlpha && highAlpha < 255,
+            "Brush pressure did not scale single-dab coverage.");
         var selectionHistoryWorkspace = new EditorWorkspace();
         selectionHistoryWorkspace.Import(fixture, Path.Combine(output, "SelectionHistory.comp"));
         selectionHistoryWorkspace.SelectRectangle(new Rect(30, 30, 120, 90));
