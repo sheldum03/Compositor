@@ -40,14 +40,29 @@ internal static class CanvasChecks
         int persistedBaselineCount = persistedLayerViaCopy.Session.Layers.Count;
         TileRaster persistedSource = persistedLayerViaCopy.Session.GetLayerRaster(persistedSourceId);
         persistedLayerViaCopy.SelectRectangle(new Rect(30, 30, 120, 90));
+        persistedLayerViaCopy.FeatherSelection(3);
+        GrayTileRaster persistedSelection = persistedLayerViaCopy.Selection!;
         persistedLayerViaCopy.LayerViaCopy();
         Guid persistedCopyId = persistedLayerViaCopy.Session.ActiveLayerId!.Value;
         persistedLayerViaCopy.SaveAs(persistedLayerViaCopyPath);
         var persistedReopened = ImageProjectWorkflow.OpenEditable(persistedLayerViaCopyPath);
+        bool sawFeatheredPixel = false;
+        for (int y = 0; y < persistedSelection.Height && !sawFeatheredPixel; y++)
+        for (int x = 0; x < persistedSelection.Width && !sawFeatheredPixel; x++)
+        {
+            byte coverage = MaskPixel(persistedSelection, x, y);
+            if (coverage is > 0 and < 255 && Pixel(persistedSource, x, y)[3] > 0)
+            {
+                byte expectedAlpha = (byte)((Pixel(persistedSource, x, y)[3] * coverage + 127) / 255);
+                sawFeatheredPixel = Pixel(persistedReopened.GetLayerRaster(persistedCopyId), x, y)[3] == expectedAlpha &&
+                    expectedAlpha < Pixel(persistedSource, x, y)[3];
+            }
+        }
         Require(persistedReopened.Layers.Count == persistedBaselineCount + 1 &&
             persistedReopened.ActiveLayerId == persistedCopyId &&
             Pixel(persistedReopened.GetLayerRaster(persistedCopyId), 50, 50).SequenceEqual(Pixel(persistedSource, 50, 50)) &&
-            Pixel(persistedReopened.GetLayerRaster(persistedCopyId), 10, 10).SequenceEqual(new byte[4]),
+            Pixel(persistedReopened.GetLayerRaster(persistedCopyId), 10, 10).SequenceEqual(new byte[4]) &&
+            sawFeatheredPixel,
             "Layer via Copy did not survive save and reopen.");
         var hardCanvas = new TileRaster(21, 21);
         var hardStroke = new SoftBrushStroke(hardCanvas, new SoftBrushSettings(9, 1, [1, 0, 0], 1));

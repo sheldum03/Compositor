@@ -1042,7 +1042,13 @@ public sealed class EditorWorkspace
         {
             byte[] pixels = source.ReadTileCopy(column, row), mask = selection.ReadTileCopy(column, row);
             for (int i = 0; i < mask.Length; i++)
-                if ((mask[i] != 0) != keepSelected) pixels.AsSpan(i * 4, 4).Clear();
+            {
+                int coverage = keepSelected ? mask[i] : 255 - mask[i];
+                if (coverage == 255) continue;
+                if (coverage == 0) { pixels.AsSpan(i * 4, 4).Clear(); continue; }
+                for (int channel = 0; channel < 4; channel++)
+                    pixels[i * 4 + channel] = (byte)((pixels[i * 4 + channel] * coverage + 127) / 255);
+            }
             result = result.ReplaceTile(column, row, pixels);
         }
         return result;
@@ -1056,7 +1062,19 @@ public sealed class EditorWorkspace
         {
             byte[] pixels = target.ReadTileCopy(column, row), sourcePixels = source.ReadTileCopy(column, row), mask = selection.ReadTileCopy(column, row);
             for (int i = 0; i < mask.Length; i++)
-                if (mask[i] != 0) sourcePixels.AsSpan(i * 4, 4).CopyTo(pixels.AsSpan(i * 4, 4));
+            {
+                int coverage = mask[i];
+                if (coverage == 0) continue;
+                if (coverage == 255)
+                {
+                    sourcePixels.AsSpan(i * 4, 4).CopyTo(pixels.AsSpan(i * 4, 4));
+                    continue;
+                }
+                int inverse = 255 - coverage;
+                for (int channel = 0; channel < 4; channel++)
+                    pixels[i * 4 + channel] = (byte)((sourcePixels[i * 4 + channel] * coverage +
+                        pixels[i * 4 + channel] * inverse + 127) / 255);
+            }
             result = result.ReplaceTile(column, row, pixels);
         }
         return result;
