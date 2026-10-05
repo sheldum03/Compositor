@@ -158,6 +158,11 @@ internal static class NewDocumentChecks
         var rotatedReopened = ImageProjectWorkflow.OpenEditable(saved);
         Require(rotatedReopened.Width == 257 && rotatedReopened.Height == 259,
             "Saved rotated document did not reopen with exchanged dimensions.");
+        string rotatedExport = Path.Combine(output, "rotated-export.png");
+        ImageProjectWorkflow.ExportPng(rotatedReopened, rotatedExport);
+        var exportedRotation = ImageCodec.Load(rotatedExport);
+        Require(exportedRotation.Width == 257 && exportedRotation.Height == 259,
+            "Export after reopening the rotated document did not preserve dimensions.");
         Click("Undo");
         Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && workspace.IsDirty,
             "Undo after saving rotation did not restore the previous dimensions.");
@@ -174,6 +179,7 @@ internal static class NewDocumentChecks
             passed = true, width = 259, height = 257, resolution = 300,
             dialogs = "new cancellation, invalid size/integer validation, creation and unsaved close/replacement cancellation",
             layers = "actual add/duplicate/delete/selection/opacity/blend buttons, brush isolation, empty saved document and undo/resave restoration",
+            workflow = "new/edit/save/reopen/export roundtrip after document rotation",
             limits = "Headless only; first chosen save path exercised through workspace SaveAs. Native first-save folder picker/IME/DPI and Windows not executed."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: actual new/cancel/invalid dialogs, layer structure/selection buttons, unsaved close and empty save/undo restoration");
