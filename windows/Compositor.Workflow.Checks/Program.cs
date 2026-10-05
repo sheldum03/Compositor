@@ -4,7 +4,7 @@ using Compositor.Core;
 using Compositor.Imaging;
 using SkiaSharp;
 
-if (args.Length is not (2 or 3)) throw new ArgumentException("Usage: Compositor.Workflow.Checks <image fixtures> <new output directory> [Mac-produced projects]");
+if (args.Length is not (2 or 3 or 4)) throw new ArgumentException("Usage: Compositor.Workflow.Checks <image fixtures> <new output directory> [Mac-produced projects] [Mac-produced flat project]");
 string fixtures = Path.GetFullPath(args[0]);
 string output = Path.GetFullPath(args[1]);
 if (Directory.Exists(output)) throw new IOException("Output directory already exists.");
@@ -161,8 +161,14 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
 
 CheckCompositing(output, fixtures);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
-Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer metadata edit/save, Normal and Gray8 mask composition" +
-    (args.Length == 3 ? ", Mac-produced v8 continuation and non-default protection" : ""));
+if (args.Length == 4)
+{
+    CheckMacProduced(Path.GetFullPath(args[2]), output);
+    CheckMacFlatProduced(Path.GetFullPath(args[3]), output);
+}
+Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, Normal and Gray8 mask composition" +
+    (args.Length >= 3 ? ", Mac-produced v8 continuation and non-default protection" : "") +
+    (args.Length == 4 ? ", Mac-produced flat layer pixel continuation" : ""));
 
 static void AssertRaster(TileRaster expected, TileRaster actual)
 {
@@ -337,6 +343,60 @@ static void CheckCompositing(string output, string fixtures)
         Directory.GetDirectories(output, "FlatChanged.comp.tmp-*").Length != 0)
         throw new Exception("Rejected multi-layer save changed state or left temporary files.");
 
+    Guid bottomLayerId = Guid.Parse(baseLayer["id"]!.GetValue<string>());
+    var pixelSession = ImageProjectWorkflow.OpenEditable(flat);
+    TileRaster originalBottom = pixelSession.GetLayerRaster(bottomLayerId);
+    TileRaster originalTop = pixelSession.GetLayerRaster(topLayerId);
+    byte[] pixelTile = originalTop.ReadTileCopy(0, 0);
+    new byte[] { 200, 0, 0, 200 }.CopyTo(pixelTile, 0);
+    TileRaster changedTop = originalTop.ReplaceTile(0, 0, pixelTile);
+    pixelSession.ReplaceLayerRaster(topLayerId, changedTop);
+    pixelSession.RenameLayer(bottomLayerId, "Background");
+    pixelSession.SetLayerVisible(topLayerId, false);
+    if (!ReferenceEquals(pixelSession.GetLayerRaster(bottomLayerId), originalBottom) ||
+        !Pixel(originalTop, 0, 0).SequenceEqual(new byte[] { 80, 20, 40, 128 }))
+        throw new Exception("Editing one layer changed another layer or an old pixel snapshot.");
+    AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(pixelSession));
+    if (!pixelSession.Undo()) throw new Exception("Multi-layer visibility did not undo.");
+    TileRaster changedComposite = RasterCompositor.SourceOver(bottom, changedTop);
+    AssertRaster(changedComposite, ImageProjectWorkflow.RenderFlatNormal(pixelSession));
+    if (!pixelSession.Undo() || !pixelSession.Undo() || pixelSession.IsDirty)
+        throw new Exception("Multi-layer metadata and pixel edits did not undo to the original save point.");
+    AssertRaster(result, ImageProjectWorkflow.RenderFlatNormal(pixelSession));
+    if (!pixelSession.Redo() || !pixelSession.Redo() || !pixelSession.Redo() ||
+        !pixelSession.Undo() || !pixelSession.IsDirty)
+        throw new Exception("Multi-layer pixel and metadata redo path is wrong.");
+    string flatPixels = Path.Combine(output, "FlatPixels.comp");
+    ImageProjectWorkflow.Save(pixelSession, flatPixels);
+    if (pixelSession.IsDirty || !ReferenceEquals(pixelSession.GetLayerRaster(bottomLayerId), originalBottom))
+        throw new Exception("Multi-layer pixel save lost its save point or changed an untouched layer.");
+    string bottomAsset = baseLayer["imageFile"]!.GetValue<string>();
+    string topAsset = topLayer["imageFile"]!.GetValue<string>();
+    if (!File.ReadAllBytes(Path.Combine(images, bottomAsset)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(flatPixels, "images", bottomAsset))) ||
+        File.ReadAllBytes(Path.Combine(images, topAsset)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(flatPixels, "images", topAsset))))
+        throw new Exception("Multi-layer pixel save did not preserve the untouched asset and rewrite the edited one.");
+    var reopenedPixels = ImageProjectWorkflow.OpenEditable(flatPixels);
+    AssertRaster(originalBottom, reopenedPixels.GetLayerRaster(bottomLayerId));
+    AssertRaster(changedTop, reopenedPixels.GetLayerRaster(topLayerId));
+    AssertRaster(changedComposite, ImageProjectWorkflow.RenderFlatNormal(reopenedPixels));
+    string flatPixelExport = Path.Combine(output, "flat-pixels-export.png");
+    ImageProjectWorkflow.ExportPng(reopenedPixels, flatPixelExport);
+    AssertRaster(changedComposite, ImageCodec.Load(flatPixelExport));
+    byte[] bottomTile = originalBottom.ReadTileCopy(0, 0);
+    new byte[] { 30, 40, 50, 255 }.CopyTo(bottomTile, 0);
+    TileRaster changedBottom = originalBottom.ReplaceTile(0, 0, bottomTile);
+    reopenedPixels.ReplaceLayerRaster(bottomLayerId, changedBottom);
+    string bothPixels = Path.Combine(output, "FlatPixelsBoth.comp");
+    ImageProjectWorkflow.Save(reopenedPixels, bothPixels);
+    if (!File.ReadAllBytes(Path.Combine(flatPixels, "images", topAsset)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(bothPixels, "images", topAsset))) ||
+        File.ReadAllBytes(Path.Combine(flatPixels, "images", bottomAsset)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(bothPixels, "images", bottomAsset))))
+        throw new Exception("Editing the second layer rewrote the first or skipped the second.");
+    AssertRaster(changedBottom, ImageProjectWorkflow.OpenEditable(bothPixels).GetLayerRaster(bottomLayerId));
+
     string exported = Path.Combine(output, "composite.png");
     ImageCodec.SavePng(ImageProjectWorkflow.RenderFlatNormal(flat), exported);
     AssertRaster(result, ImageCodec.Load(exported));
@@ -499,4 +559,82 @@ static void CheckMacProduced(string macProjects, string output)
         else if (ProjectStore.Open(target).CanEdit)
             throw new Exception($"Non-default {field} layer was made editable without rendering support.");
     }
+}
+
+static void CheckMacFlatProduced(string macProject, string output)
+{
+    string sourceManifest = Path.Combine(macProject, "manifest.json");
+    byte[] originalManifest = File.ReadAllBytes(sourceManifest);
+    var session = ImageProjectWorkflow.OpenEditable(macProject);
+    if (session.Layers.Count != 2 || session.Layers[0].Name != "Mac Overlay" ||
+        !session.Layers[0].IsVisible || !session.Layers[1].IsVisible || session.IsDirty)
+        throw new Exception("Mac-produced flat project did not open with its edited metadata.");
+    TileRaster macExport = ImageCodec.Load(Path.Combine(Path.GetDirectoryName(macProject)!, "mac-after.png"));
+    AssertRaster(macExport, ImageProjectWorkflow.RenderFlatNormal(session));
+    Guid editedId = session.Layers[0].Id, untouchedId = session.Layers[1].Id;
+    TileRaster originalEdited = session.GetLayerRaster(editedId);
+    TileRaster originalUntouched = session.GetLayerRaster(untouchedId);
+    byte[] editedTile = originalEdited.ReadTileCopy(0, 0);
+    new byte[] { 150, 0, 0, 150 }.CopyTo(editedTile, 0);
+    TileRaster changed = originalEdited.ReplaceTile(0, 0, editedTile);
+    session.ReplaceLayerRaster(editedId, changed);
+    session.RenameLayer(editedId, "Windows continuation");
+    session.SetLayerVisible(untouchedId, false);
+    session.MoveLayer(editedId, 1);
+    for (int i = 0; i < 4; i++)
+        if (!session.Undo()) throw new Exception("Mac flat continuation did not undo.");
+    if (session.IsDirty) throw new Exception("Mac flat continuation did not return to its save point.");
+    AssertRaster(macExport, ImageProjectWorkflow.RenderFlatNormal(session));
+    for (int i = 0; i < 4; i++)
+        if (!session.Redo()) throw new Exception("Mac flat continuation did not redo.");
+    if (!session.IsDirty || session.Layers[0].Id != untouchedId || session.Layers[0].IsVisible ||
+        session.Layers[1].Id != editedId || session.Layers[1].Name != "Windows continuation")
+        throw new Exception("Mac flat continuation lost layer identity or order.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session));
+    string destination = Path.Combine(output, "MacFlatContinued.comp");
+    ImageProjectWorkflow.Save(session, destination);
+    var reopened = ImageProjectWorkflow.OpenEditable(destination);
+    if (session.IsDirty || reopened.IsDirty || reopened.Layers[0].Id != untouchedId ||
+        reopened.Layers[1].Id != editedId || reopened.Layers[1].Name != "Windows continuation")
+        throw new Exception("Mac flat continuation did not save and reopen.");
+    AssertRaster(originalUntouched, reopened.GetLayerRaster(untouchedId));
+    AssertRaster(changed, reopened.GetLayerRaster(editedId));
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    string exported = Path.Combine(output, "mac-flat-continued.png");
+    ImageProjectWorkflow.ExportPng(reopened, exported);
+    AssertRaster(changed, ImageCodec.Load(exported));
+    var before = JsonNode.Parse(originalManifest)!;
+    var after = JsonNode.Parse(File.ReadAllText(Path.Combine(destination, "manifest.json")))!;
+    if (before["documentID"]!.GetValue<string>() != after["documentID"]!.GetValue<string>() ||
+        before["activeLayerID"]!.GetValue<string>() != after["activeLayerID"]!.GetValue<string>() ||
+        !File.ReadAllBytes(sourceManifest).SequenceEqual(originalManifest))
+        throw new Exception("Mac flat continuation changed document identity or source project.");
+    string untouchedName = before["layers"]![1]!["imageFile"]!.GetValue<string>();
+    string editedName = before["layers"]![0]!["imageFile"]!.GetValue<string>();
+    if (!File.ReadAllBytes(Path.Combine(macProject, "images", untouchedName)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(destination, "images", untouchedName))) ||
+        File.ReadAllBytes(Path.Combine(macProject, "images", editedName)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(destination, "images", editedName))))
+        throw new Exception("Mac flat continuation did not isolate the edited asset.");
+
+    var bounded = ImageProjectWorkflow.OpenEditable(macProject);
+    for (int edit = 1; edit <= 105; edit++)
+    {
+        TileRaster current = bounded.GetLayerRaster(editedId);
+        byte[] tile = current.ReadTileCopy(0, 0);
+        new byte[] { (byte)edit, 0, 0, 255 }.CopyTo(tile, 0);
+        bounded.ReplaceLayerRaster(editedId, current.ReplaceTile(0, 0, tile));
+    }
+    for (int i = 0; i < 100; i++)
+        if (!bounded.Undo()) throw new Exception("Multi-layer history lost a retained undo step.");
+    if (bounded.Undo() || !bounded.IsDirty ||
+        !Pixel(bounded.GetLayerRaster(editedId), 0, 0).SequenceEqual(new byte[] { 5, 0, 0, 255 }))
+        throw new Exception("Multi-layer history exceeded its step bound or lost the saved marker.");
+    for (int i = 0; i < 100; i++)
+        if (!bounded.Redo()) throw new Exception("Multi-layer history lost its redo path.");
+    string boundedDestination = Path.Combine(output, "MacFlatBoundedPixels.comp");
+    ImageProjectWorkflow.Save(bounded, boundedDestination);
+    if (!File.ReadAllBytes(Path.Combine(macProject, "images", untouchedName)).SequenceEqual(
+            File.ReadAllBytes(Path.Combine(boundedDestination, "images", untouchedName))))
+        throw new Exception("History trimming caused an untouched Mac asset to be rewritten.");
 }

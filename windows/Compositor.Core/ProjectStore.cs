@@ -140,11 +140,11 @@ public static class ProjectStore
             {
                 string copiedImage = Path.Combine(temporary, "images", name);
                 string sourceImage = Path.Combine(session.SourceDirectory, "images", name);
-                if (session.RequiresRasterEncoding && name == session.ImageName)
+                if (session.TryGetRasterForEncoding(name, out TileRaster raster))
                 {
                     if (encodeRaster is null) throw new NotSupportedException("Raster encoder is required for pixel edits.");
                     CheckAssetHash(session, name, sourceImage);
-                    encodeRaster(session.Raster!, copiedImage);
+                    encodeRaster(raster, copiedImage);
                     CheckAssetHash(session, name, sourceImage);
                 }
                 else

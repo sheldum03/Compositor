@@ -50,7 +50,21 @@ public static class ImageProjectWorkflow
     {
         var session = ProjectStore.Open(projectDirectory);
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be edited yet.");
-        if (session.ImageName.Length == 0) return session;
+        if (session.ImageName.Length == 0)
+        {
+            var rasters = new Dictionary<Guid, TileRaster>();
+            foreach (JsonNode? node in session.Current["layers"]!.AsArray())
+            {
+                string name = node!["imageFile"]!.GetValue<string>();
+                string image = Path.Combine(session.SourceDirectory, "images", name);
+                ProjectStore.CheckAssetHash(session, name, image);
+                TileRaster raster = ImageCodec.Load(image);
+                ProjectStore.CheckAssetHash(session, name, image);
+                rasters.Add(Guid.Parse(node["id"]!.GetValue<string>()), raster);
+            }
+            session.AttachLayerRasters(rasters);
+            return session;
+        }
         string temporary = Path.Combine(Path.GetTempPath(), "compositor-image-" + Guid.NewGuid().ToString("N") + ".png");
         try
         {
@@ -88,6 +102,8 @@ public static class ImageProjectWorkflow
             string image = Path.Combine(session.SourceDirectory, "images", imageName);
             TileRaster raster;
             if (session.Raster is { } memory && imageName == session.ImageName) raster = memory;
+            else if (session.TryGetLoadedLayerRaster(Guid.Parse(layer["id"]!.GetValue<string>()), out var layerRaster))
+                raster = layerRaster;
             else
             {
                 if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);
@@ -113,7 +129,7 @@ public static class ImageProjectWorkflow
     public static void Save(ProjectSession session, string projectDirectory)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be saved yet.");
-        if (session.ImageName.Length == 0) ProjectStore.Save(session, projectDirectory);
+        if (session.ImageName.Length == 0) ProjectStore.Save(session, projectDirectory, EncodeRaster);
         else
         {
             RequireRaster(session);

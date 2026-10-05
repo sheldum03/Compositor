@@ -2,7 +2,7 @@
 
 M1 选用 Avalonia/.NET；此目录是生产实现，`experiments/windows/` 继续保存原型证据。当前与 GUI 无关的工程核心只读取 v1–8 manifest 的基础字段、图像路径及 PNG 头部；其中结构简单、全画布、无变换的 v1 或 v8 单图层工程可编辑，固定 F02～F08 复杂样本仍只读。单图层切片已有改名、像素瓦片快照、共用撤销/重做历史、安全保存与重开。`Compositor.Imaging/ImageProjectWorkflow` 把真实 PNG/JPEG 解码、v8 新工程导入、像素保存及 PNG/JPEG 导出接入此受限链路。它尚不是完整 M2，更不是 Windows 编辑器。
 
-固定 SDK 10.0.401。当前只把源 PNG 与画布尺寸一致、未变换的单图层工程标为可编辑；打开后若源 PNG 被外部改动，保存会拒绝覆盖，Core 的原始文件导出也会拒绝，工作流仍可从已经载入的内存像素快照导出。验证命令：
+固定 SDK 10.0.401。可编辑范围包括源 PNG 与画布尺寸一致、未变换的单图层，以及同样全画布、Normal、透明度 1、无组/蒙版的 v8 平面多层工程；打开后若源 PNG 被外部改动，保存会拒绝覆盖，Core 的原始文件导出也会拒绝，工作流仍可从已经载入的内存像素快照导出。验证命令：
 
 ```sh
 cd windows
@@ -17,6 +17,6 @@ Windows 上也可从解压后的源码根目录双击 `windows/run-smoke.cmd`。
 
 后续顺序：完整文档事务和资产身份、共享瓦片的多层合成（已有平面 Normal 图层及全画布 Gray8 蒙版的只读工程渲染，其他变换/蒙版位置/组等仍缺）、受保护的 v1–8 reader、剩余保存故障与图像格式/资源压力验证，随后把核心接入唯一 Avalonia 生产窗口。UI、IME、S02/S05 和设备测试均在正式应用上重新验收。
 
-生产像素链路的独立检查：先在 `windows/` 下对 `Compositor.Workflow.Checks` 执行 `dotnet restore --locked-mode`，再运行 `dotnet run --project Compositor.Workflow.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。测试会生成新 v8 工程、编辑并撤销/重做像素、保存重开、导出 PNG/JPEG，再检查恢复旧快照、拒绝损坏输入及外部资产变化。Core 不依赖 Imaging；只有工作流调用二者。像素编辑目前仍限单层；平面多层可改名、显隐、排序并安全保存，其他完整 v8 语义和 Windows 实机执行未验收。
+生产像素链路的独立检查：先在 `windows/` 下对 `Compositor.Workflow.Checks` 执行 `dotnet restore --locked-mode`，再运行 `dotnet run --project Compositor.Workflow.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。测试会生成新 v8 工程、编辑并撤销/重做像素、保存重开、导出 PNG/JPEG，再检查恢复旧快照、拒绝损坏输入及外部资产变化。Core 不依赖 Imaging；只有工作流调用二者。平面多层现可逐层改像素、改名、显隐、排序并安全保存；未修改资产保持原始 PNG 字节。详见[逐层像素证据](../docs/windows/evidence/production-layer-pixels-m2.md)。其他完整 v8 语义和 Windows 实机执行未验收。
 
 真实保存中断检查：锁定恢复 `Compositor.SaveCrash.Checks` 后，执行 `dotnet run --project Compositor.SaveCrash.Checks -c Release --no-restore -- Compositor.Imaging.Checks/fixtures <新的输出目录>`。父进程在 PNG 写入、目录替换及备份清理边界终止本测试创建的 14 个子进程（8 个单层、6 个多层），再核对完整旧版/新版像素、层身份/显隐/顺序、隐藏资产及备份保护。详见[多层进程终止证据](../docs/windows/evidence/production-multilayer-save-crash.md)；本地通过不等于 Windows 或断电持久性通过。
