@@ -119,6 +119,15 @@ internal static class CanvasChecks
             $"Rectangle selection did not release a rectangle: selecting={canvas.IsSelecting}, rect={canvas.SelectionRect}, finished={selectionFinished}, canceled={selectionCanceled}, eventRect={selectedRect}.");
         Require(workspace.HasSelection && workspace.SelectedPixels == 120 * 90 && !workspace.IsDirty,
             $"Rectangle selection did not create the expected in-memory mask without history: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}, bounds={workspace.SelectionBounds}, dirty={workspace.IsDirty}.");
+        Click("SelectAll");
+        Require(workspace.SelectionBounds is { X: 0, Y: 0 } bounds && bounds.Width == workspace.Session.Width && bounds.Height == workspace.Session.Height &&
+            workspace.SelectedPixels == (long)workspace.Session.Width * workspace.Session.Height && !workspace.IsDirty,
+            "Select all did not cover the full canvas without changing document history.");
+        Click("InvertSelection");
+        Require(!workspace.HasSelection && !workspace.IsDirty,
+            "Inverting a full selection did not clear it without changing document history.");
+        workspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        canvas.SetSelectionRect(workspace.SelectionBounds);
         Click("CopySelection");
         Require(workspace.HasClipboard && !workspace.IsDirty, "Copy selection changed document history or did not retain a clipboard snapshot.");
         Click("CopyMergedSelection");

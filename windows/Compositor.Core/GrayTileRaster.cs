@@ -165,6 +165,19 @@ public sealed class GrayTileRaster
         return result;
     }
 
+    public GrayTileRaster Invert()
+    {
+        var result = new GrayTileRaster(Width, Height);
+        for (int row = 0; row * TileRaster.TileSize < Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < Width; column++)
+        {
+            byte[] coverage = ReadTileCopy(column, row);
+            for (int i = 0; i < coverage.Length; i++) coverage[i] = (byte)(255 - coverage[i]);
+            result = result.ReplaceTile(column, row, coverage);
+        }
+        return result;
+    }
+
     private static bool Contains(IReadOnlyList<(double X, double Y)> points, double x, double y)
     {
         bool inside = false;

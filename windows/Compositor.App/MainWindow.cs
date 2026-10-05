@@ -74,6 +74,8 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(wandRadius);
         toolbar.Children.Add(wandTolerance);
         toolbar.Children.Add(wandContiguous);
+        toolbar.Children.Add(Command("SelectAll", "全选", SelectAllAsync, document: true));
+        toolbar.Children.Add(Command("InvertSelection", "反选", InvertSelectionAsync, document: true));
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
         toolbar.Children.Add(Command("CopyMergedSelection", "合并复制", CopyMergedSelectionAsync, document: true));
         toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
@@ -379,6 +381,24 @@ public sealed class MainWindow : Window
         Workspace.ClearSelection();
         canvas.SetSelectionRect(null);
         moveSelection.IsEnabled = false;
+        return Task.CompletedTask;
+    }
+
+    private Task SelectAllAsync()
+    {
+        Workspace.SelectAll();
+        canvas.SetSelectionRect(Workspace.SelectionBounds);
+        canvas.SetSelectionOutline(Workspace.SelectionOutline);
+        moveSelection.IsEnabled = Workspace.HasSelection;
+        return Task.CompletedTask;
+    }
+
+    private Task InvertSelectionAsync()
+    {
+        Workspace.InvertSelection();
+        canvas.SetSelectionRect(Workspace.SelectionBounds);
+        canvas.SetSelectionOutline(Workspace.SelectionOutline);
+        moveSelection.IsEnabled = Workspace.HasSelection;
         return Task.CompletedTask;
     }
 

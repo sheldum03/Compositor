@@ -189,6 +189,33 @@ public sealed class EditorWorkspace
         UpdateSelectionOutline();
     }
 
+    public void SelectAll()
+    {
+        selectionMoveHistory = null;
+        var session = RequireSession();
+        Selection = GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width, session.Height);
+        SelectionBounds = new Rect(0, 0, session.Width, session.Height);
+        RecordSelectionState();
+        UpdateSelectionOutline();
+    }
+
+    public void InvertSelection()
+    {
+        RequireIdle();
+        selectionMoveHistory = null;
+        if (Selection is not { } selection) throw new InvalidOperationException("请先建立选区。");
+        var next = selection.Invert();
+        if (next.CoveredPixels == 0)
+        {
+            ClearSelection();
+            return;
+        }
+        Selection = next;
+        SelectionBounds = SelectionBoundsFor(next);
+        RecordSelectionState();
+        UpdateSelectionOutline();
+    }
+
     public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
         GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
