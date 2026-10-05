@@ -28,6 +28,7 @@ public sealed class MainWindow : Window
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
+    private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
     private readonly ComboBox selectionShape = new() { Name = "SelectionShape", Width = 90, ItemsSource = new[] { "矩形", "椭圆", "魔棒", "套索" }, SelectedIndex = 0 };
     private readonly NumericUpDown wandTolerance = new() { Name = "WandTolerance", Minimum = 0, Maximum = 255, Value = 0, Width = 65 };
     private readonly CheckBox wandContiguous = new() { Name = "WandContiguous", Content = "连续" , IsChecked = true };
@@ -64,6 +65,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("ActualSize", "100%", () => { canvas.ActualSize(); return Task.CompletedTask; }, document: true));
         toolbar.Children.Add(pixelGrid);
         toolbar.Children.Add(rectangleSelect);
+        toolbar.Children.Add(moveSelection);
         toolbar.Children.Add(selectionShape);
         toolbar.Children.Add(selectionOperation);
         toolbar.Children.Add(new TextBlock { Text = "容差", VerticalAlignment = VerticalAlignment.Center });
@@ -78,7 +80,13 @@ public sealed class MainWindow : Window
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
-            if (canvas.SelectionEnabled) paint.IsChecked = false;
+            if (canvas.SelectionEnabled) { paint.IsChecked = false; moveSelection.IsChecked = false; }
+            canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
+        };
+        moveSelection.IsCheckedChanged += (_, _) =>
+        {
+            canvas.SelectionMoveEnabled = moveSelection.IsChecked == true;
+            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; }
             canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
         };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
@@ -143,6 +151,7 @@ public sealed class MainWindow : Window
         paint.IsCheckedChanged += (_, _) =>
         {
             if (paint.IsChecked == true) rectangleSelect.IsChecked = false;
+            if (paint.IsChecked == true) moveSelection.IsChecked = false;
             canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
         };
         canvas.SelectionFinished += rectangle =>
@@ -160,14 +169,24 @@ public sealed class MainWindow : Window
                         wandContiguous.IsChecked == true, operation);
                 else if (selectionShape.SelectedIndex == 1) Workspace.SelectEllipse(rectangle, operation);
                 else Workspace.SelectRectangle(rectangle, operation);
-                canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区已更新。";
+                canvas.SetSelectionRect(Workspace.SelectionBounds); moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。";
             }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
         canvas.LassoFinished += points =>
         {
-            try { Workspace.SelectLasso(points, SelectionOperation()); canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区已更新。"; }
+            try { Workspace.SelectLasso(points, SelectionOperation()); canvas.SetSelectionRect(Workspace.SelectionBounds); moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区已更新。"; }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
+        };
+        canvas.SelectionMoveFinished += (start, end) =>
+        {
+            try
+            {
+                int offsetX = (int)Math.Round(end.X - start.X), offsetY = (int)Math.Round(end.Y - start.Y);
+                Workspace.MoveSelection(offsetX, offsetY);
+                canvas.SetSelectionRect(Workspace.SelectionBounds); moveSelection.IsEnabled = Workspace.HasSelection; status.Text = "选区像素已移动。";
+            }
+            catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未移动：" + error.Message; }
         };
         canvas.SelectionCanceled += () => canvas.SetSelectionRect(Workspace.SelectionBounds);
         Content = layout;
@@ -267,6 +286,7 @@ public sealed class MainWindow : Window
         foreach (var button in documentButtons) button.IsEnabled = Workspace.Session is not null;
         pixelGrid.IsEnabled = Workspace.Session is not null;
         rectangleSelect.IsEnabled = Workspace.Session is not null;
+        moveSelection.IsEnabled = Workspace.Session is not null && Workspace.HasSelection;
         selectionShape.IsEnabled = Workspace.Session is not null;
         selectionOperation.IsEnabled = Workspace.Session is not null;
         UpdateSelection();
@@ -334,6 +354,7 @@ public sealed class MainWindow : Window
     {
         Workspace.ClearSelection();
         canvas.SetSelectionRect(null);
+        moveSelection.IsEnabled = false;
         return Task.CompletedTask;
     }
 

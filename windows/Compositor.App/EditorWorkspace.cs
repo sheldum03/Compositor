@@ -214,6 +214,43 @@ public sealed class EditorWorkspace
         if (!SamePixels(session.GetLayerRaster(layerId), next)) Edit(current => current.ReplaceLayerRaster(layerId, next));
     }
 
+    public void MoveSelection(int offsetX, int offsetY)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("请先建立选区。");
+        if (offsetX == 0 && offsetY == 0) return;
+        TileRaster current = session.GetLayerRaster(layerId);
+        byte[] source = ToRgba(current), mask = ToCoverage(selection), moved = new byte[source.Length];
+        source.CopyTo(moved, 0);
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+            if (mask[y * session.Width + x] != 0) moved.AsSpan((y * session.Width + x) * 4, 4).Clear();
+        byte[] movedMask = new byte[mask.Length];
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+            if (mask[y * session.Width + x] != 0)
+            {
+                int targetX = x + offsetX, targetY = y + offsetY;
+                if ((uint)targetX < (uint)session.Width && (uint)targetY < (uint)session.Height)
+                {
+                    source.AsSpan((y * session.Width + x) * 4, 4)
+                        .CopyTo(moved.AsSpan((targetY * session.Width + targetX) * 4, 4));
+                    movedMask[targetY * session.Width + targetX] = mask[y * session.Width + x];
+                }
+            }
+        var next = FromRgba(session.Width, session.Height, moved);
+        if (!SamePixels(current, next)) Edit(currentSession => currentSession.ReplaceLayerRaster(layerId, next));
+        var nextSelection = GrayTileRaster.FromCoverage(session.Width, session.Height, movedMask);
+        if (nextSelection.CoveredPixels == 0) ClearSelection();
+        else
+        {
+            Selection = nextSelection;
+            SelectionBounds = SelectionBoundsFor(nextSelection);
+        }
+    }
+
     private void RequireIdle()
     {
         if (brush is not null) throw new InvalidOperationException("请先结束或取消当前笔划。");
@@ -278,6 +315,38 @@ public sealed class EditorWorkspace
                         size.Width * 4));
         }
         return rgba;
+    }
+
+    private static byte[] ToCoverage(GrayTileRaster raster)
+    {
+        byte[] coverage = new byte[checked(raster.Width * raster.Height)];
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+        {
+            var size = raster.TileDimensions(column, row);
+            byte[] tile = raster.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width, size.Width).CopyTo(
+                    coverage.AsSpan((row * TileRaster.TileSize + y) * raster.Width + column * TileRaster.TileSize, size.Width));
+        }
+        return coverage;
+    }
+
+    private static TileRaster FromRgba(int width, int height, ReadOnlySpan<byte> rgba)
+    {
+        if (rgba.Length != (long)width * height * 4) throw new ArgumentException("RGBA data length does not match its dimensions.", nameof(rgba));
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+                rgba.Slice(((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize) * 4, size.Width * 4)
+                    .CopyTo(tile.AsSpan(y * size.Width * 4, size.Width * 4));
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
     }
 
     private static Rect SelectionBoundsFor(GrayTileRaster raster)

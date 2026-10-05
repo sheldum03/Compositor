@@ -115,6 +115,28 @@ internal static class CanvasChecks
         Click("Undo"); Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
             "Undo did not remove the cut and paste selection history.");
+        Find<CheckBox>(window, "MoveSelection").IsChecked = true;
+        window.MouseDown(DocumentPoint(new Point(80, 80)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(100, 90)));
+        window.MouseUp(DocumentPoint(new Point(100, 90)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.IsDirty && workspace.SelectionBounds is { X: 50, Y: 40 },
+            $"Selection move did not shift the mask and pixels: dirty={workspace.IsDirty}, bounds={workspace.SelectionBounds}.");
+        Click("Undo");
+        Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Undo did not restore pixels after selection move.");
+        workspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        canvas.SetSelectionRect(workspace.SelectionBounds);
+        window.MouseDown(DocumentPoint(new Point(100, 90)), MouseButton.Left);
+        window.MouseMove(DocumentPoint(new Point(80, 80)));
+        window.MouseUp(DocumentPoint(new Point(80, 80)), MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        Require(workspace.IsDirty && workspace.SelectionBounds is { X: 10, Y: 20 },
+            $"Reverse selection move did not preserve the drag origin: dirty={workspace.IsDirty}, bounds={workspace.SelectionBounds}.");
+        Click("Undo");
+        Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Undo did not restore pixels after reverse selection move.");
+        workspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        canvas.SetSelectionRect(workspace.SelectionBounds);
+        Find<CheckBox>(window, "MoveSelection").IsChecked = false;
         Find<CheckBox>(window, "RectSelect").IsChecked = false;
         Find<CheckBox>(window, "Paint").IsChecked = true;
         window.MouseDown(DocumentPoint(new Point(220, 220)), MouseButton.Left);

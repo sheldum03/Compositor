@@ -9,8 +9,9 @@ namespace Compositor.App;
 public sealed class CanvasView : Control
 {
     private IPointer? captured;
-    private bool panning, selecting, spaceHeld, autoFit = true;
+    private bool panning, selecting, movingSelection, spaceHeld, autoFit = true;
     private Point previous;
+    private Point selectionMoveStart;
     private Rect? selectionRect;
     private List<Point>? selectionPath;
     public CanvasViewport Viewport { get; } = new();
@@ -19,7 +20,8 @@ public sealed class CanvasView : Control
     public bool PixelGridEnabled { get; set; }
     public bool SelectionEnabled { get; set; }
     public bool LassoEnabled { get; set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting;
+    public bool SelectionMoveEnabled { get; set; }
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public event Action<Point>? StrokeStarted;
@@ -28,6 +30,7 @@ public sealed class CanvasView : Control
     public event Action? StrokeCanceled;
     public event Action<Rect>? SelectionFinished;
     public event Action<IReadOnlyList<Point>>? LassoFinished;
+    public event Action<Point, Point>? SelectionMoveFinished;
     public event Action? SelectionCanceled;
 
     public CanvasView()
@@ -40,15 +43,17 @@ public sealed class CanvasView : Control
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             bool select = !pan && SelectionEnabled && properties.IsLeftButtonPressed;
-            if (!pan && !select && (!PaintEnabled || !properties.IsLeftButtonPressed || document.X < 0 || document.Y < 0 ||
+            bool moveSelection = !pan && SelectionMoveEnabled && properties.IsLeftButtonPressed;
+            if (!pan && !select && !moveSelection && (!PaintEnabled || !properties.IsLeftButtonPressed || document.X < 0 || document.Y < 0 ||
                          document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
-            if (select && (document.X < 0 || document.Y < 0 || document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
-            Focus(); captured = e.Pointer; panning = pan; selecting = select; previous = view; captured.Capture(this);
+            if ((select || moveSelection) && (document.X < 0 || document.Y < 0 || document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height)) return;
+            Focus(); captured = e.Pointer; panning = pan; selecting = select; movingSelection = moveSelection; previous = view; captured.Capture(this);
             if (select)
             {
                 selectionRect = new Rect(document, new Size(0, 0));
                 selectionPath = LassoEnabled ? [document] : null;
             }
+            else if (moveSelection) { selectionMoveStart = document; selectionRect = new Rect(document, new Size(0, 0)); }
             else if (!panning) StrokeStarted?.Invoke(document);
             e.Handled = true;
         };
@@ -57,11 +62,11 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             Point view = e.GetPosition(this);
             if (panning) { Viewport.Pan(view - previous); previous = view; autoFit = false; InvalidateVisual(); }
-            else if (selecting)
+            else if (selecting || movingSelection)
             {
                 Point document = Viewport.ToDocument(view);
                 selectionRect = Normalize(selectionRect!.Value.Position, document);
-                if (LassoEnabled && (selectionPath is null || Math.Abs(document.X - selectionPath[^1].X) + Math.Abs(document.Y - selectionPath[^1].Y) > 0.5)) selectionPath?.Add(document);
+                if (selecting && LassoEnabled && (selectionPath is null || Math.Abs(document.X - selectionPath[^1].X) + Math.Abs(document.Y - selectionPath[^1].Y) > 0.5)) selectionPath?.Add(document);
                 InvalidateVisual();
             }
             else StrokeMoved?.Invoke(Viewport.ToDocument(view));
@@ -70,16 +75,19 @@ public sealed class CanvasView : Control
         PointerReleased += (_, e) =>
         {
             if (captured != e.Pointer) return;
-            bool paint = !panning;
+            bool paint = !panning && !movingSelection;
             bool select = selecting;
+            bool moveSelection = movingSelection;
             captured = null; e.Pointer.Capture(null);
             selecting = false;
+            movingSelection = false;
             if (select)
             {
                 if (LassoEnabled) LassoFinished?.Invoke(selectionPath?.ToArray() ?? []);
                 else SelectionFinished?.Invoke(selectionRect!.Value);
                 selectionPath = null;
             }
+            else if (moveSelection) SelectionMoveFinished?.Invoke(selectionMoveStart, Viewport.ToDocument(e.GetPosition(this)));
             else if (paint) StrokeFinished?.Invoke(Viewport.ToDocument(e.GetPosition(this)));
             e.Handled = true;
         };
@@ -129,7 +137,7 @@ public sealed class CanvasView : Control
         bool select = selecting;
         var pointer = captured; captured = null; pointer.Capture(null);
         selecting = false;
-        if (select) { selectionRect = null; selectionPath = null; SelectionCanceled?.Invoke(); }
+        if (select || movingSelection) { selectionRect = null; selectionPath = null; movingSelection = false; SelectionCanceled?.Invoke(); }
         else if (paint) StrokeCanceled?.Invoke();
     }
 
