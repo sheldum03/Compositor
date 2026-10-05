@@ -1,6 +1,6 @@
 # M3C 受限组工程编辑证据
 
-实现提交：`ed0f6e2`（`Enable editable pass-through group masks`）；回归提交：`6b759f3`（`Verify editable group appearance history`）、`2702d92`（`Guard grouped layer reordering`）、`3db13af`（`Protect grouped project controls`）。
+实现提交：`ed0f6e2`（`Enable editable pass-through group masks`）；回归提交：`6b759f3`（`Verify editable group appearance history`）、`2702d92`（`Guard grouped layer reordering`）、`3db13af`（`Protect grouped project controls`）、`155a82a`（`Disable raster tools on group selection`）。
 
 本切片把 v8 的受限 pass-through 组从只读缓存预览推进到可编辑加载。范围是全画布栅格资产、全画布 Gray8 蒙版、组变换为 identity；组内叶子可以保留已有画布内变换和连续 clipping stack。组结构、组变换、调整层、文本/形状编辑仍不在本切片范围，结构操作在含组工程中继续拒绝。
 
@@ -11,7 +11,7 @@
 - 含组工程的增删、复制、删除、排序和剪贴关系结构变更明确拒绝；排序路径已补统一保护，避免同位置移动绕过拒绝检查。
 - `ImageProjectWorkflow.OpenEditable` 加载叶子栅格和组/叶子蒙版；编辑预览从内存资产渲染，保存时只写入实际像素资产和蒙版资产。
 - 应用层的蒙版笔刷对组使用画布尺寸作为笔刷边界，避免向无像素资产的组请求 raster。
-- 窗口层对组工程禁用增删、复制、排序、剪贴结构、文档尺寸/旋转等未实现操作，同时保留组蒙版启停与编辑按钮；Headless UI 回归覆盖这些按钮状态。
+- 窗口层对组工程禁用增删、复制、排序、剪贴结构、文档尺寸/旋转等未实现操作；选中组时进一步禁用像素复制/剪切/粘贴、Alpha 载入和组层像素变换，同时保留组蒙版启停与编辑按钮；Headless UI 回归覆盖这些按钮状态。
 
 验证：
 
@@ -20,8 +20,8 @@
 - `Compositor.Imaging.Checks`、`Compositor.App.Checks`、`Compositor.SaveCrash.Checks`、`Compositor.Workflow.Checks` 均通过，构建 0 warning / 0 error；App Checks 新增组工程按钮保护回归。
 - macOS arm64/.NET `10.0.401` Release 本地验证；Windows 原生启动、DPI、IME、字体和真实笔输入仍需在 Windows 11 x64 主机验证。
 
-可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-group-ui-3db13af`，`Compositor.App.exe` SHA-256：
+可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-group-tools-155a82`，`Compositor.App.exe` SHA-256：
 
-`20048c90fc7554816589a8eb1d4d83fe441cb6560df2381d815beb514177aa79`
+`483af227b18aa1f68150e1d0450b065949c85bcbb4431702c637058dcf3ace13`
 
 该包是发布产物，不代表 Windows 启动已经通过；当前环境没有可用的 Windows 运行器，仍需在腾讯云 Windows 服务器执行原生启动和交互检查。
