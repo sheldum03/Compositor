@@ -414,9 +414,9 @@ public sealed class MainWindow : Window
             if (selected?.IsGroup == true && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical" or "MoveLayer")
                 button.IsEnabled = false;
             if (button.Name == "GroupLayer")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsGroup && selected.ParentId is null && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
-                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && selected.ParentId is null && !selected.HasMask && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && !selected.HasMask && !Workspace.HasFloatingSelection;
         }
         if (Workspace.Session is { } session && selected is not null)
         {

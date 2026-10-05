@@ -466,11 +466,22 @@ public sealed class ProjectSession
         if (string.IsNullOrWhiteSpace(name) || name.Length > 1000)
             throw new ArgumentException("Group name must contain 1 to 1000 characters.", nameof(name));
         var layers = Current["layers"]!.AsArray();
-        var indexes = layerIds.Distinct().Select(FindLayer).OrderBy(index => index).ToArray();
-        if (indexes.Length != layerIds.Count || indexes.Any(index => layers[index]!["isGroup"]?.GetValue<bool>() == true ||
-                layers[index]!["parentID"] is not null || layers[index]!["maskSourceID"] is not null) ||
-            indexes[^1] - indexes[0] + 1 != indexes.Length)
-            throw new NotSupportedException("Only contiguous root raster layers can be grouped in this slice.");
+        var distinctIds = layerIds.Distinct().ToArray();
+        var indexes = distinctIds.Select(FindLayer).OrderBy(index => index).ToArray();
+        var parentIds = indexes.Select(index => layers[index]!["parentID"] is { } parent
+            ? Guid.Parse(parent.GetValue<string>()) : (Guid?)null).Distinct().ToArray();
+        if (indexes.Length != layerIds.Count || parentIds.Length != 1 ||
+            indexes.Any(index => layers[index]!["maskSourceID"] is not null))
+            throw new NotSupportedException("Only sibling layers without clipping sources can be grouped in this slice.");
+        var siblingIndexes = layers.Select((layer, index) => (layer, index))
+            .Where(pair => pair.layer!["parentID"] is { } parent
+                ? Guid.Parse(parent.GetValue<string>()) == parentIds[0]
+                : parentIds[0] is null)
+            .Select(pair => pair.index).ToArray();
+        var selectedSiblingPositions = indexes.Select(index => Array.IndexOf(siblingIndexes, index)).OrderBy(index => index).ToArray();
+        if (selectedSiblingPositions.Any(position => position < 0) ||
+            selectedSiblingPositions[^1] - selectedSiblingPositions[0] + 1 != selectedSiblingPositions.Length)
+            throw new NotSupportedException("Only contiguous sibling layers can be grouped in this slice.");
         int width = Width, height = Height;
         Guid groupId = Guid.NewGuid();
         var next = (JsonObject)Current.DeepClone();
@@ -484,6 +495,7 @@ public sealed class ProjectSession
                 ["rotation"] = 0d, ["flipX"] = false, ["flipY"] = false, ["sampling"] = "High quality"
             }
         };
+        if (parentIds[0] is { } parentId) group["parentID"] = parentId.ToString("D");
         foreach (int index in indexes)
             nextLayers[index]!["parentID"] = groupId.ToString("D");
         nextLayers.Insert(indexes[0], group);
@@ -500,20 +512,29 @@ public sealed class ProjectSession
         var group = Current["layers"]![index]!;
         if (group["isGroup"]?.GetValue<bool>() != true)
             throw new ArgumentException("Layer is not a group.", nameof(groupId));
-        if (group["parentID"] is not null)
-            throw new NotSupportedException("Nested groups cannot be ungrouped in this slice.");
         if (group["maskFile"] is not null)
             throw new NotSupportedException("A group with a mask must be flattened or edited before ungrouping.");
+        Guid? parentId = group["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null;
+        var directChildren = Current["layers"]!.AsArray()
+            .Where(node => node!["parentID"] is { } parent && Guid.Parse(parent.GetValue<string>()) == groupId)
+            .Select(node => Guid.Parse(node!["id"]!.GetValue<string>())).ToArray();
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
         foreach (JsonNode? node in nextLayers)
-            if (node!["parentID"] is { } parent && Guid.Parse(parent.GetValue<string>()) == groupId)
-                node.AsObject().Remove("parentID");
+            if (node!["parentID"] is { } parentNode && Guid.Parse(parentNode.GetValue<string>()) == groupId)
+            {
+                if (parentId is { } outer) node["parentID"] = outer.ToString("D");
+                else node.AsObject().Remove("parentID");
+            }
         nextLayers.RemoveAt(index);
         if (ActiveLayerId == groupId)
         {
-            JsonNode? replacement = nextLayers.Skip(index).FirstOrDefault(node => node!["parentID"] is null) ??
-                nextLayers.Take(index).LastOrDefault(node => node!["parentID"] is null);
+            Guid? ParentOf(JsonNode node) => node["parentID"] is { } value
+                ? Guid.Parse(value.GetValue<string>()) : null;
+            JsonNode? replacement = directChildren.Select(id => nextLayers.FirstOrDefault(node =>
+                Guid.Parse(node!["id"]!.GetValue<string>()) == id)).FirstOrDefault(node => node is not null);
+            replacement ??= nextLayers.Skip(Math.Min(index, nextLayers.Count)).FirstOrDefault(node => ParentOf(node!) == parentId);
+            replacement ??= nextLayers.Take(Math.Min(index, nextLayers.Count)).LastOrDefault(node => ParentOf(node!) == parentId);
             if (replacement is null) next.Remove("activeLayerID");
             else next["activeLayerID"] = replacement!["id"]!.DeepClone();
         }

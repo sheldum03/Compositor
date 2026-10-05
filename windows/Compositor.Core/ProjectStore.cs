@@ -311,7 +311,6 @@ public static class ProjectStore
         if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             !allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null) ||
-            layer["isGroup"]?.GetValue<bool>() == true && layer["parentID"] is not null ||
             layer["isGroup"]?.GetValue<bool>() == true && layer["maskSourceID"] is not null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||

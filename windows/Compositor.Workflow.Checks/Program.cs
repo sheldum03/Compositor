@@ -277,11 +277,31 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var reopened = ImageProjectWorkflow.OpenEditable(grouped);
     if (!reopened.CanEdit || !reopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(reopened)))
         throw new Exception("Created group did not survive save and reopen.");
-    reopened.UngroupLayer(groupId);
-    if (reopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(reopened)))
-        throw new Exception("Ungrouping a pass-through group did not restore the render.");
-    ImageProjectWorkflow.Save(reopened, Path.Combine(output, "UngroupedCreated.comp"));
-    Console.WriteLine("PASS: root raster group/ungroup preserves render and save/reopen");
+    Guid innerGroupId = reopened.GroupLayer(leafId, "Inner");
+    Guid outerGroupId = reopened.GroupLayer(groupId, "Outer");
+    if (reopened.Layers.Single(layer => layer.Id == outerGroupId).ParentId is not null ||
+        reopened.Layers.Single(layer => layer.Id == groupId).ParentId != outerGroupId ||
+        reopened.Layers.Single(layer => layer.Id == innerGroupId).ParentId != groupId ||
+        reopened.Layers.Single(layer => layer.Id == leafId).ParentId != innerGroupId ||
+        !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(reopened)))
+        throw new Exception("Nested pass-through groups changed hierarchy or render.");
+    string nested = Path.Combine(output, "NestedGrouped.comp");
+    ImageProjectWorkflow.Save(reopened, nested);
+    var nestedReopened = ImageProjectWorkflow.OpenEditable(nested);
+    if (nestedReopened.Layers.Single(layer => layer.Id == groupId).ParentId != outerGroupId ||
+        nestedReopened.Layers.Single(layer => layer.Id == innerGroupId).ParentId != groupId ||
+        !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(nestedReopened)))
+        throw new Exception("Nested groups did not survive save and reopen.");
+    nestedReopened.UngroupLayer(outerGroupId);
+    if (nestedReopened.Layers.Single(layer => layer.Id == groupId).ParentId is not null ||
+        !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(nestedReopened)))
+        throw new Exception("Ungrouping a nested root group did not preserve hierarchy or render.");
+    nestedReopened.UngroupLayer(groupId);
+    nestedReopened.UngroupLayer(innerGroupId);
+    if (nestedReopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(nestedReopened)))
+        throw new Exception("Ungrouping nested groups did not restore the flat render.");
+    ImageProjectWorkflow.Save(nestedReopened, Path.Combine(output, "UngroupedCreated.comp"));
+    Console.WriteLine("PASS: root and nested raster groups preserve render through group/ungroup and save/reopen");
 }
 
 static bool SameRaster(TileRaster first, TileRaster second)
