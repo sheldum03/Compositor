@@ -8,6 +8,14 @@
 
 产品范围保持：Windows 11 x64、v8 `.comp` 文件夹工程；原字体可用时缩放重绘，缺字体保留缓存画面与文字元数据并提示选择字体，禁止静默替换。完整目标仍按 [PRD](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/product-requirements.md)、[技术设计](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/technical-design.md)、[验证与发布](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/validation-release.md)及下文 W-001–040 验收。
 
+### 本轮进度核对（2026-10-05）
+
+- **代码基线**：实施分支当前提交为 `f4b4e9f`；功能基线为 `136e9e0`。实施分支本轮没有未提交代码变更。
+- **本地验证**：固定 SDK 10.0.401、Avalonia Headless 的 App.Checks（native/no-native）均构建成功并通过 3 项检查；Workflow Checks 构建成功并通过 13 项核心场景；`win-x64` self-contained 便携包生成成功，224 个文件，SHA-256 为 `8eafb609f21793ab9286e0ce84375bc343495807a20a822c7c1733195a204c6b`。
+- **已推进**：M3a 最小内部链路（新建→编辑→尺寸/旋转→保存→重开→PNG 导出）已在 macOS Headless 通过；带 Gray8 蒙版的暂不支持工程、缺失字体/文字变换工程已能只读预览并导出，保存与编辑会被禁用；不支持的缓存语义会明确拒绝。
+- **仍未验证**：上述结果均不是 Windows 实机证据。当前尚未在腾讯云 Windows 服务器启动新版 `Compositor.App.exe`，也未完成 Windows 原生 DLL、文件对话框、DPI/多显示器、IME、性能和干净机部署验收。
+- **下一道闸门**：先用同一 `136e9e0` 便携包完成 Windows 实机启动与 Core/Imaging/Workflow 检查，再继续 M3b 的浮动选区、蒙版编辑/启停、组/剪贴蒙版和 Alpha 组合回归；在此之前不把 M3a 或便携包标为 Alpha。
+
 ## 1. 当前进度
 
 ### 阶段状态
@@ -19,7 +27,7 @@
 | M0 / W-004 | 环境矩阵未齐 | Windows 11 实体机、Server 节点已有；干净普通用户、常见集显、双屏及输入设备覆盖仍有缺口 |
 | M1 / W-005–008 | 原型证据已支撑路线决定 | Avalonia 合成/工程、输入、S02 与限定 S05 通过项已归档；Qt 候选栏换行定位仍失败。真实源码空缓存离线构建已有 Windows 证据；正式应用仍须重新验收 |
 | M1 / W-009 | 单一生产路线已决定 | 2026-09-29 选定 Avalonia 并放行 M2；设备覆盖、原型性能波动及发行依赖保留为后续明确条件，不能写成全项关闭 |
-| M2 / W-010 | 生产入口及构建/检查入口已有 | Avalonia App/App.Checks 与依赖锁已建立，五项 CI 矩阵源码已提交；本地窗口按钮/预览/未保存保护检查通过；`ef4c55d` 已从 macOS 交叉发布 `win-x64` self-contained 便携目录；原生 Windows 窗口、远程 CI、原生 DLL、Windows 产物启动及干净部署未验收 |
+| M2 / W-010 | 生产入口及构建/检查入口已有 | Avalonia App/App.Checks 与依赖锁已建立，五项 CI 矩阵源码已提交；本地窗口按钮/预览/未保存保护检查通过；`136e9e0` 已从 macOS 交叉发布并核对 `win-x64` self-contained 便携目录（224 文件，见[便携发布证据](/Users/admin/.codex/worktrees/192b/Compositor/docs/windows/evidence/production-windows-portable-publish.md)）；原生 Windows 窗口、远程 CI、原生 DLL、Windows 产物启动及干净部署未验收 |
 | M2 / W-011 | 受限多层像素/结构/新建/平面外观/选区事务已提交、本地通过 | 新建在首次保存前始终未保存；选层不加历史；GUID 像素/元数据、增删复制、空工程、透明度、13 模式及会话内矩形/椭圆/套索/魔棒选区共用正式编辑流程；100 步/256 MiB 预算通过。组层、完整选区交互、Windows 长时间验证未完成 |
 | M2 / W-012 | 栅格与原生边界部分实现 | 同一合成器已支持临时单层像素覆盖；平面 Normal 与 Gray8 两场景各经真实 Mac 比较 360,000 通道零差异；原生魔棒/轮廓边界检查通过。Windows、组/剪贴/变换、脏区与正式笔刷性能待完成 |
 | M2 / W-013 | 简单 v1/v8 与受限 v8 多层像素/结构/非默认平面外观可编辑 | 原始 Mac 多层输出已在 .NET 中继续像素/元数据编辑并保存重开；新增/复制/空工程及 v8 非默认透明度/模式本地通过。新输出的真实 Mac 再读回、完整 v1–8 语义及 Windows 未完成；v1 非默认外观和蒙版仍只读 |
