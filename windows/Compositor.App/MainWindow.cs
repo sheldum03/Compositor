@@ -26,6 +26,8 @@ public sealed class MainWindow : Window
     private readonly ListBox layers = new() { Name = "Layers" };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
+    private readonly NumericUpDown layerMoveX = new() { Name = "LayerMoveX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
+    private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
@@ -133,6 +135,13 @@ public sealed class MainWindow : Window
         appearance.Children.Add(layerOpacity);
         appearance.Children.Add(layerBlendMode);
         actions.Children.Add(appearance);
+        var move = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        move.Children.Add(new TextBlock { Text = "X", VerticalAlignment = VerticalAlignment.Center });
+        move.Children.Add(layerMoveX);
+        move.Children.Add(new TextBlock { Text = "Y", VerticalAlignment = VerticalAlignment.Center });
+        move.Children.Add(layerMoveY);
+        move.Children.Add(Command("MoveLayer", "移动图层", MoveLayerAsync, layer: true));
+        actions.Children.Add(move);
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
         var reorder = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
@@ -364,6 +373,12 @@ public sealed class MainWindow : Window
     }
 
     private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
+
+    private Task MoveLayerAsync()
+    {
+        int offsetX = (int)(layerMoveX.Value ?? 0), offsetY = (int)(layerMoveY.Value ?? 0);
+        return Task.Run(() => Workspace.MoveActiveLayer(offsetX, offsetY));
+    }
     private Task RenameAsync()
     {
         Guid id = selectedId!.Value;

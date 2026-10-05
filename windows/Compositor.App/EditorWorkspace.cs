@@ -373,6 +373,27 @@ public sealed class EditorWorkspace
         if (!SamePixels(current, next)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
     }
 
+    public void MoveActiveLayer(int offsetX, int offsetY)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        if (offsetX == 0 && offsetY == 0) return;
+        TileRaster current = session.GetLayerRaster(layerId);
+        byte[] source = ToRgba(current), moved = new byte[source.Length];
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+        {
+            int targetX = x + offsetX, targetY = y + offsetY;
+            if ((uint)targetX < (uint)session.Width && (uint)targetY < (uint)session.Height)
+                source.AsSpan((y * session.Width + x) * 4, 4)
+                    .CopyTo(moved.AsSpan((targetY * session.Width + targetX) * 4, 4));
+        }
+        var next = FromRgba(session.Width, session.Height, moved);
+        if (!SamePixels(current, next)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
+    }
+
     public void SelectLayerAlpha()
     {
         selectionMoveHistory = null;

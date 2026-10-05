@@ -283,6 +283,14 @@ internal static class CanvasChecks
         Click("Undo");
         Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
             "Undo did not restore the pre-vertical-flip layer pixels.");
+        Find<NumericUpDown>(window, "LayerMoveX").Value = 7;
+        Find<NumericUpDown>(window, "LayerMoveY").Value = -3;
+        Click("MoveLayer");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(Shift(flipBaseline, workspace.Session.Width, workspace.Session.Height, 7, -3)),
+            "Moving the active layer did not commit the expected clipped pixel result.");
+        Click("Undo");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
+            "Undo did not restore the pre-move layer pixels.");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);
@@ -314,6 +322,7 @@ internal static class CanvasChecks
         void Click(string name)
         {
             Find<Button>(window, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Dispatcher.UIThread.RunJobs();
             var timer = Stopwatch.StartNew();
             while (window.IsBusy)
             {
@@ -370,6 +379,19 @@ internal static class CanvasChecks
             int targetX = horizontal ? width - 1 - x : x;
             int targetY = horizontal ? y : height - 1 - y;
             source.AsSpan((y * width + x) * 4, 4).CopyTo(result.AsSpan((targetY * width + targetX) * 4, 4));
+        }
+        return result;
+    }
+
+    private static byte[] Shift(byte[] source, int width, int height, int offsetX, int offsetY)
+    {
+        byte[] result = new byte[source.Length];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int targetX = x + offsetX, targetY = y + offsetY;
+            if ((uint)targetX < (uint)width && (uint)targetY < (uint)height)
+                source.AsSpan((y * width + x) * 4, 4).CopyTo(result.AsSpan((targetY * width + targetX) * 4, 4));
         }
         return result;
     }
