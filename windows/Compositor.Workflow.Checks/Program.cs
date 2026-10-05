@@ -163,6 +163,7 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
     throw new Exception("A new edit retained an abandoned redo branch.");
 
 CheckCompositing(output, fixtures);
+CheckCachedGroupRendering(output, fixtures);
 CheckClippingMask(output);
 CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
@@ -186,6 +187,23 @@ static void AssertRaster(TileRaster expected, TileRaster actual)
     for (int column = 0; column * TileRaster.TileSize < expected.Width; column++)
         if (!expected.ReadTileCopy(column, row).SequenceEqual(actual.ReadTileCopy(column, row)))
             throw new Exception($"Raster differs at tile {column},{row}.");
+}
+
+static void CheckCachedGroupRendering(string output, string fixtures)
+{
+    string referenceRoot = Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures"));
+    foreach (string name in new[] { "F02", "F05", "F06" })
+    {
+        string project = Path.Combine(referenceRoot, name + ".comp");
+        string reference = Path.Combine(referenceRoot, name + "-mac.png");
+        var session = ProjectStore.Open(project);
+        if (session.CanEdit) throw new Exception($"Cached group fixture {name} became editable.");
+        TileRaster actual = ImageProjectWorkflow.RenderFlatNormal(session);
+        ImageCodec.SavePng(actual, Path.Combine(output, name + "-actual.png"));
+        try { AssertRaster(ImageCodec.Load(reference), actual); }
+        catch (Exception error) { throw new Exception($"Cached group fixture {name} differs: {error.Message}", error); }
+    }
+    Console.WriteLine("PASS: cached pass-through groups, child visibility, raster masks, clipping alpha and group masks match F02/F05/F06 references");
 }
 
 static void CheckCompositing(string output, string fixtures)
