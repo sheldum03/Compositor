@@ -2,12 +2,12 @@
 
 更新日期：2026-10-05。
 
-本轮在 `codex/windows-implementation` 工作树提交 `363b94d`，以 macOS arm64、.NET SDK 10.0.401、Release 配置验证 M3b 的第一条可交付切片。实现范围是 v8 平面图层的全画布 Gray8 栅格蒙版：载入、启用/停用、选区显示/隐藏、蒙版历史、保存/重开，以及画布尺寸变化和 90° 文档旋转时的蒙版同步。蒙版以 `<layer-id>.mask.png` 保存，并核验 8-bit grayscale、无 alpha、尺寸等于画布。`maskSourceID`、组/剪贴蒙版、调整层蒙版、任意位置蒙版和蒙版绘制/压力仍被拒绝或保留为后续范围；带蒙版图层的翻转和整数移动也明确拒绝，避免只改像素而破坏蒙版对齐。
+本轮在 `codex/windows-implementation` 工作树继续提交后，以 macOS arm64、.NET SDK 10.0.401、Release 配置验证 M3b 的第一条可交付切片。实现范围是 v8 平面图层的全画布 Gray8 栅格蒙版：载入、启用/停用、选区显示/隐藏、蒙版历史、保存/重开，以及画布尺寸变化、90°文档旋转、图层翻转和整数位移时的蒙版同步。蒙版以 `<layer-id>.mask.png` 保存，并核验 8-bit grayscale、无 alpha、尺寸等于画布。`maskSourceID`、组/剪贴蒙版、调整层蒙版、任意位置蒙版和蒙版绘制/压力仍被拒绝或保留为后续范围。
 
 ## 验证结果
 
 - `Compositor.Workflow.Checks` Release 构建：0 警告、0 错误；13 个工作流场景全部通过。新增场景覆盖单图层和多图层可编辑全画布蒙版、选区修改、启停、保存重开、蒙版像素及合成结果、Undo/Redo，以及错误尺寸/错误 PNG 类型拒绝。
-- `Compositor.App.Checks` Release 构建：0 警告、0 错误；无原生选择库的 Headless Avalonia 检查全部通过。窗口层覆盖蒙版按钮启用状态、选区显示/隐藏、启停、保存重开和 PNG 导出状态。
+- `Compositor.App.Checks` Release 构建：0 警告、0 错误；无原生选择库的 Headless Avalonia 检查全部通过。窗口层覆盖蒙版按钮启用状态、选区显示/隐藏、启停、保存重开、PNG 导出，以及图层位移/翻转与蒙版同步、单步 Undo/Redo。
 - `Compositor.Imaging.Checks` Release 构建：0 警告、0 错误；Gray8 蒙版覆盖、PNG 往返和既有图像 IO 检查全部通过。
 - `Compositor.SaveCrash.Checks` Release 构建：0 警告、0 错误；14 个真实子进程保存中断场景全部通过，确认本轮保存路径没有破坏既有单层/多层恢复保护。
 - `win-x64` self-contained 发布成功，产物目录为 `/tmp/compositor-win-x64-mask-363b94d`，224 个文件；`Compositor.App.exe` SHA-256 为 `766cdd3f53ed4a28e026d574d709040c443240fa689e750d07e2a4044c472a0e`。这只证明发布链路完成，不证明 Windows 启动或真机兼容。

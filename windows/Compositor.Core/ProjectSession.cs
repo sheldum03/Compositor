@@ -260,6 +260,24 @@ public sealed class ProjectSession
         Commit(new Snapshot(Current, next, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public void ReplaceLayerRasterAndMask(Guid layerId, TileRaster raster, GrayTileRaster mask)
+    {
+        if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
+        int index = FindLayer(layerId);
+        if (Current["layers"]![index]!["maskFile"] is null)
+            throw new InvalidOperationException("Layer does not have a raster mask.");
+        CheckRasterSize(raster);
+        CheckMaskSize(mask);
+        var currentRasters = snapshots[cursor].LayerRasters
+            ?? throw new InvalidOperationException("Layer rasters have not been loaded.");
+        var currentMasks = snapshots[cursor].LayerMasks
+            ?? throw new InvalidOperationException("Layer masks have not been loaded.");
+        if (ReferenceEquals(currentRasters[layerId], raster) && ReferenceEquals(currentMasks[layerId], mask)) return;
+        var nextRasters = new Dictionary<Guid, TileRaster>(currentRasters) { [layerId] = raster };
+        var nextMasks = new Dictionary<Guid, GrayTileRaster>(currentMasks) { [layerId] = mask };
+        Commit(new Snapshot(Current, nextRasters, nextMasks, ++nextRevision));
+    }
+
     public void ReplaceRaster(TileRaster raster)
     {
         if (!CanEdit || ImageName.Length == 0)

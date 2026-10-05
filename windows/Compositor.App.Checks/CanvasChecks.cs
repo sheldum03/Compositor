@@ -345,6 +345,20 @@ internal static class CanvasChecks
             "Mask edit did not survive save and reopen.");
         var maskTransformWorkspace = new EditorWorkspace();
         maskTransformWorkspace.Open(maskedProject);
+        var transformSession = maskTransformWorkspace.Session!;
+        var transformMask = transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!;
+        Require(MaskPixel(transformMask, 128, 128) == 0, "Saved mask edit was not available for transform checks.");
+        maskTransformWorkspace.MoveActiveLayer(1, 0);
+        Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 255 &&
+            MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 121, 128) == 0,
+            "Layer move did not keep the raster mask aligned.");
+        Require(maskTransformWorkspace.Undo() && MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 0 &&
+            MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 136, 128) == 255 &&
+            maskTransformWorkspace.Redo() && MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 255,
+            "Undo/redo did not restore the layer and raster mask move together.");
+        maskTransformWorkspace.FlipActiveLayer(horizontal: true);
+        Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 134, 128) == 0,
+            "Layer flip did not keep the raster mask aligned.");
         maskTransformWorkspace.ResizeImage(128, 128);
         Require(maskTransformWorkspace.Session!.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
             maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 },
@@ -472,6 +486,12 @@ internal static class CanvasChecks
         var size = raster.TileDimensions(column, row);
         byte[] tile = raster.ReadTileCopy(column, row);
         return tile.AsSpan(((y % TileRaster.TileSize) * size.Width + x % TileRaster.TileSize) * 4, 4).ToArray();
+    }
+    private static byte MaskPixel(GrayTileRaster raster, int x, int y)
+    {
+        int column = x / TileRaster.TileSize, row = y / TileRaster.TileSize;
+        var size = raster.TileDimensions(column, row);
+        return raster.ReadTileCopy(column, row)[(y % TileRaster.TileSize) * size.Width + x % TileRaster.TileSize];
     }
     private static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
     private static void CopyDirectory(string source, string destination)
