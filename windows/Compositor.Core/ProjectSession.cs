@@ -358,13 +358,33 @@ public sealed class ProjectSession
         if ((uint)destinationIndex >= layers.Count) throw new ArgumentOutOfRangeException(nameof(destinationIndex));
         int sourceIndex = FindLayer(layerId);
         if (sourceIndex == destinationIndex) return;
-        if (layers.Any(layer => layer!["maskSourceID"] is not null))
-            throw new NotSupportedException("Reordering layers with clipping masks is not supported in this slice.");
+        var stackIds = new HashSet<Guid> { layerId };
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (FlatLayerInfo layer in Layers)
+            {
+                if (layer.MaskSourceId is { } sourceId && stackIds.Contains(sourceId) && stackIds.Add(layer.Id))
+                    changed = true;
+                if (stackIds.Contains(layer.Id) && layer.MaskSourceId is { } parentId && stackIds.Add(parentId))
+                    changed = true;
+            }
+        } while (changed);
+        int[] stackIndexes = stackIds.Select(FindLayer).OrderBy(index => index).ToArray();
+        if (stackIndexes[^1] - stackIndexes[0] + 1 != stackIndexes.Length)
+            throw new NotSupportedException("剪贴栈必须保持连续才能移动。");
+        int direction = Math.Sign(destinationIndex - sourceIndex);
+        if (direction == 0) return;
+        int blockStart = stackIndexes[0];
+        int insertion = direction > 0 ? blockStart + 1 : blockStart - 1;
         var next = (JsonObject)Current.DeepClone();
         var reordered = next["layers"]!.AsArray();
-        JsonNode layer = reordered[sourceIndex]!;
-        reordered.RemoveAt(sourceIndex);
-        reordered.Insert(destinationIndex, layer);
+        var stackNodes = stackIndexes.Select(index => reordered[index]!.DeepClone()).ToArray();
+        foreach (int index in stackIndexes.Reverse()) reordered.RemoveAt(index);
+        if (insertion < 0 || insertion > reordered.Count)
+            throw new NotSupportedException("剪贴栈不能移出画布边界。");
+        foreach (JsonNode? node in stackNodes) reordered.Insert(insertion++, node);
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 

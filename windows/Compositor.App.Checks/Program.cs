@@ -310,6 +310,46 @@ internal static class Program
             "The merge command allowed a clipping target without its source.");
         clippingGuardWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string clippingMoveProject = Path.Combine(output, "ClippingMove.comp");
+        var clippingMoveWorkspace = new EditorWorkspace();
+        clippingMoveWorkspace.Import(fixture, clippingMoveProject);
+        Guid moveSourceId = clippingMoveWorkspace.Session!.Layers[0].Id;
+        Guid moveTargetId = clippingMoveWorkspace.Session.AddBlankLayer("Clipped", 1);
+        Guid moveOutsideId = clippingMoveWorkspace.Session.AddBlankLayer("Outside", 2);
+        clippingMoveWorkspace.Edit(session => session.SetLayerMaskSource(moveTargetId, moveSourceId));
+        clippingMoveWorkspace.Save();
+        TileRaster clippingMoveBefore = ImageProjectWorkflow.RenderFlatNormal(clippingMoveWorkspace.Session);
+        var clippingMoveWindow = new MainWindow(clippingMoveWorkspace);
+        clippingMoveWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var clippingMoveLayerList = Control<ListBox>(clippingMoveWindow, "Layers");
+        FlatLayerInfo moveTarget = clippingMoveLayerList.ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.Id == moveTargetId);
+        clippingMoveLayerList.SelectedItems!.Clear();
+        clippingMoveLayerList.SelectedItems.Add(moveTarget);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(clippingMoveWindow, "MoveUp").IsEffectivelyEnabled,
+            "A contiguous clipping stack did not enable stack movement.");
+        Click(clippingMoveWindow, "MoveUp");
+        Require(clippingMoveWorkspace.Session.Layers.Select(layer => layer.Id).SequenceEqual([moveOutsideId, moveSourceId, moveTargetId]),
+            "Moving a clipping target did not move its source and target as one stack.");
+        Require(clippingMoveWorkspace.Session.Layers.Single(layer => layer.Id == moveTargetId).MaskSourceId == moveSourceId,
+            "Moving a clipping stack changed its source relationship.");
+        CheckEqual(clippingMoveWorkspace.Preview!, ImageProjectWorkflow.RenderFlatNormal(clippingMoveWorkspace.Session));
+        Click(clippingMoveWindow, "Undo");
+        Require(!clippingMoveWorkspace.IsDirty && clippingMoveWorkspace.Session.Layers.Select(layer => layer.Id)
+            .SequenceEqual([moveSourceId, moveTargetId, moveOutsideId]),
+            "Undo did not restore the saved clipping stack order.");
+        CheckEqual(clippingMoveWorkspace.Preview!, clippingMoveBefore);
+        Click(clippingMoveWindow, "Redo");
+        Require(clippingMoveWorkspace.IsDirty && clippingMoveWorkspace.Session.Layers.Select(layer => layer.Id)
+            .SequenceEqual([moveOutsideId, moveSourceId, moveTargetId]),
+            "Redo did not restore the clipping stack movement.");
+        clippingMoveWorkspace.Save();
+        var reopenedClippingMove = ImageProjectWorkflow.OpenEditable(clippingMoveProject);
+        Require(reopenedClippingMove.Layers.Select(layer => layer.Id).SequenceEqual([moveOutsideId, moveSourceId, moveTargetId]) &&
+            reopenedClippingMove.Layers.Single(layer => layer.Id == moveTargetId).MaskSourceId == moveSourceId,
+            "Saved clipping stack movement did not preserve order and relationship.");
+        clippingMoveWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         var secondWorkspace = new EditorWorkspace();
         secondWorkspace.Open(source);
         var tabsWindow = new MainWindow(workspace);
@@ -424,7 +464,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
                 "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
