@@ -334,6 +334,22 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var transformedReopened = ImageProjectWorkflow.OpenEditable(transformedPath);
     if (!transformedReopened.CanEdit || !SameRaster(HorizontalFlip(baseline), ImageProjectWorkflow.RenderFlatNormal(transformedReopened)))
         throw new Exception("Editable group transform did not survive save and reopen.");
+    var scaled = ImageProjectWorkflow.OpenEditable(grouped);
+    scaled.ScaleGroup(groupId, 0.5);
+    TileRaster scaledPreview = ImageProjectWorkflow.RenderFlatNormal(scaled);
+    if (SameRaster(baseline, scaledPreview) || !scaled.IsDirty)
+        throw new Exception("Editable group scale did not render or record.");
+    if (!scaled.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(scaled)) || scaled.IsDirty)
+        throw new Exception("Editable group scale undo did not restore the saved render.");
+    if (!scaled.Redo() || !SameRaster(scaledPreview, ImageProjectWorkflow.RenderFlatNormal(scaled)))
+        throw new Exception("Editable group scale redo did not restore the scaled render.");
+    var rotated = ImageProjectWorkflow.OpenEditable(grouped);
+    rotated.RotateGroup90(groupId, clockwise: true);
+    TileRaster rotatedPreview = ImageProjectWorkflow.RenderFlatNormal(rotated);
+    if (SameRaster(baseline, rotatedPreview) || !rotated.IsDirty)
+        throw new Exception("Editable group rotation did not render or record.");
+    if (!rotated.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(rotated)) || rotated.IsDirty)
+        throw new Exception("Editable group rotation undo did not restore the saved render.");
     Guid innerGroupId = reopened.GroupLayer(leafId, "Inner");
     Guid outerGroupId = reopened.GroupLayer(groupId, "Outer");
     if (reopened.Layers.Single(layer => layer.Id == outerGroupId).ParentId is not null ||
@@ -361,17 +377,26 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var masked = ImageProjectWorkflow.OpenEditable(grouped);
     masked.EnsureLayerMask(groupId);
     masked.ReplaceLayerMask(groupId, GrayTileRaster.Rectangle(masked.Width, masked.Height, 0, 0, masked.Width / 2, masked.Height));
-    ExpectNotSupported(() => masked.FlipGroup(groupId, horizontal: true), "transforming an enabled group mask");
     TileRaster maskedReference = ImageProjectWorkflow.RenderFlatNormal(masked);
+    masked.FlipGroup(groupId, horizontal: true);
+    TileRaster maskedFlipped = ImageProjectWorkflow.RenderFlatNormal(masked);
+    if (SameRaster(maskedReference, maskedFlipped) || !masked.IsDirty)
+        throw new Exception("Enabled group mask did not follow the group transform.");
+    if (!masked.Undo() || !SameRaster(maskedReference, ImageProjectWorkflow.RenderFlatNormal(masked)))
+        throw new Exception("Enabled group mask transform undo did not restore the preview.");
+    masked.SetLayerMaskEnabled(groupId, false);
+    TileRaster disabledMaskReference = ImageProjectWorkflow.RenderFlatNormal(masked);
+    if (SameRaster(maskedReference, disabledMaskReference))
+        throw new Exception("Disabling an enabled group mask did not change the preview before ungroup.");
     masked.UngroupLayer(groupId);
-    if (masked.HasGroups || !SameRaster(maskedReference, ImageProjectWorkflow.RenderFlatNormal(masked)))
-        throw new Exception("Ungrouping an unmasked-stack group mask did not preserve the render.");
+    if (masked.HasGroups || !SameRaster(disabledMaskReference, ImageProjectWorkflow.RenderFlatNormal(masked)))
+        throw new Exception("Ungrouping a disabled group mask did not preserve the preview.");
     string maskedUngrouped = Path.Combine(output, "MaskedUngrouped.comp");
     ImageProjectWorkflow.Save(masked, maskedUngrouped);
     var maskedReopened = ImageProjectWorkflow.OpenEditable(maskedUngrouped);
-    if (!SameRaster(maskedReference, ImageProjectWorkflow.RenderFlatNormal(maskedReopened)))
-        throw new Exception("Transferred group masks did not survive save and reopen.");
-    Console.WriteLine("PASS: root, nested and simple masked raster groups preserve render through group/ungroup and save/reopen");
+    if (!SameRaster(disabledMaskReference, ImageProjectWorkflow.RenderFlatNormal(maskedReopened)))
+        throw new Exception("Disabled group-mask ungroup did not survive save and reopen.");
+    Console.WriteLine("PASS: root, nested and transformed masked groups preserve render through group/ungroup and save/reopen");
 }
 
 static bool SameRaster(TileRaster first, TileRaster second)

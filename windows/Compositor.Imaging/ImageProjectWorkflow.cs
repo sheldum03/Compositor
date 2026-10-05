@@ -395,9 +395,6 @@ public static class ImageProjectWorkflow
                     index = end - 1;
                 }
             }
-            if (layer.Mask is not null && (layer.Manifest["maskEnabled"]?.GetValue<bool>() ?? true) &&
-                !IsIdentityTransform(layer.Manifest["transform"]!.AsObject(), width, height))
-                throw new NotSupportedException("Cached group masks with non-identity transforms are not supported.");
             var transform = layer.Manifest["transform"]!.AsObject();
             return IsIdentityTransform(transform, width, height)
                 ? result

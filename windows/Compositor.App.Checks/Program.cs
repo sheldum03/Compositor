@@ -133,7 +133,7 @@ internal static class Program
             Control<Button>(groupCreationWindow, "FlipLayerVertical").IsEffectivelyEnabled,
             "Unmasked editable group did not enable transform buttons.");
         Click(groupCreationWindow, "FlipLayerHorizontal");
-        Require(groupCreationWorkspace.Undo(), "Group transform button did not create an undo step.");
+        Click(groupCreationWindow, "Undo");
         Click(groupCreationWindow, "UngroupLayer");
         Require(!groupCreationWorkspace.Session.HasGroups, "Ungroup button did not remove a pass-through group.");
         groupCreationWorkspace.Save();
@@ -148,8 +148,18 @@ internal static class Program
         Dispatcher.UIThread.RunJobs();
         foreach (string name in new[] { "AddLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
             "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
-            "FlipLayerHorizontal", "FlipLayerVertical", "MoveLayer", "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection" })
+            "MoveLayer", "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
+        foreach (string name in new[] { "FlipLayerHorizontal", "FlipLayerVertical", "ScaleGroupDown", "ScaleGroupUp",
+            "RotateGroupCounterClockwise", "RotateGroupClockwise" })
+            Require(Control<Button>(groupedWindow, name).IsEffectivelyEnabled,
+                "Enabled group mask did not expose group transform button: " + name);
+        Click(groupedWindow, "ScaleGroupUp");
+        Require(groupedWorkspace.Undo(), "Group scale button did not create an undo step.");
+        Click(groupedWindow, "RotateGroupClockwise");
+        Require(groupedWorkspace.Undo(), "Group rotation button did not create an undo step.");
+        Click(groupedWindow, "FlipLayerHorizontal");
+        Require(groupedWorkspace.Undo(), "Masked group flip button did not create an undo step.");
         Require(Control<Button>(groupedWindow, "ToggleMask").IsEffectivelyEnabled,
             "Grouped project disabled supported group-mask editing.");
         groupedWindow.Close(); Dispatcher.UIThread.RunJobs();

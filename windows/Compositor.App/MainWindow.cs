@@ -139,6 +139,10 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
         structure.Children.Add(Command("FlipLayerHorizontal", "水平翻转", () => FlipLayerAsync(true), layer: true));
         structure.Children.Add(Command("FlipLayerVertical", "垂直翻转", () => FlipLayerAsync(false), layer: true));
+        structure.Children.Add(Command("ScaleGroupDown", "组缩小", () => ScaleGroupAsync(false), layer: true));
+        structure.Children.Add(Command("ScaleGroupUp", "组放大", () => ScaleGroupAsync(true), layer: true));
+        structure.Children.Add(Command("RotateGroupCounterClockwise", "组左转90°", () => RotateGroupAsync(false), layer: true));
+        structure.Children.Add(Command("RotateGroupClockwise", "组右转90°", () => RotateGroupAsync(true), layer: true));
         structure.Children.Add(Command("AddMask", "添加蒙版", AddMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
@@ -416,12 +420,13 @@ public sealed class MainWindow : Window
                 button.IsEnabled = false;
             if (selected?.IsGroup == true && button.Name == "MoveLayer")
                 button.IsEnabled = false;
-            if (selected?.IsGroup == true && selected.MaskEnabled && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical")
-                button.IsEnabled = false;
+            if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise")
+                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && !Workspace.HasFloatingSelection;
             if (button.Name == "GroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
-                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && !selected.HasMask && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true &&
+                    Workspace.Session!.IsGroupTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
         }
         if (Workspace.Session is { } session && selected is not null)
         {
@@ -485,6 +490,18 @@ public sealed class MainWindow : Window
     private Task UngroupLayerAsync() => EditAsync(session => session.UngroupLayer(selectedId!.Value));
 
     private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
+
+    private Task ScaleGroupAsync(bool enlarge)
+    {
+        Guid id = selectedId!.Value;
+        return EditAsync(session => session.ScaleGroup(id, enlarge ? 1.1 : 0.9));
+    }
+
+    private Task RotateGroupAsync(bool clockwise)
+    {
+        Guid id = selectedId!.Value;
+        return EditAsync(session => session.RotateGroup90(id, clockwise));
+    }
 
     private Task MoveLayerAsync()
     {
