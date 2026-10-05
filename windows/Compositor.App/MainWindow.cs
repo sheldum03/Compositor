@@ -458,6 +458,10 @@ public sealed class MainWindow : Window
         if (selected?.IsGroup == true)
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
+        if (selected is { IsGroup: false } && Workspace.Session is { } selectedSession &&
+            !selectedSession.IsLayerTransformIdentity(selected.Id))
+            foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
+                button.IsEnabled = false;
         if (multiple)
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
@@ -473,16 +477,15 @@ public sealed class MainWindow : Window
         bool multiple = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).Take(2).Count() > 1;
         bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
-        bool transformedLeaf = editable && !selectedGroup && !Workspace.Session!.IsLayerTransformIdentity(selectedId!.Value);
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
-        maskPaint.IsEnabled = hasMask && !transformedLeaf;
+        maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
-        paint.IsEnabled = editable && !selectedGroup && !transformedLeaf;
+        paint.IsEnabled = editable && !selectedGroup;
         canvas.PaintEnabled = editable && !Workspace.HasFloatingSelection &&
-            ((!selectedGroup && !transformedLeaf && paint.IsChecked == true) ||
-             (maskPaint.IsChecked == true && !transformedLeaf));
-        canvas.SelectionEnabled = editable && !transformedLeaf && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
-        canvas.SelectionMoveEnabled = editable && !selectedGroup && !transformedLeaf &&
+            ((!selectedGroup && paint.IsChecked == true) ||
+             maskPaint.IsChecked == true);
+        canvas.SelectionEnabled = editable && !selectedGroup && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
+        canvas.SelectionMoveEnabled = editable && !selectedGroup &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
     private Task AddLayerAsync() => EditAsync(session =>

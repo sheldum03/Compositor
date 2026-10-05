@@ -169,14 +169,15 @@ public sealed class EditorWorkspace
         RequireIdle();
         var session = RequireSession();
         brushLayer = layerId;
-        brush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings, Selection);
+        brush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings,
+            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
         AppendStroke(point);
     }
 
     public void AppendStroke(BrushPoint point)
     {
         var active = brush ?? throw new InvalidOperationException("No active brush stroke.");
-        active.Append(point);
+        active.Append(DocumentToLayerPoint(RequireSession(), brushLayer, point));
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), brushLayer, active.Snapshot());
     }
 
@@ -193,14 +194,15 @@ public sealed class EditorWorkspace
         TileRaster brushBounds = session.Layers.Single(layer => layer.Id == layerId).IsGroup
             ? new TileRaster(session.Width, session.Height)
             : session.GetLayerRaster(layerId);
-        maskBrush = new SoftBrushStroke(brushBounds, settings with { Color = [1, 1, 1] }, Selection);
+        maskBrush = new SoftBrushStroke(brushBounds, settings with { Color = [1, 1, 1] },
+            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
         AppendMaskStroke(point);
     }
 
     public void AppendMaskStroke(BrushPoint point)
     {
         var active = maskBrush ?? throw new InvalidOperationException("No active mask stroke.");
-        active.Append(point);
+        active.Append(DocumentToLayerPoint(RequireSession(), maskBrushLayer, point));
         Preview = RenderMaskStrokePreview(active.CoverageSnapshot());
     }
 
@@ -359,6 +361,8 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("请先建立选区。");
+        if (!session.IsLayerTransformIdentity(layerId))
+            throw new NotSupportedException("变换图层的像素复制请先烘焙图层变换。");
         clipboardRaster = ApplySelection(session.GetLayerRaster(layerId), selection, keepSelected: true);
         clipboardMask = selection;
     }
@@ -388,6 +392,8 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (clipboardRaster is not { } source || clipboardMask is not { } mask || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("没有可粘贴的选区。");
+        if (!session.IsLayerTransformIdentity(layerId))
+            throw new NotSupportedException("变换图层的像素粘贴请先烘焙图层变换。");
         floatingLayerId = layerId;
         floatingRaster = ReplaceSelection(session.GetLayerRaster(layerId), source, mask);
         floatingMask = mask;
@@ -434,7 +440,11 @@ public sealed class EditorWorkspace
         if (offsetX == 0 && offsetY == 0) return;
         var selectionBefore = selection;
         TileRaster current = session.GetLayerRaster(layerId);
-        byte[] source = ToRgba(current), mask = ToCoverage(selection), moved = new byte[source.Length];
+        var layerSelection = SelectionForLayer(session, layerId, selection);
+        Point layerOffset = DocumentToLayerVector(session, layerId, new Vector(offsetX, offsetY));
+        int layerOffsetX = (int)Math.Round(layerOffset.X, MidpointRounding.AwayFromZero);
+        int layerOffsetY = (int)Math.Round(layerOffset.Y, MidpointRounding.AwayFromZero);
+        byte[] source = ToRgba(current), mask = ToCoverage(layerSelection), moved = new byte[source.Length];
         source.CopyTo(moved, 0);
         for (int y = 0; y < session.Height; y++)
         for (int x = 0; x < session.Width; x++)
@@ -444,7 +454,7 @@ public sealed class EditorWorkspace
         for (int x = 0; x < session.Width; x++)
             if (mask[y * session.Width + x] != 0)
             {
-                int targetX = x + offsetX, targetY = y + offsetY;
+                int targetX = x + layerOffsetX, targetY = y + layerOffsetY;
                 if ((uint)targetX < (uint)session.Width && (uint)targetY < (uint)session.Height)
                 {
                     source.AsSpan((y * session.Width + x) * 4, 4)
@@ -455,7 +465,7 @@ public sealed class EditorWorkspace
         var next = FromRgba(session.Width, session.Height, moved);
         bool changed = !SamePixels(current, next);
         if (changed) Edit(currentSession => currentSession.ReplaceLayerRaster(layerId, next));
-        var nextSelection = GrayTileRaster.FromCoverage(session.Width, session.Height, movedMask);
+        var nextSelection = TranslateSelection(selection, offsetX, offsetY);
         if (nextSelection.CoveredPixels == 0) ClearSelection();
         else
         {
@@ -574,7 +584,8 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("请先建立选区并选择图层。");
         if (session.GetLayerMask(layerId) is not { } current)
             throw new InvalidOperationException("当前图层没有蒙版，请先添加蒙版。");
-        var next = current.Combine(selection, reveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
+        var layerSelection = SelectionForLayer(session, layerId, selection);
+        var next = current.Combine(layerSelection, reveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
         Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
     }
 
@@ -616,7 +627,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         var session = RequireSession();
         if (session.ActiveLayerId is not { } layerId) throw new InvalidOperationException("当前工程没有活动图层。");
-        var next = GrayTileRaster.FromCoverage(session.Width, session.Height, ToAlpha(session.GetLayerRaster(layerId)));
+        var source = GrayTileRaster.FromCoverage(session.Width, session.Height, ToAlpha(session.GetLayerRaster(layerId)));
+        var next = LayerToDocumentCoverage(session, layerId, source);
         if (next.CoveredPixels == 0) { ClearSelection(); return; }
         Selection = next;
         SelectionBounds = SelectionBoundsFor(next);
@@ -629,6 +641,102 @@ public sealed class EditorWorkspace
         Selection = selection;
         SelectionBounds = SelectionBoundsFor(selection);
         UpdateSelectionOutline();
+    }
+
+    private static Point DocumentToLayerPoint(ProjectSession session, Guid layerId, Point document)
+    {
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup || session.IsLayerTransformIdentity(layerId))
+            return document;
+        LayerTransformInfo transform = session.GetLayerTransform(layerId);
+        double dx = document.X - (transform.X + transform.Width / 2), dy = document.Y - (transform.Y + transform.Height / 2);
+        double radians = transform.Rotation * Math.PI / 180;
+        double x = dx * Math.Cos(radians) + dy * Math.Sin(radians);
+        double y = -dx * Math.Sin(radians) + dy * Math.Cos(radians);
+        if (transform.FlipX) x = -x;
+        if (transform.FlipY) y = -y;
+        return new Point((x + transform.Width / 2) * session.Width / transform.Width,
+            (y + transform.Height / 2) * session.Height / transform.Height);
+    }
+
+    private static BrushPoint DocumentToLayerPoint(ProjectSession session, Guid layerId, BrushPoint document)
+    {
+        Point mapped = DocumentToLayerPoint(session, layerId, new Point(document.X, document.Y));
+        return new BrushPoint(mapped.X, mapped.Y, document.Pressure);
+    }
+
+    private static Point LayerToDocumentPoint(ProjectSession session, Guid layerId, Point layerPoint)
+    {
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup || session.IsLayerTransformIdentity(layerId))
+            return layerPoint;
+        LayerTransformInfo transform = session.GetLayerTransform(layerId);
+        double x = layerPoint.X * transform.Width / session.Width - transform.Width / 2;
+        double y = layerPoint.Y * transform.Height / session.Height - transform.Height / 2;
+        if (transform.FlipX) x = -x;
+        if (transform.FlipY) y = -y;
+        double radians = transform.Rotation * Math.PI / 180;
+        return new Point(transform.X + transform.Width / 2 + x * Math.Cos(radians) - y * Math.Sin(radians),
+            transform.Y + transform.Height / 2 + x * Math.Sin(radians) + y * Math.Cos(radians));
+    }
+
+    private static Point DocumentToLayerVector(ProjectSession session, Guid layerId, Vector document)
+    {
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup || session.IsLayerTransformIdentity(layerId))
+            return new Point(document.X, document.Y);
+        LayerTransformInfo transform = session.GetLayerTransform(layerId);
+        double radians = transform.Rotation * Math.PI / 180;
+        double x = document.X * Math.Cos(radians) + document.Y * Math.Sin(radians);
+        double y = -document.X * Math.Sin(radians) + document.Y * Math.Cos(radians);
+        if (transform.FlipX) x = -x;
+        if (transform.FlipY) y = -y;
+        return new Point(x * session.Width / transform.Width, y * session.Height / transform.Height);
+    }
+
+    private static GrayTileRaster SelectionForLayer(ProjectSession session, Guid layerId, GrayTileRaster selection)
+    {
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup || session.IsLayerTransformIdentity(layerId))
+            return selection;
+        byte[] documentCoverage = ToCoverage(selection), layerCoverage = new byte[documentCoverage.Length];
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+        {
+            Point document = LayerToDocumentPoint(session, layerId, new Point(x + 0.5, y + 0.5));
+            int documentX = (int)Math.Floor(document.X), documentY = (int)Math.Floor(document.Y);
+            if ((uint)documentX < (uint)session.Width && (uint)documentY < (uint)session.Height)
+                layerCoverage[y * session.Width + x] = documentCoverage[documentY * session.Width + documentX];
+        }
+        return GrayTileRaster.FromCoverage(session.Width, session.Height, layerCoverage);
+    }
+
+    private static GrayTileRaster LayerToDocumentCoverage(ProjectSession session, Guid layerId, GrayTileRaster layerCoverage)
+    {
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup || session.IsLayerTransformIdentity(layerId))
+            return layerCoverage;
+        byte[] sourceCoverage = ToCoverage(layerCoverage), documentCoverage = new byte[sourceCoverage.Length];
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+        {
+            Point document = LayerToDocumentPoint(session, layerId, new Point(x + 0.5, y + 0.5));
+            int documentX = (int)Math.Floor(document.X), documentY = (int)Math.Floor(document.Y);
+            if ((uint)documentX < (uint)session.Width && (uint)documentY < (uint)session.Height)
+            {
+                int index = documentY * session.Width + documentX;
+                documentCoverage[index] = Math.Max(documentCoverage[index], sourceCoverage[y * session.Width + x]);
+            }
+        }
+        return GrayTileRaster.FromCoverage(session.Width, session.Height, documentCoverage);
+    }
+
+    private static GrayTileRaster TranslateSelection(GrayTileRaster selection, int offsetX, int offsetY)
+    {
+        byte[] source = ToCoverage(selection), moved = new byte[source.Length];
+        for (int y = 0; y < selection.Height; y++)
+        for (int x = 0; x < selection.Width; x++)
+        {
+            int targetX = x + offsetX, targetY = y + offsetY;
+            if ((uint)targetX < (uint)selection.Width && (uint)targetY < (uint)selection.Height)
+                moved[targetY * selection.Width + targetX] = source[y * selection.Width + x];
+        }
+        return GrayTileRaster.FromCoverage(selection.Width, selection.Height, moved);
     }
 
     private void RequireIdle(bool allowFloating = false)

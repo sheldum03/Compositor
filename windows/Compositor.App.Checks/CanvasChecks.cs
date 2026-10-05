@@ -327,8 +327,10 @@ internal static class CanvasChecks
         TileRaster expectedAfterScale = ImageProjectWorkflow.RenderFlatNormal(workspace.Session!);
         int scalePreviewDiff = MaxDifference(expectedAfterScale, workspace.Preview!);
         Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
-            !SamePixels(previewBeforeScale, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled &&
-            !canvas.SelectionEnabled && scalePreviewDiff == 0, $"Flat layer scale did not use a non-destructive transform or protect pixel tools (previewDiff={scalePreviewDiff}).");
+            !SamePixels(previewBeforeScale, workspace.Preview!) && Find<CheckBox>(window, "Paint").IsEffectivelyEnabled &&
+            Find<CheckBox>(window, "RectSelect").IsEffectivelyEnabled &&
+            !Find<Button>(window, "CopySelection").IsEffectivelyEnabled && scalePreviewDiff == 0,
+            $"Flat layer scale did not use a non-destructive transform or expose mapped selection tools (previewDiff={scalePreviewDiff}).");
         Require(Find<Button>(window, "BakeLayerTransform").IsEffectivelyEnabled,
             "Transformed flat layer did not expose the explicit bake command.");
         Click("BakeLayerTransform");
@@ -343,22 +345,53 @@ internal static class CanvasChecks
         TileRaster previewBeforeRotate = workspace.Preview!;
         Click("RotateGroupClockwise");
         Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
-            !SamePixels(previewBeforeRotate, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
-            "Flat layer rotation did not use a non-destructive transform or protect pixel tools.");
+            !SamePixels(previewBeforeRotate, workspace.Preview!) && Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
+            "Flat layer rotation did not use a non-destructive transform or enable mapped pixel tools.");
         Click("Undo");
         TileRaster previewBeforeFreeRotate = workspace.Preview!;
         Click("RotateLayerClockwise");
         Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
-            !SamePixels(previewBeforeFreeRotate, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
-            "Flat layer free rotation did not use a non-destructive transform or protect pixel tools.");
+            !SamePixels(previewBeforeFreeRotate, workspace.Preview!) && Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
+            "Flat layer free rotation did not use a non-destructive transform or enable mapped pixel tools.");
         Click("Undo");
         Find<NumericUpDown>(window, "LayerRotation").Value = 12.5m;
         TileRaster previewBeforeCustomRotate = workspace.Preview!;
         Click("RotateLayerCustom");
         Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
-            !SamePixels(previewBeforeCustomRotate, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
-            "Flat layer custom rotation did not use a non-destructive transform or protect pixel tools.");
+            !SamePixels(previewBeforeCustomRotate, workspace.Preview!) && Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
+            "Flat layer custom rotation did not use a non-destructive transform or enable mapped pixel tools.");
         Click("Undo");
+
+        var mappedWorkspace = new EditorWorkspace();
+        mappedWorkspace.Open(project);
+        Guid mappedLayerId = mappedWorkspace.Session!.ActiveLayerId!.Value;
+        TileRaster mappedSourceBefore = mappedWorkspace.Session.GetLayerRaster(mappedLayerId);
+        mappedWorkspace.MoveActiveLayer(12, 8);
+        mappedWorkspace.SelectRectangle(new Rect(112, 108, 20, 20));
+        mappedWorkspace.BeginStroke(mappedLayerId, new SoftBrushSettings(9, 1, [1, 0, 0], 1), new BrushPoint(121, 117));
+        mappedWorkspace.CommitStroke(new BrushPoint(121, 117));
+        Require(mappedWorkspace.IsDirty && !SamePixels(mappedSourceBefore, mappedWorkspace.Session.GetLayerRaster(mappedLayerId)),
+            "A translated layer did not map the document selection and brush point back to source pixels.");
+        var rotatedMappedWorkspace = new EditorWorkspace();
+        rotatedMappedWorkspace.Open(project);
+        Guid rotatedMappedLayerId = rotatedMappedWorkspace.Session!.ActiveLayerId!.Value;
+        TileRaster rotatedSourceBefore = rotatedMappedWorkspace.Session.GetLayerRaster(rotatedMappedLayerId);
+        rotatedMappedWorkspace.RotateActiveLayer(90);
+        rotatedMappedWorkspace.SelectRectangle(new Rect(190, 30, 20, 20));
+        rotatedMappedWorkspace.BeginStroke(rotatedMappedLayerId, new SoftBrushSettings(9, 1, [1, 0, 0], 1), new BrushPoint(200, 40));
+        rotatedMappedWorkspace.CommitStroke(new BrushPoint(200, 40));
+        Require(rotatedMappedWorkspace.IsDirty && !SamePixels(rotatedSourceBefore, rotatedMappedWorkspace.Session.GetLayerRaster(rotatedMappedLayerId)),
+            "A rotated layer did not map the document selection and brush point back to source pixels.");
+        var mappedMaskWorkspace = new EditorWorkspace();
+        mappedMaskWorkspace.Open(project);
+        Guid mappedMaskLayerId = mappedMaskWorkspace.Session!.ActiveLayerId!.Value;
+        mappedMaskWorkspace.AddActiveLayerMask();
+        mappedMaskWorkspace.MoveActiveLayer(12, 8);
+        mappedMaskWorkspace.SelectRectangle(new Rect(112, 108, 20, 20));
+        mappedMaskWorkspace.ApplySelectionToActiveLayerMask(reveal: false);
+        GrayTileRaster mappedMask = mappedMaskWorkspace.Session.GetLayerMask(mappedMaskLayerId)!;
+        Require(MaskPixel(mappedMask, 110, 110) == 0 && MaskPixel(mappedMask, 90, 90) == 255,
+            "A translated layer did not map the document selection into its editable mask.");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);

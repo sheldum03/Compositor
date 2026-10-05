@@ -13,6 +13,9 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
     public Guid? MaskSourceId { get; init; }
 }
 
+public sealed record LayerTransformInfo(double X, double Y, double Width, double Height,
+    double Rotation, bool FlipX, bool FlipY);
+
 public sealed class ProjectSession
 {
     public static IReadOnlyList<string> SupportedBlendModes { get; } = Array.AsReadOnly(new[]
@@ -642,6 +645,27 @@ public sealed class ProjectSession
             (transform["rotation"]?.GetValue<double>() ?? 0) == 0 &&
             (transform["flipX"]?.GetValue<bool>() ?? false) == false &&
             (transform["flipY"]?.GetValue<bool>() ?? false) == false;
+    }
+
+    public LayerTransformInfo GetLayerTransform(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var layer = Current["layers"]![index]!.AsObject();
+        var transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Layer transform data is missing.");
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        double x = origin?.Count == 2 ? origin[0]!.GetValue<double>() : double.NaN;
+        double y = origin?.Count == 2 ? origin[1]!.GetValue<double>() : double.NaN;
+        double width = size?.Count == 2 ? size[0]!.GetValue<double>() : double.NaN;
+        double height = size?.Count == 2 ? size[1]!.GetValue<double>() : double.NaN;
+        double rotation = transform["rotation"]?.GetValue<double>() ?? double.NaN;
+        if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(width) || !double.IsFinite(height) ||
+            !double.IsFinite(rotation) || width <= 0 || height <= 0)
+            throw new InvalidDataException("Layer transform data is invalid.");
+        return new LayerTransformInfo(x, y, width, height, rotation,
+            transform["flipX"]?.GetValue<bool>() ?? false,
+            transform["flipY"]?.GetValue<bool>() ?? false);
     }
 
     public void SetLayerTransform(Guid layerId, double x, double y, double width, double height, double rotation)
