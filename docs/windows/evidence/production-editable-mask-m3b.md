@@ -10,7 +10,7 @@
 - `Compositor.App.Checks` Release 构建：0 警告、0 错误；无原生选择库的 Headless Avalonia 检查全部通过。窗口层覆盖蒙版按钮启用状态、选区显示/隐藏、启停、保存重开、PNG 导出，以及图层位移/翻转与蒙版同步、单步 Undo/Redo。
 - `Compositor.Imaging.Checks` Release 构建：0 警告、0 错误；Gray8 蒙版覆盖、PNG 往返和既有图像 IO 检查全部通过。
 - `Compositor.SaveCrash.Checks` Release 构建：0 警告、0 错误；14 个真实子进程保存中断场景全部通过，确认本轮保存路径没有破坏既有单层/多层恢复保护。
-- `win-x64` self-contained 发布成功，产物目录为 `/tmp/compositor-win-x64-mask-363b94d`，224 个文件；`Compositor.App.exe` SHA-256 为 `766cdd3f53ed4a28e026d574d709040c443240fa689e750d07e2a4044c472a0e`。这只证明发布链路完成，不证明 Windows 启动或真机兼容。
+- `win-x64` self-contained 发布成功，产物目录为 `/tmp/compositor-win-x64-mask-220fdba`，224 个文件；`Compositor.App.exe` SHA-256 为 `22072feab3fd327fbb7cca2b40dca094360dcffdcbaba133da7c823900d71c88`。这只证明发布链路完成，不证明 Windows 启动或真机兼容。
 
 ## 本轮命令
 
