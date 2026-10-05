@@ -143,6 +143,8 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("ScaleGroupUp", "组放大", () => ScaleGroupAsync(true), layer: true));
         structure.Children.Add(Command("RotateGroupCounterClockwise", "组左转90°", () => RotateGroupAsync(false), layer: true));
         structure.Children.Add(Command("RotateGroupClockwise", "组右转90°", () => RotateGroupAsync(true), layer: true));
+        structure.Children.Add(Command("RotateLayerCounterClockwise", "左转15°", () => RotateLayerAsync(false), layer: true));
+        structure.Children.Add(Command("RotateLayerClockwise", "右转15°", () => RotateLayerAsync(true), layer: true));
         structure.Children.Add(Command("AddMask", "添加蒙版", AddMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
@@ -420,7 +422,8 @@ public sealed class MainWindow : Window
             if (multiple && button.Name != "GroupLayer") button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
-            if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise")
+            if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
+                "RotateLayerCounterClockwise" or "RotateLayerClockwise")
                 button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection;
             if (button.Name == "GroupLayer")
@@ -512,6 +515,11 @@ public sealed class MainWindow : Window
     private Task RotateGroupAsync(bool clockwise)
     {
         return Task.Run(() => Workspace.RotateActiveLayer90(clockwise));
+    }
+
+    private Task RotateLayerAsync(bool clockwise)
+    {
+        return Task.Run(() => Workspace.RotateActiveLayer(clockwise ? 15 : -15));
     }
 
     private Task MoveLayerAsync()

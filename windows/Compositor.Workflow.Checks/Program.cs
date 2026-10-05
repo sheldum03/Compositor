@@ -377,6 +377,14 @@ static void CheckGroupStructureCreation(string output, string fixtures)
         throw new Exception("Editable group rotation did not render or record.");
     if (!rotated.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(rotated)) || rotated.IsDirty)
         throw new Exception("Editable group rotation undo did not restore the saved render.");
+    var freelyRotated = ImageProjectWorkflow.OpenEditable(grouped);
+    freelyRotated.RotateGroupTransform(groupId, 15);
+    TileRaster freelyRotatedPreview = ImageProjectWorkflow.RenderFlatNormal(freelyRotated);
+    if (SameRaster(baseline, freelyRotatedPreview) || !freelyRotated.IsDirty ||
+        !freelyRotated.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(freelyRotated)) ||
+        freelyRotated.IsDirty || !freelyRotated.Redo() ||
+        !SameRaster(freelyRotatedPreview, ImageProjectWorkflow.RenderFlatNormal(freelyRotated)))
+        throw new Exception("Editable group free rotation did not preserve preview or history.");
     var moved = ImageProjectWorkflow.OpenEditable(grouped);
     moved.MoveGroup(groupId, 12, -7);
     TileRaster movedPreview = ImageProjectWorkflow.RenderFlatNormal(moved);
@@ -517,6 +525,24 @@ static void CheckEditableLayerTransform(string output, string fixtures)
     TileRaster rotatedPreview = ImageProjectWorkflow.RenderFlatNormal(rotated);
     if (SameRaster(baseline, rotatedPreview) || !SameRaster(original, rotated.GetLayerRaster(layerId)))
         throw new Exception("Flat layer rotation did not render as a non-destructive transform.");
+
+    var freelyRotated = ImageProjectWorkflow.OpenEditable(source);
+    freelyRotated.RotateLayerTransform(layerId, 15);
+    TileRaster freelyRotatedPreview = ImageProjectWorkflow.RenderFlatNormal(freelyRotated);
+    if (SameRaster(baseline, freelyRotatedPreview) ||
+        !SameRaster(original, freelyRotated.GetLayerRaster(layerId)) || !freelyRotated.Undo() ||
+        !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(freelyRotated)) ||
+        !freelyRotated.Redo() || !SameRaster(freelyRotatedPreview, ImageProjectWorkflow.RenderFlatNormal(freelyRotated)))
+        throw new Exception("Flat layer free rotation did not preserve the source, preview and history.");
+    string freeRotationPath = Path.Combine(output, "LayerTransformFreeRotation.comp");
+    ImageProjectWorkflow.Save(freelyRotated, freeRotationPath);
+    var freeRotationManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(freeRotationPath, "manifest.json")))!;
+    double freeRotation = freeRotationManifest["layers"]![0]!["transform"]!["rotation"]!.GetValue<double>();
+    if (Math.Abs(freeRotation - 15) > 1e-9)
+        throw new Exception("Flat layer free rotation metadata was not saved.");
+    var reopenedFreeRotation = ImageProjectWorkflow.OpenEditable(freeRotationPath);
+    if (!SameRaster(freelyRotatedPreview, ImageProjectWorkflow.RenderFlatNormal(reopenedFreeRotation)))
+        throw new Exception("Flat layer free rotation did not survive save and reopen.");
 
     var masked = ImageProjectWorkflow.OpenEditable(source);
     masked.EnsureLayerMask(layerId);

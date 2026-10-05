@@ -607,6 +607,27 @@ public sealed class ProjectSession
             rotation + (clockwise ? 90 : -90));
     }
 
+    public void RotateLayerTransform(Guid layerId, double degrees)
+    {
+        RequireLayerStructureEditing();
+        if (!double.IsFinite(degrees)) throw new ArgumentOutOfRangeException(nameof(degrees));
+        int index = FindLayer(layerId);
+        var layer = Current["layers"]![index]!.AsObject();
+        if (layer["isGroup"]?.GetValue<bool>() == true)
+            throw new ArgumentException("Use group transform for group layers.", nameof(layerId));
+        var transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Layer transform data is missing.");
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        if (origin?.Count != 2 || size?.Count != 2)
+            throw new InvalidDataException("Layer transform data is invalid.");
+        double rotation = transform["rotation"]?.GetValue<double>() ?? 0;
+        if (!double.IsFinite(rotation)) throw new InvalidDataException("Layer transform data is invalid.");
+        SetLayerTransform(layerId,
+            origin[0]!.GetValue<double>(), origin[1]!.GetValue<double>(),
+            size[0]!.GetValue<double>(), size[1]!.GetValue<double>(), rotation + degrees);
+    }
+
     public bool IsLayerTransformIdentity(Guid layerId)
     {
         int index = FindLayer(layerId);
@@ -706,6 +727,27 @@ public sealed class ProjectSession
             size[1]!.GetValue<double>(),
             size[0]!.GetValue<double>(),
             rotation + (clockwise ? 90 : -90));
+    }
+
+    public void RotateGroupTransform(Guid groupId, double degrees)
+    {
+        RequireGroupStructureEditing();
+        if (!double.IsFinite(degrees)) throw new ArgumentOutOfRangeException(nameof(degrees));
+        int index = FindLayer(groupId);
+        var layer = Current["layers"]![index]!.AsObject();
+        if (layer["isGroup"]?.GetValue<bool>() != true)
+            throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        var transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Group transform data is missing.");
+        var origin = transform["origin"]?.AsArray();
+        var size = transform["size"]?.AsArray();
+        if (origin?.Count != 2 || size?.Count != 2)
+            throw new InvalidDataException("Group transform data is invalid.");
+        double rotation = transform["rotation"]?.GetValue<double>() ?? 0;
+        if (!double.IsFinite(rotation)) throw new InvalidDataException("Group transform data is invalid.");
+        SetGroupTransform(groupId,
+            origin[0]!.GetValue<double>(), origin[1]!.GetValue<double>(),
+            size[0]!.GetValue<double>(), size[1]!.GetValue<double>(), rotation + degrees);
     }
 
     public bool IsGroupTransformIdentity(Guid groupId)

@@ -520,6 +520,18 @@ public sealed class EditorWorkspace
             Edit(editSession => editSession.RotateLayerTransform90(layerId, clockwise));
     }
 
+    public void RotateActiveLayer(double degrees)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup)
+            Edit(editSession => editSession.RotateGroupTransform(layerId, degrees));
+        else
+            Edit(editSession => editSession.RotateLayerTransform(layerId, degrees));
+    }
+
     public void AddActiveLayerMask()
     {
         RequireIdle();
