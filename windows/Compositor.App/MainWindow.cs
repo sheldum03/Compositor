@@ -231,16 +231,22 @@ public sealed class MainWindow : Window
         Closed += (_, _) => { canvas.Cancel(); canvas.SetBitmap(null); preview?.Dispose(); preview = null; };
         KeyDown += (_, e) =>
         {
-            if (IsBusy || Workspace.HasActiveStroke || e.KeyModifiers != KeyModifiers.Control) return;
+            if (IsBusy || Workspace.HasActiveStroke) return;
             // Text fields retain their own editing shortcuts and IME behavior.
             if (e.Source is TextBox || layerName.IsKeyboardFocusWithin) return;
-            Func<Task>? command = e.Key switch
+            Func<Task>? command = e.KeyModifiers switch
             {
-                Key.N => NewAsync,
-                Key.S when Workspace.Session is not null => SaveAsync,
-                Key.Z when Workspace.Session is not null => () => Task.Run(() => Workspace.Undo()),
-                Key.Y when Workspace.Session is not null => () => Task.Run(() => Workspace.Redo()),
-                Key.O => OpenAsync,
+                KeyModifiers.Control => e.Key switch
+                {
+                    Key.N => NewAsync,
+                    Key.S when Workspace.Session is not null => SaveAsync,
+                    Key.Z when Workspace.Session is not null => () => Task.Run(() => Workspace.Undo()),
+                    Key.Y when Workspace.Session is not null => () => Task.Run(() => Workspace.Redo()),
+                    Key.O => OpenAsync,
+                    Key.A when Workspace.Session is not null => SelectAllAsync,
+                    _ => null
+                },
+                KeyModifiers.Control | KeyModifiers.Shift when e.Key == Key.I && Workspace.HasSelection => InvertSelectionAsync,
                 _ => null
             };
             if (command is not null) { e.Handled = true; _ = ExecuteAsync(command); }

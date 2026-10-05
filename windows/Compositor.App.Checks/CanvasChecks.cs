@@ -119,13 +119,17 @@ internal static class CanvasChecks
             $"Rectangle selection did not release a rectangle: selecting={canvas.IsSelecting}, rect={canvas.SelectionRect}, finished={selectionFinished}, canceled={selectionCanceled}, eventRect={selectedRect}.");
         Require(workspace.HasSelection && workspace.SelectedPixels == 120 * 90 && !workspace.IsDirty,
             $"Rectangle selection did not create the expected in-memory mask without history: has={workspace.HasSelection}, pixels={workspace.SelectedPixels}, bounds={workspace.SelectionBounds}, dirty={workspace.IsDirty}.");
-        Click("SelectAll");
+        window.KeyPressQwerty(PhysicalKey.A, RawInputModifiers.Control);
+        window.KeyReleaseQwerty(PhysicalKey.A, RawInputModifiers.Control);
+        Dispatcher.UIThread.RunJobs();
         Require(workspace.SelectionBounds is { X: 0, Y: 0 } bounds && bounds.Width == workspace.Session.Width && bounds.Height == workspace.Session.Height &&
             workspace.SelectedPixels == (long)workspace.Session.Width * workspace.Session.Height && !workspace.IsDirty,
-            "Select all did not cover the full canvas without changing document history.");
-        Click("InvertSelection");
+            "Ctrl+A did not cover the full canvas without changing document history.");
+        window.KeyPressQwerty(PhysicalKey.I, RawInputModifiers.Control | RawInputModifiers.Shift);
+        window.KeyReleaseQwerty(PhysicalKey.I, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Dispatcher.UIThread.RunJobs();
         Require(!workspace.HasSelection && !workspace.IsDirty,
-            "Inverting a full selection did not clear it without changing document history.");
+            "Ctrl+Shift+I did not invert a full selection to empty without changing document history.");
         workspace.SelectRectangle(new Rect(30, 30, 120, 90));
         canvas.SetSelectionRect(workspace.SelectionBounds);
         Click("CopySelection");
