@@ -43,9 +43,10 @@ public sealed class MainWindow : Window
         FontFamily = new FontFamily("avares://Compositor.App/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC");
         FontSize = 13;
         RenderOptions.SetTextRenderingMode(this, TextRenderingMode.Antialias);
+        toolbar.Children.Add(Command("New", "新建", NewAsync));
         toolbar.Children.Add(Command("Open", "打开工程", OpenAsync));
         toolbar.Children.Add(Command("Import", "导入图片", ImportAsync));
-        toolbar.Children.Add(Command("Save", "保存", () => Task.Run(Workspace.Save), document: true));
+        toolbar.Children.Add(Command("Save", "保存", SaveAsync, document: true));
         toolbar.Children.Add(Command("SaveAs", "另存为", SaveAsAsync, document: true));
         toolbar.Children.Add(Command("Undo", "撤销", () => EditAsync(s => s.Undo()), document: true));
         toolbar.Children.Add(Command("Redo", "重做", () => EditAsync(s => s.Redo()), document: true));
@@ -69,6 +70,11 @@ public sealed class MainWindow : Window
         var heading = new TextBlock { Text = "图层", FontSize = 17, Margin = new Thickness(0, 0, 0, 10) };
         DockPanel.SetDock(heading, Dock.Top); sidebar.Children.Add(heading);
         var actions = new StackPanel { Spacing = 8, Margin = new Thickness(0, 12, 0, 0) };
+        var structure = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
+        structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
+        structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
+        actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
@@ -99,7 +105,7 @@ public sealed class MainWindow : Window
         canvas.StrokeMoved += point => PaintStep(() => Workspace.AppendStroke(new BrushPoint(point.X, point.Y)));
         canvas.StrokeFinished += point => PaintStep(() => Workspace.CommitStroke(new BrushPoint(point.X, point.Y)));
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
-        paint.IsCheckedChanged += (_, _) => canvas.PaintEnabled = Workspace.Session is not null && paint.IsChecked == true;
+        paint.IsCheckedChanged += (_, _) => canvas.PaintEnabled = selectedId is not null && paint.IsChecked == true;
         Content = layout;
         Deactivated += (_, _) => canvas.Cancel();
         Closing += (_, e) =>
@@ -122,7 +128,8 @@ public sealed class MainWindow : Window
             if (e.Source is TextBox || layerName.IsKeyboardFocusWithin) return;
             Func<Task>? command = e.Key switch
             {
-                Key.S when Workspace.Session is not null => () => Task.Run(Workspace.Save),
+                Key.N => NewAsync,
+                Key.S when Workspace.Session is not null => SaveAsync,
                 Key.Z when Workspace.Session is not null => () => EditAsync(s => s.Undo()),
                 Key.Y when Workspace.Session is not null => () => EditAsync(s => s.Redo()),
                 Key.O => OpenAsync,
@@ -131,7 +138,7 @@ public sealed class MainWindow : Window
             if (command is not null) { e.Handled = true; _ = ExecuteAsync(command); }
         };
         Refresh();
-        status.Text = Workspace.Session is null ? "打开 .comp 工程文件夹，或导入 PNG / JPEG 图片开始。" : "工程已打开。";
+        status.Text = Workspace.Session is null ? "新建画布、打开 .comp 工程文件夹，或导入 PNG / JPEG 图片开始。" : "工程已打开。";
     }
 
     private Button Command(string name, string title, Func<Task> action, bool document = false, bool layer = false)
@@ -183,14 +190,14 @@ public sealed class MainWindow : Window
     private void Refresh()
     {
         Title = (Workspace.IsDirty ? "● " : "") +
-            (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : "") + "Compositor";
+            (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : Workspace.Session is not null ? "未命名 — " : "") + "Compositor";
         RefreshPreview();
         if (!ReferenceEquals(displayedSession, Workspace.Session)) canvas.Fit();
         displayedSession = Workspace.Session;
         refreshing = true;
         var items = Workspace.Session?.Layers.Reverse().ToArray() ?? [];
         layers.ItemsSource = items;
-        layers.SelectedItem = items.FirstOrDefault(layer => layer.Id == selectedId) ?? items.FirstOrDefault();
+        layers.SelectedItem = items.FirstOrDefault(layer => layer.Id == Workspace.Session?.ActiveLayerId) ?? items.FirstOrDefault();
         refreshing = false;
         foreach (var button in documentButtons) button.IsEnabled = Workspace.Session is not null;
         UpdateSelection();
@@ -200,6 +207,7 @@ public sealed class MainWindow : Window
     {
         var selected = layers.SelectedItem as FlatLayerInfo;
         selectedId = selected?.Id;
+        if (selectedId is { } id) Workspace.Session!.SelectLayer(id);
         layerName.Text = selected?.Name ?? "";
         layerName.IsEnabled = selected is not null;
         canvas.PaintEnabled = selected is not null && paint.IsChecked == true;
@@ -207,6 +215,21 @@ public sealed class MainWindow : Window
     }
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));
+    private Task AddLayerAsync() => EditAsync(session =>
+    {
+        int index = selectedId is { } id ? session.Layers.ToList().FindIndex(layer => layer.Id == id) + 1 : session.Layers.Count;
+        session.AddBlankLayer("Layer " + (session.Layers.Count + 1), index);
+    });
+    private Task DuplicateLayerAsync()
+    {
+        Guid id = selectedId!.Value;
+        return EditAsync(session => session.DuplicateLayer(id, session.Layers.Single(layer => layer.Id == id).Name));
+    }
+    private Task DeleteLayerAsync()
+    {
+        Guid id = selectedId!.Value;
+        return EditAsync(session => session.DeleteLayer(id));
+    }
     private Task RenameAsync()
     {
         Guid id = selectedId!.Value;
@@ -234,9 +257,44 @@ public sealed class MainWindow : Window
         if (!Workspace.IsDirty) return true;
         string? decision = await ChoiceAsync("未保存的修改", "是否保存当前工程的修改？",
             ("保存", "save"), ("不保存", "discard"), ("取消", "cancel"));
-        if (decision == "save") { await Task.Run(Workspace.Save); return !Workspace.IsDirty; }
+        if (decision == "save") { await SaveAsync(); return !Workspace.IsDirty; }
         return decision == "discard";
     }
+
+    private async Task NewAsync()
+    {
+        if (!await ConfirmDiscardAsync()) return;
+        var dialog = Dialog("新建画布");
+        var width = new NumericUpDown { Name = "NewWidth", Minimum = 1, Maximum = 30000, Value = 1920, Width = 220 };
+        var height = new NumericUpDown { Name = "NewHeight", Minimum = 1, Maximum = 30000, Value = 1080, Width = 220 };
+        var resolution = new NumericUpDown { Name = "NewResolution", Minimum = 1, Maximum = 9600, Value = 72, Width = 220 };
+        var error = new TextBlock { Foreground = Brushes.DarkRed, TextWrapping = TextWrapping.Wrap, MaxWidth = 320 };
+        var submit = new Button { Name = "CreateDocument", Content = "创建" };
+        var cancel = new Button { Content = "取消" };
+        bool creating = false;
+        cancel.Click += (_, _) => dialog.Close();
+        dialog.Closing += (_, e) => { if (creating) e.Cancel = true; };
+        submit.Click += async (_, _) =>
+        {
+            if (width.Value is not { } w || height.Value is not { } h || resolution.Value is not { } r ||
+                w != decimal.Truncate(w) || h != decimal.Truncate(h))
+            { error.Text = "请输入整数像素宽高和有效分辨率。"; return; }
+            if (w * h > 100_000_000) { error.Text = "画布总像素不得超过一亿。"; return; }
+            creating = true; submit.IsEnabled = cancel.IsEnabled = false;
+            try { await Task.Run(() => Workspace.New((int)w, (int)h, (double)r)); creating = false; dialog.Close(); }
+            catch (Exception exception) { error.Text = exception.Message; }
+            finally { creating = false; submit.IsEnabled = cancel.IsEnabled = true; }
+        };
+        dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 10, Children =
+        {
+            new TextBlock { Text = "宽度（像素）" }, width, new TextBlock { Text = "高度（像素）" }, height,
+            new TextBlock { Text = "分辨率（DPI）" }, resolution, error,
+            new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { submit, cancel } }
+        } };
+        await dialog.ShowDialog(this);
+    }
+
+    private Task SaveAsync() => Workspace.ProjectDirectory is null ? SaveAsAsync() : Task.Run(Workspace.Save);
 
     private async Task OpenAsync()
     {
@@ -262,7 +320,7 @@ public sealed class MainWindow : Window
 
     private async Task SaveAsAsync()
     {
-        string? path = await NewProjectPathAsync(Path.GetFileNameWithoutExtension(Workspace.ProjectDirectory) + " 副本");
+        string? path = await NewProjectPathAsync(Workspace.ProjectDirectory is { } current ? Path.GetFileNameWithoutExtension(current) + " 副本" : "未命名");
         if (path is not null) await Task.Run(() => Workspace.SaveAs(path));
     }
 
@@ -295,7 +353,7 @@ public sealed class MainWindow : Window
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = jpeg ? "导出 JPEG（白色背景，质量 95）" : "导出透明 PNG",
-            SuggestedFileName = Path.GetFileNameWithoutExtension(Workspace.ProjectDirectory) + (jpeg ? ".jpg" : ".png"),
+            SuggestedFileName = (Path.GetFileNameWithoutExtension(Workspace.ProjectDirectory) ?? "未命名") + (jpeg ? ".jpg" : ".png"),
             DefaultExtension = jpeg ? "jpg" : "png", ShowOverwritePrompt = false,
             FileTypeChoices = [new FilePickerFileType(jpeg ? "JPEG" : "PNG") { Patterns = [jpeg ? "*.jpg" : "*.png"] }]
         });

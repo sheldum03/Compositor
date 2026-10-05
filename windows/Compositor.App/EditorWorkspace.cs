@@ -11,7 +11,16 @@ public sealed class EditorWorkspace
     public ProjectSession? Session { get; private set; }
     public TileRaster? Preview { get; private set; }
     public bool IsDirty => Session?.IsDirty ?? false;
-    public string? ProjectDirectory => Session?.SourceDirectory;
+    public string? ProjectDirectory => Session?.SavedDirectory;
+
+    public void New(int width, int height, double resolution)
+    {
+        RequireIdle();
+        var next = ProjectSession.CreateBlank(width, height, resolution);
+        var preview = ImageProjectWorkflow.RenderFlatNormal(next);
+        Session = next;
+        Preview = preview;
+    }
 
     public void Open(string directory)
     {
@@ -43,7 +52,7 @@ public sealed class EditorWorkspace
     public void Save()
     {
         RequireIdle();
-        ImageProjectWorkflow.Save(RequireSession(), ProjectDirectory!);
+        ImageProjectWorkflow.Save(RequireSession(), ProjectDirectory ?? throw new InvalidOperationException("请先选择新工程的保存位置。"));
     }
 
     public void SaveAs(string directory)

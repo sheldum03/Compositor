@@ -104,6 +104,16 @@ public sealed class CanvasView : Control
         var source = new Rect(0, 0, bitmap.PixelSize.Width, bitmap.PixelSize.Height);
         var destination = new Rect(Viewport.Offset.X, Viewport.Offset.Y,
             bitmap.PixelSize.Width * Viewport.Scale, bitmap.PixelSize.Height * Viewport.Scale);
+        var visible = destination.Intersect(new Rect(Bounds.Size));
+        using (context.PushClip(visible))
+        {
+            int left = (int)Math.Floor((visible.Left - destination.Left) / 12);
+            int top = (int)Math.Floor((visible.Top - destination.Top) / 12);
+            for (int y = top; destination.Top + y * 12 < visible.Bottom; y++)
+            for (int x = left; destination.Left + x * 12 < visible.Right; x++)
+                context.DrawRectangle((x + y) % 2 == 0 ? Brushes.White : Brushes.LightGray, null,
+                    new Rect(destination.Left + x * 12, destination.Top + y * 12, 12, 12));
+        }
         context.DrawImage(bitmap, source, destination);
     }
 }

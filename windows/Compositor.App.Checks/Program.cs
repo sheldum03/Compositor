@@ -45,6 +45,7 @@ internal static class Program
         CheckPreview(workspace.Preview!);
         var window = new MainWindow(workspace);
         window.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(window, "Layers").SelectedItem = workspace.Session!.Layers.Single(layer => layer.Id == Guid.Parse(id));
         Control<TextBox>(window, "LayerName").Text = "中文 Overlay";
         Click(window, "Rename");
         Require(workspace.Session!.Layers[^1].Name == "中文 Overlay" && workspace.IsDirty, "Rename button did not commit.");
@@ -97,6 +98,7 @@ internal static class Program
         Require(!discard.IsVisible, "Discard close kept the window open.");
         Require(ImageProjectWorkflow.OpenEditable(source).Layers[^1].Name == "中文 Overlay", "Discard wrote unsaved changes to disk.");
         CanvasChecks.Run(source, fixture, output);
+        NewDocumentChecks.Run(source, output);
         File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
         {
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
