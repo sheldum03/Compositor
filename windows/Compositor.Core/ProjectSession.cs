@@ -2,10 +2,19 @@ using System.Text.Json.Nodes;
 
 namespace Compositor.Core;
 
-public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible);
+public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
+{
+    public double Opacity { get; init; } = 1;
+    public string BlendMode { get; init; } = "Normal";
+}
 
 public sealed class ProjectSession
 {
+    public static IReadOnlyList<string> SupportedBlendModes { get; } = Array.AsReadOnly(new[]
+    {
+        "Normal", "Multiply", "Screen", "Overlay", "Darken", "Lighten", "Difference",
+        "Color Dodge", "Color Burn", "Hue", "Saturation", "Color", "Luminosity"
+    });
     private const int MaxUndoSteps = 100;
     private const long MaxHistoryImageBytes = 256L * 1024 * 1024;
     private sealed record Snapshot(JsonObject Manifest, IReadOnlyDictionary<Guid, TileRaster>? LayerRasters, long Revision);
@@ -43,7 +52,11 @@ public sealed class ProjectSession
     public Guid? ActiveLayerId => Current["activeLayerID"] is { } active ? Guid.Parse(active.GetValue<string>()) : null;
     public IReadOnlyList<FlatLayerInfo> Layers => Current["layers"]!.AsArray()
         .Select(layer => new FlatLayerInfo(Guid.Parse(layer!["id"]!.GetValue<string>()),
-            layer["name"]!.GetValue<string>(), layer["isVisible"]?.GetValue<bool>() ?? true)).ToArray();
+            layer["name"]!.GetValue<string>(), layer["isVisible"]?.GetValue<bool>() ?? true)
+        {
+            Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
+            BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal"
+        }).ToArray();
     public TileRaster? Raster => ImageName.Length != 0 &&
         TryGetLoadedLayerRaster(Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>()), out var raster) ? raster : null;
     internal bool RequiresRasterEncoding => ImageName.Length != 0 && TryGetRasterForEncoding(ImageName, out _);
@@ -172,6 +185,30 @@ public sealed class ProjectSession
         if (Current["layers"]![index]!["isVisible"]!.GetValue<bool>() == visible) return;
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["isVisible"] = visible;
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
+    }
+
+    public void SetLayerOpacity(Guid layerId, double opacity)
+    {
+        if (!CanEdit) throw new NotSupportedException("This project is read-only.");
+        if (!double.IsFinite(opacity) || opacity is < 0 or > 1) throw new ArgumentOutOfRangeException(nameof(opacity));
+        int index = FindLayer(layerId);
+        if ((Current["layers"]![index]!["opacity"]?.GetValue<double>() ?? 1) == opacity) return;
+        if (Current["version"]!.GetValue<int>() != 8) throw new NotSupportedException("Appearance edits require an editable v8 project.");
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["opacity"] = opacity;
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
+    }
+
+    public void SetLayerBlendMode(Guid layerId, string mode)
+    {
+        if (!CanEdit) throw new NotSupportedException("This project is read-only.");
+        if (!SupportedBlendModes.Contains(mode)) throw new ArgumentException("Unknown blend mode.", nameof(mode));
+        int index = FindLayer(layerId);
+        if ((Current["layers"]![index]!["blendMode"]?.GetValue<string>() ?? "Normal") == mode) return;
+        if (Current["version"]!.GetValue<int>() != 8) throw new NotSupportedException("Appearance edits require an editable v8 project.");
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["blendMode"] = mode;
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
     }
 

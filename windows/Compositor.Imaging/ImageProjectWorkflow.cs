@@ -133,7 +133,9 @@ public static class ImageProjectWorkflow
                 if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
                     raster = RasterCompositor.ApplyMask(raster, mask);
             }
-            if (layer["isVisible"]!.GetValue<bool>()) result = RasterCompositor.SourceOver(result, raster);
+            if (layer["isVisible"]!.GetValue<bool>())
+                result = LayerCompositor.Composite(result, raster, layer["opacity"]?.GetValue<double>() ?? 1,
+                    layer["blendMode"]?.GetValue<string>() ?? "Normal");
         }
         return result;
     }
@@ -162,8 +164,8 @@ public static class ImageProjectWorkflow
             layer["imageFile"] is null || layer["isVisible"] is null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
-            layer["opacity"] is { } opacity && opacity.GetValue<double>() != 1 ||
-            layer["blendMode"] is { } blend && blend.GetValue<string>() != "Normal") return false;
+            layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
+            layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>())) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();

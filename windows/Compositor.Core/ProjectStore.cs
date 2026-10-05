@@ -88,6 +88,8 @@ public static class ProjectStore
             }
         }
         bool canEdit = version is 1 or 8 && (version == 8 || layers.Count == 1) &&
+            (version == 8 || layers.All(layer => (layer!["opacity"]?.GetValue<double>() ?? 1) == 1 &&
+                (layer["blendMode"]?.GetValue<string>() ?? "Normal") == "Normal")) &&
             (long)layers.Count * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             layers.All(node => IsFlatEditableLayer(node!.AsObject(), width, height)) &&
@@ -265,8 +267,8 @@ public static class ProjectStore
         if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "name", "opacity", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
-            layer["opacity"] is { } opacity && opacity.GetValue<double>() != 1 ||
-            layer["blendMode"] is { } blend && blend.GetValue<string>() != "Normal" ||
+            layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
+            layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>()) ||
             !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase)) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;

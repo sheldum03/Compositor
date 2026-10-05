@@ -166,6 +166,7 @@ CheckCompositing(output, fixtures);
 CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
 CheckLayerSelection(output);
+BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
 if (args.Length == 4)
 {
@@ -260,7 +261,7 @@ static void CheckCompositing(string output, string fixtures)
         File.WriteAllText(manifestPath, manifest.ToJsonString());
         AssertRaster(bottom, ImageProjectWorkflow.RenderFlatNormal(flat));
         topLayer["isVisible"] = true;
-        topLayer["blendMode"] = "Multiply";
+        topLayer["blendMode"] = "Unknown mode";
         File.WriteAllText(manifestPath, manifest.ToJsonString());
         if (ProjectStore.Open(flat).CanEdit) throw new Exception("Unsupported blend mode became editable.");
         try
@@ -270,7 +271,7 @@ static void CheckCompositing(string output, string fixtures)
         }
         catch (NotSupportedException) { }
         topLayer.Remove("blendMode");
-        topLayer["opacity"] = 0.5;
+        topLayer["opacity"] = -0.1;
         File.WriteAllText(manifestPath, manifest.ToJsonString());
         if (ProjectStore.Open(flat).CanEdit) throw new Exception("Unsupported opacity became editable.");
         try
@@ -573,8 +574,8 @@ static void CheckMacProduced(string macProjects, string output)
         var manifest = baseManifest.DeepClone();
         manifest["layers"]![0]![field] = field switch
         {
-            "blendMode" => "Multiply",
-            "opacity" => 0.5,
+            "blendMode" => "Unknown mode",
+            "opacity" => -0.1,
             _ => true
         };
         File.WriteAllText(Path.Combine(target, "manifest.json"), manifest.ToJsonString());
