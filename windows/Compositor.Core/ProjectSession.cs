@@ -457,6 +457,69 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, width, height), new TileRaster(width, height), destinationIndex);
     }
 
+    public Guid GroupLayer(Guid layerId, string name) => GroupLayers([layerId], name);
+
+    public Guid GroupLayers(IReadOnlyList<Guid> layerIds, string name)
+    {
+        RequireGroupStructureEditing();
+        if (layerIds.Count == 0) throw new ArgumentException("At least one layer is required.", nameof(layerIds));
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 1000)
+            throw new ArgumentException("Group name must contain 1 to 1000 characters.", nameof(name));
+        var layers = Current["layers"]!.AsArray();
+        var indexes = layerIds.Distinct().Select(FindLayer).OrderBy(index => index).ToArray();
+        if (indexes.Length != layerIds.Count || indexes.Any(index => layers[index]!["isGroup"]?.GetValue<bool>() == true ||
+                layers[index]!["parentID"] is not null || layers[index]!["maskSourceID"] is not null) ||
+            indexes[^1] - indexes[0] + 1 != indexes.Length)
+            throw new NotSupportedException("Only contiguous root raster layers can be grouped in this slice.");
+        int width = Width, height = Height;
+        Guid groupId = Guid.NewGuid();
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayers = next["layers"]!.AsArray();
+        var group = new JsonObject
+        {
+            ["id"] = groupId.ToString("D"), ["isGroup"] = true, ["isVisible"] = true, ["name"] = name,
+            ["transform"] = new JsonObject
+            {
+                ["origin"] = new JsonArray(0d, 0d), ["size"] = new JsonArray((double)width, (double)height),
+                ["rotation"] = 0d, ["flipX"] = false, ["flipY"] = false, ["sampling"] = "High quality"
+            }
+        };
+        foreach (int index in indexes)
+            nextLayers[index]!["parentID"] = groupId.ToString("D");
+        nextLayers.Insert(indexes[0], group);
+        next["activeLayerID"] = layerIds.Contains(ActiveLayerId ?? Guid.Empty)
+            ? (ActiveLayerId ?? layerIds[0]).ToString("D") : layerIds[0].ToString("D");
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+        return groupId;
+    }
+
+    public void UngroupLayer(Guid groupId)
+    {
+        RequireGroupStructureEditing();
+        int index = FindLayer(groupId);
+        var group = Current["layers"]![index]!;
+        if (group["isGroup"]?.GetValue<bool>() != true)
+            throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        if (group["parentID"] is not null)
+            throw new NotSupportedException("Nested groups cannot be ungrouped in this slice.");
+        if (group["maskFile"] is not null)
+            throw new NotSupportedException("A group with a mask must be flattened or edited before ungrouping.");
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayers = next["layers"]!.AsArray();
+        foreach (JsonNode? node in nextLayers)
+            if (node!["parentID"] is { } parent && Guid.Parse(parent.GetValue<string>()) == groupId)
+                node.AsObject().Remove("parentID");
+        nextLayers.RemoveAt(index);
+        if (ActiveLayerId == groupId)
+        {
+            JsonNode? replacement = nextLayers.Skip(index).FirstOrDefault(node => node!["parentID"] is null) ??
+                nextLayers.Take(index).LastOrDefault(node => node!["parentID"] is null);
+            if (replacement is null) next.Remove("activeLayerID");
+            else next["activeLayerID"] = replacement!["id"]!.DeepClone();
+        }
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     private static JsonObject CreateBlankLayer(string name, int width, int height) =>
         new JsonObject
         {
@@ -533,6 +596,14 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
         if (HasGroups)
             throw new NotSupportedException("Layer structure changes are not supported for grouped projects in this slice.");
+    }
+
+    private void RequireGroupStructureEditing()
+    {
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8)
+            throw new NotSupportedException("Group structure changes require an editable v8 project.");
+        if (snapshots[cursor].LayerRasters is null)
+            throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
     }
 
     private void RequireMaskEditing()

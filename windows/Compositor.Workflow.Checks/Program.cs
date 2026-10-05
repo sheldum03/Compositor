@@ -164,6 +164,7 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
 
 CheckCompositing(output, fixtures);
 CheckCachedGroupRendering(output, fixtures);
+CheckGroupStructureCreation(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
 CheckLayerStructure(output, sourcePng);
@@ -255,6 +256,30 @@ static void CheckEditableGroupMask(string output, string fixtures)
     if (reopened.IsDirty || !reopened.Layers.Single(layer => layer.IsGroup).HasMask)
         throw new Exception("Saved editable group mask did not reopen cleanly.");
     Console.WriteLine("PASS: v8 pass-through group mask editable load, toggle, replacement, undo and save/reopen");
+}
+
+static void CheckGroupStructureCreation(string output, string fixtures)
+{
+    string source = Path.Combine(output, "GroupSource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid leafId = session.Layers.Single().Id;
+    TileRaster baseline = ImageProjectWorkflow.RenderFlatNormal(session);
+    Guid groupId = session.GroupLayer(leafId, "Pass-through");
+    if (!session.HasGroups || session.Layers.Single(layer => layer.Id == leafId).ParentId != groupId ||
+        session.Layers.Single(layer => layer.Id == groupId).HasMask ||
+        !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Grouping a root raster did not preserve the pass-through render.");
+    string grouped = Path.Combine(output, "GroupedCreated.comp");
+    ImageProjectWorkflow.Save(session, grouped);
+    var reopened = ImageProjectWorkflow.OpenEditable(grouped);
+    if (!reopened.CanEdit || !reopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(reopened)))
+        throw new Exception("Created group did not survive save and reopen.");
+    reopened.UngroupLayer(groupId);
+    if (reopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(reopened)))
+        throw new Exception("Ungrouping a pass-through group did not restore the render.");
+    ImageProjectWorkflow.Save(reopened, Path.Combine(output, "UngroupedCreated.comp"));
+    Console.WriteLine("PASS: root raster group/ungroup preserves render and save/reopen");
 }
 
 static bool SameRaster(TileRaster first, TileRaster second)

@@ -110,6 +110,23 @@ internal static class Program
         DialogClick(discard.OwnedWindows.Single(), "不保存"); Pump(discard);
         Require(!discard.IsVisible, "Discard close kept the window open.");
         Require(ImageProjectWorkflow.OpenEditable(source).Layers[^1].Name == "中文 Overlay", "Discard wrote unsaved changes to disk.");
+        string groupCreation = Path.Combine(output, "GroupCreation.comp");
+        var groupCreationWorkspace = new EditorWorkspace();
+        groupCreationWorkspace.Import(fixture, groupCreation);
+        var groupCreationWindow = new MainWindow(groupCreationWorkspace);
+        groupCreationWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var rootItem = Control<ListBox>(groupCreationWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => !layer.IsGroup);
+        Control<ListBox>(groupCreationWindow, "Layers").SelectedItem = rootItem;
+        Dispatcher.UIThread.RunJobs();
+        Click(groupCreationWindow, "GroupLayer");
+        Require(groupCreationWorkspace.Session!.HasGroups, "Group button did not create a pass-through group.");
+        var createdGroup = Control<ListBox>(groupCreationWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.IsGroup);
+        Control<ListBox>(groupCreationWindow, "Layers").SelectedItem = createdGroup;
+        Dispatcher.UIThread.RunJobs();
+        Click(groupCreationWindow, "UngroupLayer");
+        Require(!groupCreationWorkspace.Session.HasGroups, "Ungroup button did not remove a pass-through group.");
+        groupCreationWorkspace.Save();
+        groupCreationWindow.Close(); Dispatcher.UIThread.RunJobs();
         string grouped = CreateEditableGroupFixture(output, args[0]);
         var groupedWorkspace = new EditorWorkspace();
         groupedWorkspace.Open(grouped);
@@ -133,7 +150,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip",
-                "grouped-project structure button protection and group-mask availability" },
+                "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

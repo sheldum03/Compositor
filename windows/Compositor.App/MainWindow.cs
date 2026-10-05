@@ -143,6 +143,8 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
         structure.Children.Add(Command("ReleaseClippingMask", "释放剪贴", () => SetClippingMaskAsync(false), layer: true));
+        structure.Children.Add(Command("GroupLayer", "建立组", GroupLayerAsync, layer: true));
+        structure.Children.Add(Command("UngroupLayer", "解组", UngroupLayerAsync, layer: true));
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
@@ -411,6 +413,10 @@ public sealed class MainWindow : Window
                 button.IsEnabled = false;
             if (selected?.IsGroup == true && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical" or "MoveLayer")
                 button.IsEnabled = false;
+            if (button.Name == "GroupLayer")
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsGroup && selected.ParentId is null && !Workspace.HasFloatingSelection;
+            if (button.Name == "UngroupLayer")
+                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && selected.ParentId is null && !selected.HasMask && !Workspace.HasFloatingSelection;
         }
         if (Workspace.Session is { } session && selected is not null)
         {
@@ -458,6 +464,14 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         return EditAsync(session => session.DeleteLayer(id));
     }
+
+    private Task GroupLayerAsync()
+    {
+        Guid id = selectedId!.Value;
+        return EditAsync(session => session.GroupLayer(id, session.Layers.Single(layer => layer.Id == id).Name + " Group"));
+    }
+
+    private Task UngroupLayerAsync() => EditAsync(session => session.UngroupLayer(selectedId!.Value));
 
     private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
 
