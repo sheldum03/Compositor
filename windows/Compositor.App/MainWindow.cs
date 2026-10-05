@@ -14,6 +14,7 @@ namespace Compositor.App;
 public sealed class MainWindow : Window
 {
     private readonly DockPanel layout = new() { Margin = new Thickness(12) };
+    private readonly StackPanel projectTabs = new() { Orientation = Orientation.Horizontal, Spacing = 5, Margin = new Thickness(0, 0, 0, 8) };
     private readonly CanvasView canvas = new();
     private readonly StackPanel toolbar = new() { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
     private readonly DockPanel sidebar = new() { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
@@ -45,22 +46,27 @@ public sealed class MainWindow : Window
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
     private readonly List<Button> maskButtons = [];
+    private readonly List<EditorWorkspace> projects = [];
     private WriteableBitmap? preview;
     private ProjectSession? displayedSession;
     private Guid? selectedId;
+    private int activeProjectIndex;
     private bool refreshing, allowClose;
-    public EditorWorkspace Workspace { get; }
+    public EditorWorkspace Workspace => projects[activeProjectIndex];
+    public int ProjectCount => projects.Count;
+    public int ActiveProjectIndex => activeProjectIndex;
     public bool IsBusy { get; private set; }
 
     public MainWindow() : this(new EditorWorkspace()) { }
 
     public MainWindow(EditorWorkspace workspace)
     {
-        Workspace = workspace;
+        projects.Add(workspace);
         Width = 1120; Height = 760; MinWidth = 850; MinHeight = 540;
         FontFamily = new FontFamily("avares://Compositor.App/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC");
         FontSize = 13;
         RenderOptions.SetTextRenderingMode(this, TextRenderingMode.Antialias);
+        DockPanel.SetDock(projectTabs, Dock.Top); layout.Children.Add(projectTabs);
         toolbar.Children.Add(Command("New", "新建", NewAsync));
         toolbar.Children.Add(Command("Open", "打开工程", OpenAsync));
         toolbar.Children.Add(Command("Import", "导入图片", ImportAsync));
@@ -286,11 +292,11 @@ public sealed class MainWindow : Window
             if (allowClose) return;
             if (IsBusy) { e.Cancel = true; return; }
             if (Workspace.HasActiveStroke) { canvas.Cancel(); Workspace.CancelStroke(); }
-            if (!Workspace.IsDirty) return;
+            if (!projects.Any(project => project.IsDirty)) return;
             e.Cancel = true;
             _ = ExecuteAsync(async () =>
             {
-                if (await ConfirmDiscardAsync()) { allowClose = true; Close(); }
+                if (await ConfirmDiscardAllAsync()) { allowClose = true; Close(); }
             });
         };
         Closed += (_, _) => { canvas.Cancel(); canvas.SetBitmap(null); preview?.Dispose(); preview = null; };
@@ -351,6 +357,67 @@ public sealed class MainWindow : Window
         preview?.Dispose(); preview = next;
     }
 
+    private void RefreshProjectTabs()
+    {
+        projectTabs.Children.Clear();
+        for (int index = 0; index < projects.Count; index++)
+        {
+            int tabIndex = index;
+            EditorWorkspace project = projects[index];
+            var button = new Button
+            {
+                Name = $"ProjectTab{index}",
+                Content = (project.IsDirty ? "● " : "") +
+                    (project.ProjectDirectory is { } path ? Path.GetFileName(path) : project.Session is null ? "空白工程" : "未命名工程"),
+                IsEnabled = !IsBusy && !Workspace.HasActiveStroke
+            };
+            button.Click += (_, _) => ActivateProjectTab(tabIndex);
+            projectTabs.Children.Add(button);
+        }
+        var close = new Button { Name = "CloseProject", Content = "关闭项目", IsEnabled = !IsBusy && Workspace.Session is not null };
+        close.Click += async (_, _) => await ExecuteAsync(CloseProjectTabAsync);
+        projectTabs.Children.Add(close);
+    }
+
+    public void AddProjectTab(EditorWorkspace workspace)
+    {
+        ArgumentNullException.ThrowIfNull(workspace);
+        if (IsBusy || Workspace.HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        projects.Add(workspace);
+        activeProjectIndex = projects.Count - 1;
+        selectedId = null; displayedSession = null;
+        Refresh();
+    }
+
+    public void ActivateProjectTab(int index)
+    {
+        if (index < 0 || index >= projects.Count) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index == activeProjectIndex) return;
+        if (IsBusy || Workspace.HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        activeProjectIndex = index;
+        selectedId = null; displayedSession = null;
+        Refresh();
+        status.Text = "已切换工程。";
+    }
+
+    private async Task CloseProjectTabAsync()
+    {
+        if (Workspace.HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        if (!await ConfirmDiscardAsync()) return;
+        if (projects.Count == 1)
+        {
+            projects[0] = new EditorWorkspace();
+            activeProjectIndex = 0;
+        }
+        else
+        {
+            projects.RemoveAt(activeProjectIndex);
+            activeProjectIndex = Math.Min(activeProjectIndex, projects.Count - 1);
+        }
+        selectedId = null; displayedSession = null;
+        Refresh();
+    }
+
     private void PaintStep(Action step)
     {
         try
@@ -369,6 +436,7 @@ public sealed class MainWindow : Window
 
     private void Refresh()
     {
+        RefreshProjectTabs();
         Title = (Workspace.IsDirty ? "● " : "") +
             (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : Workspace.Session is not null ? "未命名 — " : "") + "Compositor";
         RefreshPreview();
@@ -654,6 +722,25 @@ public sealed class MainWindow : Window
         return decision == "discard";
     }
 
+    private async Task<bool> ConfirmDiscardAllAsync()
+    {
+        for (int index = 0; index < projects.Count; index++)
+        {
+            EditorWorkspace project = projects[index];
+            if (!project.IsDirty) continue;
+            activeProjectIndex = index; selectedId = null; displayedSession = null; Refresh();
+            string? decision = await ChoiceAsync("未保存的修改", "是否保存当前工程的修改？",
+                ("保存", "save"), ("不保存", "discard"), ("取消", "cancel"));
+            if (decision == "cancel" || decision is null) return false;
+            if (decision == "save")
+            {
+                await SaveAsync();
+                if (project.IsDirty) return false;
+            }
+        }
+        return true;
+    }
+
     private async Task NewAsync()
     {
         if (!await ConfirmDiscardAsync()) return;
@@ -726,15 +813,22 @@ public sealed class MainWindow : Window
 
     private async Task OpenAsync()
     {
-        if (!await ConfirmDiscardAsync()) return;
         var selected = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             { Title = "选择 .comp 工程文件夹", AllowMultiple = false });
-        if (selected.Count != 0) await Task.Run(() => Workspace.Open(LocalPath(selected[0])));
+        if (selected.Count == 0) return;
+        string path = LocalPath(selected[0]);
+        if (Workspace.Session is null)
+            await Task.Run(() => Workspace.Open(path));
+        else
+        {
+            var next = new EditorWorkspace();
+            await Task.Run(() => next.Open(path));
+            AddProjectTab(next);
+        }
     }
 
     private async Task ImportAsync()
     {
-        if (!await ConfirmDiscardAsync()) return;
         var selected = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "导入图片", AllowMultiple = false,
@@ -743,7 +837,15 @@ public sealed class MainWindow : Window
         if (selected.Count == 0) return;
         string source = LocalPath(selected[0]);
         string? target = await NewProjectPathAsync(Path.GetFileNameWithoutExtension(source));
-        if (target is not null) await Task.Run(() => Workspace.Import(source, target));
+        if (target is null) return;
+        if (Workspace.Session is null)
+            await Task.Run(() => Workspace.Import(source, target));
+        else
+        {
+            var next = new EditorWorkspace();
+            await Task.Run(() => next.Import(source, target));
+            AddProjectTab(next);
+        }
     }
 
     private async Task SaveAsAsync()

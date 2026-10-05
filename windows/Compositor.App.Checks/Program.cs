@@ -102,6 +102,24 @@ internal static class Program
         Require(reopened.Layers[^1].Name == "中文 Overlay" && !reopened.Layers[^1].IsVisible, "Close-save lost layer state.");
         CheckEqual(workspace.Preview!, ImageProjectWorkflow.RenderFlatNormal(reopened));
 
+        var secondWorkspace = new EditorWorkspace();
+        secondWorkspace.Open(source);
+        var tabsWindow = new MainWindow(workspace);
+        tabsWindow.Show(); Dispatcher.UIThread.RunJobs();
+        tabsWindow.AddProjectTab(secondWorkspace);
+        Require(tabsWindow.ProjectCount == 2 && tabsWindow.ActiveProjectIndex == 1 &&
+            ReferenceEquals(tabsWindow.Workspace, secondWorkspace),
+            "Project tab creation did not activate the new workspace.");
+        tabsWindow.ActivateProjectTab(0);
+        Require(tabsWindow.ActiveProjectIndex == 0 && ReferenceEquals(tabsWindow.Workspace, workspace) &&
+            tabsWindow.Workspace.Session!.Layers[^1].Name == "中文 Overlay",
+            "Switching project tabs did not restore the first workspace state.");
+        tabsWindow.ActivateProjectTab(1);
+        Click(tabsWindow, "CloseProject");
+        Require(tabsWindow.ProjectCount == 1 && ReferenceEquals(tabsWindow.Workspace, workspace),
+            "Closing a project tab did not preserve the remaining workspace.");
+        tabsWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         var discard = new MainWindow(workspace);
         discard.Show(); Dispatcher.UIThread.RunJobs();
         Control<TextBox>(discard, "LayerName").Text = "Discard me";
