@@ -109,6 +109,32 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
+    public void MergeActiveLayerDown()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } upperId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        int upperIndex = session.Layers.ToList().FindIndex(layer => layer.Id == upperId);
+        if (upperIndex <= 0) throw new InvalidOperationException("当前图层下方没有可合并的图层。");
+        FlatLayerInfo upper = session.Layers[upperIndex], lower = session.Layers[upperIndex - 1];
+        if (upper.IsGroup || lower.IsGroup)
+            throw new NotSupportedException("组图层暂不支持向下合并。");
+        if (upper.BlendMode != "Normal" || lower.BlendMode != "Normal")
+            throw new NotSupportedException("当前切片只支持 Normal 图层向下合并。");
+        if (!session.IsLayerTransformIdentity(upper.Id) || !session.IsLayerTransformIdentity(lower.Id))
+            throw new NotSupportedException("变换图层向下合并前请先烘焙变换。");
+        if (session.Layers.Any(layer => layer.MaskSourceId is not null))
+            throw new NotSupportedException("带剪贴关系的图层暂不支持向下合并。");
+
+        TileRaster bottom = MergeSource(session, lower);
+        TileRaster top = MergeSource(session, upper);
+        TileRaster merged = LayerCompositor.Composite(new TileRaster(session.Width, session.Height), bottom,
+            lower.Opacity, "Normal");
+        merged = LayerCompositor.Composite(merged, top, upper.Opacity, "Normal");
+        Edit(editSession => editSession.MergeLayerDown(upper.Id, merged));
+    }
+
     public bool Undo()
     {
         RequireIdle();
@@ -855,6 +881,15 @@ public sealed class EditorWorkspace
             ? new TileRaster(session.Width, session.Height)
             : session.GetLayerRaster(maskBrushLayer);
         return ImageProjectWorkflow.RenderFlatNormal(session, maskBrushLayer, brushBounds, next);
+    }
+
+    private static TileRaster MergeSource(ProjectSession session, FlatLayerInfo layer)
+    {
+        if (!layer.IsVisible) return new TileRaster(session.Width, session.Height);
+        TileRaster raster = session.GetLayerRaster(layer.Id);
+        if (layer.HasMask && layer.MaskEnabled)
+            raster = RasterCompositor.ApplyMask(raster, session.GetLayerMask(layer.Id)!);
+        return raster;
     }
 
     private void ClearClipboard()

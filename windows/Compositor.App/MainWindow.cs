@@ -149,6 +149,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
+        structure.Children.Add(Command("MergeLayerDown", "向下合并", MergeLayerDownAsync, layer: true));
         structure.Children.Add(Command("FlipLayerHorizontal", "水平翻转", () => FlipLayerAsync(true), layer: true));
         structure.Children.Add(Command("FlipLayerVertical", "垂直翻转", () => FlipLayerAsync(false), layer: true));
         structure.Children.Add(Command("ScaleGroupDown", "组缩小", () => ScaleGroupAsync(false), layer: true));
@@ -500,11 +501,12 @@ public sealed class MainWindow : Window
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         UpdatePaintMode();
         bool groupedProject = Workspace.Session?.HasGroups == true;
+        ProjectSession? currentSession = Workspace.Session;
         foreach (var button in layerButtons)
         {
             button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
             if (multiple && button.Name != "GroupLayer") button.IsEnabled = false;
-            if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
+            if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "MergeLayerDown" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
                 "RotateLayerCounterClockwise" or "RotateLayerClockwise")
@@ -525,6 +527,16 @@ public sealed class MainWindow : Window
             if (button.Name == "BakeLayerTransform")
                 button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsGroup && !multiple &&
                     !groupedProject && !Workspace.Session!.IsLayerTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
+            if (button.Name == "MergeLayerDown")
+            {
+                int index = currentSession?.Layers.ToList().FindIndex(layer => layer.Id == selected?.Id) ?? -1;
+                FlatLayerInfo? lower = index > 0 ? currentSession!.Layers[index - 1] : null;
+                button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false } && lower is { IsGroup: false } &&
+                    !multiple && !groupedProject && !Workspace.HasFloatingSelection &&
+                    selected.BlendMode == "Normal" && lower.BlendMode == "Normal" &&
+                    Workspace.Session!.IsLayerTransformIdentity(selected.Id) &&
+                    Workspace.Session.Layers.All(layer => layer.MaskSourceId is null);
+            }
         }
         if (Workspace.Session is { } session && selected is not null)
         {
@@ -592,6 +604,8 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         return EditAsync(session => session.DeleteLayer(id));
     }
+
+    private Task MergeLayerDownAsync() => Task.Run(Workspace.MergeActiveLayerDown);
 
     private Task GroupLayerAsync()
     {

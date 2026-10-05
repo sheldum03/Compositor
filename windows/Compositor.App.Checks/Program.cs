@@ -102,6 +102,46 @@ internal static class Program
         Require(reopened.Layers[^1].Name == "中文 Overlay" && !reopened.Layers[^1].IsVisible, "Close-save lost layer state.");
         CheckEqual(workspace.Preview!, ImageProjectWorkflow.RenderFlatNormal(reopened));
 
+        string mergeProject = Path.Combine(output, "MergeLayer.comp");
+        var mergeWorkspace = new EditorWorkspace();
+        mergeWorkspace.Import(fixture, mergeProject);
+        Guid mergeTopId = mergeWorkspace.Session!.AddBlankLayer("Top", 1);
+        TileRaster blankTop = mergeWorkspace.Session.GetLayerRaster(mergeTopId);
+        var topSize = blankTop.TileDimensions(0, 0);
+        byte[] topTile = blankTop.ReadTileCopy(0, 0);
+        int topOffset = (10 * topSize.Width + 10) * 4;
+        topTile[topOffset] = 128; topTile[topOffset + 3] = 128;
+        mergeWorkspace.Edit(session => session.ReplaceLayerRaster(mergeTopId, blankTop.ReplaceTile(0, 0, topTile)));
+        mergeWorkspace.Save();
+        Guid mergeLowerId = mergeWorkspace.Session.Layers[0].Id;
+        TileRaster expectedMerge = LayerCompositor.Composite(new TileRaster(mergeWorkspace.Session.Width, mergeWorkspace.Session.Height),
+            mergeWorkspace.Session.GetLayerRaster(mergeLowerId), 1, "Normal");
+        expectedMerge = LayerCompositor.Composite(expectedMerge, mergeWorkspace.Session.GetLayerRaster(mergeTopId), 1, "Normal");
+        TileRaster mergeBefore = ImageProjectWorkflow.RenderFlatNormal(mergeWorkspace.Session);
+        var mergeWindow = new MainWindow(mergeWorkspace);
+        mergeWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(mergeWindow, "Layers").SelectedItem = mergeWorkspace.Session.Layers.Single(layer => layer.Id == mergeTopId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(mergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "Normal flat layers did not enable the merge-down command.");
+        Click(mergeWindow, "MergeLayerDown");
+        Require(mergeWorkspace.Session.Layers.Count == 1 && mergeWorkspace.Session.ActiveLayerId == mergeLowerId &&
+            mergeWorkspace.IsDirty, "Merge-down did not produce one active merged layer.");
+        CheckEqual(mergeWorkspace.Preview!, expectedMerge);
+        Click(mergeWindow, "Undo");
+        Require(mergeWorkspace.Session.Layers.Count == 2 && !mergeWorkspace.IsDirty,
+            "Undo did not restore both source layers and the saved state after merge-down.");
+        CheckEqual(mergeWorkspace.Preview!, mergeBefore);
+        Click(mergeWindow, "Redo");
+        Require(mergeWorkspace.Session.Layers.Count == 1 && mergeWorkspace.IsDirty,
+            "Redo did not restore the merged layer.");
+        CheckEqual(mergeWorkspace.Preview!, expectedMerge);
+        mergeWorkspace.Save();
+        var reopenedMerge = ImageProjectWorkflow.OpenEditable(mergeProject);
+        Require(reopenedMerge.Layers.Count == 1, "Saved merge-down did not reopen as one layer.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedMerge), expectedMerge);
+        mergeWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         var secondWorkspace = new EditorWorkspace();
         secondWorkspace.Open(source);
         var tabsWindow = new MainWindow(workspace);
@@ -207,7 +247,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen",
                 "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));

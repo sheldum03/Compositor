@@ -1072,6 +1072,45 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, rasters, masks.Count == 0 ? null : masks, ++nextRevision));
     }
 
+    public void MergeLayerDown(Guid upperLayerId, TileRaster mergedRaster)
+    {
+        RequireLayerStructureEditing();
+        int upperIndex = FindLayer(upperLayerId);
+        if (upperIndex == 0) throw new InvalidOperationException("当前图层下方没有可合并的图层。");
+        if (mergedRaster.Width != Width || mergedRaster.Height != Height)
+            throw new ArgumentException("Merged raster dimensions do not match the canvas.", nameof(mergedRaster));
+        if (Layers.Any(layer => layer.MaskSourceId is not null))
+            throw new NotSupportedException("带剪贴关系的图层暂不支持向下合并。");
+        FlatLayerInfo upper = Layers[upperIndex], lower = Layers[upperIndex - 1];
+        if (upper.IsGroup || lower.IsGroup)
+            throw new NotSupportedException("组图层暂不支持向下合并。");
+        string mergedName = lower.Name + " + " + upper.Name;
+        if (mergedName.Length > 1000) mergedName = lower.Name;
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayers = next["layers"]!.AsArray();
+        var lowerNode = nextLayers[upperIndex - 1]!.AsObject();
+        lowerNode["name"] = mergedName;
+        lowerNode.Remove("maskFile");
+        lowerNode.Remove("maskEnabled");
+        lowerNode.Remove("maskSourceID");
+        nextLayers.RemoveAt(upperIndex);
+        next["activeLayerID"] = lower.Id.ToString("D");
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
+        {
+            [lower.Id] = mergedRaster
+        };
+        rasters.Remove(upper.Id);
+        Dictionary<Guid, GrayTileRaster>? masks = null;
+        if (snapshots[cursor].LayerMasks is { } loadedMasks)
+        {
+            masks = new Dictionary<Guid, GrayTileRaster>(loadedMasks);
+            masks.Remove(lower.Id);
+            masks.Remove(upper.Id);
+            if (masks.Count == 0) masks = null;
+        }
+        Commit(new Snapshot(next, rasters, masks, ++nextRevision));
+    }
+
     private Guid InsertLayer(JsonObject layer, TileRaster raster, int destinationIndex)
     {
         string name = layer["name"]!.GetValue<string>();
