@@ -19,8 +19,8 @@
 - `Compositor.Imaging.Checks`、`Compositor.App.Checks`、`Compositor.SaveCrash.Checks`、`Compositor.Workflow.Checks` 均通过，构建 0 warning / 0 error。
 - macOS arm64/.NET `10.0.401` Release 本地验证；Windows 原生启动、DPI、IME、字体和真实笔输入仍需在 Windows 11 x64 主机验证。
 
-可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-editable-group-ed0f6e2`，`Compositor.App.exe` SHA-256：
+可复现的自包含包：`win-x64`，224 个文件，发布目录 `/tmp/compositor-win-x64-group-boundary-2702d92`，`Compositor.App.exe` SHA-256：
 
-`507a149a0fd1e0784245bbd6d0c35f0538ea125f83e9e9908fcbca82d43ed2b9`
+`a04aae7190470c957abf2836641a39bec64b8fa309772edaa4ad995b9cbd3ad0`
 
 该包是发布产物，不代表 Windows 启动已经通过；当前环境没有可用的 Windows 运行器，仍需在腾讯云 Windows 服务器执行原生启动和交互检查。
