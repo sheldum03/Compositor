@@ -13,7 +13,7 @@
 - Compositor.Imaging.Checks Release 构建：0 警告、0 错误；图像、蒙版、PNG/JPEG 与拒绝路径通过。
 - Compositor.SaveCrash.Checks Release 构建：0 警告、0 错误；14 个真实子进程保存中断场景通过。
 
-本轮使用的 App 检查输出目录为 /tmp/compositor-app-checks-layercopy-20261006-f，其余输出目录为 /tmp/compositor-workflow-layercopy-20261006、/tmp/compositor-imaging-layercopy-20261006 和 /tmp/compositor-savecrash-layercopy-20261006。这些仍是 macOS Avalonia Headless 证据，不是 Windows 真机验收。
+本轮使用的 App 检查输出目录为 /tmp/compositor-app-checks-layercopy-20261006-g，其余输出目录为 /tmp/compositor-workflow-layercopy-20261006、/tmp/compositor-imaging-layercopy-20261006 和 /tmp/compositor-savecrash-layercopy-20261006。这些仍是 macOS Avalonia Headless 证据，不是 Windows 真机验收。
 
 ## 尚未覆盖
 
