@@ -458,6 +458,7 @@ public sealed class EditorWorkspace
     }
 
     public bool HasClipboard => clipboardRaster is not null && clipboardMask is not null;
+    public TileRaster? ClipboardRaster => clipboardRaster;
     public bool CanLayerViaCopy
     {
         get
@@ -482,6 +483,19 @@ public sealed class EditorWorkspace
         Edit(current => current.AddRasterLayer("Layer via Copy", copied, destinationIndex));
         ClearSelectionWithoutHistory();
         ResetSelectionHistory();
+    }
+
+    public void PasteBitmapAsLayer(TileRaster bitmap)
+    {
+        ArgumentNullException.ThrowIfNull(bitmap);
+        RequireIdle();
+        RequireEditableSession();
+        var session = RequireSession();
+        TileRaster centered = CenterRaster(bitmap, session.Width, session.Height);
+        int destinationIndex = session.ActiveLayerId is { } layerId
+            ? session.Layers.ToList().FindIndex(layer => layer.Id == layerId) + 1
+            : session.Layers.Count;
+        Edit(current => current.AddRasterLayer("Clipboard Image", centered, destinationIndex));
     }
 
     public bool CanPasteSelection
@@ -1168,6 +1182,21 @@ public sealed class EditorWorkspace
             result = result.ReplaceTile(column, row, tile);
         }
         return result;
+    }
+
+    private static TileRaster CenterRaster(TileRaster source, int width, int height)
+    {
+        byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        int offsetX = (width - source.Width) / 2, offsetY = (height - source.Height) / 2;
+        for (int y = 0; y < source.Height; y++)
+        for (int x = 0; x < source.Width; x++)
+        {
+            int targetX = x + offsetX, targetY = y + offsetY;
+            if ((uint)targetX >= (uint)width || (uint)targetY >= (uint)height) continue;
+            input.AsSpan((y * source.Width + x) * 4, 4)
+                .CopyTo(output.AsSpan((targetY * width + targetX) * 4, 4));
+        }
+        return FromRgba(width, height, output);
     }
 
     private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale)

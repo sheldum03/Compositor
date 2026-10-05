@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -326,6 +327,8 @@ public sealed class MainWindow : Window
                     Key.Y when Workspace.Session is not null => () => Task.Run(() => Workspace.Redo()),
                     Key.O => OpenAsync,
                     Key.A when Workspace.Session is not null => SelectAllAsync,
+                    Key.C when Workspace.Session is not null => CopySelectionAsync,
+                    Key.V when Workspace.Session is not null => PasteSelectionAsync,
                     _ => null
                 },
                 KeyModifiers.Control | KeyModifiers.Shift when e.Key == Key.I && Workspace.HasSelection => InvertSelectionAsync,
@@ -738,18 +741,18 @@ public sealed class MainWindow : Window
         return Task.CompletedTask;
     }
 
-    private Task CopySelectionAsync()
+    private async Task CopySelectionAsync()
     {
         Workspace.CopySelection();
         clipboardProject = Workspace;
-        return Task.CompletedTask;
+        await PublishSystemClipboardAsync();
     }
 
-    private Task CopyMergedSelectionAsync()
+    private async Task CopyMergedSelectionAsync()
     {
         Workspace.CopyMergedSelection();
         clipboardProject = Workspace;
-        return Task.CompletedTask;
+        await PublishSystemClipboardAsync();
     }
 
     private async Task CutSelectionAsync()
@@ -757,17 +760,37 @@ public sealed class MainWindow : Window
         EditorWorkspace workspace = Workspace;
         await Task.Run(workspace.CutSelection);
         clipboardProject = workspace;
+        await PublishSystemClipboardAsync();
     }
 
-    private Task PasteSelectionAsync()
+    private async Task PasteSelectionAsync()
     {
         EditorWorkspace? source = clipboardProject;
-        return Task.Run(() =>
+        if (source is not null && !ReferenceEquals(source, Workspace) && Workspace.CanPasteSelectionFrom(source))
         {
-            if (source is not null && !ReferenceEquals(source, Workspace) && Workspace.CanPasteSelectionFrom(source))
-                Workspace.PasteSelectionFrom(source);
-            else Workspace.PasteSelection();
-        });
+            await Task.Run(() => Workspace.PasteSelectionFrom(source));
+            return;
+        }
+        if (source is not null)
+        {
+            await Task.Run(Workspace.PasteSelection);
+            return;
+        }
+        if (Clipboard is not { } systemClipboard)
+            throw new NotSupportedException("当前窗口没有可用的系统剪贴板。");
+        using Bitmap? bitmap = await systemClipboard.TryGetBitmapAsync();
+        if (bitmap is null)
+            throw new InvalidOperationException("系统剪贴板没有可粘贴的图像。");
+        TileRaster raster = RasterBitmap.ToRaster(bitmap);
+        await Task.Run(() => Workspace.PasteBitmapAsLayer(raster));
+    }
+
+    private async Task PublishSystemClipboardAsync()
+    {
+        if (Clipboard is not { } systemClipboard || Workspace.ClipboardRaster is not { } raster) return;
+        using var bitmap = RasterBitmap.Create(raster);
+        try { await systemClipboard.SetBitmapAsync(bitmap); }
+        catch (Exception) { }
     }
     private Task CommitFloatingSelectionAsync() => Task.Run(Workspace.CommitFloatingSelection);
     private Task CancelFloatingSelectionAsync() => Task.Run(Workspace.CancelFloatingSelection);

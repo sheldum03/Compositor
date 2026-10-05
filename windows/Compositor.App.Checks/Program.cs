@@ -394,6 +394,40 @@ internal static class Program
             "Closing a project tab did not preserve the remaining workspace.");
         tabsWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string clipboardProjectPath = Path.Combine(output, "ClipboardImage.comp");
+        var clipboardWorkspace = new EditorWorkspace();
+        clipboardWorkspace.Import(fixture, clipboardProjectPath);
+        TileRaster clipboardSource = new TileRaster(3, 2).ReplaceTile(0, 0,
+            [255, 0, 0, 255, 0, 128, 0, 128, 0, 0, 0, 0,
+             0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 64]);
+        using (var systemBitmap = RasterBitmap.Create(clipboardSource))
+            Require(CheckEqualNoThrow(clipboardSource, RasterBitmap.ToRaster(systemBitmap)),
+                "Avalonia bitmap conversion did not preserve premultiplied RGBA pixels.");
+        int clipboardLayerCount = clipboardWorkspace.Session!.Layers.Count;
+        clipboardWorkspace.PasteBitmapAsLayer(clipboardSource);
+        Require(clipboardWorkspace.Session.Layers.Count == clipboardLayerCount + 1 &&
+            clipboardWorkspace.Session.Layers[^1].Name == "Clipboard Image",
+            "Pasting a system bitmap did not create a new layer.");
+        TileRaster clipboardLayer = clipboardWorkspace.Session.GetLayerRaster(clipboardWorkspace.Session.Layers[^1].Id);
+        int clipboardX = (clipboardLayer.Width - clipboardSource.Width) / 2;
+        int clipboardY = (clipboardLayer.Height - clipboardSource.Height) / 2;
+        int clipboardColumn = clipboardX / TileRaster.TileSize, clipboardRow = clipboardY / TileRaster.TileSize;
+        var clipboardTileSize = clipboardLayer.TileDimensions(clipboardColumn, clipboardRow);
+        byte[] clipboardTile = clipboardLayer.ReadTileCopy(clipboardColumn, clipboardRow);
+        int clipboardOffset = ((clipboardY % TileRaster.TileSize) * clipboardTileSize.Width +
+            clipboardX % TileRaster.TileSize) * 4;
+        Require(clipboardTile[clipboardOffset] == 255 && clipboardTile[clipboardOffset + 3] == 255,
+            "Pasted bitmap was not centered on the document.");
+        Require(clipboardWorkspace.Undo() && clipboardWorkspace.Session.Layers.Count == clipboardLayerCount,
+            "Undo did not remove the system clipboard layer.");
+        Require(clipboardWorkspace.Redo() && clipboardWorkspace.Session.Layers.Count == clipboardLayerCount + 1,
+            "Redo did not restore the system clipboard layer.");
+        clipboardWorkspace.Save();
+        var reopenedClipboard = ImageProjectWorkflow.OpenEditable(clipboardProjectPath);
+        Require(reopenedClipboard.Layers.Count == clipboardLayerCount + 1 &&
+            CheckEqualNoThrow(clipboardLayer, reopenedClipboard.GetLayerRaster(reopenedClipboard.Layers[^1].Id)),
+            "Saved system clipboard layer did not survive reopen.");
+
         var discard = new MainWindow(workspace);
         discard.Show(); Dispatcher.UIThread.RunJobs();
         Control<TextBox>(discard, "LayerName").Text = "Discard me";
@@ -482,7 +516,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
