@@ -294,28 +294,58 @@ internal static class CanvasChecks
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(baselineBytes), "One undo did not remove the whole stroke.");
         Click("Redo"); CheckGolden(workspace.Session.GetLayerRaster(layerId), zip, "CrossTile-final.rgba");
         byte[] flipBaseline = Bytes(workspace.Session.GetLayerRaster(layerId));
+        TileRaster previewBeforeFlip = workspace.Preview!;
         Click("FlipLayerHorizontal");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(Mirror(flipBaseline, workspace.Session.Width, workspace.Session.Height, horizontal: true)),
-            "Horizontal layer flip did not commit the expected single-layer pixel result.");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            !SamePixels(previewBeforeFlip, workspace.Preview!),
+            "Horizontal layer flip did not create a non-destructive transformed preview.");
         Click("Undo");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
-            "Undo did not restore the pre-flip layer pixels.");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            SamePixels(previewBeforeFlip, workspace.Preview!), "Undo did not restore the pre-flip preview.");
         Click("Redo");
         Click("Undo");
+        TileRaster previewBeforeVertical = workspace.Preview!;
         Click("FlipLayerVertical");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(Mirror(flipBaseline, workspace.Session.Width, workspace.Session.Height, horizontal: false)),
-            "Vertical layer flip did not commit the expected single-layer pixel result.");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            !SamePixels(previewBeforeVertical, workspace.Preview!),
+            "Vertical layer flip did not create a non-destructive transformed preview.");
         Click("Undo");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
-            "Undo did not restore the pre-vertical-flip layer pixels.");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            SamePixels(previewBeforeVertical, workspace.Preview!), "Undo did not restore the pre-vertical-flip preview.");
         Find<NumericUpDown>(window, "LayerMoveX").Value = 7;
         Find<NumericUpDown>(window, "LayerMoveY").Value = -3;
+        TileRaster previewBeforeMove = workspace.Preview!;
         Click("MoveLayer");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(Shift(flipBaseline, workspace.Session.Width, workspace.Session.Height, 7, -3)),
-            "Moving the active layer did not commit the expected clipped pixel result.");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            !SamePixels(previewBeforeMove, workspace.Preview!),
+            "Moving the active layer did not create a non-destructive transformed preview.");
         Click("Undo");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline),
-            "Undo did not restore the pre-move layer pixels.");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            SamePixels(previewBeforeMove, workspace.Preview!), "Undo did not restore the pre-move preview.");
+        TileRaster previewBeforeScale = workspace.Preview!;
+        Click("ScaleGroupDown");
+        TileRaster expectedAfterScale = ImageProjectWorkflow.RenderFlatNormal(workspace.Session!);
+        int scalePreviewDiff = MaxDifference(expectedAfterScale, workspace.Preview!);
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            !SamePixels(previewBeforeScale, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled &&
+            !canvas.SelectionEnabled && scalePreviewDiff == 0, $"Flat layer scale did not use a non-destructive transform or protect pixel tools (previewDiff={scalePreviewDiff}).");
+        Require(Find<Button>(window, "BakeLayerTransform").IsEffectivelyEnabled,
+            "Transformed flat layer did not expose the explicit bake command.");
+        Click("BakeLayerTransform");
+        bool bakedPaintEnabled = Find<CheckBox>(window, "Paint").IsEffectivelyEnabled;
+        bool bakedPreviewMatches = SamePixels(expectedAfterScale, workspace.Preview!);
+        int bakedPreviewDiff = MaxDifference(expectedAfterScale, workspace.Preview!);
+        Require(workspace.IsDirty && Find<CheckBox>(window, "Paint").IsEffectivelyEnabled &&
+            SamePixels(expectedAfterScale, workspace.Preview!),
+            $"Baking a flat layer transform did not preserve the preview or restore pixel editing (dirty={workspace.IsDirty}, paint={bakedPaintEnabled}, preview={bakedPreviewMatches}, maxDiff={bakedPreviewDiff}).");
+        Click("Undo");
+        Click("Undo");
+        TileRaster previewBeforeRotate = workspace.Preview!;
+        Click("RotateGroupClockwise");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            !SamePixels(previewBeforeRotate, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
+            "Flat layer rotation did not use a non-destructive transform or protect pixel tools.");
+        Click("Undo");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);
@@ -371,17 +401,21 @@ internal static class CanvasChecks
         var transformSession = maskTransformWorkspace.Session!;
         var transformMask = transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!;
         Require(MaskPixel(transformMask, 128, 128) == 0, "Saved mask edit was not available for transform checks.");
+        TileRaster maskPreviewBeforeMove = maskTransformWorkspace.Preview!;
         maskTransformWorkspace.MoveActiveLayer(1, 0);
-        Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 255 &&
-            MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 121, 128) == 0,
-            "Layer move did not keep the raster mask aligned.");
-        Require(maskTransformWorkspace.Undo() && MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 0 &&
+        Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 0 &&
             MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 136, 128) == 255 &&
-            maskTransformWorkspace.Redo() && MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 255,
-            "Undo/redo did not restore the layer and raster mask move together.");
+            !SamePixels(maskPreviewBeforeMove, maskTransformWorkspace.Preview!),
+            "Layer move did not preserve the source mask while changing the transformed preview.");
+        Require(maskTransformWorkspace.Undo() && SamePixels(maskPreviewBeforeMove, maskTransformWorkspace.Preview!) &&
+            MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 120, 128) == 0 &&
+            maskTransformWorkspace.Redo() && !SamePixels(maskPreviewBeforeMove, maskTransformWorkspace.Preview!),
+            "Undo/redo did not restore the non-destructive layer transform.");
+        TileRaster maskPreviewBeforeFlip = maskTransformWorkspace.Preview!;
         maskTransformWorkspace.FlipActiveLayer(horizontal: true);
-        Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 134, 128) == 0,
-            "Layer flip did not keep the raster mask aligned.");
+        Require(MaskPixel(transformSession.GetLayerMask(transformSession.ActiveLayerId!.Value)!, 134, 128) == 0 &&
+            !SamePixels(maskPreviewBeforeFlip, maskTransformWorkspace.Preview!),
+            "Layer flip did not preserve the source mask while changing the transformed preview.");
         maskTransformWorkspace.ResizeImage(128, 128);
         Require(maskTransformWorkspace.Session!.Width == 128 && maskTransformWorkspace.Session.Height == 128 &&
             maskTransformWorkspace.Session.GetLayerMask(maskTransformWorkspace.Session.ActiveLayerId!.Value) is { Width: 128, Height: 128 },
@@ -527,6 +561,17 @@ internal static class CanvasChecks
             if (!a.ReadTileCopy(column, row).SequenceEqual(b.ReadTileCopy(column, row))) return false;
         return true;
     }
+    private static int MaxDifference(TileRaster a, TileRaster b)
+    {
+        int maximum = 0;
+        for (int row = 0; row * TileRaster.TileSize < a.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < a.Width; column++)
+        {
+            byte[] left = a.ReadTileCopy(column, row), right = b.ReadTileCopy(column, row);
+            for (int index = 0; index < left.Length; index++) maximum = Math.Max(maximum, Math.Abs(left[index] - right[index]));
+        }
+        return maximum;
+    }
     private static byte[] Pixel(TileRaster raster, int x, int y)
     {
         int column = x / TileRaster.TileSize, row = y / TileRaster.TileSize;
@@ -576,30 +621,5 @@ internal static class CanvasChecks
         return bytes;
     }
 
-    private static byte[] Mirror(byte[] source, int width, int height, bool horizontal)
-    {
-        byte[] result = new byte[source.Length];
-        for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
-        {
-            int targetX = horizontal ? width - 1 - x : x;
-            int targetY = horizontal ? y : height - 1 - y;
-            source.AsSpan((y * width + x) * 4, 4).CopyTo(result.AsSpan((targetY * width + targetX) * 4, 4));
-        }
-        return result;
-    }
-
-    private static byte[] Shift(byte[] source, int width, int height, int offsetX, int offsetY)
-    {
-        byte[] result = new byte[source.Length];
-        for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
-        {
-            int targetX = x + offsetX, targetY = y + offsetY;
-            if ((uint)targetX < (uint)width && (uint)targetY < (uint)height)
-                source.AsSpan((y * width + x) * 4, 4).CopyTo(result.AsSpan((targetY * width + targetX) * 4, 4));
-        }
-        return result;
-    }
     private static void Require(bool condition, string message) { if (!condition) throw new Exception(message); }
 }

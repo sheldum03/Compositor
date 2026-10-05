@@ -127,7 +127,7 @@ public sealed class MainWindow : Window
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
         {
             status,
-            new TextBlock { Text = "内部集成版 · 当前支持全画布普通图层与软笔。选区、变换和其他工具仍在开发。", Foreground = Brushes.DimGray }
+            new TextBlock { Text = "内部集成版 · 变换保留原始图层资产；变换中的图层需先还原或烘焙后再进行像素编辑。", Foreground = Brushes.DimGray }
         } };
         DockPanel.SetDock(footer, Dock.Bottom); layout.Children.Add(footer);
         var heading = new TextBlock { Text = "图层", FontSize = 17, Margin = new Thickness(0, 0, 0, 10) };
@@ -150,6 +150,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("GroupLayer", "建立组", GroupLayerAsync, layer: true));
         structure.Children.Add(Command("UngroupLayer", "解组", UngroupLayerAsync, layer: true));
         structure.Children.Add(Command("BakeUngroupLayer", "烘焙解组", BakeUngroupLayerAsync, layer: true));
+        structure.Children.Add(Command("BakeLayerTransform", "烘焙图层变换", BakeLayerTransformAsync, layer: true));
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
@@ -420,7 +421,8 @@ public sealed class MainWindow : Window
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise")
-                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
+                    (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection;
             if (button.Name == "GroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
@@ -429,6 +431,9 @@ public sealed class MainWindow : Window
             if (button.Name == "BakeUngroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true &&
                     !Workspace.Session!.IsGroupTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
+            if (button.Name == "BakeLayerTransform")
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsGroup && !multiple &&
+                    !groupedProject && !Workspace.Session!.IsLayerTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
         }
         if (Workspace.Session is { } session && selected is not null)
         {
@@ -456,14 +461,17 @@ public sealed class MainWindow : Window
         bool multiple = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).Take(2).Count() > 1;
         bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
+        bool transformedLeaf = editable && !selectedGroup && !Workspace.Session!.IsLayerTransformIdentity(selectedId!.Value);
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
-        maskPaint.IsEnabled = hasMask;
+        maskPaint.IsEnabled = hasMask && !transformedLeaf;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
-        paint.IsEnabled = editable && !selectedGroup;
+        paint.IsEnabled = editable && !selectedGroup && !transformedLeaf;
         canvas.PaintEnabled = editable && !Workspace.HasFloatingSelection &&
-            ((!selectedGroup && paint.IsChecked == true) || maskPaint.IsChecked == true);
-        canvas.SelectionEnabled = editable && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
-        canvas.SelectionMoveEnabled = editable && !selectedGroup && (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
+            ((!selectedGroup && !transformedLeaf && paint.IsChecked == true) ||
+             (maskPaint.IsChecked == true && !transformedLeaf));
+        canvas.SelectionEnabled = editable && !transformedLeaf && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
+        canvas.SelectionMoveEnabled = editable && !selectedGroup && !transformedLeaf &&
+            (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
     private Task AddLayerAsync() => EditAsync(session =>
     {
@@ -492,19 +500,18 @@ public sealed class MainWindow : Window
     private Task UngroupLayerAsync() => EditAsync(session => session.UngroupLayer(selectedId!.Value));
 
     private Task BakeUngroupLayerAsync() => Task.Run(() => Workspace.BakeGroupTransform(selectedId!.Value));
+    private Task BakeLayerTransformAsync() => Task.Run(() => Workspace.BakeLayerTransform(selectedId!.Value));
 
     private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
 
     private Task ScaleGroupAsync(bool enlarge)
     {
-        Guid id = selectedId!.Value;
-        return EditAsync(session => session.ScaleGroup(id, enlarge ? 1.1 : 0.9));
+        return Task.Run(() => Workspace.ScaleActiveLayer(enlarge));
     }
 
     private Task RotateGroupAsync(bool clockwise)
     {
-        Guid id = selectedId!.Value;
-        return EditAsync(session => session.RotateGroup90(id, clockwise));
+        return Task.Run(() => Workspace.RotateActiveLayer90(clockwise));
     }
 
     private Task MoveLayerAsync()

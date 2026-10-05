@@ -237,6 +237,8 @@ public static class ProjectStore
     {
         if (!session.CanEdit || session.ImageName.Length == 0)
             throw new NotSupportedException("Only single-layer projects can copy their image as an export.");
+        if (session.Layers.Any(layer => !session.IsLayerTransformIdentity(layer.Id)))
+            throw new NotSupportedException("Transformed layers require the rendered export path.");
         if (session.RequiresRasterEncoding)
             throw new NotSupportedException("Pixel edits require the image encoder for export.");
         string temporary = Path.GetFullPath(output) + ".tmp-" + Guid.NewGuid().ToString("N");
@@ -324,7 +326,7 @@ public static class ProjectStore
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();
         var size = transform["size"]?.AsArray();
-        if (allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null))
+        if (allowGroups)
         {
             return origin?.Count == 2 && size?.Count == 2 &&
                 origin.All(value => double.IsFinite(value!.GetValue<double>())) &&

@@ -97,6 +97,15 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
+    public void BakeLayerTransform(Guid layerId)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        selectionMoveHistory = null;
+        ImageProjectWorkflow.BakeLayerTransform(RequireSession(), layerId);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
     public bool Undo()
     {
         RequireIdle();
@@ -469,26 +478,7 @@ public sealed class EditorWorkspace
             Edit(editSession => editSession.FlipGroup(layerId, horizontal));
             return;
         }
-        TileRaster current = session.GetLayerRaster(layerId);
-        byte[] source = ToRgba(current), flipped = new byte[source.Length];
-        for (int y = 0; y < session.Height; y++)
-        for (int x = 0; x < session.Width; x++)
-        {
-            int targetX = horizontal ? session.Width - 1 - x : x;
-            int targetY = horizontal ? y : session.Height - 1 - y;
-            source.AsSpan((y * session.Width + x) * 4, 4)
-                .CopyTo(flipped.AsSpan((targetY * session.Width + targetX) * 4, 4));
-        }
-        var next = FromRgba(session.Width, session.Height, flipped);
-        if (!SamePixels(current, next))
-        {
-            if (session.Layers.Single(layer => layer.Id == layerId).HasMask)
-            {
-                GrayTileRaster mask = session.GetLayerMask(layerId)!;
-                Edit(editSession => editSession.ReplaceLayerRasterAndMask(layerId, next, MirrorMask(mask, horizontal)));
-            }
-            else Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
-        }
+        Edit(editSession => editSession.FlipLayerTransform(layerId, horizontal));
     }
 
     public void MoveActiveLayer(int offsetX, int offsetY)
@@ -503,26 +493,31 @@ public sealed class EditorWorkspace
             Edit(editSession => editSession.MoveGroup(layerId, offsetX, offsetY));
             return;
         }
-        TileRaster current = session.GetLayerRaster(layerId);
-        byte[] source = ToRgba(current), moved = new byte[source.Length];
-        for (int y = 0; y < session.Height; y++)
-        for (int x = 0; x < session.Width; x++)
-        {
-            int targetX = x + offsetX, targetY = y + offsetY;
-            if ((uint)targetX < (uint)session.Width && (uint)targetY < (uint)session.Height)
-                source.AsSpan((y * session.Width + x) * 4, 4)
-                    .CopyTo(moved.AsSpan((targetY * session.Width + targetX) * 4, 4));
-        }
-        var next = FromRgba(session.Width, session.Height, moved);
-        if (!SamePixels(current, next))
-        {
-            if (session.Layers.Single(layer => layer.Id == layerId).HasMask)
-            {
-                GrayTileRaster mask = session.GetLayerMask(layerId)!;
-                Edit(editSession => editSession.ReplaceLayerRasterAndMask(layerId, next, MoveMask(mask, offsetX, offsetY)));
-            }
-            else Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
-        }
+        Edit(editSession => editSession.MoveLayerTransform(layerId, offsetX, offsetY));
+    }
+
+    public void ScaleActiveLayer(bool enlarge)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup)
+            Edit(editSession => editSession.ScaleGroup(layerId, enlarge ? 1.1 : 0.9));
+        else
+            Edit(editSession => editSession.ScaleLayerTransform(layerId, enlarge ? 1.1 : 0.9));
+    }
+
+    public void RotateActiveLayer90(bool clockwise)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup)
+            Edit(editSession => editSession.RotateGroup90(layerId, clockwise));
+        else
+            Edit(editSession => editSession.RotateLayerTransform90(layerId, clockwise));
     }
 
     public void AddActiveLayerMask()
@@ -906,32 +901,6 @@ public sealed class EditorWorkspace
             output[targetY * height + targetX] = input[y * width + x];
         }
         return GrayTileRaster.FromCoverage(height, width, output);
-    }
-
-    private static GrayTileRaster MirrorMask(GrayTileRaster source, bool horizontal)
-    {
-        byte[] input = ToCoverage(source), output = new byte[input.Length];
-        for (int y = 0; y < source.Height; y++)
-        for (int x = 0; x < source.Width; x++)
-        {
-            int targetX = horizontal ? source.Width - 1 - x : x;
-            int targetY = horizontal ? y : source.Height - 1 - y;
-            output[targetY * source.Width + targetX] = input[y * source.Width + x];
-        }
-        return GrayTileRaster.FromCoverage(source.Width, source.Height, output);
-    }
-
-    private static GrayTileRaster MoveMask(GrayTileRaster source, int offsetX, int offsetY)
-    {
-        byte[] input = ToCoverage(source), output = new byte[input.Length];
-        for (int y = 0; y < source.Height; y++)
-        for (int x = 0; x < source.Width; x++)
-        {
-            int targetX = x + offsetX, targetY = y + offsetY;
-            if ((uint)targetX < (uint)source.Width && (uint)targetY < (uint)source.Height)
-                output[targetY * source.Width + targetX] = input[y * source.Width + x];
-        }
-        return GrayTileRaster.FromCoverage(source.Width, source.Height, output);
     }
 
     private static Rect SelectionBoundsFor(GrayTileRaster raster)

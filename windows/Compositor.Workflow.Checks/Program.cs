@@ -166,6 +166,7 @@ CheckCompositing(output, fixtures);
 CheckCachedGroupRendering(output, fixtures);
 CheckCachedGroupTransform(output, fixtures);
 CheckGroupStructureCreation(output, fixtures);
+CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
 CheckLayerStructure(output, sourcePng);
@@ -451,6 +452,104 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     Console.WriteLine("PASS: root, nested and transformed masked groups preserve render through group/ungroup and save/reopen");
 }
 
+static void CheckEditableLayerTransform(string output, string fixtures)
+{
+    string source = Path.Combine(output, "LayerTransformSource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid layerId = session.Layers.Single().Id;
+    TileRaster original = session.GetLayerRaster(layerId);
+    TileRaster baseline = ImageProjectWorkflow.RenderFlatNormal(session);
+
+    session.MoveLayerTransform(layerId, 12, -7);
+    TileRaster moved = ImageProjectWorkflow.RenderFlatNormal(session);
+    if (SameRaster(baseline, moved) || !SameRaster(original, session.GetLayerRaster(layerId)))
+        throw new Exception("Flat layer move did not change the preview without resampling the source asset.");
+    if (!session.Undo() || session.IsDirty || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !SameRaster(original, session.GetLayerRaster(layerId)))
+        throw new Exception("Flat layer transform undo did not restore the clean source state.");
+    if (!session.Redo() || !SameRaster(moved, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Flat layer transform redo did not restore the moved preview.");
+
+    string saved = Path.Combine(output, "LayerTransformMoved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(saved, "manifest.json")))!;
+    var transform = manifest["layers"]![0]!["transform"]!;
+    if (transform["origin"]![0]!.GetValue<double>() != 12 || transform["origin"]![1]!.GetValue<double>() != -7)
+        throw new Exception("Flat layer transform metadata was not saved.");
+    try
+    {
+        ProjectStore.ExportPng(session, Path.Combine(output, "raw-transformed-export.png"));
+        throw new Exception("Raw export ignored a non-destructive layer transform.");
+    }
+    catch (NotSupportedException) { }
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    if (!SameRaster(moved, ImageProjectWorkflow.RenderFlatNormal(reopened)) ||
+        !SameRaster(original, reopened.GetLayerRaster(layerId)))
+        throw new Exception("Saved flat layer transform did not reopen with original pixels and transformed preview.");
+
+    var flipped = ImageProjectWorkflow.OpenEditable(source);
+    flipped.FlipLayerTransform(layerId, horizontal: true);
+    if (!SameRaster(HorizontalFlip(baseline), ImageProjectWorkflow.RenderFlatNormal(flipped)))
+        throw new Exception("Flat layer horizontal transform did not match the expected canvas result.");
+
+    var scaled = ImageProjectWorkflow.OpenEditable(source);
+    scaled.ScaleLayerTransform(layerId, 0.5);
+    TileRaster scaledPreview = ImageProjectWorkflow.RenderFlatNormal(scaled);
+    if (SameRaster(baseline, scaledPreview) || !SameRaster(original, scaled.GetLayerRaster(layerId)))
+        throw new Exception("Flat layer scale did not render as a non-destructive transform.");
+    var baked = ImageProjectWorkflow.OpenEditable(source);
+    baked.ScaleLayerTransform(layerId, 0.5);
+    TileRaster bakedPreview = ImageProjectWorkflow.RenderFlatNormal(baked);
+    ImageProjectWorkflow.BakeLayerTransform(baked, layerId);
+    if (!baked.IsLayerTransformIdentity(layerId) || !SameRaster(bakedPreview, ImageProjectWorkflow.RenderFlatNormal(baked)) ||
+        SameRaster(original, baked.GetLayerRaster(layerId)))
+        throw new Exception("Baking a flat layer transform did not preserve the preview or materialize the raster.");
+    if (!baked.Undo() || baked.IsLayerTransformIdentity(layerId) ||
+        !SameRaster(bakedPreview, ImageProjectWorkflow.RenderFlatNormal(baked)) ||
+        !SameRaster(original, baked.GetLayerRaster(layerId)) ||
+        !baked.Redo() || !baked.IsLayerTransformIdentity(layerId) ||
+        !SameRaster(bakedPreview, ImageProjectWorkflow.RenderFlatNormal(baked)))
+        throw new Exception("Flat layer bake undo/redo did not restore the transform transaction.");
+
+    var rotated = ImageProjectWorkflow.OpenEditable(source);
+    rotated.RotateLayerTransform90(layerId, clockwise: true);
+    TileRaster rotatedPreview = ImageProjectWorkflow.RenderFlatNormal(rotated);
+    if (SameRaster(baseline, rotatedPreview) || !SameRaster(original, rotated.GetLayerRaster(layerId)))
+        throw new Exception("Flat layer rotation did not render as a non-destructive transform.");
+
+    var masked = ImageProjectWorkflow.OpenEditable(source);
+    masked.EnsureLayerMask(layerId);
+    masked.ReplaceLayerMask(layerId,
+        GrayTileRaster.Rectangle(masked.Width, masked.Height, 0, 0, masked.Width / 2, masked.Height));
+    GrayTileRaster maskedMask = masked.GetLayerMask(layerId)!;
+    TileRaster maskedBaseline = ImageProjectWorkflow.RenderFlatNormal(masked);
+    masked.FlipLayerTransform(layerId, horizontal: true);
+    TileRaster maskedFlipped = ImageProjectWorkflow.RenderFlatNormal(masked);
+    if (!SameRaster(HorizontalFlip(maskedBaseline), maskedFlipped) ||
+        !SameRaster(original, masked.GetLayerRaster(layerId)) ||
+        !SameCoverage(maskedMask, masked.GetLayerMask(layerId)!))
+        throw new Exception("Flat layer transform did not carry the editable mask with the source asset.");
+    string maskedPath = Path.Combine(output, "LayerTransformMasked.comp");
+    ImageProjectWorkflow.Save(masked, maskedPath);
+    var maskedReopened = ImageProjectWorkflow.OpenEditable(maskedPath);
+    if (!SameRaster(maskedFlipped, ImageProjectWorkflow.RenderFlatNormal(maskedReopened)) ||
+        !SameRaster(masked.GetLayerRaster(layerId), maskedReopened.GetLayerRaster(layerId)))
+        throw new Exception("Masked flat layer transform did not survive save and reopen.");
+    var bakedMasked = ImageProjectWorkflow.OpenEditable(source);
+    bakedMasked.EnsureLayerMask(layerId);
+    bakedMasked.ReplaceLayerMask(layerId,
+        GrayTileRaster.Rectangle(bakedMasked.Width, bakedMasked.Height, 0, 0, bakedMasked.Width / 2, bakedMasked.Height));
+    bakedMasked.ScaleLayerTransform(layerId, 0.5);
+    TileRaster bakedMaskedPreview = ImageProjectWorkflow.RenderFlatNormal(bakedMasked);
+    ImageProjectWorkflow.BakeLayerTransform(bakedMasked, layerId);
+    TileRaster bakedMaskedActual = ImageProjectWorkflow.RenderFlatNormal(bakedMasked);
+    if (!bakedMasked.IsLayerTransformIdentity(layerId) ||
+        !SameRaster(bakedMaskedPreview, bakedMaskedActual) || bakedMasked.GetLayerMask(layerId) is null)
+        throw new Exception($"Baking a masked flat layer transform did not preserve the preview or editable mask (max diff {MaxDifference(bakedMaskedPreview, bakedMaskedActual)}).");
+    Console.WriteLine("PASS: flat layer non-destructive move/flip/scale/90-degree transform, undo/redo, mask sync and save/reopen");
+}
+
 static bool SameRaster(TileRaster first, TileRaster second)
 {
     if (first.Width != second.Width || first.Height != second.Height) return false;
@@ -458,6 +557,27 @@ static bool SameRaster(TileRaster first, TileRaster second)
     for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
         if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
     return true;
+}
+
+static bool SameCoverage(GrayTileRaster first, GrayTileRaster second)
+{
+    if (first.Width != second.Width || first.Height != second.Height) return false;
+    for (int row = 0; row * TileRaster.TileSize < first.Height; row++)
+    for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
+        if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
+    return true;
+}
+
+static int MaxDifference(TileRaster first, TileRaster second)
+{
+    int maximum = 0;
+    for (int row = 0; row * TileRaster.TileSize < first.Height; row++)
+    for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
+    {
+        byte[] left = first.ReadTileCopy(column, row), right = second.ReadTileCopy(column, row);
+        for (int index = 0; index < left.Length; index++) maximum = Math.Max(maximum, Math.Abs(left[index] - right[index]));
+    }
+    return maximum;
 }
 
 static void ExpectNotSupported(Action action, string description)
@@ -566,13 +686,9 @@ static void CheckCompositing(string output, string fixtures)
         topLayer.Remove("opacity");
         topLayer["transform"]!["origin"]![0] = 1;
         File.WriteAllText(manifestPath, manifest.ToJsonString());
-        if (ProjectStore.Open(flat).CanEdit) throw new Exception("Unsupported transform became editable.");
-        try
-        {
-            ImageProjectWorkflow.RenderFlatNormal(flat);
-            throw new Exception("Unsupported transform was rendered at the origin.");
-        }
-        catch (NotSupportedException) { }
+        if (!ProjectStore.Open(flat).CanEdit) throw new Exception("Supported transform was rejected as read-only.");
+        if (SameRaster(result, ImageProjectWorkflow.RenderFlatNormal(flat)))
+            throw new Exception("Supported transform was rendered at the original position.");
     }
     finally { File.WriteAllText(manifestPath, originalManifest); }
 

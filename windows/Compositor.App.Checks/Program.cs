@@ -148,7 +148,7 @@ internal static class Program
         Dispatcher.UIThread.RunJobs();
         foreach (string name in new[] { "AddLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
             "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
-            "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection" })
+            "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection", "BakeLayerTransform" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
         foreach (string name in new[] { "FlipLayerHorizontal", "FlipLayerVertical", "ScaleGroupDown", "ScaleGroupUp",
             "RotateGroupCounterClockwise", "RotateGroupClockwise" })

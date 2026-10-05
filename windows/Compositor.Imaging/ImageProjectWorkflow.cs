@@ -86,39 +86,23 @@ public static class ImageProjectWorkflow
             session.AttachLayerRasters(rasters, masks.Count == 0 ? null : masks);
             return session;
         }
-        string temporary = Path.Combine(Path.GetTempPath(), "compositor-image-" + Guid.NewGuid().ToString("N") + ".png");
-        try
+        string imagePath = Path.Combine(session.SourceDirectory, "images", session.ImageName);
+        ProjectStore.CheckAssetHash(session, session.ImageName, imagePath);
+        TileRaster raster = ImageCodec.Load(imagePath);
+        ProjectStore.CheckAssetHash(session, session.ImageName, imagePath);
+        GrayTileRaster? mask = null;
+        if (session.Layers[0].HasMask)
         {
-            TileRaster raster;
-            if (session.Layers[0].HasMask)
-            {
-                string imagePath = Path.Combine(session.SourceDirectory, "images", session.ImageName);
-                ProjectStore.CheckAssetHash(session, session.ImageName, imagePath);
-                raster = ImageCodec.Load(imagePath);
-            }
-            else
-            {
-                ProjectStore.ExportPng(session, temporary);
-                raster = ImageCodec.Load(temporary);
-            }
-            GrayTileRaster? mask = null;
-            if (session.Layers[0].HasMask)
-            {
-                var layer = session.Current["layers"]![0]!.AsObject();
-                string maskName = layer["maskFile"]!.GetValue<string>();
-                string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
-                ProjectStore.CheckAssetHash(session, maskName, maskPath);
-                mask = ImageCodec.LoadGrayMask(maskPath);
-                if (mask.Width != session.Width || mask.Height != session.Height)
-                    throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
-            }
-            session.AttachRaster(raster, mask);
-            return session;
+            var layer = session.Current["layers"]![0]!.AsObject();
+            string maskName = layer["maskFile"]!.GetValue<string>();
+            string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
+            ProjectStore.CheckAssetHash(session, maskName, maskPath);
+            mask = ImageCodec.LoadGrayMask(maskPath);
+            if (mask.Width != session.Width || mask.Height != session.Height)
+                throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
         }
-        finally
-        {
-            if (File.Exists(temporary)) File.Delete(temporary);
-        }
+        session.AttachRaster(raster, mask);
+        return session;
     }
 
     public static TileRaster RenderFlatNormal(string projectDirectory) =>
@@ -208,6 +192,9 @@ public static class ImageProjectWorkflow
                 if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
                     raster = RasterCompositor.ApplyMask(raster, mask);
             }
+            var transform = layer["transform"]!.AsObject();
+            if (!IsIdentityTransform(transform, width, height))
+                raster = TransformCachedRaster(raster, transform, width, height);
             prepared.Add(new FlatLayerRender(layer, Guid.Parse(layer["id"]!.GetValue<string>()), raster));
         }
         var byId = prepared.ToDictionary(layer => layer.Id);
@@ -295,9 +282,6 @@ public static class ImageProjectWorkflow
                 raster = RasterCompositor.ApplyMask(raster, mask);
             var layerTransform = layer["transform"]?.AsObject()
                 ?? throw new NotSupportedException("Cached layer transform data is missing.");
-            bool nested = layer["parentID"] is not null;
-            if (layer["text"] is null && !nested && !IsIdentityTransform(layerTransform, width, height))
-                throw new NotSupportedException("Cached non-text layer transforms are not supported outside groups.");
             raster = TransformCachedRaster(raster, layerTransform, width, height);
             prepared.Add(id, new CachedLayer(layer, id, raster, mask));
         }
@@ -518,6 +502,74 @@ public static class ImageProjectWorkflow
         return FromBitmap(targetBitmap, width, height);
     }
 
+    private static GrayTileRaster TransformCachedMask(GrayTileRaster source, JsonObject transform, int width, int height)
+    {
+        TileRaster maskRaster = new(width, height);
+        for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+        {
+            byte[] coverage = source.ReadTileCopy(column, row);
+            byte[] rgba = new byte[coverage.Length * 4];
+            for (int index = 0; index < coverage.Length; index++)
+            {
+                byte value = coverage[index];
+                rgba[index * 4] = value;
+                rgba[index * 4 + 1] = value;
+                rgba[index * 4 + 2] = value;
+                rgba[index * 4 + 3] = value;
+            }
+            maskRaster = maskRaster.ReplaceTile(column, row, rgba);
+        }
+        TileRaster transformed = TransformCachedRaster(maskRaster, transform, width, height);
+        var result = new GrayTileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = transformed.TileDimensions(column, row);
+            byte[] pixels = transformed.ReadTileCopy(column, row);
+            byte[] coverage = new byte[size.Width * size.Height];
+            for (int index = 0; index < coverage.Length; index++) coverage[index] = pixels[index * 4 + 3];
+            result = result.ReplaceTile(column, row, coverage);
+        }
+        return result;
+    }
+
+    private static TileRaster RestoreMaskedRaster(TileRaster target, GrayTileRaster mask)
+    {
+        var result = new TileRaster(target.Width, target.Height);
+        for (int row = 0; row * TileRaster.TileSize < target.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < target.Width; column++)
+        {
+            byte[] pixels = target.ReadTileCopy(column, row);
+            byte[] coverage = mask.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < coverage.Length; pixel++)
+            {
+                int offset = pixel * 4;
+                byte alpha = RestoreMaskedChannel(pixels[offset + 3], coverage[pixel]);
+                pixels[offset + 3] = alpha;
+                for (int channel = 0; channel < 3; channel++)
+                    pixels[offset + channel] = Math.Min(alpha,
+                        RestoreMaskedChannel(pixels[offset + channel], coverage[pixel]));
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+    }
+
+    private static byte RestoreMaskedChannel(byte target, byte coverage)
+    {
+        if (coverage == 0) return 0;
+        int estimate = Math.Clamp((target * 255 + coverage / 2) / coverage, 0, 255);
+        int best = estimate, bestError = int.MaxValue;
+        for (int candidate = Math.Max(0, estimate - 2); candidate <= Math.Min(255, estimate + 2); candidate++)
+        {
+            int value = (candidate * coverage + 127) / 255;
+            int error = Math.Abs(value - target);
+            if (error < bestError) { best = candidate; bestError = error; }
+        }
+        return (byte)best;
+    }
+
     private static void CopyToBitmap(TileRaster raster, SKBitmap bitmap)
     {
         for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
@@ -572,6 +624,33 @@ public static class ImageProjectWorkflow
         session.ReplaceGroupWithRaster(groupId, baked);
     }
 
+    public static void BakeLayerTransform(ProjectSession session, Guid layerId)
+    {
+        if (!session.CanEdit) throw new NotSupportedException("This project is read-only.");
+        FlatLayerInfo layer = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        if (layer.IsGroup) throw new ArgumentException("Group layers must use bake-ungroup.", nameof(layerId));
+        if (session.IsLayerTransformIdentity(layerId))
+            throw new InvalidOperationException("Identity layers do not need baking.");
+        var transform = session.Current["layers"]!.AsArray()
+            .Single(node => Guid.Parse(node!["id"]!.GetValue<string>()) == layerId)!["transform"]!.AsObject();
+        TileRaster source = session.GetLayerRaster(layerId);
+        TileRaster baked;
+        GrayTileRaster? bakedMask = null;
+        if (session.GetLayerMask(layerId) is { } mask)
+        {
+            bakedMask = TransformCachedMask(mask, transform, session.Width, session.Height);
+            TileRaster visible = layer.MaskEnabled ? RasterCompositor.ApplyMask(source, mask) : source;
+            TileRaster transformedVisible = TransformCachedRaster(visible, transform, session.Width, session.Height);
+            baked = layer.MaskEnabled ? RestoreMaskedRaster(transformedVisible, bakedMask) : transformedVisible;
+        }
+        else
+        {
+            baked = TransformCachedRaster(source, transform, session.Width, session.Height);
+        }
+        session.ReplaceLayerTransformWithRaster(layerId, baked, bakedMask);
+    }
+
     public static void ExportPng(ProjectSession session, string output)
     {
         ImageCodec.SavePng(RenderFlatNormal(session), output);
@@ -596,11 +675,12 @@ public static class ImageProjectWorkflow
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();
         var size = transform["size"]?.AsArray();
-        return origin?.Count == 2 && size?.Count == 2 &&
-            origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
-            size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
-            transform["rotation"]?.GetValue<double>() == 0 &&
-            transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
+        if (origin?.Count != 2 || size?.Count != 2) return false;
+        double x = origin[0]!.GetValue<double>(), y = origin[1]!.GetValue<double>();
+        double targetWidth = size[0]!.GetValue<double>(), targetHeight = size[1]!.GetValue<double>();
+        double rotation = transform["rotation"]?.GetValue<double>() ?? 0;
+        return double.IsFinite(x) && double.IsFinite(y) && double.IsFinite(targetWidth) &&
+            double.IsFinite(targetHeight) && double.IsFinite(rotation) && targetWidth > 0 && targetHeight > 0;
     }
 
     private static void EncodeRaster(TileRaster raster, string path)
