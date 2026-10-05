@@ -149,6 +149,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("ReleaseClippingMask", "释放剪贴", () => SetClippingMaskAsync(false), layer: true));
         structure.Children.Add(Command("GroupLayer", "建立组", GroupLayerAsync, layer: true));
         structure.Children.Add(Command("UngroupLayer", "解组", UngroupLayerAsync, layer: true));
+        structure.Children.Add(Command("BakeUngroupLayer", "烘焙解组", BakeUngroupLayerAsync, layer: true));
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
@@ -425,6 +426,9 @@ public sealed class MainWindow : Window
             if (button.Name == "UngroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true &&
                     Workspace.Session!.IsGroupTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
+            if (button.Name == "BakeUngroupLayer")
+                button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true &&
+                    !Workspace.Session!.IsGroupTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
         }
         if (Workspace.Session is { } session && selected is not null)
         {
@@ -486,6 +490,8 @@ public sealed class MainWindow : Window
     }
 
     private Task UngroupLayerAsync() => EditAsync(session => session.UngroupLayer(selectedId!.Value));
+
+    private Task BakeUngroupLayerAsync() => Task.Run(() => Workspace.BakeGroupTransform(selectedId!.Value));
 
     private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
 

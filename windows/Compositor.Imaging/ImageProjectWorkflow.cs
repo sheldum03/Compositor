@@ -245,7 +245,8 @@ public static class ImageProjectWorkflow
     private sealed record CachedLayer(JsonObject Manifest, Guid Id, TileRaster? Raster, GrayTileRaster? Mask);
 
     private static TileRaster RenderCachedCore(ProjectSession session, bool useLoadedAssets = false,
-        Guid? overrideLayerId = null, TileRaster? overrideRaster = null, GrayTileRaster? overrideMask = null)
+        Guid? overrideLayerId = null, TileRaster? overrideRaster = null, GrayTileRaster? overrideMask = null,
+        Guid? rootOnly = null)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -417,6 +418,13 @@ public static class ImageProjectWorkflow
                 throw new NotSupportedException("Cached layer appearance is not supported.");
         }
 
+        if (rootOnly is { } rootId)
+        {
+            if (!prepared.TryGetValue(rootId, out var root) || root.Raster is not null)
+                throw new ArgumentException("The requested layer is not a group.", nameof(rootOnly));
+            return RenderNode(root, Array.Empty<GrayTileRaster>());
+        }
+
         var output = new TileRaster(width, height);
         if (children.TryGetValue(Guid.Empty, out var roots))
             foreach (var root in roots)
@@ -550,6 +558,18 @@ public static class ImageProjectWorkflow
         foreach (var layer in session.Layers)
             if (layer.HasMask) session.GetLayerMask(layer.Id);
         ProjectStore.Save(session, projectDirectory, EncodeRaster, EncodeMask);
+    }
+
+    public static void BakeGroupTransform(ProjectSession session, Guid groupId)
+    {
+        if (!session.CanEdit) throw new NotSupportedException("This project is read-only.");
+        FlatLayerInfo group = session.Layers.SingleOrDefault(layer => layer.Id == groupId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(groupId));
+        if (!group.IsGroup) throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        if (session.IsGroupTransformIdentity(groupId))
+            throw new InvalidOperationException("Identity groups can be ungrouped without baking.");
+        TileRaster baked = RenderCachedCore(session, useLoadedAssets: true, rootOnly: groupId);
+        session.ReplaceGroupWithRaster(groupId, baked);
     }
 
     public static void ExportPng(ProjectSession session, string output)

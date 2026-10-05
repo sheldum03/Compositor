@@ -334,6 +334,32 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var transformedReopened = ImageProjectWorkflow.OpenEditable(transformedPath);
     if (!transformedReopened.CanEdit || !SameRaster(HorizontalFlip(baseline), ImageProjectWorkflow.RenderFlatNormal(transformedReopened)))
         throw new Exception("Editable group transform did not survive save and reopen.");
+    var baked = ImageProjectWorkflow.OpenEditable(grouped);
+    baked.RotateGroup90(groupId, clockwise: true);
+    TileRaster bakedReference = ImageProjectWorkflow.RenderFlatNormal(baked);
+    ImageProjectWorkflow.BakeGroupTransform(baked, groupId);
+    if (baked.HasGroups || baked.Layers.Count != 1 || !SameRaster(bakedReference, ImageProjectWorkflow.RenderFlatNormal(baked)))
+        throw new Exception("Baking a transformed group did not preserve the preview or flatten the subtree.");
+    if (!baked.Undo() || !baked.HasGroups || !SameRaster(bakedReference, ImageProjectWorkflow.RenderFlatNormal(baked)))
+        throw new Exception("Baked group undo did not restore the transformed group preview.");
+    if (!baked.Redo() || baked.HasGroups || !SameRaster(bakedReference, ImageProjectWorkflow.RenderFlatNormal(baked)))
+        throw new Exception("Baked group redo did not restore the flattened preview.");
+    string bakedPath = Path.Combine(output, "BakedGroup.comp");
+    ImageProjectWorkflow.Save(baked, bakedPath);
+    var bakedReopened = ImageProjectWorkflow.OpenEditable(bakedPath);
+    if (bakedReopened.HasGroups || !SameRaster(bakedReference, ImageProjectWorkflow.RenderFlatNormal(bakedReopened)))
+        throw new Exception("Baked transformed group did not survive save and reopen.");
+    var bakedMasked = ImageProjectWorkflow.OpenEditable(grouped);
+    bakedMasked.EnsureLayerMask(groupId);
+    bakedMasked.ReplaceLayerMask(groupId,
+        GrayTileRaster.Rectangle(bakedMasked.Width, bakedMasked.Height, 0, 0, bakedMasked.Width / 2, bakedMasked.Height));
+    bakedMasked.SetLayerOpacity(groupId, 0.5);
+    bakedMasked.SetLayerBlendMode(groupId, "Multiply");
+    bakedMasked.FlipGroup(groupId, horizontal: true);
+    TileRaster bakedMaskedReference = ImageProjectWorkflow.RenderFlatNormal(bakedMasked);
+    ImageProjectWorkflow.BakeGroupTransform(bakedMasked, groupId);
+    if (bakedMasked.HasGroups || !SameRaster(bakedMaskedReference, ImageProjectWorkflow.RenderFlatNormal(bakedMasked)))
+        throw new Exception("Baking a masked styled group did not preserve the preview.");
     var scaled = ImageProjectWorkflow.OpenEditable(grouped);
     scaled.ScaleGroup(groupId, 0.5);
     TileRaster scaledPreview = ImageProjectWorkflow.RenderFlatNormal(scaled);

@@ -88,6 +88,15 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
+    public void BakeGroupTransform(Guid groupId)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        selectionMoveHistory = null;
+        ImageProjectWorkflow.BakeGroupTransform(RequireSession(), groupId);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
     public bool Undo()
     {
         RequireIdle();

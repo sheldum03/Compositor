@@ -702,6 +702,78 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, nextMasks is { Count: > 0 } ? nextMasks : null, ++nextRevision));
     }
 
+    internal void ReplaceGroupWithRaster(Guid groupId, TileRaster raster)
+    {
+        RequireGroupStructureEditing();
+        if (raster.Width != Width || raster.Height != Height)
+            throw new ArgumentException("Baked group raster dimensions do not match the canvas.", nameof(raster));
+        int groupIndex = FindLayer(groupId);
+        var layers = Current["layers"]!.AsArray();
+        var group = layers[groupIndex]!.AsObject();
+        if (group["isGroup"]?.GetValue<bool>() != true)
+            throw new ArgumentException("Layer is not a group.", nameof(groupId));
+
+        var byId = layers.ToDictionary(node => Guid.Parse(node!["id"]!.GetValue<string>()), node => node!.AsObject());
+        var descendants = new HashSet<Guid>();
+        foreach (Guid id in byId.Keys)
+        {
+            if (id == groupId) continue;
+            Guid? parent = byId[id]["parentID"] is { } parentNode
+                ? Guid.Parse(parentNode.GetValue<string>()) : null;
+            var seen = new HashSet<Guid>();
+            while (parent is { } parentId && seen.Add(parentId))
+            {
+                if (parentId == groupId)
+                {
+                    descendants.Add(id);
+                    break;
+                }
+                parent = byId.TryGetValue(parentId, out var parentLayer) && parentLayer["parentID"] is { } nextParent
+                    ? Guid.Parse(nextParent.GetValue<string>()) : null;
+            }
+        }
+
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayers = next["layers"]!.AsArray();
+        var baked = nextLayers[groupIndex]!.AsObject();
+        baked["isGroup"] = false;
+        baked["imageFile"] = groupId.ToString("D").ToUpperInvariant() + ".png";
+        baked.Remove("maskFile");
+        baked.Remove("maskEnabled");
+        baked["transform"] = new JsonObject
+        {
+            ["origin"] = new JsonArray(0d, 0d),
+            ["size"] = new JsonArray((double)Width, (double)Height),
+            ["rotation"] = 0d,
+            ["flipX"] = false,
+            ["flipY"] = false,
+            ["sampling"] = "High quality"
+        };
+        for (int index = nextLayers.Count - 1; index >= 0; index--)
+        {
+            Guid id = Guid.Parse(nextLayers[index]!["id"]!.GetValue<string>());
+            if (descendants.Contains(id)) nextLayers.RemoveAt(index);
+        }
+        if (ActiveLayerId is { } active && descendants.Contains(active))
+            next["activeLayerID"] = groupId.ToString("D");
+
+        var currentRasters = snapshots[cursor].LayerRasters
+            ?? throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
+        var nextRasters = new Dictionary<Guid, TileRaster>(currentRasters)
+        {
+            [groupId] = raster
+        };
+        foreach (Guid id in descendants) nextRasters.Remove(id);
+        var nextMasks = snapshots[cursor].LayerMasks is { } currentMasks
+            ? new Dictionary<Guid, GrayTileRaster>(currentMasks) : null;
+        if (nextMasks is not null)
+        {
+            nextMasks.Remove(groupId);
+            foreach (Guid id in descendants) nextMasks.Remove(id);
+        }
+        Commit(new Snapshot(next, nextRasters, nextMasks is { Count: > 0 } ? nextMasks : null, ++nextRevision));
+    }
+
     private static GrayTileRaster CloneMask(GrayTileRaster source)
     {
         var result = new GrayTileRaster(source.Width, source.Height);

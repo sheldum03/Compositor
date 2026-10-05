@@ -168,6 +168,14 @@ internal static class Program
         Require(groupedWorkspace.Undo(), "Masked group flip button did not create an undo step.");
         Require(Control<Button>(groupedWindow, "ToggleMask").IsEffectivelyEnabled,
             "Grouped project disabled supported group-mask editing.");
+        Click(groupedWindow, "ScaleGroupUp");
+        Require(Control<Button>(groupedWindow, "BakeUngroupLayer").IsEffectivelyEnabled &&
+            !Control<Button>(groupedWindow, "UngroupLayer").IsEffectivelyEnabled,
+            "Transformed group did not expose bake-ungroup protection.");
+        Click(groupedWindow, "BakeUngroupLayer");
+        Require(!groupedWorkspace.Session!.HasGroups,
+            "Bake-ungroup button did not flatten the transformed group.");
+        groupedWorkspace.Save();
         groupedWindow.Close(); Dispatcher.UIThread.RunJobs();
         CanvasChecks.Run(source, fixture, output, args.Length == 3);
         NewDocumentChecks.Run(source, output);
@@ -177,7 +185,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip",
-                "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons" },
+                "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
