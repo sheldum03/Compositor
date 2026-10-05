@@ -7,7 +7,7 @@ using Compositor.Core;
 namespace Compositor.Imaging;
 
 public readonly record struct BrushPoint(double X, double Y);
-public sealed record SoftBrushSettings(int Diameter, double Opacity, double[] Color);
+public sealed record SoftBrushSettings(int Diameter, double Opacity, double[] Color, double Hardness = 0);
 
 // Untransformed, unselected color painting only. CPU dabs follow Mac BrushStroke's event/tail rules.
 public sealed class SoftBrushStroke
@@ -33,7 +33,8 @@ public sealed class SoftBrushStroke
     {
         if (settings.Diameter is < 1 or > 2000 || !double.IsFinite(settings.Opacity) ||
             settings.Opacity is < 0.01 or > 1 || settings.Color.Length != 3 ||
-            settings.Color.Any(c => !double.IsFinite(c) || c is < 0 or > 1))
+            settings.Color.Any(c => !double.IsFinite(c) || c is < 0 or > 1) ||
+            !double.IsFinite(settings.Hardness) || settings.Hardness is < 0 or > 1)
             throw new ArgumentException("Invalid soft brush settings");
         this.source = source;
         this.selection = selection;
@@ -46,7 +47,7 @@ public sealed class SoftBrushStroke
                 coverageColors[coverageValue * 4 + c] = Round255(this.settings.Color[c] * alpha);
             coverageColors[coverageValue * 4 + 3] = (byte)alpha;
         }
-        // Match the 24-stop normalized Gaussian tip used by the CPU reference; hardness is zero.
+        // Match the 24-stop normalized Gaussian tip used by the CPU reference at zero hardness.
         tip = new byte[settings.Diameter * settings.Diameter];
         var stops = Enumerable.Range(0, 25).Select(i =>
             Math.Max(0, (Math.Exp(-2.5 * i * i / (24.0 * 24)) - Math.Exp(-2.5)) / (1 - Math.Exp(-2.5)))).ToArray();
@@ -56,8 +57,12 @@ public sealed class SoftBrushStroke
         {
             double u = Math.Sqrt(Math.Pow(x + 0.5 - radius, 2) + Math.Pow(y + 0.5 - radius, 2)) / radius;
             if (u >= 1) continue;
-            int stop = Math.Min(23, (int)(u * 24));
-            tip[y * settings.Diameter + x] = Round255((stops[stop] + (stops[stop + 1] - stops[stop]) * (u * 24 - stop)) * 255);
+            double coverage = settings.Hardness >= 1
+                ? 1
+                : (stops[Math.Min(23, (int)(u * 24))] +
+                    (stops[Math.Min(23, (int)(u * 24)) + 1] - stops[Math.Min(23, (int)(u * 24))]) *
+                    (u * 24 - Math.Min(23, (int)(u * 24))));
+            tip[y * settings.Diameter + x] = Round255(coverage * 255);
         }
     }
 

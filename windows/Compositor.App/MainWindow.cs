@@ -21,6 +21,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
+    private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
     private readonly ListBox layers = new() { Name = "Layers" };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
@@ -103,7 +104,7 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
         brushOptions.Children.Add(diameter);
         brushOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
-        brushOptions.Children.Add(opacity); brushOptions.Children.Add(color);
+        brushOptions.Children.Add(opacity); brushOptions.Children.Add(brushType); brushOptions.Children.Add(color);
         brushOptions.Children.Add(new TextBlock { Text = "滚轮缩放 · 空格/中键平移 · Esc 取消笔划", VerticalAlignment = VerticalAlignment.Center });
         DockPanel.SetDock(brushOptions, Dock.Top); layout.Children.Add(brushOptions);
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
@@ -152,7 +153,8 @@ public sealed class MainWindow : Window
                 1 => [1, 1, 1], 2 => [0.1, 0.3, 0.9], 3 => [1, 0.3, 0.1], _ => [0, 0, 0]
             };
             Workspace.BeginStroke(id, new SoftBrushSettings((int)(diameter.Value ?? 40),
-                (double)(opacity.Value ?? 100) / 100, selectedColor), new BrushPoint(point.X, point.Y));
+                (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0),
+                new BrushPoint(point.X, point.Y));
         });
         canvas.StrokeMoved += point => PaintStep(() => Workspace.AppendStroke(new BrushPoint(point.X, point.Y)));
         canvas.StrokeFinished += point => PaintStep(() => Workspace.CommitStroke(new BrushPoint(point.X, point.Y)));

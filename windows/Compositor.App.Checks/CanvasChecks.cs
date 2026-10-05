@@ -31,6 +31,13 @@ internal static class CanvasChecks
         var original = ImageCodec.Load(fixture);
         Require(original.Width == metadata.RootElement.GetProperty("width").GetInt32() &&
             original.Height == metadata.RootElement.GetProperty("height").GetInt32(), "Brush reference dimensions changed.");
+        var hardCanvas = new TileRaster(21, 21);
+        var hardStroke = new SoftBrushStroke(hardCanvas, new SoftBrushSettings(9, 1, [1, 0, 0], 1));
+        hardStroke.Append(new BrushPoint(10.5, 10.5));
+        TileRaster hardResult = hardStroke.Commit();
+        byte[] hardTile = hardResult.ReadTileCopy(0, 0);
+        Require(hardTile[(10 * 21 + 10) * 4 + 3] == 255 && hardTile[3] == 0,
+            "Hard brush did not produce a hard circular edge.");
         foreach (var test in cases)
         {
             var stroke = new SoftBrushStroke(original, new SoftBrushSettings(test.Diameter, test.Opacity, test.Color));
@@ -55,6 +62,9 @@ internal static class CanvasChecks
         window.AddHandler(InputElement.PointerPressedEvent, (_, e) => pointer = e.Pointer, RoutingStrategies.Tunnel);
         Find<NumericUpDown>(window, "BrushDiameter").Value = 47;
         Find<NumericUpDown>(window, "BrushOpacity").Value = 40;
+        Find<ComboBox>(window, "BrushType").SelectedIndex = 1;
+        Require(Find<ComboBox>(window, "BrushType").IsEffectivelyEnabled, "Brush type control is unavailable.");
+        Find<ComboBox>(window, "BrushType").SelectedIndex = 0;
         Find<ComboBox>(window, "BrushColor").SelectedIndex = 3;
         Point anchor = new(100.25, 110.25);
         Point viewAnchor = canvas.Viewport.ToView(anchor);
