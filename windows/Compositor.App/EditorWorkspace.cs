@@ -10,6 +10,9 @@ public sealed class EditorWorkspace
     private Guid brushLayer;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
+    private SelectionMoveHistory? selectionMoveHistory;
+    private bool selectionMoveUndone;
+    private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     public bool HasActiveStroke => brush is not null;
     public ProjectSession? Session { get; private set; }
     public TileRaster? Preview { get; private set; }
@@ -58,9 +61,38 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         var session = RequireSession();
+        selectionMoveHistory = null;
         operation(session);
         Preview = null;
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
+    public bool Undo()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (!session.Undo()) return false;
+        if (selectionMoveHistory is { } move && !selectionMoveUndone)
+        {
+            RestoreSelection(move.Before);
+            selectionMoveUndone = true;
+        }
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        return true;
+    }
+
+    public bool Redo()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (!session.Redo()) return false;
+        if (selectionMoveHistory is { } move && selectionMoveUndone)
+        {
+            RestoreSelection(move.After);
+            selectionMoveUndone = false;
+        }
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        return true;
     }
 
     public void Save()
@@ -127,6 +159,7 @@ public sealed class EditorWorkspace
 
     public void SelectLasso(IReadOnlyList<Point> points, GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
+        selectionMoveHistory = null;
         var session = RequireSession();
         if (points.Count < 3) { ClearSelection(); return; }
         var polygon = points.Select(point => (point.X, point.Y)).ToArray();
@@ -143,6 +176,7 @@ public sealed class EditorWorkspace
     public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
         GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
+        selectionMoveHistory = null;
         var session = RequireSession();
         var raster = Preview ?? ImageProjectWorkflow.RenderFlatNormal(session);
         int x = (int)Math.Floor(point.X), y = (int)Math.Floor(point.Y);
@@ -160,6 +194,7 @@ public sealed class EditorWorkspace
 
     private void SelectShape(Rect rectangle, GraySelectionOperation operation, bool ellipse)
     {
+        selectionMoveHistory = null;
         var session = RequireSession();
         double left = Math.Max(0, Math.Min(rectangle.Left, rectangle.Right));
         double top = Math.Max(0, Math.Min(rectangle.Top, rectangle.Bottom));
@@ -183,6 +218,7 @@ public sealed class EditorWorkspace
 
     public void ClearSelection()
     {
+        selectionMoveHistory = null;
         Selection = null;
         SelectionBounds = null;
         SelectionOutline = null;
@@ -226,6 +262,7 @@ public sealed class EditorWorkspace
         if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("请先建立选区。");
         if (offsetX == 0 && offsetY == 0) return;
+        var selectionBefore = selection;
         TileRaster current = session.GetLayerRaster(layerId);
         byte[] source = ToRgba(current), mask = ToCoverage(selection), moved = new byte[source.Length];
         source.CopyTo(moved, 0);
@@ -244,9 +281,10 @@ public sealed class EditorWorkspace
                         .CopyTo(moved.AsSpan((targetY * session.Width + targetX) * 4, 4));
                     movedMask[targetY * session.Width + targetX] = mask[y * session.Width + x];
                 }
-            }
+        }
         var next = FromRgba(session.Width, session.Height, moved);
-        if (!SamePixels(current, next)) Edit(currentSession => currentSession.ReplaceLayerRaster(layerId, next));
+        bool changed = !SamePixels(current, next);
+        if (changed) Edit(currentSession => currentSession.ReplaceLayerRaster(layerId, next));
         var nextSelection = GrayTileRaster.FromCoverage(session.Width, session.Height, movedMask);
         if (nextSelection.CoveredPixels == 0) ClearSelection();
         else
@@ -254,11 +292,14 @@ public sealed class EditorWorkspace
             Selection = nextSelection;
             SelectionBounds = SelectionBoundsFor(nextSelection);
         }
+        selectionMoveHistory = changed ? new SelectionMoveHistory(selectionBefore, nextSelection) : null;
+        selectionMoveUndone = false;
         UpdateSelectionOutline();
     }
 
     public void SelectLayerAlpha()
     {
+        selectionMoveHistory = null;
         RequireIdle();
         var session = RequireSession();
         if (session.ActiveLayerId is not { } layerId) throw new InvalidOperationException("当前工程没有活动图层。");
@@ -266,6 +307,13 @@ public sealed class EditorWorkspace
         if (next.CoveredPixels == 0) { ClearSelection(); return; }
         Selection = next;
         SelectionBounds = SelectionBoundsFor(next);
+        UpdateSelectionOutline();
+    }
+
+    private void RestoreSelection(GrayTileRaster selection)
+    {
+        Selection = selection;
+        SelectionBounds = SelectionBoundsFor(selection);
         UpdateSelectionOutline();
     }
 

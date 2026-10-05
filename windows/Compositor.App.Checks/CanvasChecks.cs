@@ -124,6 +124,14 @@ internal static class CanvasChecks
         Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
             "Undo did not restore pixels after selection move.");
+        Require(workspace.SelectionBounds is { X: 30, Y: 30 },
+            $"Undo did not restore the pre-move selection bounds: {workspace.SelectionBounds}.");
+        Click("Redo");
+        Require(workspace.IsDirty && workspace.SelectionBounds is { X: 50, Y: 40 },
+            "Redo did not restore the moved selection bounds.");
+        Click("Undo");
+        Require(!workspace.IsDirty && workspace.SelectionBounds is { X: 30, Y: 30 },
+            "Second undo did not restore the original selection state.");
         workspace.SelectRectangle(new Rect(30, 30, 120, 90));
         canvas.SetSelectionRect(workspace.SelectionBounds);
         window.MouseDown(DocumentPoint(new Point(100, 90)), MouseButton.Left);

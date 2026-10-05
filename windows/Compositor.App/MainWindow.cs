@@ -58,8 +58,8 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("Import", "导入图片", ImportAsync));
         toolbar.Children.Add(Command("Save", "保存", SaveAsync, document: true));
         toolbar.Children.Add(Command("SaveAs", "另存为", SaveAsAsync, document: true));
-        toolbar.Children.Add(Command("Undo", "撤销", () => EditAsync(s => s.Undo()), document: true));
-        toolbar.Children.Add(Command("Redo", "重做", () => EditAsync(s => s.Redo()), document: true));
+        toolbar.Children.Add(Command("Undo", "撤销", () => Task.Run(() => Workspace.Undo()), document: true));
+        toolbar.Children.Add(Command("Redo", "重做", () => Task.Run(() => Workspace.Redo()), document: true));
         toolbar.Children.Add(Command("ExportPng", "导出 PNG", () => ExportAsync(false), document: true));
         toolbar.Children.Add(Command("ExportJpeg", "导出 JPEG", () => ExportAsync(true), document: true));
         toolbar.Children.Add(Command("Fit", "适合窗口", () => { canvas.Fit(); return Task.CompletedTask; }, document: true));
@@ -233,8 +233,8 @@ public sealed class MainWindow : Window
             {
                 Key.N => NewAsync,
                 Key.S when Workspace.Session is not null => SaveAsync,
-                Key.Z when Workspace.Session is not null => () => EditAsync(s => s.Undo()),
-                Key.Y when Workspace.Session is not null => () => EditAsync(s => s.Redo()),
+                Key.Z when Workspace.Session is not null => () => Task.Run(() => Workspace.Undo()),
+                Key.Y when Workspace.Session is not null => () => Task.Run(() => Workspace.Redo()),
                 Key.O => OpenAsync,
                 _ => null
             };
