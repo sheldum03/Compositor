@@ -444,8 +444,8 @@ public sealed class MainWindow : Window
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
         paint.IsEnabled = editable && !selectedGroup;
-        canvas.PaintEnabled = editable && !selectedGroup && !Workspace.HasFloatingSelection && paint.IsChecked == true ||
-            editable && !Workspace.HasFloatingSelection && maskPaint.IsChecked == true;
+        canvas.PaintEnabled = editable && !Workspace.HasFloatingSelection &&
+            ((!selectedGroup && paint.IsChecked == true) || maskPaint.IsChecked == true);
         canvas.SelectionEnabled = editable && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
         canvas.SelectionMoveEnabled = editable && !selectedGroup && (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
