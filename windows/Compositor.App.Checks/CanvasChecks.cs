@@ -329,7 +329,8 @@ internal static class CanvasChecks
         Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
             !SamePixels(previewBeforeScale, workspace.Preview!) && Find<CheckBox>(window, "Paint").IsEffectivelyEnabled &&
             Find<CheckBox>(window, "RectSelect").IsEffectivelyEnabled &&
-            !Find<Button>(window, "CopySelection").IsEffectivelyEnabled && scalePreviewDiff == 0,
+            Find<Button>(window, "CopySelection").IsEffectivelyEnabled &&
+            !Find<Button>(window, "PasteSelection").IsEffectivelyEnabled && scalePreviewDiff == 0,
             $"Flat layer scale did not use a non-destructive transform or expose mapped selection tools (previewDiff={scalePreviewDiff}).");
         Require(Find<Button>(window, "BakeLayerTransform").IsEffectivelyEnabled,
             "Transformed flat layer did not expose the explicit bake command.");
@@ -402,6 +403,32 @@ internal static class CanvasChecks
         GrayTileRaster scaledMask = scaledMaskWorkspace.Session.GetLayerMask(scaledMaskLayerId)!;
         Require(HasPartialCoverage(scaledMask),
             "A scaled layer did not preserve fractional selection coverage when mapping into its editable mask.");
+        var transformedFloatingWorkspace = new EditorWorkspace();
+        transformedFloatingWorkspace.Open(project);
+        Guid transformedFloatingLayerId = transformedFloatingWorkspace.Session!.ActiveLayerId!.Value;
+        transformedFloatingWorkspace.MoveActiveLayer(12, 8);
+        transformedFloatingWorkspace.SelectRectangle(new Rect(112, 108, 20, 20));
+        TileRaster transformedFloatingBefore = transformedFloatingWorkspace.Session.GetLayerRaster(transformedFloatingLayerId);
+        bool transformedFloatingDirtyBeforePaste = transformedFloatingWorkspace.IsDirty;
+        transformedFloatingWorkspace.CopySelection();
+        Require(transformedFloatingWorkspace.CanPasteSelection,
+            "A transformed layer did not accept a paste from its own transform snapshot.");
+        transformedFloatingWorkspace.PasteSelection();
+        Require(transformedFloatingWorkspace.HasFloatingSelection &&
+            transformedFloatingWorkspace.IsDirty == transformedFloatingDirtyBeforePaste &&
+            SamePixels(transformedFloatingBefore, transformedFloatingWorkspace.Session.GetLayerRaster(transformedFloatingLayerId)),
+            "Pasting a transformed layer selection changed source pixels before commit.");
+        transformedFloatingWorkspace.MoveSelection(3, 2);
+        Require(transformedFloatingWorkspace.HasFloatingSelection &&
+            transformedFloatingWorkspace.IsDirty == transformedFloatingDirtyBeforePaste &&
+            transformedFloatingWorkspace.SelectionBounds is { X: 115, Y: 110 },
+            "Moving a transformed floating selection did not remain in document coordinates.");
+        transformedFloatingWorkspace.CommitFloatingSelection();
+        Require(transformedFloatingWorkspace.IsDirty &&
+            !SamePixels(transformedFloatingBefore, transformedFloatingWorkspace.Session.GetLayerRaster(transformedFloatingLayerId)) &&
+            transformedFloatingWorkspace.Undo() &&
+            SamePixels(transformedFloatingBefore, transformedFloatingWorkspace.Session.GetLayerRaster(transformedFloatingLayerId)),
+            "Committing a transformed floating selection did not create an undoable source edit.");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);

@@ -128,7 +128,7 @@ public sealed class MainWindow : Window
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
         {
             status,
-            new TextBlock { Text = "内部集成版 · 变换保留原始图层资产；变换中的图层需先还原或烘焙后再进行像素编辑。", Foreground = Brushes.DimGray }
+            new TextBlock { Text = "内部集成版 · 变换保留原始图层资产；逐层复制、剪切或粘贴需匹配变换快照，或先烘焙。", Foreground = Brushes.DimGray }
         } };
         DockPanel.SetDock(footer, Dock.Bottom); layout.Children.Add(footer);
         var heading = new TextBlock { Text = "图层", FontSize = 17, Margin = new Thickness(0, 0, 0, 10) };
@@ -460,8 +460,8 @@ public sealed class MainWindow : Window
                 button.IsEnabled = false;
         if (selected is { IsGroup: false } && Workspace.Session is { } selectedSession &&
             !selectedSession.IsLayerTransformIdentity(selected.Id))
-            foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
-                button.IsEnabled = false;
+            foreach (var button in documentButtons.Where(button => button.Name == "PasteSelection"))
+                button.IsEnabled = Workspace.CanPasteSelection;
         if (multiple)
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;

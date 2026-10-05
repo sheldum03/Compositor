@@ -13,9 +13,12 @@ public sealed class EditorWorkspace
     private bool maskBrushReveal;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
+    private Guid? clipboardLayerId;
+    private LayerTransformInfo? clipboardLayerTransform;
     private Guid? floatingLayerId;
     private TileRaster? floatingRaster;
     private GrayTileRaster? floatingMask;
+    private GrayTileRaster? floatingLayerMask;
     private GrayTileRaster? floatingPreviousSelection;
     private Rect? floatingPreviousBounds;
     private SelectionOutline? floatingPreviousOutline;
@@ -354,6 +357,17 @@ public sealed class EditorWorkspace
     }
 
     public bool HasClipboard => clipboardRaster is not null && clipboardMask is not null;
+    public bool CanPasteSelection
+    {
+        get
+        {
+            if (!HasClipboard || Session?.ActiveLayerId is not { } layerId ||
+                Session.Layers.Single(layer => layer.Id == layerId).IsGroup)
+                return false;
+            if (Session.IsLayerTransformIdentity(layerId)) return clipboardLayerTransform is null;
+            return clipboardLayerId == layerId && clipboardLayerTransform == Session.GetLayerTransform(layerId);
+        }
+    }
 
     public void CopySelection()
     {
@@ -361,10 +375,11 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("请先建立选区。");
-        if (!session.IsLayerTransformIdentity(layerId))
-            throw new NotSupportedException("变换图层的像素复制请先烘焙图层变换。");
-        clipboardRaster = ApplySelection(session.GetLayerRaster(layerId), selection, keepSelected: true);
+        var layerSelection = SelectionForLayer(session, layerId, selection);
+        clipboardRaster = ApplySelection(session.GetLayerRaster(layerId), layerSelection, keepSelected: true);
         clipboardMask = selection;
+        clipboardLayerId = layerId;
+        clipboardLayerTransform = session.IsLayerTransformIdentity(layerId) ? null : session.GetLayerTransform(layerId);
     }
 
     public void CopyMergedSelection()
@@ -375,6 +390,8 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("请先建立选区。");
         clipboardRaster = ApplySelection(Preview ?? ImageProjectWorkflow.RenderFlatNormal(session), selection, keepSelected: true);
         clipboardMask = selection;
+        clipboardLayerId = null;
+        clipboardLayerTransform = null;
     }
 
     public void CutSelection()
@@ -382,7 +399,8 @@ public sealed class EditorWorkspace
         CopySelection();
         var session = RequireSession();
         Guid layerId = session.ActiveLayerId!.Value;
-        var next = ApplySelection(session.GetLayerRaster(layerId), Selection!, keepSelected: false);
+        var layerSelection = SelectionForLayer(session, layerId, Selection!);
+        var next = ApplySelection(session.GetLayerRaster(layerId), layerSelection, keepSelected: false);
         if (!SamePixels(session.GetLayerRaster(layerId), next)) Edit(current => current.ReplaceLayerRaster(layerId, next));
     }
 
@@ -392,11 +410,13 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (clipboardRaster is not { } source || clipboardMask is not { } mask || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("没有可粘贴的选区。");
-        if (!session.IsLayerTransformIdentity(layerId))
-            throw new NotSupportedException("变换图层的像素粘贴请先烘焙图层变换。");
+        if (!CanPasteSelection)
+            throw new NotSupportedException("当前变换图层只能粘贴同一变换快照复制的选区，或先烘焙图层变换。");
+        var layerMask = session.IsLayerTransformIdentity(layerId) ? mask : SelectionForLayer(session, layerId, mask);
         floatingLayerId = layerId;
-        floatingRaster = ReplaceSelection(session.GetLayerRaster(layerId), source, mask);
+        floatingRaster = ReplaceSelection(session.GetLayerRaster(layerId), source, layerMask);
         floatingMask = mask;
+        floatingLayerMask = layerMask;
         floatingPreviousSelection = Selection;
         floatingPreviousBounds = SelectionBounds;
         floatingPreviousOutline = SelectionOutline;
@@ -807,6 +827,7 @@ public sealed class EditorWorkspace
         floatingLayerId = null;
         floatingRaster = null;
         floatingMask = null;
+        floatingLayerMask = null;
         floatingPreviousSelection = null;
         floatingPreviousBounds = null;
         floatingPreviousOutline = null;
@@ -814,11 +835,15 @@ public sealed class EditorWorkspace
 
     private void MoveFloatingSelection(int offsetX, int offsetY)
     {
-        if (floatingRaster is not { } current || floatingMask is not { } mask || floatingLayerId is not { } layerId)
+        if (floatingRaster is not { } current || floatingMask is not { } mask ||
+            floatingLayerMask is not { } layerMask || floatingLayerId is not { } layerId)
             throw new InvalidOperationException("当前没有浮动选区。");
         if (offsetX == 0 && offsetY == 0) return;
         var session = RequireSession();
-        byte[] source = ToRgba(current), selected = ToCoverage(mask), moved = source.ToArray(), movedMask = new byte[selected.Length];
+        byte[] source = ToRgba(current), selected = ToCoverage(layerMask), moved = source.ToArray(), movedMask = new byte[selected.Length];
+        Point layerOffset = DocumentToLayerVector(session, layerId, new Vector(offsetX, offsetY));
+        int layerOffsetX = (int)Math.Round(layerOffset.X, MidpointRounding.AwayFromZero);
+        int layerOffsetY = (int)Math.Round(layerOffset.Y, MidpointRounding.AwayFromZero);
         for (int y = 0; y < session.Height; y++)
         for (int x = 0; x < session.Width; x++)
             if (selected[y * session.Width + x] != 0)
@@ -827,7 +852,7 @@ public sealed class EditorWorkspace
         for (int x = 0; x < session.Width; x++)
             if (selected[y * session.Width + x] != 0)
             {
-                int targetX = x + offsetX, targetY = y + offsetY;
+                int targetX = x + layerOffsetX, targetY = y + layerOffsetY;
                 if ((uint)targetX < (uint)session.Width && (uint)targetY < (uint)session.Height)
                 {
                     source.AsSpan((y * session.Width + x) * 4, 4)
@@ -836,7 +861,8 @@ public sealed class EditorWorkspace
                 }
             }
         floatingRaster = FromRgba(session.Width, session.Height, moved);
-        floatingMask = GrayTileRaster.FromCoverage(session.Width, session.Height, movedMask);
+        floatingLayerMask = GrayTileRaster.FromCoverage(session.Width, session.Height, movedMask);
+        floatingMask = TranslateSelection(mask, offsetX, offsetY);
         Selection = floatingMask;
         SelectionBounds = floatingMask.CoveredPixels == 0 ? null : SelectionBoundsFor(floatingMask);
         UpdateSelectionOutline();
