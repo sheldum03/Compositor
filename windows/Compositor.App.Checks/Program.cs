@@ -326,8 +326,9 @@ internal static class Program
         clippingMoveLayerList.SelectedItems!.Clear();
         clippingMoveLayerList.SelectedItems.Add(moveTarget);
         Dispatcher.UIThread.RunJobs();
-        Require(Control<Button>(clippingMoveWindow, "MoveUp").IsEffectivelyEnabled,
-            "A contiguous clipping stack did not enable stack movement.");
+        Require(Control<Button>(clippingMoveWindow, "MoveUp").IsEffectivelyEnabled &&
+            !Control<Button>(clippingMoveWindow, "MoveDown").IsEffectivelyEnabled,
+            "Clipping stack movement buttons did not reflect the valid direction.");
         Click(clippingMoveWindow, "MoveUp");
         Require(clippingMoveWorkspace.Session.Layers.Select(layer => layer.Id).SequenceEqual([moveOutsideId, moveSourceId, moveTargetId]),
             "Moving a clipping target did not move its source and target as one stack.");

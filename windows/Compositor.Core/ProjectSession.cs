@@ -351,13 +351,35 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public bool CanMoveLayer(Guid layerId, int destinationIndex)
+    {
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8 || HasGroups ||
+            snapshots[cursor].LayerRasters is null) return false;
+        try { _ = ValidateLayerMove(layerId, destinationIndex); return true; }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or NotSupportedException)
+        { return false; }
+    }
+
     public void MoveLayer(Guid layerId, int destinationIndex)
     {
         RequireLayerStructureEditing();
+        var plan = ValidateLayerMove(layerId, destinationIndex);
+        if (plan.SourceIndex == destinationIndex) return;
+        var next = (JsonObject)Current.DeepClone();
+        var reordered = next["layers"]!.AsArray();
+        var stackNodes = plan.StackIndexes.Select(index => reordered[index]!.DeepClone()).ToArray();
+        foreach (int index in plan.StackIndexes.Reverse()) reordered.RemoveAt(index);
+        int insertion = plan.Insertion;
+        foreach (JsonNode? node in stackNodes) reordered.Insert(insertion++, node);
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    private (int SourceIndex, int[] StackIndexes, int Insertion) ValidateLayerMove(Guid layerId, int destinationIndex)
+    {
         var layers = Current["layers"]!.AsArray();
         if ((uint)destinationIndex >= layers.Count) throw new ArgumentOutOfRangeException(nameof(destinationIndex));
         int sourceIndex = FindLayer(layerId);
-        if (sourceIndex == destinationIndex) return;
+        if (sourceIndex == destinationIndex) return (sourceIndex, [sourceIndex], sourceIndex);
         var stackIds = new HashSet<Guid> { layerId };
         bool changed;
         do
@@ -375,17 +397,11 @@ public sealed class ProjectSession
         if (stackIndexes[^1] - stackIndexes[0] + 1 != stackIndexes.Length)
             throw new NotSupportedException("剪贴栈必须保持连续才能移动。");
         int direction = Math.Sign(destinationIndex - sourceIndex);
-        if (direction == 0) return;
-        int blockStart = stackIndexes[0];
-        int insertion = direction > 0 ? blockStart + 1 : blockStart - 1;
-        var next = (JsonObject)Current.DeepClone();
-        var reordered = next["layers"]!.AsArray();
-        var stackNodes = stackIndexes.Select(index => reordered[index]!.DeepClone()).ToArray();
-        foreach (int index in stackIndexes.Reverse()) reordered.RemoveAt(index);
-        if (insertion < 0 || insertion > reordered.Count)
+        int insertion = direction > 0 ? stackIndexes[0] + 1 : stackIndexes[0] - 1;
+        int remainingCount = layers.Count - stackIndexes.Length;
+        if (insertion < 0 || insertion > remainingCount)
             throw new NotSupportedException("剪贴栈不能移出画布边界。");
-        foreach (JsonNode? node in stackNodes) reordered.Insert(insertion++, node);
-        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+        return (sourceIndex, stackIndexes, insertion);
     }
 
     public void SetLayerMaskSource(Guid layerId, Guid? sourceLayerId)

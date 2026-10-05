@@ -508,6 +508,10 @@ public sealed class MainWindow : Window
             if (multiple && button.Name is not ("GroupLayer" or "MergeLayerDown")) button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "MergeLayerDown" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
+            if (selected is not null && button.Name == "MoveUp")
+                button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
+            if (selected is not null && button.Name == "MoveDown")
+                button.IsEnabled = Workspace.CanMoveLayer(selected.Id, -1);
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
                 "RotateLayerCounterClockwise" or "RotateLayerClockwise")
                 button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&

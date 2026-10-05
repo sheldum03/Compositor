@@ -120,6 +120,14 @@ public sealed class EditorWorkspace
         MergeSelectedLayers([session.Layers[upperIndex - 1].Id, upperId]);
     }
 
+    public bool CanMoveLayer(Guid layerId, int offset)
+    {
+        if (offset is not (-1 or 1) || Session is null || !CanEdit || HasFloatingSelection)
+            return false;
+        int index = Session.Layers.ToList().FindIndex(layer => layer.Id == layerId);
+        return index >= 0 && Session.CanMoveLayer(layerId, index + offset);
+    }
+
     public void MergeSelectedLayers(IReadOnlyList<Guid> layerIds)
     {
         RequireIdle();
