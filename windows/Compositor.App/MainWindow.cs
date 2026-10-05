@@ -31,6 +31,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly NumericUpDown layerMoveX = new() { Name = "LayerMoveX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
+    private readonly NumericUpDown layerRotation = new() { Name = "LayerRotation", Minimum = -3600, Maximum = 3600, Value = 15, Width = 70 };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
@@ -145,6 +146,9 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("RotateGroupClockwise", "组右转90°", () => RotateGroupAsync(true), layer: true));
         structure.Children.Add(Command("RotateLayerCounterClockwise", "左转15°", () => RotateLayerAsync(false), layer: true));
         structure.Children.Add(Command("RotateLayerClockwise", "右转15°", () => RotateLayerAsync(true), layer: true));
+        structure.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
+        structure.Children.Add(layerRotation);
+        structure.Children.Add(Command("RotateLayerCustom", "应用旋转", RotateLayerCustomAsync, layer: true));
         structure.Children.Add(Command("AddMask", "添加蒙版", AddMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("ToggleMask", "启用/停用蒙版", ToggleMaskAsync, layer: true, mask: true));
         structure.Children.Add(Command("SetClippingMask", "设为剪贴层", () => SetClippingMaskAsync(true), layer: true));
@@ -414,6 +418,7 @@ public sealed class MainWindow : Window
         layerName.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
+        layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         UpdatePaintMode();
         bool groupedProject = Workspace.Session?.HasGroups == true;
         foreach (var button in layerButtons)
@@ -426,6 +431,10 @@ public sealed class MainWindow : Window
                 "RotateLayerCounterClockwise" or "RotateLayerClockwise")
                 button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection;
+            if (button.Name == "RotateLayerCustom")
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
+                    (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection &&
+                    layerRotation.Value is not null;
             if (button.Name == "GroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
@@ -520,6 +529,12 @@ public sealed class MainWindow : Window
     private Task RotateLayerAsync(bool clockwise)
     {
         return Task.Run(() => Workspace.RotateActiveLayer(clockwise ? 15 : -15));
+    }
+
+    private Task RotateLayerCustomAsync()
+    {
+        double degrees = (double)(layerRotation.Value ?? 0);
+        return Task.Run(() => Workspace.RotateActiveLayer(degrees));
     }
 
     private Task MoveLayerAsync()

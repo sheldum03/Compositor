@@ -352,6 +352,13 @@ internal static class CanvasChecks
             !SamePixels(previewBeforeFreeRotate, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
             "Flat layer free rotation did not use a non-destructive transform or protect pixel tools.");
         Click("Undo");
+        Find<NumericUpDown>(window, "LayerRotation").Value = 12.5m;
+        TileRaster previewBeforeCustomRotate = workspace.Preview!;
+        Click("RotateLayerCustom");
+        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(flipBaseline) &&
+            !SamePixels(previewBeforeCustomRotate, workspace.Preview!) && !Find<CheckBox>(window, "Paint").IsEffectivelyEnabled,
+            "Flat layer custom rotation did not use a non-destructive transform or protect pixel tools.");
+        Click("Undo");
         workspace.Save();
         workspace.Export(Path.Combine(output, "brush-export.png"), false);
         var reopened = ImageProjectWorkflow.OpenEditable(workspace.ProjectDirectory!);

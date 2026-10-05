@@ -151,7 +151,7 @@ internal static class Program
             "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection", "BakeLayerTransform" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
         foreach (string name in new[] { "FlipLayerHorizontal", "FlipLayerVertical", "ScaleGroupDown", "ScaleGroupUp",
-            "RotateGroupCounterClockwise", "RotateGroupClockwise", "RotateLayerCounterClockwise", "RotateLayerClockwise" })
+            "RotateGroupCounterClockwise", "RotateGroupClockwise", "RotateLayerCounterClockwise", "RotateLayerClockwise", "RotateLayerCustom" })
             Require(Control<Button>(groupedWindow, name).IsEffectivelyEnabled,
                 "Enabled group mask did not expose group transform button: " + name);
         Require(Control<Button>(groupedWindow, "MoveLayer").IsEffectivelyEnabled,
@@ -166,6 +166,9 @@ internal static class Program
         Require(groupedWorkspace.Undo(), "Group rotation button did not create an undo step.");
         Click(groupedWindow, "RotateLayerClockwise");
         Require(groupedWorkspace.Undo(), "Group free rotation button did not create an undo step.");
+        Control<NumericUpDown>(groupedWindow, "LayerRotation").Value = 12.5m;
+        Click(groupedWindow, "RotateLayerCustom");
+        Require(groupedWorkspace.Undo(), "Group custom rotation button did not create an undo step.");
         Click(groupedWindow, "FlipLayerHorizontal");
         Require(groupedWorkspace.Undo(), "Masked group flip button did not create an undo step.");
         Require(Control<Button>(groupedWindow, "ToggleMask").IsEffectivelyEnabled,
