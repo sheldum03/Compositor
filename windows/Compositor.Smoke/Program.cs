@@ -242,6 +242,36 @@ static void CheckHistoryBudget(string fixture)
     if (sharedSession.HistoryExclusiveBytes != 256L * 256 * 4)
         throw new Exception("Shared tiles were charged as exclusive history memory.");
 
+    var layerManifest = (JsonObject)sharedManifest.DeepClone();
+    layerManifest["version"] = 8;
+    var layerSession = new ProjectSession(fixture, layerManifest,
+        layerManifest["layers"]![0]!["imageFile"]!.GetValue<string>(), true, ReadOnlyMemory<byte>.Empty);
+    layerSession.AttachRaster(sharedRaster);
+    Guid originalId = layerSession.Layers[0].Id;
+    Guid copyId = layerSession.DuplicateLayer(originalId, "Copy");
+    if (layerSession.HistoryExclusiveBytes != 0)
+        throw new Exception("Shared duplicate pixels were charged as exclusive history.");
+    layerSession.ReplaceLayerRaster(copyId, sharedRaster.ReplaceTile(0, 0, new byte[256 * 256 * 4]));
+    if (layerSession.HistoryExclusiveBytes != 0)
+        throw new Exception("Pixels retained by the original layer were charged as history-only memory.");
+    layerSession.DeleteLayer(originalId);
+    if (layerSession.HistoryExclusiveBytes != 256L * 256 * 4)
+        throw new Exception("Deleted layer exclusive pixels were not charged to history.");
+    layerSession.DeleteLayer(copyId);
+    if (layerSession.HistoryExclusiveBytes != sharedRaster.StoredBytes + 256L * 256 * 4)
+        throw new Exception("Empty document history did not deduplicate shared pixels.");
+
+    var largeManifest = (JsonObject)layerManifest.DeepClone();
+    largeManifest["width"] = 20000;
+    largeManifest["height"] = 5000;
+    var largeSession = new ProjectSession(fixture, largeManifest,
+        largeManifest["layers"]![0]!["imageFile"]!.GetValue<string>(), true, ReadOnlyMemory<byte>.Empty);
+    largeSession.AttachRaster(new TileRaster(20000, 5000));
+    try { largeSession.AddBlankLayer("Too large", 1); throw new Exception("Layer count exceeded the source pixel limit."); }
+    catch (NotSupportedException) { }
+    if (largeSession.IsDirty || largeSession.Undo())
+        throw new Exception("Rejected oversized layer insertion changed history.");
+
     var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixture, "manifest.json")))!.AsObject();
     manifest["width"] = 2048;
     manifest["height"] = 2048;

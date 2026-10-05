@@ -163,13 +163,14 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
     throw new Exception("A new edit retained an abandoned redo branch.");
 
 CheckCompositing(output, fixtures);
+CheckLayerStructure(output, sourcePng);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
 if (args.Length == 4)
 {
     CheckMacProduced(Path.GetFullPath(args[2]), output);
     CheckMacFlatProduced(Path.GetFullPath(args[3]), output);
 }
-Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, Normal and Gray8 mask composition" +
+Console.WriteLine("PASS: v1 export, v8 PNG/JPEG import, pixel and metadata history with 100-step bound, safe save, reopen, PNG/JPEG export, prior snapshot restore, changed-asset isolation, rejected import, flat multi-layer pixel/metadata edit/save, layer add/duplicate/delete, empty project and deleted-asset undo, Normal and Gray8 mask composition" +
     (args.Length >= 3 ? ", Mac-produced v8 continuation and non-default protection" : "") +
     (args.Length == 4 ? ", Mac-produced flat layer pixel continuation" : ""));
 
@@ -587,6 +588,111 @@ static void CheckMacProduced(string macProjects, string output)
         else if (ProjectStore.Open(target).CanEdit)
             throw new Exception($"Non-default {field} layer was made editable without rendering support.");
     }
+}
+
+static void CheckLayerStructure(string output, string sourcePng)
+{
+    string source = Path.Combine(output, "LayerStructureSource.comp");
+    var session = ImageProjectWorkflow.Import(sourcePng, source);
+    Guid originalId = session.Layers[0].Id;
+    TileRaster original = session.GetLayerRaster(originalId);
+    byte[] originalPng = File.ReadAllBytes(Path.Combine(source, "images", session.ImageName));
+    Guid blankId = session.AddBlankLayer("Blank", 1);
+    if (session.ActiveLayerId != blankId || session.Layers.Count != 2 || session.Raster is not null ||
+        session.GetLayerRaster(blankId).StoredBytes != 0 || !session.IsDirty)
+        throw new Exception("Blank layer insertion lost layer identity, active layer, or empty pixels.");
+    AssertRaster(original, ImageProjectWorkflow.RenderFlatNormal(session));
+    string rejectedSave = Path.Combine(output, "LayerStructureNoEncoder.comp");
+    try { ProjectStore.Save(session, rejectedSave); throw new Exception("New layer was saved without an encoder."); }
+    catch (NotSupportedException) { }
+    if (Directory.Exists(rejectedSave) || Directory.GetDirectories(output, "LayerStructureNoEncoder.comp.tmp-*").Length != 0 ||
+        !session.IsDirty) throw new Exception("Rejected new-layer save left files or changed the save point.");
+    if (!session.Undo() || session.IsDirty || session.ActiveLayerId != originalId ||
+        !ReferenceEquals(original, session.Raster) || !session.Redo())
+        throw new Exception("Single-to-multi layer transition did not undo/redo with its active layer.");
+    Guid copyId = session.DuplicateLayer(originalId, "Copy");
+    if (copyId == originalId || session.ActiveLayerId != copyId || session.Layers[1].Id != copyId ||
+        !ReferenceEquals(original, session.GetLayerRaster(copyId)))
+        throw new Exception("Duplicate did not get independent identity with shared immutable pixels.");
+    byte[] tile = original.ReadTileCopy(0, 0);
+    new byte[] { 70, 80, 90, 255 }.CopyTo(tile, 0);
+    TileRaster changed = original.ReplaceTile(0, 0, tile);
+    session.ReplaceLayerRaster(copyId, changed);
+    if (!ReferenceEquals(original, session.GetLayerRaster(originalId)))
+        throw new Exception("Editing a duplicate changed its source layer.");
+    session.DeleteLayer(blankId);
+    if (session.ActiveLayerId != copyId || session.Layers.Count != 2)
+        throw new Exception("Deleting another layer changed the active layer.");
+    string added = Path.Combine(output, "LayerStructureAdded.comp");
+    ImageProjectWorkflow.Save(session, added);
+    var reopened = ImageProjectWorkflow.OpenEditable(added);
+    if (session.IsDirty || reopened.Layers.Count != 2 || reopened.ActiveLayerId != copyId ||
+        !originalPng.SequenceEqual(File.ReadAllBytes(Path.Combine(added, "images", originalId.ToString("D").ToUpperInvariant() + ".png"))) ||
+        Directory.GetFiles(Path.Combine(added, "images")).Length != 2)
+        throw new Exception("Added layers did not save with exact current assets and untouched source bytes.");
+    AssertRaster(original, reopened.GetLayerRaster(originalId));
+    AssertRaster(changed, reopened.GetLayerRaster(copyId));
+    TileRaster withCopy = ImageProjectWorkflow.RenderFlatNormal(reopened);
+    reopened.DeleteLayer(copyId);
+    if (reopened.ActiveLayerId != originalId || !ReferenceEquals(reopened.Raster, reopened.GetLayerRaster(originalId)))
+        throw new Exception("Deleting an active layer did not select its neighbor or return to single-layer access.");
+    ImageProjectWorkflow.Save(reopened, added);
+    if (Directory.GetFiles(Path.Combine(added, "images")).Length != 1 || reopened.IsDirty)
+        throw new Exception("Deleting and saving retained an orphan asset.");
+    if (!reopened.Undo() || reopened.ActiveLayerId != copyId || !reopened.IsDirty)
+        throw new Exception("Saved deletion did not undo to the deleted layer and its active identity.");
+    AssertRaster(changed, reopened.GetLayerRaster(copyId));
+    AssertRaster(withCopy, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    ImageProjectWorkflow.Save(reopened, added);
+    AssertRaster(changed, ImageProjectWorkflow.OpenEditable(added).GetLayerRaster(copyId));
+    if (!reopened.Redo()) throw new Exception("Saving an undo state lost the deletion redo step.");
+    reopened.DeleteLayer(originalId);
+    if (reopened.ActiveLayerId is not null || reopened.Layers.Count != 0 || reopened.Raster is not null)
+        throw new Exception("Deleting the final layer left a dangling active layer.");
+    var transparent = new TileRaster(original.Width, original.Height);
+    AssertRaster(transparent, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    string empty = Path.Combine(output, "LayerStructureEmpty.comp");
+    ImageProjectWorkflow.Save(reopened, empty);
+    var reopenedEmpty = ImageProjectWorkflow.OpenEditable(empty);
+    if (!reopenedEmpty.CanEdit || reopenedEmpty.Layers.Count != 0 || reopenedEmpty.IsDirty ||
+        Directory.GetFiles(Path.Combine(empty, "images")).Length != 0)
+        throw new Exception("Empty v8 project did not save and reopen as editable.");
+    string emptyExport = Path.Combine(output, "empty-project.png");
+    ImageProjectWorkflow.ExportPng(reopenedEmpty, emptyExport);
+    AssertRaster(transparent, ImageCodec.Load(emptyExport));
+    if (!reopened.Undo() || reopened.ActiveLayerId != originalId)
+        throw new Exception("Empty saved document could not restore its deleted final layer.");
+    string restored = Path.Combine(output, "LayerStructureRestored.comp");
+    ImageProjectWorkflow.Save(reopened, restored);
+    AssertRaster(original, ImageProjectWorkflow.OpenEditable(restored).GetLayerRaster(originalId));
+    try { reopenedEmpty.RenameLayer("Missing"); throw new Exception("Empty document accepted a layer rename."); }
+    catch (InvalidOperationException) { }
+    if (reopenedEmpty.IsDirty || reopenedEmpty.Undo()) throw new Exception("Rejected empty rename changed history.");
+    Guid emptyBlank = reopenedEmpty.AddBlankLayer("Start again", 0);
+    if (reopenedEmpty.ActiveLayerId != emptyBlank || !reopenedEmpty.Undo() || reopenedEmpty.IsDirty ||
+        !reopenedEmpty.Redo()) throw new Exception("Adding to an empty document lost its history or save point.");
+    ImageProjectWorkflow.Save(reopenedEmpty, Path.Combine(output, "LayerStructureNewBlank.comp"));
+
+    var clean = ImageProjectWorkflow.OpenEditable(source);
+    foreach (Action rejected in new Action[]
+    {
+        () => clean.AddBlankLayer(" ", 1), () => clean.AddBlankLayer("Out of range", 2),
+        () => clean.DuplicateLayer(Guid.NewGuid(), "Foreign"), () => clean.DuplicateLayer(originalId, ""),
+        () => clean.DeleteLayer(Guid.NewGuid())
+    })
+    {
+        try { rejected(); throw new Exception("Invalid layer structure edit was accepted."); }
+        catch (ArgumentException) { }
+    }
+    if (clean.IsDirty || clean.Undo() || clean.Layers.Count != 1)
+        throw new Exception("Rejected layer structure edits changed document or history.");
+    var unloaded = ProjectStore.Open(source);
+    try { unloaded.AddBlankLayer("Unloaded", 1); throw new Exception("Unloaded layer edit was accepted."); }
+    catch (InvalidOperationException) { }
+    string legacy = Path.Combine(output, "Legacy.comp");
+    var legacySession = ImageProjectWorkflow.OpenEditable(legacy);
+    try { legacySession.DeleteLayer(legacySession.Layers[0].Id); throw new Exception("Legacy structure was silently changed."); }
+    catch (NotSupportedException) { }
 }
 
 static void CheckMacFlatProduced(string macProject, string output)

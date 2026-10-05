@@ -141,12 +141,8 @@ public static class ImageProjectWorkflow
     public static void Save(ProjectSession session, string projectDirectory)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be saved yet.");
-        if (session.ImageName.Length == 0) ProjectStore.Save(session, projectDirectory, EncodeRaster);
-        else
-        {
-            RequireRaster(session);
-            ProjectStore.Save(session, projectDirectory, EncodeRaster);
-        }
+        foreach (var layer in session.Layers) session.GetLayerRaster(layer.Id);
+        ProjectStore.Save(session, projectDirectory, EncodeRaster);
     }
 
     public static void ExportPng(ProjectSession session, string output)
@@ -159,9 +155,6 @@ public static class ImageProjectWorkflow
     {
         ImageCodec.SaveJpeg(RenderFlatNormal(session), output, quality, background);
     }
-
-    private static TileRaster RequireRaster(ProjectSession session) => session.CanEdit && session.Raster is { } raster
-        ? raster : throw new NotSupportedException("Open the editable project through ImageProjectWorkflow first.");
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {

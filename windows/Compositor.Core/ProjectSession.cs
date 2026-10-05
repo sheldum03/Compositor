@@ -8,47 +8,46 @@ public sealed class ProjectSession
 {
     private const int MaxUndoSteps = 100;
     private const long MaxHistoryImageBytes = 256L * 1024 * 1024;
-    private sealed record Snapshot(JsonObject Manifest, TileRaster? Raster,
-        IReadOnlyDictionary<Guid, TileRaster>? LayerRasters, long Revision);
+    private sealed record Snapshot(JsonObject Manifest, IReadOnlyDictionary<Guid, TileRaster>? LayerRasters, long Revision);
     private readonly List<Snapshot> snapshots;
-    private readonly Dictionary<string, Guid> assetOwnerIds;
     private int cursor;
     private long nextRevision;
     private long savedRevision;
-    private TileRaster? sourceRaster;
     private IReadOnlyDictionary<Guid, TileRaster>? sourceLayerRasters;
 
     internal ProjectSession(string sourceDirectory, JsonObject manifest, string imageName, bool canEdit,
         ReadOnlyMemory<byte> imageHash, IReadOnlyDictionary<string, byte[]>? assetHashes = null)
     {
         SourceDirectory = sourceDirectory;
-        ImageName = imageName;
         var hashes = assetHashes is null
             ? new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase)
             : new Dictionary<string, byte[]>(assetHashes, StringComparer.OrdinalIgnoreCase);
         if (canEdit && imageName.Length != 0 && !hashes.ContainsKey(imageName))
             hashes.Add(imageName, imageHash.ToArray());
         AssetHashes = hashes;
-        assetOwnerIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
-        foreach (var layer in manifest["layers"]!.AsArray())
-            if (layer?["imageFile"] is { } image)
-                assetOwnerIds[image.GetValue<string>()] = Guid.Parse(layer["id"]!.GetValue<string>());
         CanEdit = canEdit;
-        snapshots = [new Snapshot(manifest, null, null, 0)];
+        snapshots = [new Snapshot(manifest, null, 0)];
     }
 
     public string SourceDirectory { get; private set; }
-    public string ImageName { get; }
+    public string ImageName => Current["layers"]!.AsArray().Count == 1
+        ? Current["layers"]![0]?["imageFile"]?.GetValue<string>() ?? "" : "";
     internal IReadOnlyDictionary<string, byte[]> AssetHashes { get; private set; }
     public bool CanEdit { get; }
     public bool IsDirty => snapshots[cursor].Revision != savedRevision;
-    public string LayerName => Current["layers"]![0]!["name"]!.GetValue<string>();
+    public string LayerName => Current["layers"]!.AsArray().Count > 0
+        ? Current["layers"]![0]!["name"]!.GetValue<string>()
+        : throw new InvalidOperationException("This document has no layers.");
+    public Guid? ActiveLayerId => Current["activeLayerID"] is { } active ? Guid.Parse(active.GetValue<string>()) : null;
     public IReadOnlyList<FlatLayerInfo> Layers => Current["layers"]!.AsArray()
         .Select(layer => new FlatLayerInfo(Guid.Parse(layer!["id"]!.GetValue<string>()),
             layer["name"]!.GetValue<string>(), layer["isVisible"]?.GetValue<bool>() ?? true)).ToArray();
-    public TileRaster? Raster => snapshots[cursor].Raster;
-    internal bool RequiresRasterEncoding => Raster is not null && !ReferenceEquals(Raster, sourceRaster);
+    public TileRaster? Raster => ImageName.Length != 0 &&
+        TryGetLoadedLayerRaster(Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>()), out var raster) ? raster : null;
+    internal bool RequiresRasterEncoding => ImageName.Length != 0 && TryGetRasterForEncoding(ImageName, out _);
     internal JsonObject Current => snapshots[cursor].Manifest;
+    internal IEnumerable<string> CurrentImageNames => Current["layers"]!.AsArray()
+        .Select(layer => layer!["imageFile"]!.GetValue<string>());
     internal bool TryGetLoadedLayerRaster(Guid layerId, out TileRaster raster)
     {
         if (snapshots[cursor].LayerRasters is { } layers && layers.TryGetValue(layerId, out raster!)) return true;
@@ -58,13 +57,8 @@ public sealed class ProjectSession
 
     internal bool TryGetRasterForEncoding(string imageName, out TileRaster raster)
     {
-        if (imageName == ImageName && RequiresRasterEncoding)
-        {
-            raster = Raster!;
-            return true;
-        }
-        if (assetOwnerIds.TryGetValue(imageName, out Guid id) &&
-            snapshots[cursor].LayerRasters is { } layers && layers.TryGetValue(id, out var current) &&
+        Guid id = Guid.Parse(Path.GetFileNameWithoutExtension(imageName));
+        if (snapshots[cursor].LayerRasters is { } layers && layers.TryGetValue(id, out var current) &&
             (sourceLayerRasters is null || !sourceLayerRasters.TryGetValue(id, out var original) ||
                 !ReferenceEquals(current, original)))
         {
@@ -95,8 +89,6 @@ public sealed class ProjectSession
 
     private static IEnumerable<byte[]> SnapshotBuffers(Snapshot snapshot)
     {
-        if (snapshot.Raster is { } raster)
-            foreach (byte[] buffer in raster.Buffers) yield return buffer;
         if (snapshot.LayerRasters is { } layers)
             foreach (TileRaster layer in layers.Values)
             foreach (byte[] buffer in layer.Buffers) yield return buffer;
@@ -107,25 +99,28 @@ public sealed class ProjectSession
         if (!CanEdit || ImageName.Length == 0 || snapshots.Count != 1 || Raster is not null)
             throw new InvalidOperationException("Raster can only be attached to a newly opened editable project.");
         CheckRasterSize(raster);
-        snapshots[0] = new Snapshot(Current, raster, null, 0);
-        sourceRaster = raster;
+        var attached = new Dictionary<Guid, TileRaster>
+        {
+            [Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>())] = raster
+        };
+        snapshots[0] = new Snapshot(Current, attached, 0);
+        sourceLayerRasters = attached;
     }
 
     internal void AttachLayerRasters(IReadOnlyDictionary<Guid, TileRaster> rasters)
     {
         if (!CanEdit || ImageName.Length != 0 || snapshots.Count != 1 || snapshots[0].LayerRasters is not null ||
-            rasters.Count != assetOwnerIds.Count || assetOwnerIds.Values.Any(id => !rasters.ContainsKey(id)))
+            rasters.Count != Layers.Count || Layers.Any(layer => !rasters.ContainsKey(layer.Id)))
             throw new InvalidOperationException("Layer rasters can only be attached to a newly opened flat project.");
         foreach (TileRaster raster in rasters.Values) CheckRasterSize(raster);
         var attached = new Dictionary<Guid, TileRaster>(rasters);
-        snapshots[0] = new Snapshot(Current, null, attached, 0);
+        snapshots[0] = new Snapshot(Current, attached, 0);
         sourceLayerRasters = attached;
     }
 
     public TileRaster GetLayerRaster(Guid layerId)
     {
         FindLayer(layerId);
-        if (ImageName.Length != 0) return Raster ?? throw new InvalidOperationException("Layer raster has not been loaded.");
         return TryGetLoadedLayerRaster(layerId, out var raster) ? raster
             : throw new InvalidOperationException("Layer rasters have not been loaded.");
     }
@@ -135,26 +130,24 @@ public sealed class ProjectSession
         if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
         FindLayer(layerId);
         CheckRasterSize(raster);
-        if (ImageName.Length != 0) { ReplaceRaster(raster); return; }
         var current = snapshots[cursor].LayerRasters
             ?? throw new InvalidOperationException("Layer rasters have not been loaded.");
         if (ReferenceEquals(current[layerId], raster)) return;
         var next = new Dictionary<Guid, TileRaster>(current) { [layerId] = raster };
-        Commit(new Snapshot(Current, null, next, ++nextRevision));
+        Commit(new Snapshot(Current, next, ++nextRevision));
     }
 
     public void ReplaceRaster(TileRaster raster)
     {
         if (!CanEdit || ImageName.Length == 0)
             throw new NotSupportedException("Pixel replacement requires a single-layer editable project.");
-        CheckRasterSize(raster);
-        if (ReferenceEquals(Raster, raster)) return;
-        Commit(new Snapshot(Current, raster, null, ++nextRevision));
+        ReplaceLayerRaster(Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>()), raster);
     }
 
     public void RenameLayer(string name)
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
+        if (Current["layers"]!.AsArray().Count == 0) throw new InvalidOperationException("This document has no layers.");
         RenameLayer(Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>()), name);
     }
 
@@ -167,7 +160,7 @@ public sealed class ProjectSession
         if (Current["layers"]![index]!["name"]!.GetValue<string>() == name) return;
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["name"] = name;
-        Commit(new Snapshot(next, Raster, snapshots[cursor].LayerRasters, ++nextRevision));
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
     }
 
     public void SetLayerVisible(Guid layerId, bool visible)
@@ -177,7 +170,7 @@ public sealed class ProjectSession
         if (Current["layers"]![index]!["isVisible"]!.GetValue<bool>() == visible) return;
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["isVisible"] = visible;
-        Commit(new Snapshot(next, Raster, snapshots[cursor].LayerRasters, ++nextRevision));
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
     }
 
     public void MoveLayer(Guid layerId, int destinationIndex)
@@ -192,7 +185,78 @@ public sealed class ProjectSession
         JsonNode layer = reordered[sourceIndex]!;
         reordered.RemoveAt(sourceIndex);
         reordered.Insert(destinationIndex, layer);
-        Commit(new Snapshot(next, Raster, snapshots[cursor].LayerRasters, ++nextRevision));
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, ++nextRevision));
+    }
+
+    public Guid AddBlankLayer(string name, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        int width = Current["width"]!.GetValue<int>(), height = Current["height"]!.GetValue<int>();
+        var layer = new JsonObject
+        {
+            ["name"] = name, ["isVisible"] = true,
+            ["transform"] = new JsonObject
+            {
+                ["origin"] = new JsonArray(0d, 0d), ["size"] = new JsonArray((double)width, (double)height),
+                ["rotation"] = 0d, ["flipX"] = false, ["flipY"] = false, ["sampling"] = "High quality"
+            }
+        };
+        return InsertLayer(layer, new TileRaster(width, height), destinationIndex);
+    }
+
+    public Guid DuplicateLayer(Guid layerId, string name)
+    {
+        RequireLayerStructureEditing();
+        int index = FindLayer(layerId);
+        var layer = (JsonObject)Current["layers"]![index]!.DeepClone();
+        layer["name"] = name;
+        return InsertLayer(layer, GetLayerRaster(layerId), index + 1);
+    }
+
+    public void DeleteLayer(Guid layerId)
+    {
+        RequireLayerStructureEditing();
+        int index = FindLayer(layerId);
+        var next = (JsonObject)Current.DeepClone();
+        var layers = next["layers"]!.AsArray();
+        layers.RemoveAt(index);
+        if (ActiveLayerId == layerId)
+        {
+            if (layers.Count == 0) next.Remove("activeLayerID");
+            else next["activeLayerID"] = layers[Math.Min(index, layers.Count - 1)]!["id"]!.DeepClone();
+        }
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!);
+        rasters.Remove(layerId);
+        Commit(new Snapshot(next, rasters, ++nextRevision));
+    }
+
+    private Guid InsertLayer(JsonObject layer, TileRaster raster, int destinationIndex)
+    {
+        string name = layer["name"]!.GetValue<string>();
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 1000)
+            throw new ArgumentException("Layer name must contain 1 to 1000 characters.", nameof(layer));
+        int count = Current["layers"]!.AsArray().Count;
+        if (destinationIndex < 0 || destinationIndex > count)
+            throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        if (count >= 10000 || (long)(count + 1) * raster.Width * raster.Height > 100_000_000)
+            throw new NotSupportedException("Adding a layer exceeds the flat source pixel limit.");
+        Guid id = Guid.NewGuid();
+        layer["id"] = id.ToString("D");
+        layer["imageFile"] = id.ToString("D").ToUpperInvariant() + ".png";
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]!.AsArray().Insert(destinationIndex, layer);
+        next["activeLayerID"] = id.ToString("D");
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!) { [id] = raster };
+        Commit(new Snapshot(next, rasters, ++nextRevision));
+        return id;
+    }
+
+    private void RequireLayerStructureEditing()
+    {
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8)
+            throw new NotSupportedException("Layer structure changes require a flat editable v8 project.");
+        if (snapshots[cursor].LayerRasters is null)
+            throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
     }
 
     private int FindLayer(Guid layerId)
@@ -213,8 +277,6 @@ public sealed class ProjectSession
             snapshots.RemoveAt(0);
             cursor--;
         }
-        if (sourceRaster is not null && !snapshots.Any(snapshot => ReferenceEquals(snapshot.Raster, sourceRaster)))
-            sourceRaster = null;
         if (sourceLayerRasters is not null)
             sourceLayerRasters = sourceLayerRasters.Where(pair => snapshots.Any(snapshot =>
                 snapshot.LayerRasters is { } layers && layers.TryGetValue(pair.Key, out var raster) &&
@@ -246,7 +308,6 @@ public sealed class ProjectSession
     {
         SourceDirectory = directory;
         AssetHashes = new Dictionary<string, byte[]>(assetHashes, StringComparer.OrdinalIgnoreCase);
-        sourceRaster = Raster;
         sourceLayerRasters = snapshots[cursor].LayerRasters;
         savedRevision = snapshots[cursor].Revision;
     }

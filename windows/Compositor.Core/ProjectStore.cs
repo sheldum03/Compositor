@@ -87,7 +87,7 @@ public static class ProjectStore
                     allImageSizesMatch = false;
             }
         }
-        bool canEdit = version is 1 or 8 && layers.Count > 0 && (version == 8 || layers.Count == 1) &&
+        bool canEdit = version is 1 or 8 && (version == 8 || layers.Count == 1) &&
             (long)layers.Count * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             layers.All(node => IsFlatEditableLayer(node!.AsObject(), width, height)) &&
@@ -136,16 +136,16 @@ public static class ProjectStore
         try
         {
             Directory.CreateDirectory(Path.Combine(temporary, "images"));
-            foreach (var (name, _) in session.AssetHashes)
+            foreach (string name in session.CurrentImageNames)
             {
                 string copiedImage = Path.Combine(temporary, "images", name);
                 string sourceImage = Path.Combine(session.SourceDirectory, "images", name);
                 if (session.TryGetRasterForEncoding(name, out TileRaster raster))
                 {
                     if (encodeRaster is null) throw new NotSupportedException("Raster encoder is required for pixel edits.");
-                    CheckAssetHash(session, name, sourceImage);
+                    if (session.AssetHashes.ContainsKey(name)) CheckAssetHash(session, name, sourceImage);
                     encodeRaster(raster, copiedImage);
-                    CheckAssetHash(session, name, sourceImage);
+                    if (session.AssetHashes.ContainsKey(name)) CheckAssetHash(session, name, sourceImage);
                 }
                 else
                 {
