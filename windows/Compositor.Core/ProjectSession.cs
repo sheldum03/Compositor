@@ -350,7 +350,7 @@ public sealed class ProjectSession
 
     public void MoveLayer(Guid layerId, int destinationIndex)
     {
-        if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
+        RequireLayerStructureEditing();
         var layers = Current["layers"]!.AsArray();
         if ((uint)destinationIndex >= layers.Count) throw new ArgumentOutOfRangeException(nameof(destinationIndex));
         int sourceIndex = FindLayer(layerId);

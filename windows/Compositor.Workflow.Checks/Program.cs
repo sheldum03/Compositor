@@ -224,6 +224,12 @@ static void CheckEditableGroupMask(string output, string fixtures)
     Guid groupId = session.Layers.Single(layer => layer.IsGroup).Id;
     TileRaster reference = ImageCodec.Load(Path.Combine(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), "F06-mac.png"));
     AssertRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session));
+    ExpectNotSupported(() => session.AddBlankLayer("Rejected", 0), "adding a layer to a grouped project");
+    ExpectNotSupported(() => session.DuplicateLayer(groupId, "Rejected"), "duplicating a group");
+    ExpectNotSupported(() => session.DeleteLayer(groupId), "deleting a group");
+    ExpectNotSupported(() => session.MoveLayer(groupId, 0), "reordering a grouped project");
+    ExpectNotSupported(() => session.SetLayerMaskSource(groupId, null), "editing clipping structure in a grouped project");
+    if (session.IsDirty) throw new Exception("Rejected grouped structure edit changed history.");
     session.SetLayerVisible(groupId, false);
     AssertRaster(new TileRaster(session.Width, session.Height), ImageProjectWorkflow.RenderFlatNormal(session));
     if (!session.Undo() || !SameRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session)))
@@ -258,6 +264,16 @@ static bool SameRaster(TileRaster first, TileRaster second)
     for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
         if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
     return true;
+}
+
+static void ExpectNotSupported(Action action, string description)
+{
+    try
+    {
+        action();
+        throw new Exception($"{description} was accepted outside the supported slice.");
+    }
+    catch (NotSupportedException) { }
 }
 
 static void CheckCompositing(string output, string fixtures)
