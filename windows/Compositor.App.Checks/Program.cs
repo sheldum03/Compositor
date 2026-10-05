@@ -110,6 +110,21 @@ internal static class Program
         DialogClick(discard.OwnedWindows.Single(), "不保存"); Pump(discard);
         Require(!discard.IsVisible, "Discard close kept the window open.");
         Require(ImageProjectWorkflow.OpenEditable(source).Layers[^1].Name == "中文 Overlay", "Discard wrote unsaved changes to disk.");
+        string grouped = CreateEditableGroupFixture(output, args[0]);
+        var groupedWorkspace = new EditorWorkspace();
+        groupedWorkspace.Open(grouped);
+        var groupedWindow = new MainWindow(groupedWorkspace);
+        groupedWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var groupedItem = Control<ListBox>(groupedWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.IsGroup);
+        Control<ListBox>(groupedWindow, "Layers").SelectedItem = groupedItem;
+        Dispatcher.UIThread.RunJobs();
+        foreach (string name in new[] { "AddLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
+            "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
+            "FlipLayerHorizontal", "FlipLayerVertical", "MoveLayer" })
+            Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
+        Require(Control<Button>(groupedWindow, "ToggleMask").IsEffectivelyEnabled,
+            "Grouped project disabled supported group-mask editing.");
+        groupedWindow.Close(); Dispatcher.UIThread.RunJobs();
         CanvasChecks.Run(source, fixture, output, args.Length == 3);
         NewDocumentChecks.Run(source, output);
         File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new
@@ -117,7 +132,8 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip" },
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip",
+                "grouped-project structure button protection and group-mask availability" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
@@ -173,6 +189,20 @@ internal static class Program
     }
     private static void Require(bool condition, string message)
     { if (!condition) throw new Exception(message); }
+
+    private static string CreateEditableGroupFixture(string output, string fixtures)
+    {
+        string source = Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures", "F06.comp"));
+        string destination = Path.Combine(output, "Grouped.comp");
+        Directory.CreateDirectory(Path.Combine(destination, "images"));
+        foreach (string asset in Directory.GetFiles(Path.Combine(source, "images")))
+            File.Copy(asset, Path.Combine(destination, "images", Path.GetFileName(asset)));
+        var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(source, "manifest.json")))!.AsObject();
+        manifest["version"] = 8;
+        File.WriteAllText(Path.Combine(destination, "manifest.json"), manifest.ToJsonString());
+        return destination;
+    }
+
     private static void Reject(Action action)
     {
         try { action(); }

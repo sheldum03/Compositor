@@ -364,9 +364,14 @@ public sealed class MainWindow : Window
         layers.ItemsSource = items;
         layers.SelectedItem = items.FirstOrDefault(layer => layer.Id == Workspace.Session?.ActiveLayerId) ?? items.FirstOrDefault();
         refreshing = false;
+        bool groupedProject = Workspace.Session?.HasGroups == true;
         foreach (var button in documentButtons)
+        {
             button.IsEnabled = Workspace.Session is not null &&
                 (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
+            if (groupedProject && button.Name is "AddLayer" or "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
+                button.IsEnabled = false;
+        }
         if (Workspace.HasFloatingSelection)
             foreach (var button in documentButtons.Where(button => button.Name is not "CommitFloatingSelection" and not "CancelFloatingSelection"))
                 button.IsEnabled = false;
@@ -398,7 +403,15 @@ public sealed class MainWindow : Window
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
         UpdatePaintMode();
-        foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
+        bool groupedProject = Workspace.Session?.HasGroups == true;
+        foreach (var button in layerButtons)
+        {
+            button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
+            if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
+                button.IsEnabled = false;
+            if (selected?.IsGroup == true && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical" or "MoveLayer")
+                button.IsEnabled = false;
+        }
         if (Workspace.Session is { } session && selected is not null)
         {
             int index = session.Layers.ToList().FindIndex(layer => layer.Id == selected.Id);
