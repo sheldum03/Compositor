@@ -164,6 +164,7 @@ if (historySession.Redo() || historySession.LayerName != "New branch")
 
 CheckCompositing(output, fixtures);
 CheckCachedGroupRendering(output, fixtures);
+CheckCachedGroupTransform(output, fixtures);
 CheckGroupStructureCreation(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
@@ -206,6 +207,49 @@ static void CheckCachedGroupRendering(string output, string fixtures)
         catch (Exception error) { throw new Exception($"Cached group fixture {name} differs: {error.Message}", error); }
     }
     Console.WriteLine("PASS: cached pass-through groups, child visibility, raster masks, clipping alpha and group masks match F02/F05/F06 references");
+}
+
+static void CheckCachedGroupTransform(string output, string fixtures)
+{
+    string referenceRoot = Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures"));
+    string source = Path.Combine(referenceRoot, "F02.comp");
+    string transformed = Path.Combine(output, "F02-GroupFlip.comp");
+    Directory.CreateDirectory(Path.Combine(transformed, "images"));
+    foreach (string asset in Directory.GetFiles(Path.Combine(source, "images")))
+        File.Copy(asset, Path.Combine(transformed, "images", Path.GetFileName(asset)));
+    var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(source, "manifest.json")))!.AsObject();
+    manifest["layers"]![0]!["transform"]!["flipX"] = true;
+    File.WriteAllText(Path.Combine(transformed, "manifest.json"), manifest.ToJsonString());
+
+    TileRaster baseline = ImageProjectWorkflow.RenderFlatNormal(ProjectStore.Open(source));
+    TileRaster actual = ImageProjectWorkflow.RenderFlatNormal(ProjectStore.Open(transformed));
+    AssertRaster(HorizontalFlip(baseline), actual);
+    Console.WriteLine("PASS: cached pass-through group horizontal transform preserves canvas geometry");
+}
+
+static TileRaster HorizontalFlip(TileRaster source)
+{
+    var result = new TileRaster(source.Width, source.Height);
+    for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+    for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+    {
+        var size = result.TileDimensions(column, row);
+        var tile = new byte[size.Width * size.Height * 4];
+        for (int y = 0; y < size.Height; y++)
+        for (int x = 0; x < size.Width; x++)
+        {
+            int targetX = column * TileRaster.TileSize + x;
+            int sourceX = source.Width - 1 - targetX;
+            byte[] sourceTile = source.ReadTileCopy(sourceX / TileRaster.TileSize, (row * TileRaster.TileSize + y) / TileRaster.TileSize);
+            int sourceWidth = source.TileDimensions(sourceX / TileRaster.TileSize, (row * TileRaster.TileSize + y) / TileRaster.TileSize).Width;
+            int sourceLocalX = sourceX % TileRaster.TileSize;
+            int sourceLocalY = (row * TileRaster.TileSize + y) % TileRaster.TileSize;
+            sourceTile.AsSpan((sourceLocalY * sourceWidth + sourceLocalX) * 4, 4)
+                .CopyTo(tile.AsSpan((y * size.Width + x) * 4, 4));
+        }
+        result = result.ReplaceTile(column, row, tile);
+    }
+    return result;
 }
 
 static void CheckEditableGroupMask(string output, string fixtures)

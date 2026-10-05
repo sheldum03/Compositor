@@ -279,8 +279,6 @@ public static class ImageProjectWorkflow
                     throw new NotSupportedException("Cached group metadata is not supported.");
                 var groupTransform = layer["transform"]?.AsObject()
                     ?? throw new NotSupportedException("Cached group transform data is missing.");
-                if (!IsIdentityTransform(groupTransform, width, height))
-                    throw new NotSupportedException("Cached group transforms are not supported.");
                 prepared.Add(id, new CachedLayer(layer, id, null, mask));
                 continue;
             }
@@ -397,7 +395,13 @@ public static class ImageProjectWorkflow
                     index = end - 1;
                 }
             }
-            return result;
+            if (layer.Mask is not null && (layer.Manifest["maskEnabled"]?.GetValue<bool>() ?? true) &&
+                !IsIdentityTransform(layer.Manifest["transform"]!.AsObject(), width, height))
+                throw new NotSupportedException("Cached group masks with non-identity transforms are not supported.");
+            var transform = layer.Manifest["transform"]!.AsObject();
+            return IsIdentityTransform(transform, width, height)
+                ? result
+                : TransformCachedRaster(result, transform, width, height);
         }
 
         TileRaster CompositeChild(TileRaster bottom, CachedLayer layer, TileRaster top, bool stackAlreadyStyled = false)
