@@ -411,7 +411,9 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
-            if (selected?.IsGroup == true && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical" or "MoveLayer")
+            if (selected?.IsGroup == true && button.Name == "MoveLayer")
+                button.IsEnabled = false;
+            if (selected?.IsGroup == true && selected.MaskEnabled && button.Name is "FlipLayerHorizontal" or "FlipLayerVertical")
                 button.IsEnabled = false;
             if (button.Name == "GroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;

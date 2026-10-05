@@ -321,6 +321,19 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var reopened = ImageProjectWorkflow.OpenEditable(grouped);
     if (!reopened.CanEdit || !reopened.HasGroups || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(reopened)))
         throw new Exception("Created group did not survive save and reopen.");
+    var transformed = ImageProjectWorkflow.OpenEditable(grouped);
+    transformed.FlipGroup(groupId, horizontal: true);
+    if (!SameRaster(HorizontalFlip(baseline), ImageProjectWorkflow.RenderFlatNormal(transformed)) || !transformed.IsDirty)
+        throw new Exception("Editable group horizontal transform did not render or record.");
+    if (!transformed.Undo() || !SameRaster(baseline, ImageProjectWorkflow.RenderFlatNormal(transformed)) || transformed.IsDirty)
+        throw new Exception("Editable group transform undo did not restore the saved render.");
+    if (!transformed.Redo() || !SameRaster(HorizontalFlip(baseline), ImageProjectWorkflow.RenderFlatNormal(transformed)))
+        throw new Exception("Editable group transform redo did not restore the transformed render.");
+    string transformedPath = Path.Combine(output, "GroupedFlipped.comp");
+    ImageProjectWorkflow.Save(transformed, transformedPath);
+    var transformedReopened = ImageProjectWorkflow.OpenEditable(transformedPath);
+    if (!transformedReopened.CanEdit || !SameRaster(HorizontalFlip(baseline), ImageProjectWorkflow.RenderFlatNormal(transformedReopened)))
+        throw new Exception("Editable group transform did not survive save and reopen.");
     Guid innerGroupId = reopened.GroupLayer(leafId, "Inner");
     Guid outerGroupId = reopened.GroupLayer(groupId, "Outer");
     if (reopened.Layers.Single(layer => layer.Id == outerGroupId).ParentId is not null ||
@@ -348,6 +361,7 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     var masked = ImageProjectWorkflow.OpenEditable(grouped);
     masked.EnsureLayerMask(groupId);
     masked.ReplaceLayerMask(groupId, GrayTileRaster.Rectangle(masked.Width, masked.Height, 0, 0, masked.Width / 2, masked.Height));
+    ExpectNotSupported(() => masked.FlipGroup(groupId, horizontal: true), "transforming an enabled group mask");
     TileRaster maskedReference = ImageProjectWorkflow.RenderFlatNormal(masked);
     masked.UngroupLayer(groupId);
     if (masked.HasGroups || !SameRaster(maskedReference, ImageProjectWorkflow.RenderFlatNormal(masked)))

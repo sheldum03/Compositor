@@ -324,7 +324,7 @@ public static class ProjectStore
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();
         var size = transform["size"]?.AsArray();
-        if (allowGroups && layer["parentID"] is not null)
+        if (allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null))
         {
             return origin?.Count == 2 && size?.Count == 2 &&
                 origin.All(value => double.IsFinite(value!.GetValue<double>())) &&

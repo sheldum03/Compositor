@@ -459,6 +459,23 @@ public sealed class ProjectSession
 
     public Guid GroupLayer(Guid layerId, string name) => GroupLayers([layerId], name);
 
+    public void FlipGroup(Guid groupId, bool horizontal)
+    {
+        RequireGroupStructureEditing();
+        int index = FindLayer(groupId);
+        var current = Current["layers"]![index]!.AsObject();
+        if (current["isGroup"]?.GetValue<bool>() != true)
+            throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        if (current["maskFile"] is not null && (current["maskEnabled"]?.GetValue<bool>() ?? true))
+            throw new NotSupportedException("Groups with enabled masks cannot be transformed in this slice.");
+        var next = (JsonObject)Current.DeepClone();
+        var transform = next["layers"]![index]!["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Group transform data is missing.");
+        string field = horizontal ? "flipX" : "flipY";
+        transform[field] = !(transform[field]?.GetValue<bool>() ?? false);
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public Guid GroupLayers(IReadOnlyList<Guid> layerIds, string name)
     {
         RequireGroupStructureEditing();

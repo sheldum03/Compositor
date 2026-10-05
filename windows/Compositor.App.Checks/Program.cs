@@ -123,6 +123,11 @@ internal static class Program
         var createdGroup = Control<ListBox>(groupCreationWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.IsGroup);
         Control<ListBox>(groupCreationWindow, "Layers").SelectedItem = createdGroup;
         Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(groupCreationWindow, "FlipLayerHorizontal").IsEffectivelyEnabled &&
+            Control<Button>(groupCreationWindow, "FlipLayerVertical").IsEffectivelyEnabled,
+            "Unmasked editable group did not enable transform buttons.");
+        Click(groupCreationWindow, "FlipLayerHorizontal");
+        Require(groupCreationWorkspace.Undo(), "Group transform button did not create an undo step.");
         Click(groupCreationWindow, "UngroupLayer");
         Require(!groupCreationWorkspace.Session.HasGroups, "Ungroup button did not remove a pass-through group.");
         groupCreationWorkspace.Save();

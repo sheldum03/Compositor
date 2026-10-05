@@ -455,6 +455,11 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("当前工程没有活动图层。");
+        if (session.Layers.Single(layer => layer.Id == layerId).IsGroup)
+        {
+            Edit(editSession => editSession.FlipGroup(layerId, horizontal));
+            return;
+        }
         TileRaster current = session.GetLayerRaster(layerId);
         byte[] source = ToRgba(current), flipped = new byte[source.Length];
         for (int y = 0; y < session.Height; y++)
