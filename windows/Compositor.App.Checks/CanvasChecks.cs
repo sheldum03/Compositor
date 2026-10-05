@@ -152,12 +152,27 @@ internal static class CanvasChecks
         Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
             "Undo did not restore the cut selection baseline.");
-        Click("CutSelection"); Click("PasteSelection");
-        Require(workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
-            "Paste selection did not restore the copied pixels at their original position.");
-        Click("Undo"); Click("Undo");
+        Click("PasteSelection");
+        Require(!workspace.IsDirty && workspace.HasFloatingSelection &&
+            Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Paste selection did not create a non-destructive floating selection.");
+        Click("CancelFloatingSelection");
+        Require(!workspace.IsDirty && !workspace.HasFloatingSelection &&
+            Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Canceling a floating selection changed the document.");
+        Click("PasteSelection");
+        workspace.MoveSelection(20, 10);
+        Require(!workspace.IsDirty && workspace.HasFloatingSelection && workspace.SelectionBounds is { X: 50, Y: 40 },
+            "Moving a floating selection changed the document before commit.");
+        Click("CommitFloatingSelection");
+        Require(workspace.IsDirty && !Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
+            "Committing a moved floating selection did not create one pixel history step.");
+        Click("Undo");
         Require(!workspace.IsDirty && Bytes(workspace.Session.GetLayerRaster(layerId)).SequenceEqual(selectionBaseline),
-            "Undo did not remove the cut and paste selection history.");
+            "Undo did not remove the committed floating selection history.");
+        workspace.SelectRectangle(new Rect(30, 30, 120, 90));
+        canvas.SetSelectionRect(workspace.SelectionBounds);
+        canvas.SetSelectionOutline(workspace.SelectionOutline);
         Find<CheckBox>(window, "MoveSelection").IsChecked = true;
         window.MouseDown(DocumentPoint(new Point(80, 80)), MouseButton.Left);
         window.MouseMove(DocumentPoint(new Point(100, 90)));

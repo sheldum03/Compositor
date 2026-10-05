@@ -13,12 +13,19 @@ public sealed class EditorWorkspace
     private bool maskBrushReveal;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
+    private Guid? floatingLayerId;
+    private TileRaster? floatingRaster;
+    private GrayTileRaster? floatingMask;
+    private GrayTileRaster? floatingPreviousSelection;
+    private Rect? floatingPreviousBounds;
+    private SelectionOutline? floatingPreviousOutline;
     private SelectionMoveHistory? selectionMoveHistory;
     private bool selectionMoveUndone;
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null;
+    public bool HasFloatingSelection => floatingRaster is not null;
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
@@ -360,13 +367,46 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (clipboardRaster is not { } source || clipboardMask is not { } mask || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("没有可粘贴的选区。");
-        var next = ReplaceSelection(session.GetLayerRaster(layerId), source, mask);
-        if (!SamePixels(session.GetLayerRaster(layerId), next)) Edit(current => current.ReplaceLayerRaster(layerId, next));
+        floatingLayerId = layerId;
+        floatingRaster = ReplaceSelection(session.GetLayerRaster(layerId), source, mask);
+        floatingMask = mask;
+        floatingPreviousSelection = Selection;
+        floatingPreviousBounds = SelectionBounds;
+        floatingPreviousOutline = SelectionOutline;
+        Selection = mask;
+        SelectionBounds = SelectionBoundsFor(mask);
+        UpdateSelectionOutline();
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session, layerId, floatingRaster);
+    }
+
+    public void CommitFloatingSelection()
+    {
+        if (HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        if (floatingLayerId is not { } layerId || floatingRaster is not { } raster)
+            throw new InvalidOperationException("当前没有浮动选区。");
+        var session = RequireSession();
+        if (!SamePixels(session.GetLayerRaster(layerId), raster))
+            session.ReplaceLayerRaster(layerId, raster);
+        ClearFloatingSelection(restorePreviousSelection: false);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
+    public void CancelFloatingSelection()
+    {
+        if (HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        if (!HasFloatingSelection) throw new InvalidOperationException("当前没有浮动选区。");
+        ClearFloatingSelection(restorePreviousSelection: true);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
     public void MoveSelection(int offsetX, int offsetY)
     {
-        RequireIdle();
+        RequireIdle(allowFloating: true);
+        if (HasFloatingSelection)
+        {
+            MoveFloatingSelection(offsetX, offsetY);
+            return;
+        }
         var session = RequireSession();
         if (Selection is not { } selection || session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("请先建立选区。");
@@ -562,9 +602,10 @@ public sealed class EditorWorkspace
         UpdateSelectionOutline();
     }
 
-    private void RequireIdle()
+    private void RequireIdle(bool allowFloating = false)
     {
         if (HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        if (!allowFloating && HasFloatingSelection) throw new InvalidOperationException("请先提交或取消浮动选区。");
     }
 
     private ProjectSession RequireSession() => Session ?? throw new InvalidOperationException("请先打开或导入工程。");
@@ -606,6 +647,53 @@ public sealed class EditorWorkspace
     {
         clipboardRaster = null;
         clipboardMask = null;
+    }
+
+    private void ClearFloatingSelection(bool restorePreviousSelection)
+    {
+        if (restorePreviousSelection)
+        {
+            Selection = floatingPreviousSelection;
+            SelectionBounds = floatingPreviousBounds;
+            SelectionOutline = floatingPreviousOutline;
+        }
+        floatingLayerId = null;
+        floatingRaster = null;
+        floatingMask = null;
+        floatingPreviousSelection = null;
+        floatingPreviousBounds = null;
+        floatingPreviousOutline = null;
+    }
+
+    private void MoveFloatingSelection(int offsetX, int offsetY)
+    {
+        if (floatingRaster is not { } current || floatingMask is not { } mask || floatingLayerId is not { } layerId)
+            throw new InvalidOperationException("当前没有浮动选区。");
+        if (offsetX == 0 && offsetY == 0) return;
+        var session = RequireSession();
+        byte[] source = ToRgba(current), selected = ToCoverage(mask), moved = source.ToArray(), movedMask = new byte[selected.Length];
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+            if (selected[y * session.Width + x] != 0)
+                moved.AsSpan((y * session.Width + x) * 4, 4).Clear();
+        for (int y = 0; y < session.Height; y++)
+        for (int x = 0; x < session.Width; x++)
+            if (selected[y * session.Width + x] != 0)
+            {
+                int targetX = x + offsetX, targetY = y + offsetY;
+                if ((uint)targetX < (uint)session.Width && (uint)targetY < (uint)session.Height)
+                {
+                    source.AsSpan((y * session.Width + x) * 4, 4)
+                        .CopyTo(moved.AsSpan((targetY * session.Width + targetX) * 4, 4));
+                    movedMask[targetY * session.Width + targetX] = selected[y * session.Width + x];
+                }
+            }
+        floatingRaster = FromRgba(session.Width, session.Height, moved);
+        floatingMask = GrayTileRaster.FromCoverage(session.Width, session.Height, movedMask);
+        Selection = floatingMask;
+        SelectionBounds = floatingMask.CoveredPixels == 0 ? null : SelectionBoundsFor(floatingMask);
+        UpdateSelectionOutline();
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session, layerId, floatingRaster);
     }
 
     private static TileRaster ApplySelection(TileRaster source, GrayTileRaster selection, bool keepSelected)

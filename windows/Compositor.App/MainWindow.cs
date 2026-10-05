@@ -90,6 +90,8 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("CopyMergedSelection", "合并复制", CopyMergedSelectionAsync, document: true));
         toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
         toolbar.Children.Add(Command("PasteSelection", "粘贴选区", PasteSelectionAsync, document: true));
+        toolbar.Children.Add(Command("CommitFloatingSelection", "提交浮动选区", CommitFloatingSelectionAsync, document: true));
+        toolbar.Children.Add(Command("CancelFloatingSelection", "取消浮动选区", CancelFloatingSelectionAsync, document: true));
         toolbar.Children.Add(Command("LoadAlphaSelection", "从图层 Alpha 载入", LoadAlphaSelectionAsync, document: true));
         toolbar.Children.Add(Command("ClearSelection", "清除选区", ClearSelectionAsync, document: true));
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
@@ -365,11 +367,17 @@ public sealed class MainWindow : Window
         foreach (var button in documentButtons)
             button.IsEnabled = Workspace.Session is not null &&
                 (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
+        if (Workspace.HasFloatingSelection)
+            foreach (var button in documentButtons.Where(button => button.Name is not "CommitFloatingSelection" and not "CancelFloatingSelection"))
+                button.IsEnabled = false;
+        foreach (var button in documentButtons.Where(button => button.Name is "CommitFloatingSelection" or "CancelFloatingSelection"))
+            button.IsEnabled = Workspace.HasFloatingSelection;
+        layers.IsEnabled = !Workspace.HasFloatingSelection;
         pixelGrid.IsEnabled = Workspace.Session is not null;
-        rectangleSelect.IsEnabled = Workspace.CanEdit;
-        moveSelection.IsEnabled = Workspace.CanEdit && Workspace.HasSelection;
-        selectionShape.IsEnabled = Workspace.CanEdit;
-        selectionOperation.IsEnabled = Workspace.CanEdit;
+        rectangleSelect.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection;
+        moveSelection.IsEnabled = Workspace.CanEdit && (Workspace.HasSelection || Workspace.HasFloatingSelection);
+        selectionShape.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection;
+        selectionOperation.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection;
         UpdateSelection();
     }
 
@@ -390,7 +398,7 @@ public sealed class MainWindow : Window
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null;
         UpdatePaintMode();
-        foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null;
+        foreach (var button in layerButtons) button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
         if (Workspace.Session is { } session && selected is not null)
         {
             int index = session.Layers.ToList().FindIndex(layer => layer.Id == selected.Id);
@@ -412,7 +420,9 @@ public sealed class MainWindow : Window
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
-        canvas.PaintEnabled = editable && (paint.IsChecked == true || maskPaint.IsChecked == true);
+        canvas.PaintEnabled = editable && !Workspace.HasFloatingSelection && (paint.IsChecked == true || maskPaint.IsChecked == true);
+        canvas.SelectionEnabled = editable && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
+        canvas.SelectionMoveEnabled = editable && (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
     private Task AddLayerAsync() => EditAsync(session =>
     {
@@ -504,6 +514,8 @@ public sealed class MainWindow : Window
     private Task CutSelectionAsync() => Task.Run(Workspace.CutSelection);
 
     private Task PasteSelectionAsync() => Task.Run(Workspace.PasteSelection);
+    private Task CommitFloatingSelectionAsync() => Task.Run(Workspace.CommitFloatingSelection);
+    private Task CancelFloatingSelectionAsync() => Task.Run(Workspace.CancelFloatingSelection);
 
     private Task LoadAlphaSelectionAsync()
     {
