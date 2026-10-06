@@ -26,7 +26,7 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix passed on `12fabb4`: [run 37414986552](https://github.com/sheldum03/Compositor/actions/runs/37414986552) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, and the available-font text editor regressions; the Workflow case includes the persistent font library and UTF-16 hit-test contract checks.
+The Windows production core matrix passed on `f16ca02`: [run 37415418695](https://github.com/sheldum03/Compositor/actions/runs/37415418695) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, available-font text editor regressions, and the style controls; the Workflow case includes the persistent font library, UTF-16 hit-test contract, and style metadata history checks.
 
 ## Editor and font library slice
 
@@ -35,6 +35,7 @@ The Windows production core matrix passed on `12fabb4`: [run 37414986552](https:
 - `2c05bcd` adds a formal point-text creation path. It selects an available font, renders the initial full-canvas cache from v8 metadata, inserts a text layer with one history step, and exposes the layer in the existing editor panel. Headless checks cover creation, editing, save, reopen, and grouped-project button protection.
 - `0fb2fcd` adds a second formal entry for box text, with a bounded width and the same initial redraw, editing, history, and save/reopen path. Headless checks cover both creation buttons and grouped-project protection.
 - `12fabb4` adds a small Skia line-layout hit-test contract. It returns a stable UTF-16 content offset, line index, and inside/outside result for point and bounded box text; checks cover an English point layout plus Chinese, Emoji, combining-mark, and wrapped box content.
+- `f16ca02` exposes the existing v8 color, line-spacing, tracking, and box-width fields in the formal window. One Apply action redraws and commits the full style transaction; App and Workflow checks cover the visible controls, bounded width, and undo/redo metadata equality.
 - Local App/Workflow checks passed after these changes. The Windows production run above passed all five jobs, including the editor UI and font-library regressions.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
