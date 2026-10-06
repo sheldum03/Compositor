@@ -1308,6 +1308,77 @@ internal static class Program
                 reopenedGroupedStackCopy.Height / 2)[3] == 0,
             "Saved grouped clipping-stack Layer via Copy did not preserve the stack boundary, parent mask or raster.");
         groupedStackCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var nestedGroupedStackCopyWorkspace = new EditorWorkspace();
+        string nestedGroupedStackCopyPath = Path.Combine(output, "GroupedNestedClippingStackLayerViaCopy.comp");
+        nestedGroupedStackCopyWorkspace.Import(fixture, nestedGroupedStackCopyPath);
+        Guid nestedGroupedStackBaseId = nestedGroupedStackCopyWorkspace.Session!.ActiveLayerId!.Value;
+        Guid nestedGroupedStackFirstChildId = nestedGroupedStackCopyWorkspace.Session.AddBlankLayer("First clipped child", 1);
+        Guid nestedGroupedStackSecondChildId = nestedGroupedStackCopyWorkspace.Session.AddBlankLayer("Second clipped child", 2);
+        nestedGroupedStackCopyWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(nestedGroupedStackFirstChildId, 0.71);
+            session.SetLayerBlendMode(nestedGroupedStackFirstChildId, "Screen");
+            session.SetLayerMaskSource(nestedGroupedStackFirstChildId, nestedGroupedStackBaseId);
+            session.SetLayerOpacity(nestedGroupedStackSecondChildId, 0.63);
+            session.SetLayerBlendMode(nestedGroupedStackSecondChildId, "Multiply");
+            session.SetLayerMaskSource(nestedGroupedStackSecondChildId, nestedGroupedStackFirstChildId);
+        });
+        Guid nestedGroupedStackGroupId = nestedGroupedStackCopyWorkspace.Session.GroupLayers(
+            [nestedGroupedStackBaseId, nestedGroupedStackFirstChildId, nestedGroupedStackSecondChildId],
+            "Nested clipping parent");
+        nestedGroupedStackCopyWorkspace.Edit(session =>
+        {
+            session.EnsureLayerMask(nestedGroupedStackGroupId);
+            session.ReplaceLayerMask(nestedGroupedStackGroupId,
+                GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+            session.SetLayerMaskEnabled(nestedGroupedStackGroupId, true);
+        });
+        nestedGroupedStackCopyWorkspace.Save();
+        nestedGroupedStackCopyWorkspace.Session.SelectLayer(nestedGroupedStackSecondChildId);
+        nestedGroupedStackCopyWorkspace.SelectRectangle(new Rect(0, 0,
+            nestedGroupedStackCopyWorkspace.Session.Width / 2, nestedGroupedStackCopyWorkspace.Session.Height));
+        TileRaster nestedGroupedStackExpected = ImageProjectWorkflow.RenderLayerForCopy(
+            nestedGroupedStackCopyWorkspace.Session, nestedGroupedStackSecondChildId);
+        int nestedGroupedStackCopyCount = nestedGroupedStackCopyWorkspace.Session.Layers.Count;
+        int nestedGroupedStackSecondChildIndex = nestedGroupedStackCopyWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == nestedGroupedStackSecondChildId);
+        var nestedGroupedStackCopyWindow = new MainWindow(nestedGroupedStackCopyWorkspace);
+        nestedGroupedStackCopyWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(nestedGroupedStackCopyWindow, "Layers").SelectedItem =
+            nestedGroupedStackCopyWorkspace.Session.Layers.Single(layer => layer.Id == nestedGroupedStackSecondChildId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(nestedGroupedStackCopyWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A nested grouped clipping stack did not enable Layer via Copy.");
+        Click(nestedGroupedStackCopyWindow, "LayerViaCopy");
+        Guid nestedGroupedStackCopiedId = nestedGroupedStackCopyWorkspace.Session.ActiveLayerId!.Value;
+        FlatLayerInfo nestedGroupedStackCopied = nestedGroupedStackCopyWorkspace.Session.Layers
+            .Single(layer => layer.Id == nestedGroupedStackCopiedId);
+        int nestedGroupedStackCopiedIndex = nestedGroupedStackCopyWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == nestedGroupedStackCopiedId);
+        Require(nestedGroupedStackCopyWorkspace.Session.Layers.Count == nestedGroupedStackCopyCount + 1 &&
+            nestedGroupedStackCopied.ParentId == nestedGroupedStackGroupId &&
+            nestedGroupedStackCopiedIndex > nestedGroupedStackSecondChildIndex,
+            "Nested grouped clipping-stack Layer via Copy did not insert after the complete stack.");
+        TileRaster nestedGroupedStackCopiedRaster = nestedGroupedStackCopyWorkspace.Session
+            .GetLayerRaster(nestedGroupedStackCopiedId);
+        for (int y = 0; y < nestedGroupedStackCopiedRaster.Height; y++)
+        for (int x = 0; x < nestedGroupedStackCopiedRaster.Width; x++)
+        {
+            byte[] actual = PixelAt(nestedGroupedStackCopiedRaster, x, y);
+            if (x < nestedGroupedStackCopiedRaster.Width / 2)
+                Require(actual.SequenceEqual(PixelAt(nestedGroupedStackExpected, x, y)),
+                    "Nested grouped clipping-stack Layer via Copy changed selected pixels.");
+            else Require(actual.All(channel => channel == 0),
+                "Nested grouped clipping-stack Layer via Copy retained pixels outside the selection.");
+        }
+        nestedGroupedStackCopyWorkspace.Save();
+        var reopenedNestedGroupedStackCopy = ImageProjectWorkflow.OpenEditable(nestedGroupedStackCopyPath);
+        Require(reopenedNestedGroupedStackCopy.Layers.Single(layer => layer.Id == nestedGroupedStackFirstChildId).MaskSourceId == nestedGroupedStackBaseId &&
+            reopenedNestedGroupedStackCopy.Layers.Single(layer => layer.Id == nestedGroupedStackSecondChildId).MaskSourceId == nestedGroupedStackFirstChildId &&
+            CheckEqualNoThrow(nestedGroupedStackCopiedRaster,
+                reopenedNestedGroupedStackCopy.GetLayerRaster(nestedGroupedStackCopiedId)),
+            "Saved nested grouped clipping-stack copy did not preserve the chain or raster.");
+        nestedGroupedStackCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
         var transformedGroupedLeafWorkspace = new EditorWorkspace();
         string transformedGroupedLeafPath = Path.Combine(output, "TransformedGroupedLeafLayerViaCopy.comp");
         transformedGroupedLeafWorkspace.Import(fixture, transformedGroupedLeafPath);
@@ -1455,7 +1526,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

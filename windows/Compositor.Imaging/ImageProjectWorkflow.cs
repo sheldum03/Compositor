@@ -249,26 +249,31 @@ public static class ImageProjectWorkflow
         if (target.IsText)
             throw new NotSupportedException("Text layers require the text renderer for grouped layer copy.");
         FlatLayerInfo root = target;
-        if (target.MaskSourceId is { } sourceId)
+        var sourceChain = new HashSet<Guid>();
+        while (root.MaskSourceId is { } sourceId)
         {
+            if (!sourceChain.Add(root.Id))
+                throw new NotSupportedException("Clipping relationships contain a cycle.");
             FlatLayerInfo source = session.Layers.SingleOrDefault(layer => layer.Id == sourceId)
                 ?? throw new InvalidDataException("Clipping source is missing.");
-            if (source.ParentId != parentId || source.MaskSourceId is not null)
-                throw new NotSupportedException("Only a single-level clipping stack can be copied inside a group.");
+            if (source.ParentId != parentId)
+                throw new NotSupportedException("A grouped clipping stack must remain in one parent group.");
             root = source;
         }
         int rootIndex = session.Layers.ToList().FindIndex(layer => layer.Id == root.Id);
         if (rootIndex < 0) throw new ArgumentException("Layer does not belong to this project.", nameof(target));
         var stack = new List<FlatLayerInfo> { root };
+        var stackIds = new HashSet<Guid> { root.Id };
         int nextIndex = rootIndex + 1;
         while (nextIndex < session.Layers.Count)
         {
             FlatLayerInfo candidate = session.Layers[nextIndex];
-            if (candidate.ParentId != parentId || candidate.MaskSourceId != root.Id) break;
+            if (candidate.ParentId != parentId || candidate.MaskSourceId is not { } sourceId ||
+                !stackIds.Contains(sourceId)) break;
             stack.Add(candidate);
+            stackIds.Add(candidate.Id);
             nextIndex++;
         }
-        var stackIds = stack.Select(layer => layer.Id).ToHashSet();
         foreach (FlatLayerInfo layer in session.Layers)
             if (layer.ParentId == parentId && layer.MaskSourceId is { } source && stackIds.Contains(source) && !stackIds.Contains(layer.Id))
                 throw new NotSupportedException("A clipping stack must remain contiguous when copied.");
@@ -280,8 +285,13 @@ public static class ImageProjectWorkflow
                 throw new NotSupportedException("A transformed grouped layer must be copied with its group.");
             if (layer.HasMask && session.GetLayerMask(layer.Id) is null)
                 throw new InvalidDataException("Source layer mask asset is missing.");
-            if (layer.MaskSourceId is { } source && source != root.Id)
-                throw new NotSupportedException("Only a single-level clipping stack can be copied inside a group.");
+            if (layer.MaskSourceId is { } source)
+            {
+                int sourceIndex = session.Layers.ToList().FindIndex(candidate => candidate.Id == source);
+                int layerIndex = session.Layers.ToList().FindIndex(candidate => candidate.Id == layer.Id);
+                if (!stackIds.Contains(source) || sourceIndex < rootIndex || sourceIndex >= layerIndex)
+                    throw new NotSupportedException("A grouped clipping stack must reference an earlier layer in the same stack.");
+            }
         }
         Guid? currentId = parentId;
         while (currentId is { } groupId)

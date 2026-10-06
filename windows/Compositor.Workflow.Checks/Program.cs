@@ -170,6 +170,7 @@ CheckGroupStructureCreation(output, fixtures);
 CheckGroupedLayerViaCopy(output, fixtures);
 CheckGroupedLeafLayerViaCopy(output, fixtures);
 CheckGroupedClippingStackLayerViaCopy(output, fixtures);
+CheckGroupedNestedClippingStackLayerViaCopy(output, fixtures);
 CheckTransformedGroupedLeafLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
@@ -599,6 +600,53 @@ static void CheckGroupedClippingStackLayerViaCopy(string output, string fixtures
         throw new Exception("Saved grouped clipping-stack copy lost its parent or group mask.");
     AssertRaster(expected, reopened.GetLayerRaster(copiedId));
     Console.WriteLine("PASS: grouped clipping-stack visible-result copy preserves stack boundary, parent mask and save/reopen");
+}
+
+static void CheckGroupedNestedClippingStackLayerViaCopy(string output, string fixtures)
+{
+    string source = Path.Combine(output, "GroupedNestedClippingStackCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid baseId = session.Layers.Single().Id;
+    Guid firstChildId = session.AddBlankLayer("First clipped child", 1);
+    Guid secondChildId = session.AddBlankLayer("Second clipped child", 2);
+    session.SetLayerOpacity(firstChildId, 0.71);
+    session.SetLayerBlendMode(firstChildId, "Screen");
+    session.SetLayerMaskSource(firstChildId, baseId);
+    session.SetLayerOpacity(secondChildId, 0.63);
+    session.SetLayerBlendMode(secondChildId, "Multiply");
+    session.SetLayerMaskSource(secondChildId, firstChildId);
+    Guid groupId = session.GroupLayers([baseId, firstChildId, secondChildId], "Nested clipping parent");
+    session.EnsureLayerMask(groupId);
+    session.ReplaceLayerMask(groupId,
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+    session.SetLayerMaskEnabled(groupId, true);
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(session, baseId) ||
+        !ImageProjectWorkflow.CanRenderLayerForCopy(session, firstChildId) ||
+        !ImageProjectWorkflow.CanRenderLayerForCopy(session, secondChildId))
+        throw new Exception("A nested grouped clipping stack was not enabled for visible-result copy.");
+    TileRaster expected = ImageProjectWorkflow.RenderLayerForCopy(session, secondChildId);
+    int insertion = ImageProjectWorkflow.GetGroupedLayerCopyInsertionIndex(session, secondChildId);
+    int secondChildIndex = session.Layers.ToList().FindIndex(layer => layer.Id == secondChildId);
+    if (insertion <= secondChildIndex)
+        throw new Exception("Nested grouped clipping-stack copy insertion did not advance past the complete stack.");
+    Guid copiedId = session.AddRasterLayerToGroup("Layer via Copy", expected, insertion, groupId);
+    FlatLayerInfo copied = session.Layers.Single(layer => layer.Id == copiedId);
+    if (copied.ParentId != groupId || session.Layers.ToList().FindIndex(layer => layer.Id == copiedId) != insertion)
+        throw new Exception("Nested grouped clipping-stack copy did not insert after the complete stack.");
+    if (Pixel(ImageProjectWorkflow.RenderFlatNormal(session), session.Width - 1, session.Height / 2)[3] != 0)
+        throw new Exception("The enabled parent group mask did not clip the nested grouped clipping-stack copy.");
+    string saved = Path.Combine(output, "GroupedNestedClippingStackCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    FlatLayerInfo reopenedFirst = reopened.Layers.Single(layer => layer.Id == firstChildId);
+    FlatLayerInfo reopenedSecond = reopened.Layers.Single(layer => layer.Id == secondChildId);
+    FlatLayerInfo reopenedCopy = reopened.Layers.Single(layer => layer.Id == copiedId);
+    if (reopenedFirst.MaskSourceId != baseId || reopenedSecond.MaskSourceId != firstChildId ||
+        reopenedCopy.ParentId != groupId || !reopened.Layers.Single(layer => layer.Id == groupId).MaskEnabled)
+        throw new Exception("Saved nested grouped clipping stack lost its relationships or parent mask.");
+    AssertRaster(expected, reopened.GetLayerRaster(copiedId));
+    Console.WriteLine("PASS: nested grouped clipping-stack visible-result copy preserves chained relationships and save/reopen");
 }
 
 static void CheckTransformedGroupedLeafLayerViaCopy(string output, string fixtures)
