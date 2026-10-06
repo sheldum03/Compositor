@@ -1232,6 +1232,82 @@ internal static class Program
                 reopenedGroupedLeafCopy.Height / 2)[3] == 0,
             "Saved grouped Layer via Copy did not preserve the parent mask or raster.");
         groupedLeafCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var groupedStackCopyWorkspace = new EditorWorkspace();
+        string groupedStackCopyPath = Path.Combine(output, "GroupedClippingStackLayerViaCopy.comp");
+        groupedStackCopyWorkspace.Import(fixture, groupedStackCopyPath);
+        Guid groupedStackBaseId = groupedStackCopyWorkspace.Session!.ActiveLayerId!.Value;
+        Guid groupedStackChildId = groupedStackCopyWorkspace.Session.AddBlankLayer("Clipped child", 1);
+        TileRaster groupedStackChildRaster = groupedStackCopyWorkspace.Session.GetLayerRaster(groupedStackChildId);
+        var groupedStackChildSize = groupedStackChildRaster.TileDimensions(0, 0);
+        byte[] groupedStackChildTile = groupedStackChildRaster.ReadTileCopy(0, 0);
+        int groupedStackChildOffset = (12 * groupedStackChildSize.Width + 12) * 4;
+        groupedStackChildTile[groupedStackChildOffset] = 100;
+        groupedStackChildTile[groupedStackChildOffset + 1] = 20;
+        groupedStackChildTile[groupedStackChildOffset + 2] = 10;
+        groupedStackChildTile[groupedStackChildOffset + 3] = 170;
+        groupedStackCopyWorkspace.Edit(session =>
+        {
+            session.ReplaceLayerRaster(groupedStackChildId,
+                groupedStackChildRaster.ReplaceTile(0, 0, groupedStackChildTile));
+            session.SetLayerOpacity(groupedStackChildId, 0.71);
+            session.SetLayerBlendMode(groupedStackChildId, "Screen");
+            session.SetLayerMaskSource(groupedStackChildId, groupedStackBaseId);
+        });
+        Guid groupedStackGroupId = groupedStackCopyWorkspace.Session.GroupLayers(
+            [groupedStackBaseId, groupedStackChildId], "Clipping parent");
+        groupedStackCopyWorkspace.Edit(session =>
+        {
+            session.EnsureLayerMask(groupedStackGroupId);
+            session.ReplaceLayerMask(groupedStackGroupId,
+                GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+            session.SetLayerMaskEnabled(groupedStackGroupId, true);
+        });
+        groupedStackCopyWorkspace.Save();
+        groupedStackCopyWorkspace.Session.SelectLayer(groupedStackChildId);
+        groupedStackCopyWorkspace.SelectRectangle(new Rect(0, 0,
+            groupedStackCopyWorkspace.Session.Width / 2, groupedStackCopyWorkspace.Session.Height));
+        TileRaster groupedStackExpected = ImageProjectWorkflow.RenderLayerForCopy(
+            groupedStackCopyWorkspace.Session, groupedStackChildId);
+        int groupedStackCopyCount = groupedStackCopyWorkspace.Session.Layers.Count;
+        int groupedStackChildIndex = groupedStackCopyWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == groupedStackChildId);
+        var groupedStackCopyWindow = new MainWindow(groupedStackCopyWorkspace);
+        groupedStackCopyWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(groupedStackCopyWindow, "Layers").SelectedItem =
+            groupedStackCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupedStackChildId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(groupedStackCopyWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A grouped clipping stack with an enabled parent mask did not enable Layer via Copy.");
+        Click(groupedStackCopyWindow, "LayerViaCopy");
+        Guid groupedStackCopiedId = groupedStackCopyWorkspace.Session.ActiveLayerId!.Value;
+        FlatLayerInfo groupedStackCopied = groupedStackCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupedStackCopiedId);
+        int groupedStackCopiedIndex = groupedStackCopyWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == groupedStackCopiedId);
+        Require(groupedStackCopyWorkspace.Session.Layers.Count == groupedStackCopyCount + 1 &&
+            groupedStackCopied.ParentId == groupedStackGroupId && !groupedStackCopied.IsGroup &&
+            groupedStackCopiedIndex == groupedStackChildIndex + 1 &&
+            groupedStackCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupedStackGroupId).MaskEnabled,
+            "Grouped clipping-stack Layer via Copy did not insert after the stack under the masked parent.");
+        TileRaster groupedStackCopiedRaster = groupedStackCopyWorkspace.Session.GetLayerRaster(groupedStackCopiedId);
+        for (int y = 0; y < groupedStackCopiedRaster.Height; y++)
+        for (int x = 0; x < groupedStackCopiedRaster.Width; x++)
+        {
+            byte[] actual = PixelAt(groupedStackCopiedRaster, x, y);
+            if (x < groupedStackCopiedRaster.Width / 2)
+                Require(actual.SequenceEqual(PixelAt(groupedStackExpected, x, y)),
+                    "Grouped clipping-stack Layer via Copy changed pixels inside the selection.");
+            else Require(actual.All(channel => channel == 0),
+                "Grouped clipping-stack Layer via Copy retained pixels outside the selection.");
+        }
+        groupedStackCopyWorkspace.Save();
+        var reopenedGroupedStackCopy = ImageProjectWorkflow.OpenEditable(groupedStackCopyPath);
+        Require(reopenedGroupedStackCopy.Layers.Single(layer => layer.Id == groupedStackCopiedId).ParentId == groupedStackGroupId &&
+            reopenedGroupedStackCopy.Layers.Single(layer => layer.Id == groupedStackGroupId).MaskEnabled &&
+            CheckEqualNoThrow(groupedStackCopiedRaster, reopenedGroupedStackCopy.GetLayerRaster(groupedStackCopiedId)) &&
+            PixelAt(ImageProjectWorkflow.RenderFlatNormal(reopenedGroupedStackCopy), reopenedGroupedStackCopy.Width - 1,
+                reopenedGroupedStackCopy.Height / 2)[3] == 0,
+            "Saved grouped clipping-stack Layer via Copy did not preserve the stack boundary, parent mask or raster.");
+        groupedStackCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
         var groupMergeWindow = new MainWindow(groupMergeWorkspace);
         groupMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
         Control<ListBox>(groupMergeWindow, "Layers").SelectedItem =

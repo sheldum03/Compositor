@@ -161,7 +161,9 @@ public static class ImageProjectWorkflow
             if (target.IsGroup)
                 return RenderCachedCore(session, useLoadedAssets: true,
                     renderRoots: new HashSet<Guid> { layerId });
-            ValidateGroupedLeafCopy(session, target);
+            IReadOnlyList<FlatLayerInfo> groupedStack = ValidateGroupedLeafCopy(session, target);
+            if (groupedStack.Count > 1)
+                return RenderGroupedClippingStackForCopy(session, groupedStack);
         }
         if (target.IsGroup) throw new NotSupportedException("Layer copy only supports raster layers.");
 
@@ -216,18 +218,56 @@ public static class ImageProjectWorkflow
         }
     }
 
-    private static void ValidateGroupedLeafCopy(ProjectSession session, FlatLayerInfo target)
+    public static int GetGroupedLayerCopyInsertionIndex(ProjectSession session, Guid layerId)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        FlatLayerInfo target = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        IReadOnlyList<FlatLayerInfo> stack = ValidateGroupedLeafCopy(session, target);
+        return session.Layers.ToList().FindIndex(layer => layer.Id == stack[^1].Id) + 1;
+    }
+
+    private static IReadOnlyList<FlatLayerInfo> ValidateGroupedLeafCopy(ProjectSession session, FlatLayerInfo target)
     {
         if (target.ParentId is not { } parentId)
             throw new NotSupportedException("A grouped layer copy must stay inside its parent group.");
         if (target.IsText)
             throw new NotSupportedException("Text layers require the text renderer for grouped layer copy.");
-        if (!session.IsLayerTransformIdentity(target.Id))
-            throw new NotSupportedException("A transformed grouped layer must be copied with its group.");
-        if (target.MaskSourceId is not null || session.Layers.Any(layer => layer.MaskSourceId == target.Id))
-            throw new NotSupportedException("A clipping stack must be copied as a stack in this slice.");
-        if (target.HasMask && session.GetLayerMask(target.Id) is null)
-            throw new InvalidDataException("Source layer mask asset is missing.");
+        FlatLayerInfo root = target;
+        if (target.MaskSourceId is { } sourceId)
+        {
+            FlatLayerInfo source = session.Layers.SingleOrDefault(layer => layer.Id == sourceId)
+                ?? throw new InvalidDataException("Clipping source is missing.");
+            if (source.ParentId != parentId || source.MaskSourceId is not null)
+                throw new NotSupportedException("Only a single-level clipping stack can be copied inside a group.");
+            root = source;
+        }
+        int rootIndex = session.Layers.ToList().FindIndex(layer => layer.Id == root.Id);
+        if (rootIndex < 0) throw new ArgumentException("Layer does not belong to this project.", nameof(target));
+        var stack = new List<FlatLayerInfo> { root };
+        int nextIndex = rootIndex + 1;
+        while (nextIndex < session.Layers.Count)
+        {
+            FlatLayerInfo candidate = session.Layers[nextIndex];
+            if (candidate.ParentId != parentId || candidate.MaskSourceId != root.Id) break;
+            stack.Add(candidate);
+            nextIndex++;
+        }
+        var stackIds = stack.Select(layer => layer.Id).ToHashSet();
+        foreach (FlatLayerInfo layer in session.Layers)
+            if (layer.ParentId == parentId && layer.MaskSourceId is { } source && stackIds.Contains(source) && !stackIds.Contains(layer.Id))
+                throw new NotSupportedException("A clipping stack must remain contiguous when copied.");
+        foreach (FlatLayerInfo layer in stack)
+        {
+            if (layer.IsGroup || layer.IsText)
+                throw new NotSupportedException("Only raster clipping stacks can be copied inside a group.");
+            if (!session.IsLayerTransformIdentity(layer.Id))
+                throw new NotSupportedException("A transformed grouped layer must be copied with its group.");
+            if (layer.HasMask && session.GetLayerMask(layer.Id) is null)
+                throw new InvalidDataException("Source layer mask asset is missing.");
+            if (layer.MaskSourceId is { } source && source != root.Id)
+                throw new NotSupportedException("Only a single-level clipping stack can be copied inside a group.");
+        }
         Guid? currentId = parentId;
         while (currentId is { } groupId)
         {
@@ -240,6 +280,46 @@ public static class ImageProjectWorkflow
             if (group.HasMask && group.MaskEnabled && session.GetLayerMask(group.Id) is null)
                 throw new InvalidDataException("Group mask asset is missing.");
             currentId = group.ParentId;
+        }
+        return stack;
+    }
+
+    private static TileRaster RenderGroupedClippingStackForCopy(ProjectSession session,
+        IReadOnlyList<FlatLayerInfo> stack)
+    {
+        int width = session.Width, height = session.Height;
+        var resolving = new HashSet<Guid>();
+        TileRaster ResolveLeaf(Guid id)
+        {
+            if (!resolving.Add(id)) throw new NotSupportedException("Clipping relationships contain a cycle.");
+            FlatLayerInfo layer = session.Layers.Single(item => item.Id == id);
+            TileRaster raster = session.GetLayerRaster(id);
+            if (layer.HasMask && layer.MaskEnabled)
+                raster = RasterCompositor.ApplyMask(raster,
+                    session.GetLayerMask(id) ?? throw new InvalidDataException("Layer mask asset is missing."));
+            resolving.Remove(id);
+            return raster;
+        }
+
+        FlatLayerInfo baseLayer = stack[0];
+        TileRaster basePixels = ResolveLeaf(baseLayer.Id);
+        double baseOpacity = baseLayer.Opacity;
+        string baseMode = baseLayer.BlendMode;
+        ValidateAppearance(baseOpacity, baseMode);
+        TileRaster alpha = LayerCompositor.Composite(new TileRaster(width, height), basePixels, baseOpacity, baseMode);
+        TileRaster result = UnpremultiplyOpaque(alpha);
+        foreach (FlatLayerInfo child in stack.Skip(1))
+        {
+            ValidateAppearance(child.Opacity, child.BlendMode);
+            result = LayerCompositor.Composite(result, ResolveLeaf(child.Id), child.Opacity, child.BlendMode);
+        }
+        return RestoreAlpha(result, alpha);
+
+        static void ValidateAppearance(double opacity, string mode)
+        {
+            if (!double.IsFinite(opacity) || opacity is < 0 or > 1 ||
+                !ProjectSession.SupportedBlendModes.Contains(mode))
+                throw new NotSupportedException("Grouped clipping appearance is not supported.");
         }
     }
 

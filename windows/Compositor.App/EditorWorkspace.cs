@@ -650,6 +650,7 @@ public sealed class EditorWorkspace
         {
             Guid parentId = sourceLayer.ParentId
                 ?? throw new NotSupportedException("组内图层复制需要一个父组。");
+            destinationIndex = ImageProjectWorkflow.GetGroupedLayerCopyInsertionIndex(session, sourceId);
             Edit(current => current.AddRasterLayerToGroup("Layer via Copy", copied, destinationIndex, parentId));
             ClearSelectionWithoutHistory();
             ResetSelectionHistory();

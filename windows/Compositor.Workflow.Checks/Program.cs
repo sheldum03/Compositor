@@ -169,6 +169,7 @@ CheckCachedGroupTransform(output, fixtures);
 CheckGroupStructureCreation(output, fixtures);
 CheckGroupedLayerViaCopy(output, fixtures);
 CheckGroupedLeafLayerViaCopy(output, fixtures);
+CheckGroupedClippingStackLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
@@ -553,6 +554,50 @@ static void CheckGroupedLeafLayerViaCopy(string output, string fixtures)
     if (Pixel(ImageProjectWorkflow.RenderFlatNormal(reopened), reopened.Width - 1, reopened.Height / 2)[3] != 0)
         throw new Exception("Saved grouped Layer via Copy did not retain the enabled parent mask.");
     Console.WriteLine("PASS: grouped raster Layer via Copy preserves parent insertion, enabled group mask clipping and save/reopen");
+}
+
+static void CheckGroupedClippingStackLayerViaCopy(string output, string fixtures)
+{
+    string source = Path.Combine(output, "GroupedClippingStackCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid baseId = session.Layers.Single().Id;
+    Guid childId = session.AddBlankLayer("Clipped child", 1);
+    TileRaster childRaster = session.GetLayerRaster(childId);
+    var size = childRaster.TileDimensions(0, 0);
+    byte[] tile = childRaster.ReadTileCopy(0, 0);
+    int offset = (12 * size.Width + 12) * 4;
+    tile[offset] = 100; tile[offset + 1] = 20; tile[offset + 2] = 10; tile[offset + 3] = 170;
+    session.ReplaceLayerRaster(childId, childRaster.ReplaceTile(0, 0, tile));
+    session.SetLayerOpacity(childId, 0.71);
+    session.SetLayerBlendMode(childId, "Screen");
+    session.SetLayerMaskSource(childId, baseId);
+    Guid groupId = session.GroupLayers([baseId, childId], "Clipping parent");
+    session.EnsureLayerMask(groupId);
+    session.ReplaceLayerMask(groupId,
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+    session.SetLayerMaskEnabled(groupId, true);
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(session, baseId) ||
+        !ImageProjectWorkflow.CanRenderLayerForCopy(session, childId))
+        throw new Exception("A complete grouped clipping stack was not enabled for visible-result copy.");
+    TileRaster expected = ImageProjectWorkflow.RenderLayerForCopy(session, childId);
+    int insertion = ImageProjectWorkflow.GetGroupedLayerCopyInsertionIndex(session, childId);
+    if (insertion <= session.Layers.ToList().FindIndex(layer => layer.Id == childId))
+        throw new Exception("Grouped clipping stack copy insertion did not advance past the stack.");
+    Guid copiedId = session.AddRasterLayerToGroup("Layer via Copy", expected, insertion, groupId);
+    FlatLayerInfo copied = session.Layers.Single(layer => layer.Id == copiedId);
+    if (copied.ParentId != groupId || session.Layers.ToList().FindIndex(layer => layer.Id == copiedId) != insertion)
+        throw new Exception("Grouped clipping stack copy did not insert after the original stack.");
+    if (Pixel(ImageProjectWorkflow.RenderFlatNormal(session), session.Width - 1, session.Height / 2)[3] != 0)
+        throw new Exception("The enabled parent group mask did not clip the grouped clipping-stack copy.");
+    string saved = Path.Combine(output, "GroupedClippingStackCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    FlatLayerInfo reopenedCopy = reopened.Layers.Single(layer => layer.Id == copiedId);
+    if (reopenedCopy.ParentId != groupId || !reopened.Layers.Single(layer => layer.Id == groupId).MaskEnabled)
+        throw new Exception("Saved grouped clipping-stack copy lost its parent or group mask.");
+    AssertRaster(expected, reopened.GetLayerRaster(copiedId));
+    Console.WriteLine("PASS: grouped clipping-stack visible-result copy preserves stack boundary, parent mask and save/reopen");
 }
 
 static void CheckEditableLayerTransform(string output, string fixtures)
