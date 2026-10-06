@@ -16,35 +16,34 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 
 1. `extended/F12-missing-font.comp`: metadata is present, the missing font is reported, the rendered text raster is byte-identical to the cache, and rendering does not modify the source manifest.
 2. A generated full-canvas v8 text project using the first installed font family: the available-font path redraws visible pixels rather than returning the transparent cache, the normal preview uses that redraw, and save/reopen keeps the text metadata.
-3. `ea1b035` makes the formal `EditorWorkspace` read-only when any text layer font is unavailable; cached preview and export remain available, while Save/Save As are rejected. This closes the regression found by Windows App Checks on `e42ea0d`.
+3. `e80ede0` makes rendering, hit testing, caret stops, and selection rectangles consume one `TextLayoutSnapshot`; checks cover wrapped box text, CRLF offsets, combining marks, and end-of-content caret placement.
+4. The formal Avalonia window routes a left click on an editable text layer through the same transform-aware hit test and places the sidebar `TextBox` caret at the returned UTF-16 boundary. The canvas then draws the caret from that same layout result; changing the sidebar selection produces transformed canvas selection polygons. The App Headless check clicks the end of a rotated/flipped text layer and verifies the sidebar caret plus both overlays.
+5. A missing-font cache project exposes an explicit font choice and keeps the content editor disabled. Selecting an installed font reloads the editable layer assets, redraws the text, and unlocks the editor; no fallback font is selected silently. Undo restores the missing-font read-only state and redo restores the explicit replacement.
 
 Command on the development host:
 
 ```text
-dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-text-m4-1791259065
+dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-text-m4-20261006-1
 ```
 
 Exit code: `0`.
 
-The Windows production core matrix passed on `6ca6c58`: [run 37415706317](https://github.com/sheldum03/Compositor/actions/runs/37415706317) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, available-font text editor regressions, and the style controls; the Workflow case includes the persistent font library, UTF-16 hit-test contract, transform-aware hit tests, and style metadata history checks.
+The Windows production core matrix passed on `5c98329`: [run 37419132736](https://github.com/sheldum03/Compositor/actions/runs/37419132736) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and style metadata history checks. The App case includes point/box creation, the formal text editor regressions, and the explicit missing-font resolver.
 
-## Editor and font library slice
+The local App Headless check was rerun after the canvas integration:
 
-- `819727d` adds a bounded editable-font transaction: content, font family, size, and alignment are validated, redrawn from v8 metadata, committed as one history step, and retained across undo/redo, save, and reopen. The formal Avalonia window exposes the controls only for editable text layers.
-- `b88c8a4` adds a persistent `FontLibrary` under the user's local application data. It records hash-addressed `.otf`/`.ttf`/`.ttc` bytes in `fonts.json`, deduplicates repeated imports, restores registered faces on process start, supports explicit TTC face indexes, and exposes a formal-window import entry.
-- `2c05bcd` adds a formal point-text creation path. It selects an available font, renders the initial full-canvas cache from v8 metadata, inserts a text layer with one history step, and exposes the layer in the existing editor panel. Headless checks cover creation, editing, save, reopen, and grouped-project button protection.
-- `0fb2fcd` adds a second formal entry for box text, with a bounded width and the same initial redraw, editing, history, and save/reopen path. Headless checks cover both creation buttons and grouped-project protection.
-- `12fabb4` adds a small Skia line-layout hit-test contract. It returns a stable UTF-16 content offset, line index, and inside/outside result for point and bounded box text; checks cover an English point layout plus Chinese, Emoji, combining-mark, and wrapped box content.
-- `f16ca02` exposes the existing v8 color, line-spacing, tracking, and box-width fields in the formal window. One Apply action redraws and commits the full style transaction; App and Workflow checks cover the visible controls, bounded width, and undo/redo metadata equality.
-- `6ca6c58` adds a transform-aware hit-test overload. It maps document coordinates through layer origin, scale, rotation, and horizontal/vertical flips before using the same local layout; fixed checks cover a mirrored point and a 90° rotated point.
-- Local App/Workflow checks passed after these changes. The Windows production run above passed all five jobs, including the editor UI and font-library regressions.
+```text
+dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-font-undo-20261006-1
+```
+
+It passed the production soft-brush/pointer workflow, dialog/window workflow, text caret/selection overlay check, explicit missing-font resolver check, and resolver undo/redo read-only-state check. The Workflow Checks Release build and run also passed all existing checks.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 
 ## Deliberately not covered
 
-- No Windows GUI text editor, IME, caret selection, or candidate-window validation. The new hit-test contract is an engine check, not a real Windows input result.
+- No Windows IME, candidate-window validation, or native Windows input result. The current window slice covers the Avalonia canvas caret/selection overlay and sidebar `TextBox` routing in Headless checks; it does not prove Windows text services, DPI behavior, or production-machine input.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- No complete point/box text tool for cached projects, IME, full reflow, conflict-font visual resolver, damaged-font recovery policy, or complex v8 semantic writeback.
+- No damaged-font recovery or user-selected font persistence beyond the explicit in-session replacement path.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.
