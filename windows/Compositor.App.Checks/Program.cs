@@ -733,6 +733,35 @@ internal static class Program
         crossLayerUiTarget.Save();
         crossLayerWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        var crossGroupUiSource = new EditorWorkspace();
+        crossGroupUiSource.Import(fixture, Path.Combine(output, "CrossGroupUiSource.comp"));
+        Guid crossGroupUiChildId = crossGroupUiSource.Session!.Layers[0].Id;
+        Guid crossGroupUiSecondChildId = crossGroupUiSource.Session.AddBlankLayer("UI grouped second", 1);
+        Guid crossGroupUiId = crossGroupUiSource.Session.GroupLayers([crossGroupUiChildId, crossGroupUiSecondChildId], "UI copied group");
+        var crossGroupUiTarget = new EditorWorkspace();
+        crossGroupUiTarget.Import(fixture, Path.Combine(output, "CrossGroupUiTarget.comp"));
+        var crossGroupWindow = new MainWindow(crossGroupUiSource);
+        crossGroupWindow.Show(); Dispatcher.UIThread.RunJobs();
+        crossGroupWindow.AddProjectTab(crossGroupUiTarget);
+        crossGroupWindow.ActivateProjectTab(0);
+        var crossGroupList = Control<ListBox>(crossGroupWindow, "Layers");
+        crossGroupList.ScrollIntoView(0);
+        Dispatcher.UIThread.RunJobs();
+        var crossGroupItem = crossGroupList.GetVisualDescendants().OfType<ListBoxItem>()
+            .Single(item => (item.DataContext as FlatLayerInfo)?.Id == crossGroupUiId);
+        Point crossGroupStart = crossGroupItem.TranslatePoint(new Point(20, crossGroupItem.Bounds.Height / 2), crossGroupWindow)!.Value;
+        Button crossGroupTab = Control<Button>(crossGroupWindow, "ProjectTab1");
+        Point crossGroupEnd = crossGroupTab.TranslatePoint(new Point(crossGroupTab.Bounds.Width / 2, crossGroupTab.Bounds.Height / 2), crossGroupWindow)!.Value;
+        crossGroupWindow.MouseDown(crossGroupStart, MouseButton.Left);
+        crossGroupWindow.MouseMove(crossGroupEnd);
+        crossGroupWindow.MouseUp(crossGroupEnd, MouseButton.Left);
+        Pump(crossGroupWindow);
+        Require(crossGroupWindow.ActiveProjectIndex == 1 &&
+            crossGroupUiTarget.Session!.Layers.Count == 4 &&
+            crossGroupUiTarget.Session.Layers.Count(layer => layer.IsGroup) == 1,
+            "Dragging a group onto another project tab did not copy its subtree.");
+        crossGroupWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string clipboardProjectPath = Path.Combine(output, "ClipboardImage.comp");
         var clipboardWorkspace = new EditorWorkspace();
         clipboardWorkspace.Import(fixture, clipboardProjectPath);
