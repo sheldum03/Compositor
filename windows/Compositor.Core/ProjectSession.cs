@@ -1388,9 +1388,9 @@ public sealed class ProjectSession
         FlatLayerInfo sourceLayer = source.Layers[sourceIndex];
         if (source.HasGroups)
         {
-            if (!sourceLayer.IsGroup)
-                throw new NotSupportedException("Raster layers inside a grouped project must be copied with their group.");
-            return ValidateGroupCopy(source, sourceLayerId, sourceIndex);
+            return sourceLayer.IsGroup
+                ? ValidateGroupCopy(source, sourceLayerId, sourceIndex)
+                : ValidateGroupedLeafCopy(source, sourceLayer);
         }
         var stackIds = new HashSet<Guid> { sourceLayerId };
         bool changed;
@@ -1416,6 +1416,27 @@ public sealed class ProjectSession
                 throw new InvalidDataException("Source layer mask asset is missing.");
         }
         return sourceIndexes;
+    }
+
+    private static int[] ValidateGroupedLeafCopy(ProjectSession source, FlatLayerInfo sourceLayer)
+    {
+        if (sourceLayer.MaskSourceId is not null)
+            throw new NotSupportedException("A clipped layer inside a group must be copied with its clipping source.");
+        if (sourceLayer.HasMask && source.GetLayerMask(sourceLayer.Id) is null)
+            throw new InvalidDataException("Source layer mask asset is missing.");
+        Guid? parentId = sourceLayer.ParentId;
+        while (parentId is { } current)
+        {
+            FlatLayerInfo parent = source.Layers.Single(layer => layer.Id == current);
+            if (!parent.IsGroup)
+                throw new InvalidDataException("Grouped layer parent is not a group.");
+            if (!source.IsGroupTransformIdentity(parent.Id))
+                throw new NotSupportedException("A layer inside a transformed group must be copied with its group.");
+            if (parent.HasMask && parent.MaskEnabled)
+                throw new NotSupportedException("A layer inside an enabled group mask must be copied with its group.");
+            parentId = parent.ParentId;
+        }
+        return [source.FindLayer(sourceLayer.Id)];
     }
 
     private static int[] ValidateGroupCopy(ProjectSession source, Guid groupId, int groupIndex)
@@ -1460,6 +1481,8 @@ public sealed class ProjectSession
         var idMap = sourceIndexes.ToDictionary(
             index => Guid.Parse((sourceLayers[index]!.AsObject())["id"]!.GetValue<string>()),
             _ => Guid.NewGuid());
+        bool groupedLeaf = source.HasGroups && sourceIndexes.Count == 1 &&
+            source.Layers[sourceIndexes[0]].IsGroup is false;
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
         var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!);
@@ -1481,9 +1504,16 @@ public sealed class ProjectSession
                 Guid sourceParentId = Guid.Parse(parentNode.GetValue<string>());
                 if (!idMap.TryGetValue(sourceParentId, out Guid targetParentId))
                 {
-                    if (sourceId != sourceRootId)
+                    if (groupedLeaf)
+                    {
+                        if (destinationParentId is { } groupedLeafParent)
+                            layer["parentID"] = groupedLeafParent.ToString("D");
+                        else
+                            layer.Remove("parentID");
+                    }
+                    else if (sourceId != sourceRootId)
                         throw new InvalidDataException("Copied group relationship points outside the copied subtree.");
-                    if (destinationParentId is { } rootParentId)
+                    else if (destinationParentId is { } rootParentId)
                         layer["parentID"] = rootParentId.ToString("D");
                     else
                         layer.Remove("parentID");

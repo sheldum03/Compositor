@@ -690,11 +690,32 @@ internal static class Program
         Require(crossGroupTarget.Session.Layers.Count == groupedTargetBeforeFlatCopy + 1 &&
             copiedIntoGroup.Name == crossLayerSource.Session.Layers.Single(layer => layer.Id == crossLayerSourceId).Name,
             "A grouped target did not insert a copied layer as a group sibling.");
+        crossGroupSource.Edit(session => session.SetGroupTransform(
+            crossGroupId, 0, 0, session.Width, session.Height, 0));
+        TileRaster groupedLeafRaster = crossGroupSource.Session.GetLayerRaster(crossGroupChildId);
+        crossGroupTarget.Session.SelectLayer(copiedGroupChildren[0].Id);
+        int groupedLeafTargetCount = crossGroupTarget.Session.Layers.Count;
+        Require(crossGroupSource.CanCopyLayerTo(crossGroupTarget, crossGroupChildId),
+            "A raster layer inside an identity group did not enable cross-project copy.");
+        crossGroupSource.CopyLayerTo(crossGroupTarget, crossGroupChildId);
+        FlatLayerInfo copiedGroupedLeaf = crossGroupTarget.Session.Layers.Last();
+        Require(copiedGroupedLeaf.ParentId == copiedGroup.Id && !copiedGroupedLeaf.IsGroup &&
+            copiedGroupedLeaf.Name == crossGroupSource.Session.Layers.Single(layer => layer.Id == crossGroupChildId).Name &&
+            crossGroupTarget.Session.GetLayerTransform(copiedGroupedLeaf.Id) ==
+                crossGroupSource.Session.GetLayerTransform(crossGroupChildId) &&
+            CheckEqualNoThrow(groupedLeafRaster, crossGroupTarget.Session.GetLayerRaster(copiedGroupedLeaf.Id)) &&
+            crossGroupTarget.Session.Layers.Count == groupedLeafTargetCount + 1,
+            "Cross-project copy of a raster inside an identity group did not preserve its parent, metadata or pixels.");
         crossGroupTarget.Save();
         var reopenedGroupedTarget = ImageProjectWorkflow.OpenEditable(crossGroupTargetPath);
-        Require(reopenedGroupedTarget.Layers.Count == groupedTargetBeforeFlatCopy + 1 &&
+        Require(reopenedGroupedTarget.Layers.Count == groupedTargetBeforeFlatCopy + 2 &&
             reopenedGroupedTarget.Layers.Any(layer => layer.ParentId == reopenedGroup.Id && layer.Name == copiedIntoGroup.Name),
             "Saved grouped-target layer copy did not reopen inside the target group.");
+        Require(reopenedGroupedTarget.Layers.Count == groupedLeafTargetCount + 1 &&
+            reopenedGroupedTarget.Layers.Any(layer => layer.ParentId == reopenedGroup.Id &&
+                layer.Name == copiedGroupedLeaf.Name &&
+                CheckEqualNoThrow(groupedLeafRaster, reopenedGroupedTarget.GetLayerRaster(layer.Id))),
+            "Saved grouped-leaf copy did not reopen inside the target group with its pixels.");
         var clippedCrossLayerSource = new EditorWorkspace();
         clippedCrossLayerSource.Import(fixture, Path.Combine(output, "ClippedCrossLayerSource.comp"));
         Guid clippedSourceId = clippedCrossLayerSource.Session!.Layers[0].Id;

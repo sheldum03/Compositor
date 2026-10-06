@@ -162,7 +162,7 @@ public sealed class EditorWorkspace
         var sourceSession = RequireSession();
         var targetSession = target.RequireSession();
         if (!CanCopyLayerTo(target, layerId))
-            throw new NotSupportedException("跨工程图层拖放目前只支持相同画布尺寸的可编辑 v8 工程；组只能整体复制，复杂关系仍需先单独处理。");
+            throw new NotSupportedException("跨工程图层拖放目前只支持相同画布尺寸的可编辑 v8 工程；复杂组、变换和剪贴关系仍需整体复制或先烘焙。");
         (int destinationIndex, Guid? destinationParentId) = CopyDestination(targetSession);
         target.Edit(current => current.CopyLayerFrom(sourceSession, layerId, destinationIndex, destinationParentId));
     }
