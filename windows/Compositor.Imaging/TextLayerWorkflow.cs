@@ -11,6 +11,74 @@ public sealed record TextLayerRenderResult(TextLayerStatus Status, TileRaster Ra
 
 public sealed record TextHitTestResult(int CharacterIndex, int LineIndex, bool IsInside);
 
+public sealed record TextCaretStop(int CharacterIndex, float X);
+
+public sealed record TextLayoutLine(int StartIndex, int EndIndex, string Text, float X, float Y,
+    float Baseline, float Width, float Height, IReadOnlyList<TextCaretStop> CaretStops);
+
+public sealed record TextCaretPosition(int CharacterIndex, int LineIndex, float X, float Y, float Height);
+
+public sealed record TextSelectionRectangle(int LineIndex, float X, float Y, float Width, float Height);
+
+public sealed class TextLayoutSnapshot
+{
+    public TextLayoutSnapshot(IReadOnlyList<TextLayoutLine> lines, int contentLength, float lineHeight)
+    {
+        Lines = lines;
+        ContentLength = contentLength;
+        LineHeight = lineHeight;
+    }
+
+    public IReadOnlyList<TextLayoutLine> Lines { get; }
+    public int ContentLength { get; }
+    public float LineHeight { get; }
+
+    public TextCaretPosition Caret(int characterIndex)
+    {
+        int target = Math.Clamp(characterIndex, 0, ContentLength);
+        TextLayoutLine line = Lines.FirstOrDefault(candidate => target <= candidate.EndIndex) ?? Lines[^1];
+        TextCaretStop stop = CaretStop(line, target);
+        int lineIndex = 0;
+        while (!ReferenceEquals(Lines[lineIndex], line)) lineIndex++;
+        return new TextCaretPosition(stop.CharacterIndex, lineIndex, stop.X, line.Y, line.Height);
+    }
+
+    public IReadOnlyList<TextSelectionRectangle> Selection(int anchorIndex, int activeIndex)
+    {
+        int start = Math.Clamp(Math.Min(anchorIndex, activeIndex), 0, ContentLength);
+        int end = Math.Clamp(Math.Max(anchorIndex, activeIndex), 0, ContentLength);
+        if (start == end) return Array.Empty<TextSelectionRectangle>();
+        var rectangles = new List<TextSelectionRectangle>();
+        for (int lineIndex = 0; lineIndex < Lines.Count; lineIndex++)
+        {
+            TextLayoutLine line = Lines[lineIndex];
+            int lineStart = Math.Max(start, line.StartIndex);
+            int lineEnd = Math.Min(end, line.EndIndex);
+            if (lineEnd <= lineStart) continue;
+            float left = CaretStop(line, lineStart).X;
+            float right = CaretStop(line, lineEnd).X;
+            rectangles.Add(new TextSelectionRectangle(lineIndex, Math.Min(left, right), line.Y,
+                Math.Abs(right - left), line.Height));
+        }
+        return rectangles;
+    }
+
+    public TextHitTestResult HitTest(float x, float y)
+    {
+        if (!float.IsFinite(x) || !float.IsFinite(y)) throw new ArgumentOutOfRangeException(nameof(x));
+        int lineIndex = Math.Clamp((int)MathF.Floor(Math.Max(0, y) / LineHeight), 0, Lines.Count - 1);
+        TextLayoutLine line = Lines[lineIndex];
+        TextCaretStop stop = line.CaretStops.Count == 1
+            ? line.CaretStops[0]
+            : line.CaretStops.OrderBy(candidate => Math.Abs(candidate.X - x)).First();
+        bool inside = y >= 0 && y < Lines.Count * LineHeight && x >= line.X && x <= line.X + line.Width;
+        return new TextHitTestResult(stop.CharacterIndex, lineIndex, inside);
+    }
+
+    private static TextCaretStop CaretStop(TextLayoutLine line, int characterIndex) =>
+        line.CaretStops.MinBy(candidate => Math.Abs(candidate.CharacterIndex - characterIndex))!;
+}
+
 public static class TextLayerWorkflow
 {
     private static readonly object FontGate = new();
@@ -62,7 +130,7 @@ public static class TextLayerWorkflow
 
     public static TextHitTestResult HitTest(TextLayerMetadata metadata, double resolution, float x, float y)
     {
-        return HitTestLocal(metadata, resolution, x, y);
+        return Layout(metadata, resolution).HitTest(x, y);
     }
 
     public static TextHitTestResult HitTest(TextLayerMetadata metadata, LayerTransformInfo transform,
@@ -86,16 +154,16 @@ public static class TextLayerWorkflow
         localY += transform.Height / 2;
         float sourceX = (float)(localX * rasterWidth / transform.Width);
         float sourceY = (float)(localY * rasterHeight / transform.Height);
-        return HitTestLocal(metadata, resolution, sourceX, sourceY);
+        return Layout(metadata, resolution, rasterWidth).HitTest(sourceX, sourceY);
     }
 
-    private static TextHitTestResult HitTestLocal(TextLayerMetadata metadata, double resolution, float x, float y)
+    public static TextLayoutSnapshot Layout(TextLayerMetadata metadata, double resolution, int? rasterWidth = null)
     {
         ArgumentNullException.ThrowIfNull(metadata);
-        if (!float.IsFinite(x) || !float.IsFinite(y)) throw new ArgumentOutOfRangeException(nameof(x));
         SKTypeface typeface = FindTypeface(metadata.FontPostScriptName)
-            ?? throw new NotSupportedException("The original text font became unavailable while hit testing.");
+            ?? throw new NotSupportedException("The original text font became unavailable while laying out text.");
         if (!double.IsFinite(resolution) || resolution <= 0) throw new InvalidDataException("Invalid document resolution.");
+        if (rasterWidth is < 1) throw new ArgumentOutOfRangeException(nameof(rasterWidth));
         float scale = (float)(resolution / 72);
         using var paint = new SKPaint
         {
@@ -108,36 +176,44 @@ public static class TextLayerWorkflow
         float tracking = (float)(metadata.TrackingPoints * scale);
         float lineSpacing = (float)(metadata.LineSpacingPoints * scale);
         float lineHeight = Math.Max(1, paint.FontMetrics.Descent - paint.FontMetrics.Ascent + lineSpacing);
-        float layoutWidth = metadata.Layout == "box" ? (float)metadata.BoxWidth!.Value : float.PositiveInfinity;
-        string[] lines = LayoutLines(metadata.Content, paint, tracking, layoutWidth);
-        int lineIndex = Math.Clamp((int)MathF.Floor(Math.Max(0, y) / lineHeight), 0, lines.Length - 1);
-        string line = lines[lineIndex];
-        float lineWidth = Measure(line, paint, tracking);
-        float start = metadata.Alignment switch
+        float layoutWidth = metadata.Layout == "box"
+            ? (float)metadata.BoxWidth!.Value
+            : rasterWidth is { } width ? width : float.PositiveInfinity;
+        string normalizedContent = NormalizeNewLines(metadata.Content, out int[] originalOffsets);
+        string[] lines = LayoutLines(normalizedContent, paint, tracking, layoutWidth);
+        var result = new List<TextLayoutLine>(lines.Length);
+        int normalizedCursor = 0;
+        float baselineOffset = -paint.FontMetrics.Ascent;
+        foreach (string line in lines)
         {
-            "center" when float.IsFinite(layoutWidth) => (layoutWidth - lineWidth) / 2,
-            "right" when float.IsFinite(layoutWidth) => layoutWidth - lineWidth,
-            _ => 0
-        };
-        float localX = x - start;
-        int localIndex = 0;
-        float cursor = 0;
-        foreach (string element in Elements(line))
-        {
-            float advance = paint.MeasureText(element) + tracking;
-            if (localX < cursor + advance / 2) break;
-            cursor += advance;
-            localIndex += element.Length;
+            int startOffset = normalizedCursor;
+            int endOffset = normalizedCursor + line.Length;
+            float lineWidth = Measure(line, paint, tracking);
+            float start = metadata.Alignment switch
+            {
+                "center" when float.IsFinite(layoutWidth) => (layoutWidth - lineWidth) / 2,
+                "right" when float.IsFinite(layoutWidth) => layoutWidth - lineWidth,
+                _ => 0
+            };
+            var stops = new List<TextCaretStop> { new(OriginalBoundary(originalOffsets, startOffset, metadata.Content.Length), start) };
+            float cursor = start;
+            int lineOffset = 0;
+            foreach (string element in Elements(line))
+            {
+                cursor += paint.MeasureText(element) + tracking;
+                lineOffset += element.Length;
+                stops.Add(new TextCaretStop(
+                    OriginalBoundary(originalOffsets, startOffset + lineOffset, metadata.Content.Length), cursor));
+            }
+            result.Add(new TextLayoutLine(
+                OriginalBoundary(originalOffsets, startOffset, metadata.Content.Length),
+                OriginalBoundary(originalOffsets, endOffset, metadata.Content.Length),
+                line, start, result.Count * lineHeight, baselineOffset + result.Count * lineHeight,
+                lineWidth, lineHeight, stops));
+            normalizedCursor = endOffset;
+            if (normalizedCursor < normalizedContent.Length && normalizedContent[normalizedCursor] == '\n') normalizedCursor++;
         }
-        int contentIndex = 0;
-        for (int index = 0; index < lineIndex; index++)
-        {
-            contentIndex += lines[index].Length;
-            if (contentIndex < metadata.Content.Length && metadata.Content[contentIndex] == '\n') contentIndex++;
-        }
-        contentIndex = Math.Clamp(contentIndex + localIndex, 0, metadata.Content.Length);
-        bool inside = y >= 0 && y < lines.Length * lineHeight && x >= start && x <= start + lineWidth;
-        return new TextHitTestResult(contentIndex, lineIndex, inside);
+        return new TextLayoutSnapshot(result, metadata.Content.Length, lineHeight);
     }
 
     public static TextLayerRenderResult Render(ProjectSession session, Guid layerId)
@@ -169,25 +245,10 @@ public static class TextLayerWorkflow
             SubpixelText = true,
             LcdRenderText = false
         };
-        var metrics = paint.FontMetrics;
         float tracking = (float)(metadata.TrackingPoints * scale);
-        float lineSpacing = (float)(metadata.LineSpacingPoints * scale);
-        float lineHeight = Math.Max(1, metrics.Descent - metrics.Ascent + lineSpacing);
-        float layoutWidth = metadata.Layout == "box" ? (float)metadata.BoxWidth!.Value : cache.Width;
-        string[] lines = LayoutLines(metadata.Content, paint, tracking, metadata.Layout == "box" ? layoutWidth : float.PositiveInfinity);
-        float baseline = -metrics.Ascent;
-        for (int index = 0; index < lines.Length; index++)
-        {
-            string line = lines[index];
-            float lineWidth = Measure(line, paint, tracking);
-            float x = metadata.Alignment switch
-            {
-                "center" => (layoutWidth - lineWidth) / 2,
-                "right" => layoutWidth - lineWidth,
-                _ => 0
-            };
-            DrawTracked(canvas, line, x, baseline + index * lineHeight, paint, tracking);
-        }
+        TextLayoutSnapshot layout = Layout(metadata, resolution, cache.Width);
+        foreach (TextLayoutLine line in layout.Lines)
+            DrawTracked(canvas, line.Text, line.X, line.Baseline, paint, tracking);
         return FromBitmap(bitmap, cache.Width, cache.Height);
     }
 
@@ -233,6 +294,31 @@ public static class TextLayerWorkflow
                 return normalized[..^suffix.Length];
         return normalized;
     }
+
+    private static string NormalizeNewLines(string value, out int[] originalOffsets)
+    {
+        var normalized = new System.Text.StringBuilder(value.Length);
+        var offsets = new List<int>(value.Length);
+        for (int index = 0; index < value.Length; index++)
+        {
+            if (value[index] == '\r' && index + 1 < value.Length && value[index + 1] == '\n')
+            {
+                normalized.Append('\n');
+                offsets.Add(index);
+                index++;
+            }
+            else
+            {
+                normalized.Append(value[index]);
+                offsets.Add(index);
+            }
+        }
+        originalOffsets = offsets.ToArray();
+        return normalized.ToString();
+    }
+
+    private static int OriginalBoundary(IReadOnlyList<int> originalOffsets, int normalizedOffset, int contentLength) =>
+        normalizedOffset < originalOffsets.Count ? originalOffsets[normalizedOffset] : contentLength;
 
     private static string[] LayoutLines(string content, SKPaint paint, float tracking, float maximumWidth)
     {

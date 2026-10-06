@@ -125,6 +125,22 @@ internal static class TextChecks
         TextHitTestResult boxHit = TextLayerWorkflow.HitTest(created.TextLayers.Single(item => item.Id == createdBoxId), 72, 1, 1);
         if (boxHit.LineIndex != 0 || boxHit.CharacterIndex != 0 || !boxHit.IsInside)
             throw new Exception("Box text hit testing did not map the first line to the start of the content.");
+        TextLayoutSnapshot boxLayout = TextLayerWorkflow.Layout(createdBoxMetadata, 72, created.Width);
+        TextCaretPosition boxStart = boxLayout.Caret(0);
+        TextCaretPosition boxEnd = boxLayout.Caret(createdBoxMetadata.Content.Length);
+        IReadOnlyList<TextSelectionRectangle> boxSelection = boxLayout.Selection(0, createdBoxMetadata.Content.Length);
+        if (boxLayout.Lines.Count < 2 || boxStart.CharacterIndex != 0 || boxStart.LineIndex != 0 ||
+            boxEnd.CharacterIndex != createdBoxMetadata.Content.Length || boxSelection.Count < 2 ||
+            boxSelection.Any(rectangle => rectangle.Width <= 0 || rectangle.Height <= 0))
+            throw new Exception("Text layout did not expose stable caret and multi-line selection geometry.");
+        string crlfContent = "A\r\n中文";
+        TextLayoutSnapshot crlfLayout = TextLayerWorkflow.Layout(createdBoxMetadata with { Content = crlfContent }, 72, created.Width);
+        if (crlfLayout.Caret(3).LineIndex != 1 || crlfLayout.Caret(crlfContent.Length).CharacterIndex != crlfContent.Length ||
+            crlfLayout.Selection(0, crlfContent.Length).Count != 2)
+            throw new Exception("Text layout did not preserve UTF-16 caret offsets across CRLF and selection lines.");
+        int combiningIndex = createdBoxMetadata.Content.IndexOf("é", StringComparison.Ordinal);
+        if (combiningIndex < 0 || boxLayout.Caret(combiningIndex + 1).CharacterIndex == combiningIndex + 1)
+            throw new Exception("Text layout split a combining grapheme into an editable caret position.");
         if (!created.Undo() || created.Layers.Count != 2 || !created.Redo() || created.Layers.Count != 3)
             throw new Exception("Creating text layers did not participate in undo and redo.");
         string createdPath = Path.Combine(output, "TextCreated.comp");
