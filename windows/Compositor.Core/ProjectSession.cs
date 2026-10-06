@@ -566,7 +566,7 @@ public sealed class ProjectSession
             ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex);
             return true;
         }
-        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or NotSupportedException)
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or InvalidDataException or NotSupportedException)
         {
             return false;
         }
@@ -576,15 +576,8 @@ public sealed class ProjectSession
     {
         ArgumentNullException.ThrowIfNull(source);
         RequireLayerStructureEditing();
-        ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex);
-        int sourceIndex = source.FindLayer(sourceLayerId);
-        FlatLayerInfo sourceInfo = source.Layers[sourceIndex];
-        var layer = source.Current["layers"]![sourceIndex]!.DeepClone().AsObject();
-        TileRaster raster = source.GetLayerRaster(sourceLayerId);
-        GrayTileRaster? mask = sourceInfo.HasMask ? source.GetLayerMask(sourceLayerId) : null;
-        if (sourceInfo.HasMask && mask is null)
-            throw new InvalidDataException("Source layer mask asset is missing.");
-        return InsertLayer(layer, raster, destinationIndex, mask);
+        int[] sourceIndexes = ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex);
+        return InsertLayerStack(source, sourceIndexes, destinationIndex);
     }
 
     public Guid GroupLayer(Guid layerId, string name) => GroupLayers([layerId], name);
@@ -1260,7 +1253,7 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));
     }
 
-    private void ValidateLayerCopyFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex)
+    private int[] ValidateLayerCopyFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex)
     {
         if (ReferenceEquals(this, source)) throw new ArgumentException("Source and target projects must differ.", nameof(source));
         if (!CanEdit || Current["version"]!.GetValue<int>() != 8 || HasGroups)
@@ -1277,10 +1270,75 @@ public sealed class ProjectSession
         FlatLayerInfo sourceLayer = source.Layers[sourceIndex];
         if (sourceLayer.IsGroup)
             throw new NotSupportedException("Group layers cannot be copied across projects in this slice.");
-        if (sourceLayer.MaskSourceId is not null || source.Layers.Any(layer => layer.MaskSourceId == sourceLayerId))
-            throw new NotSupportedException("Clipping stacks must be copied as a complete stack in this slice.");
-        if (sourceLayer.HasMask && source.GetLayerMask(sourceLayerId) is null)
-            throw new InvalidDataException("Source layer mask asset is missing.");
+        var stackIds = new HashSet<Guid> { sourceLayerId };
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (FlatLayerInfo layer in source.Layers)
+            {
+                if (layer.MaskSourceId is { } sourceId && stackIds.Contains(sourceId) && stackIds.Add(layer.Id))
+                    changed = true;
+                if (stackIds.Contains(layer.Id) && layer.MaskSourceId is { } parentId && stackIds.Add(parentId))
+                    changed = true;
+            }
+        } while (changed);
+        int[] sourceIndexes = stackIds.Select(source.FindLayer).OrderBy(index => index).ToArray();
+        if (sourceIndexes[^1] - sourceIndexes[0] + 1 != sourceIndexes.Length)
+            throw new NotSupportedException("Clipping stack must remain contiguous when copied.");
+        foreach (int index in sourceIndexes)
+        {
+            FlatLayerInfo layer = source.Layers[index];
+            if (layer.IsGroup) throw new NotSupportedException("Group layers cannot be copied across projects in this slice.");
+            if (layer.HasMask && source.GetLayerMask(layer.Id) is null)
+                throw new InvalidDataException("Source layer mask asset is missing.");
+        }
+        return sourceIndexes;
+    }
+
+    private Guid InsertLayerStack(ProjectSession source, IReadOnlyList<int> sourceIndexes, int destinationIndex)
+    {
+        if (sourceIndexes.Count == 0) throw new ArgumentException("At least one source layer is required.", nameof(sourceIndexes));
+        var sourceLayers = source.Current["layers"]!.AsArray();
+        var idMap = sourceIndexes.ToDictionary(
+            index => Guid.Parse((sourceLayers[index]!.AsObject())["id"]!.GetValue<string>()),
+            _ => Guid.NewGuid());
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayers = next["layers"]!.AsArray();
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!);
+        var masks = snapshots[cursor].LayerMasks is { } currentMasks
+            ? new Dictionary<Guid, GrayTileRaster>(currentMasks)
+            : null;
+        for (int offset = 0; offset < sourceIndexes.Count; offset++)
+        {
+            int sourceIndex = sourceIndexes[offset];
+            Guid sourceId = Guid.Parse((sourceLayers[sourceIndex]!.AsObject())["id"]!.GetValue<string>());
+            Guid targetId = idMap[sourceId];
+            var layer = sourceLayers[sourceIndex]!.DeepClone().AsObject();
+            layer["id"] = targetId.ToString("D");
+            layer["imageFile"] = targetId.ToString("D").ToUpperInvariant() + ".png";
+            layer.Remove("parentID");
+            if (layer["maskSourceID"] is { } sourceNode)
+            {
+                Guid sourceMaskId = Guid.Parse(sourceNode.GetValue<string>());
+                if (!idMap.TryGetValue(sourceMaskId, out Guid targetMaskId))
+                    throw new InvalidDataException("Copied clipping relationship points outside the copied stack.");
+                layer["maskSourceID"] = targetMaskId.ToString("D");
+            }
+            if (layer["maskFile"] is not null)
+            {
+                GrayTileRaster mask = source.GetLayerMask(sourceId)
+                    ?? throw new InvalidDataException("Source layer mask asset is missing.");
+                layer["maskFile"] = targetId.ToString("D").ToUpperInvariant() + ".mask.png";
+                masks ??= new Dictionary<Guid, GrayTileRaster>();
+                masks[targetId] = mask;
+            }
+            nextLayers.Insert(destinationIndex + offset, layer);
+            rasters[targetId] = source.GetLayerRaster(sourceId);
+        }
+        next["activeLayerID"] = idMap[Guid.Parse((sourceLayers[sourceIndexes[^1]]!.AsObject())["id"]!.GetValue<string>())].ToString("D");
+        Commit(new Snapshot(next, rasters, masks, ++nextRevision));
+        return idMap[Guid.Parse((sourceLayers[sourceIndexes[0]]!.AsObject())["id"]!.GetValue<string>())];
     }
 
     private Guid InsertLayer(JsonObject layer, TileRaster raster, int destinationIndex, GrayTileRaster? mask = null)

@@ -164,7 +164,7 @@ public sealed class EditorWorkspace
         var sourceSession = RequireSession();
         var targetSession = target.RequireSession();
         if (!CanCopyLayerTo(target, layerId))
-            throw new NotSupportedException("跨工程图层拖放目前只支持相同画布尺寸的平面工程；组和剪贴栈需先单独处理。");
+            throw new NotSupportedException("跨工程图层拖放目前只支持相同画布尺寸的平面工程；组仍需先单独处理。");
         int destinationIndex = targetSession.ActiveLayerId is { } activeId
             ? targetSession.Layers.ToList().FindIndex(layer => layer.Id == activeId) + 1
             : targetSession.Layers.Count;

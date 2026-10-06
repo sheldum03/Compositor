@@ -544,9 +544,25 @@ internal static class Program
         Guid clippedSourceId = clippedCrossLayerSource.Session!.Layers[0].Id;
         Guid clippedTargetId = clippedCrossLayerSource.Session.AddBlankLayer("Clipped target", 1);
         clippedCrossLayerSource.Edit(session => session.SetLayerMaskSource(clippedTargetId, clippedSourceId));
-        Require(!clippedCrossLayerSource.CanCopyLayerTo(crossLayerTarget, clippedSourceId) &&
-            !clippedCrossLayerSource.CanCopyLayerTo(crossLayerTarget, clippedTargetId),
-            "Cross-project layer copy incorrectly allowed a partial clipping stack.");
+        TileRaster clippedSourceRaster = clippedCrossLayerSource.Session.GetLayerRaster(clippedSourceId);
+        TileRaster clippedTargetRaster = clippedCrossLayerSource.Session.GetLayerRaster(clippedTargetId);
+        Require(clippedCrossLayerSource.CanCopyLayerTo(crossLayerTarget, clippedSourceId) &&
+            clippedCrossLayerSource.CanCopyLayerTo(crossLayerTarget, clippedTargetId),
+            "Complete clipping stack did not enable cross-project copy.");
+        int crossLayerStackTargetCount = crossLayerTarget.Session.Layers.Count;
+        clippedCrossLayerSource.CopyLayerTo(crossLayerTarget, clippedTargetId);
+        Require(crossLayerTarget.Session.Layers.Count == crossLayerStackTargetCount + 2,
+            "Cross-project clipping stack copy did not add both layers.");
+        FlatLayerInfo copiedStackSource = crossLayerTarget.Session.Layers[^2];
+        FlatLayerInfo copiedStackTarget = crossLayerTarget.Session.Layers[^1];
+        Require(copiedStackTarget.MaskSourceId == copiedStackSource.Id &&
+            CheckEqualNoThrow(clippedSourceRaster, crossLayerTarget.Session.GetLayerRaster(copiedStackSource.Id)) &&
+            CheckEqualNoThrow(clippedTargetRaster, crossLayerTarget.Session.GetLayerRaster(copiedStackTarget.Id)),
+            "Cross-project clipping stack copy did not remap relationship or pixels.");
+        crossLayerTarget.Save();
+        var reopenedCrossLayerStack = ImageProjectWorkflow.OpenEditable(crossLayerTargetPath);
+        Require(reopenedCrossLayerStack.Layers[^1].MaskSourceId == reopenedCrossLayerStack.Layers[^2].Id,
+            "Saved cross-project clipping stack did not reopen with remapped relationship.");
 
         var crossLayerUiSource = new EditorWorkspace();
         crossLayerUiSource.Import(fixture, Path.Combine(output, "CrossLayerUiSource.comp"));
@@ -743,7 +759,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
