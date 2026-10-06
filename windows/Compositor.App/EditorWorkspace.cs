@@ -295,6 +295,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyLensCorrection(source, settings), "选区镜头校正");
     }
 
+    public void PreviewExposureFilter(ExposureSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyExposure(source, settings), "选区曝光");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();

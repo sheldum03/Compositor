@@ -191,6 +191,7 @@ CheckSelectionGaussianBlurFilter(output);
 CheckSelectionMotionBlurFilter(output);
 CheckSelectionNoiseFilter(output);
 CheckSelectionLensCorrectionFilter(output);
+CheckSelectionExposureFilter(output);
 CheckMotionBlurAdjustment(output);
 CheckNoiseAdjustment(output);
 CheckLensCorrectionAdjustment(output);
@@ -1792,6 +1793,32 @@ static void CheckSelectionLensCorrectionFilter(string output)
         if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
             throw new Exception("Selection Lens Correction changed pixels outside the selection.");
     Console.WriteLine("PASS: selection Lens Correction blends the filtered raster through coverage without changing outside pixels");
+}
+
+static void CheckSelectionExposureFilter(string output)
+{
+    var sourcePixels = new byte[9 * 7 * 4];
+    for (int y = 0; y < 7; y++)
+    for (int x = 0; x < 9; x++)
+    {
+        int pixel = (y * 9 + x) * 4;
+        sourcePixels[pixel] = (byte)(20 + x * 20);
+        sourcePixels[pixel + 1] = (byte)(30 + y * 28);
+        sourcePixels[pixel + 2] = (byte)(40 + (x + y) * 12);
+        sourcePixels[pixel + 3] = 255;
+    }
+    TileRaster source = new TileRaster(9, 7).ReplaceTile(0, 0, sourcePixels);
+    GrayTileRaster selection = GrayTileRaster.Rectangle(9, 7, 0, 0, 4, 7);
+    ExposureSettings settings = new(1.5, 0.05, 1.2);
+    TileRaster filtered = RasterCompositor.ApplyExposure(source, settings);
+    TileRaster changed = RasterCompositor.BlendThroughMask(source, filtered, selection);
+    if (SameRaster(source, changed))
+        throw new Exception("Selection Exposure did not change covered pixels.");
+    for (int y = 0; y < 7; y++)
+    for (int x = 4; x < 9; x++)
+        if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
+            throw new Exception("Selection Exposure changed pixels outside the selection.");
+    Console.WriteLine("PASS: selection Exposure blends the filtered raster through coverage without changing outside pixels");
 }
 
 static void CheckMotionBlurAdjustment(string output)

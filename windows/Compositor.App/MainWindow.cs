@@ -91,6 +91,10 @@ public sealed class MainWindow : Window
     private readonly StackPanel selectionNoiseEditor = new() { Name = "SelectionNoiseEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown selectionLensCorrectionDistortion = new() { Name = "SelectionLensCorrectionDistortion", Minimum = -100, Maximum = 100, Value = 0, Width = 62 };
     private readonly StackPanel selectionLensCorrectionEditor = new() { Name = "SelectionLensCorrectionEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown selectionExposure = new() { Name = "SelectionExposure", Minimum = -20, Maximum = 20, Value = 0, Width = 62 };
+    private readonly NumericUpDown selectionExposureOffset = new() { Name = "SelectionExposureOffset", Minimum = -0.5m, Maximum = 0.5m, Value = 0, Width = 62 };
+    private readonly NumericUpDown selectionExposureGamma = new() { Name = "SelectionExposureGamma", Minimum = 0.01m, Maximum = 9.99m, Value = 1, Width = 62 };
+    private readonly StackPanel selectionExposureEditor = new() { Name = "SelectionExposureEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown motionBlurAngle = new() { Name = "MotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown motionBlurDistance = new() { Name = "MotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel motionBlurAdjustmentEditor = new() { Name = "MotionBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
@@ -376,6 +380,16 @@ public sealed class MainWindow : Window
         selectionLensCorrectionEditor.Children.Add(Command("CommitSelectionLensCorrection", "提交选区镜头校正", CommitSelectionLensCorrectionAsync, layer: true));
         selectionLensCorrectionEditor.Children.Add(Command("CancelSelectionLensCorrection", "取消滤镜预览", CancelSelectionLensCorrectionAsync, layer: true));
         actions.Children.Add(selectionLensCorrectionEditor);
+        selectionExposureEditor.Children.Add(new TextBlock { Text = "选区曝光", VerticalAlignment = VerticalAlignment.Center });
+        selectionExposureEditor.Children.Add(selectionExposure);
+        selectionExposureEditor.Children.Add(new TextBlock { Text = "偏移", VerticalAlignment = VerticalAlignment.Center });
+        selectionExposureEditor.Children.Add(selectionExposureOffset);
+        selectionExposureEditor.Children.Add(new TextBlock { Text = "伽马", VerticalAlignment = VerticalAlignment.Center });
+        selectionExposureEditor.Children.Add(selectionExposureGamma);
+        selectionExposureEditor.Children.Add(Command("PreviewSelectionExposure", "预览选区曝光", PreviewSelectionExposureAsync, layer: true));
+        selectionExposureEditor.Children.Add(Command("CommitSelectionExposure", "提交选区曝光", CommitSelectionExposureAsync, layer: true));
+        selectionExposureEditor.Children.Add(Command("CancelSelectionExposure", "取消滤镜预览", CancelSelectionExposureAsync, layer: true));
+        actions.Children.Add(selectionExposureEditor);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         motionBlurAdjustmentEditor.Children.Add(motionBlurAngle);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
@@ -910,6 +924,7 @@ public sealed class MainWindow : Window
         bool showSelectionMotionBlurEditor = showSelectionGaussianBlurEditor;
         bool showSelectionNoiseEditor = showSelectionGaussianBlurEditor;
         bool showSelectionLensCorrectionEditor = showSelectionGaussianBlurEditor;
+        bool showSelectionExposureEditor = showSelectionGaussianBlurEditor;
         bool showMotionBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Motion Blur" &&
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
@@ -928,6 +943,7 @@ public sealed class MainWindow : Window
         selectionMotionBlurEditor.IsVisible = showSelectionMotionBlurEditor;
         selectionNoiseEditor.IsVisible = showSelectionNoiseEditor;
         selectionLensCorrectionEditor.IsVisible = showSelectionLensCorrectionEditor;
+        selectionExposureEditor.IsVisible = showSelectionExposureEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
         lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
@@ -948,6 +964,8 @@ public sealed class MainWindow : Window
         selectionNoiseAmount.IsEnabled = selectionNoiseGaussian.IsEnabled = selectionNoiseMonochromatic.IsEnabled =
             showSelectionNoiseEditor && !Workspace.HasFilterPreview;
         selectionLensCorrectionDistortion.IsEnabled = showSelectionLensCorrectionEditor && !Workspace.HasFilterPreview;
+        selectionExposure.IsEnabled = selectionExposureOffset.IsEnabled = selectionExposureGamma.IsEnabled =
+            showSelectionExposureEditor && !Workspace.HasFilterPreview;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
         lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
@@ -1018,6 +1036,10 @@ public sealed class MainWindow : Window
             if (button.Name == "PreviewSelectionLensCorrection")
                 button.IsEnabled = showSelectionLensCorrectionEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionLensCorrection" or "CancelSelectionLensCorrection")
+                button.IsEnabled = Workspace.HasFilterPreview;
+            if (button.Name == "PreviewSelectionExposure")
+                button.IsEnabled = showSelectionExposureEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "CommitSelectionExposure" or "CancelSelectionExposure")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1312,6 +1334,14 @@ public sealed class MainWindow : Window
     }
     private Task CommitSelectionLensCorrectionAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionLensCorrectionAsync() => Task.Run(Workspace.CancelFilterPreview);
+    private Task PreviewSelectionExposureAsync()
+    {
+        var settings = new ExposureSettings((double)(selectionExposure.Value ?? 0),
+            (double)(selectionExposureOffset.Value ?? 0), (double)(selectionExposureGamma.Value ?? 1));
+        return Task.Run(() => Workspace.PreviewExposureFilter(settings));
+    }
+    private Task CommitSelectionExposureAsync() => Task.Run(Workspace.CommitFilterPreview);
+    private Task CancelSelectionExposureAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task ApplyMotionBlurAdjustmentAsync()
     {
         var settings = new MotionBlurSettings((double)(motionBlurAngle.Value ?? 0),
