@@ -20,7 +20,7 @@ export PATH=/tmp/dotnet-sdk-root-401b:$PATH
 export NUGET_PACKAGES=/tmp/compositor-nuget-packages
 dotnet build windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-restore
 dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- \
-  windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-checks-grouped-leaf-20261006-c
+  windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-checks-grouped-leaf-20261006-e
 ```
 
 结果：Release 构建 0 警告、0 错误；App.Checks 三项生产检查全部 PASS。新增场景先验证变换组整体复制，再把源组恢复为恒等 transform，将源组内平面层拖入目标组，逐 tile 比较像素、父级、层 transform、目标历史和保存重开结果。
