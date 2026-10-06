@@ -17,7 +17,7 @@
 - Workflow Release 检查覆盖基础跨父组关系、根级插入、像素、保存重开和原始关系保留。
 - Workflow Release 检查另建独立参考工程，以同一源组的变换、蒙版、透明度和 Multiply 外观计算期望 Alpha，逐 tile 比较复制结果，并验证保存重开。
 - Workflow Release 另建两级外部栅格链，使用独立 Alpha 组合期望值，逐 tile 比较目标复制结果，并验证两条 `maskSourceID` 关系、根级插入和保存重开。
-- App Headless 正式窗口检查覆盖外部源组变换、组蒙版、透明度、混合模式、`LayerViaCopy` 按钮启用、根级插入、选区裁切、像素和保存重开；两级链目前由 Workflow 覆盖，尚未在正式窗口重复验收。
+- App Headless 正式窗口检查覆盖外部源组变换、组蒙版、透明度、混合模式、`LayerViaCopy` 按钮启用、根级插入、选区裁切、像素和保存重开；本轮又覆盖两级链的按钮启用、根级插入、选区像素、两条关系和保存重开。
 - 固定 SDK 10.0.401，本地 Workflow/App 构建均为 0 warning / 0 error；App `results.json` 为 `passed: true`。
 
 ## 限制
