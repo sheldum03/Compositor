@@ -109,6 +109,8 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown selectionCurvesShadow = new() { Name = "SelectionCurvesShadow", Minimum = 0, Maximum = 255, Value = 0, Width = 62 };
     private readonly NumericUpDown selectionCurvesMid = new() { Name = "SelectionCurvesMid", Minimum = 0, Maximum = 255, Value = 128, Width = 62 };
     private readonly NumericUpDown selectionCurvesHighlight = new() { Name = "SelectionCurvesHighlight", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
+    private readonly ComboBox selectionCurvesChannel = new() { Name = "SelectionCurvesChannel", Width = 82,
+        ItemsSource = new[] { "RGB", "红", "绿", "蓝" }, SelectedIndex = 0 };
     private readonly StackPanel selectionCurvesEditor = new() { Name = "SelectionCurvesEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown selectionGradientShadowRed = new() { Name = "SelectionGradientShadowRed", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
     private readonly NumericUpDown selectionGradientShadowGreen = new() { Name = "SelectionGradientShadowGreen", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
@@ -447,6 +449,7 @@ public sealed class MainWindow : Window
         selectionCurvesEditor.Children.Add(selectionCurvesMid);
         selectionCurvesEditor.Children.Add(new TextBlock { Text = "高光", VerticalAlignment = VerticalAlignment.Center });
         selectionCurvesEditor.Children.Add(selectionCurvesHighlight);
+        selectionCurvesEditor.Children.Add(selectionCurvesChannel);
         selectionCurvesEditor.Children.Add(Command("PreviewSelectionCurves", "预览选区曲线", PreviewSelectionCurvesAsync, layer: true));
         selectionCurvesEditor.Children.Add(Command("CommitSelectionCurves", "提交选区曲线", CommitSelectionCurvesAsync, layer: true));
         selectionCurvesEditor.Children.Add(Command("CancelSelectionCurves", "取消滤镜预览", CancelSelectionCurvesAsync, layer: true));
@@ -1066,6 +1069,7 @@ public sealed class MainWindow : Window
             showSelectionHueSaturationEditor && !Workspace.HasFilterPreview;
         selectionCurvesShadow.IsEnabled = selectionCurvesMid.IsEnabled = selectionCurvesHighlight.IsEnabled =
             showSelectionCurvesEditor && !Workspace.HasFilterPreview;
+        selectionCurvesChannel.IsEnabled = showSelectionCurvesEditor && !Workspace.HasFilterPreview;
         selectionGradientShadowRed.IsEnabled = selectionGradientShadowGreen.IsEnabled = selectionGradientShadowBlue.IsEnabled =
         selectionGradientHighlightRed.IsEnabled = selectionGradientHighlightGreen.IsEnabled = selectionGradientHighlightBlue.IsEnabled =
             showSelectionGradientMapEditor && !Workspace.HasFilterPreview;
@@ -1487,8 +1491,15 @@ public sealed class MainWindow : Window
     private Task CancelSelectionHueSaturationAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task PreviewSelectionCurvesAsync()
     {
-        var settings = new CurvesSettings((double)(selectionCurvesShadow.Value ?? 0),
+        var channel = new CurveChannelSettings((double)(selectionCurvesShadow.Value ?? 0),
             (double)(selectionCurvesMid.Value ?? 128), (double)(selectionCurvesHighlight.Value ?? 255));
+        var settings = selectionCurvesChannel.SelectedIndex switch
+        {
+            1 => new CurvesSettings(Red: channel),
+            2 => new CurvesSettings(Green: channel),
+            3 => new CurvesSettings(Blue: channel),
+            _ => new CurvesSettings(channel.Shadow, channel.Mid, channel.Highlight)
+        };
         return Task.Run(() => Workspace.PreviewCurvesFilter(settings));
     }
     private Task CommitSelectionCurvesAsync() => Task.Run(Workspace.CommitFilterPreview);
