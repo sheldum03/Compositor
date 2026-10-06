@@ -482,7 +482,7 @@ public sealed class EditorWorkspace
                 Session is not { } session || session.HasGroups || session.ActiveLayerId is not { } layerId)
                 return false;
             FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
-            return !layer.IsGroup && layer.BlendMode == "Normal" &&
+            return !layer.IsGroup &&
                 (!layer.HasMask || session.GetLayerMask(layerId) is not null);
         }
     }
@@ -491,7 +491,7 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         if (!CanLayerViaCopy)
-            throw new NotSupportedException("Layer via Copy 目前只支持 Normal 平面图层，组和其他混合模式不支持。");
+            throw new NotSupportedException("Layer via Copy 目前只支持平面图层，组图层不支持。");
         var session = RequireSession();
         Guid sourceId = session.ActiveLayerId!.Value;
         int destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == sourceId) + 1;

@@ -119,8 +119,8 @@ public static class ImageProjectWorkflow
         if (session.HasGroups) throw new NotSupportedException("Layer copy does not support groups.");
         FlatLayerInfo target = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
             ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
-        if (target.IsGroup || target.BlendMode != "Normal")
-            throw new NotSupportedException("Layer copy only supports Normal raster layers.");
+        if (target.IsGroup)
+            throw new NotSupportedException("Layer copy only supports raster layers.");
 
         var resolving = new HashSet<Guid>();
         TileRaster Resolve(Guid id)
@@ -149,7 +149,9 @@ public static class ImageProjectWorkflow
             return raster;
         }
 
-        return LayerCompositor.Composite(new TileRaster(session.Width, session.Height), Resolve(layerId), target.Opacity, "Normal");
+        // Layer via Copy takes the layer's own pixels in document coordinates. The source
+        // opacity/blend mode are not baked into the new default-Normal raster layer.
+        return Resolve(layerId);
     }
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)

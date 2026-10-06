@@ -101,6 +101,24 @@ internal static class CanvasChecks
         Require(Bytes(actualTransformedCopy).SequenceEqual(Bytes(expectedTransformedCopy)) &&
             transformedCopy.Session.Layers.Count == transformedBaselineCount + 1 && !transformedCopy.HasSelection,
             "Layer via Copy did not bake the transformed visible result into the new layer.");
+        var nonNormalCopy = new EditorWorkspace();
+        nonNormalCopy.Open(project);
+        Guid nonNormalSourceId = nonNormalCopy.Session!.ActiveLayerId!.Value;
+        int nonNormalBaselineCount = nonNormalCopy.Session.Layers.Count;
+        TileRaster nonNormalSource = nonNormalCopy.Session.GetLayerRaster(nonNormalSourceId);
+        nonNormalCopy.Edit(session =>
+        {
+            session.SetLayerOpacity(nonNormalSourceId, 0.37);
+            session.SetLayerBlendMode(nonNormalSourceId, "Multiply");
+        });
+        nonNormalCopy.SelectAll();
+        Require(nonNormalCopy.CanLayerViaCopy,
+            "Layer via Copy incorrectly disabled a supported non-Normal raster layer.");
+        nonNormalCopy.LayerViaCopy();
+        TileRaster actualNonNormalCopy = nonNormalCopy.Session.GetLayerRaster(nonNormalCopy.Session.ActiveLayerId!.Value);
+        Require(Bytes(actualNonNormalCopy).SequenceEqual(Bytes(nonNormalSource)) &&
+            nonNormalCopy.Session.Layers.Count == nonNormalBaselineCount + 1 && !nonNormalCopy.HasSelection,
+            "Layer via Copy baked source opacity or blend mode into the new raster layer.");
         var hardCanvas = new TileRaster(21, 21);
         var hardStroke = new SoftBrushStroke(hardCanvas, new SoftBrushSettings(9, 1, [1, 0, 0], 1));
         hardStroke.Append(new BrushPoint(10.5, 10.5));
