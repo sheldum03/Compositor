@@ -482,7 +482,8 @@ public sealed class EditorWorkspace
                 Session is not { } session || session.HasGroups || session.ActiveLayerId is not { } layerId)
                 return false;
             FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
-            return !layer.IsGroup && layer.BlendMode == "Normal" && session.IsLayerTransformIdentity(layerId);
+            return !layer.IsGroup && layer.BlendMode == "Normal" && session.IsLayerTransformIdentity(layerId) &&
+                (!layer.HasMask || session.GetLayerMask(layerId) is not null);
         }
     }
 
