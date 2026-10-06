@@ -38,8 +38,12 @@ public sealed class MainWindow : Window
         Height = 72, Watermark = "文字内容" };
     private readonly ComboBox textFont = new() { Name = "TextFont", Width = 220 };
     private readonly NumericUpDown textSize = new() { Name = "TextSize", Minimum = 1, Maximum = 2000, Value = 18, Width = 80 };
+    private readonly ComboBox textColor = new() { Name = "TextColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 80 };
     private readonly ComboBox textAlignment = new() { Name = "TextAlignment", Width = 90,
         ItemsSource = new[] { "left", "center", "right" }, SelectedIndex = 0 };
+    private readonly NumericUpDown textLineSpacing = new() { Name = "TextLineSpacing", Minimum = -2000, Maximum = 2000, Value = 0, Width = 80 };
+    private readonly NumericUpDown textTracking = new() { Name = "TextTracking", Minimum = -2000, Maximum = 2000, Value = 0, Width = 80 };
+    private readonly NumericUpDown textBoxWidth = new() { Name = "TextBoxWidth", Minimum = 1, Maximum = 30000, Value = 360, Width = 80 };
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly NumericUpDown layerMoveX = new() { Name = "LayerMoveX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
@@ -204,8 +208,18 @@ public sealed class MainWindow : Window
         textOptions.Children.Add(textFont);
         textOptions.Children.Add(new TextBlock { Text = "字号", VerticalAlignment = VerticalAlignment.Center });
         textOptions.Children.Add(textSize);
+        textOptions.Children.Add(new TextBlock { Text = "颜色", VerticalAlignment = VerticalAlignment.Center });
+        textOptions.Children.Add(textColor);
         textOptions.Children.Add(textAlignment);
         textEditorPanel.Children.Add(textOptions);
+        var textLayoutOptions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        textLayoutOptions.Children.Add(new TextBlock { Text = "行距", VerticalAlignment = VerticalAlignment.Center });
+        textLayoutOptions.Children.Add(textLineSpacing);
+        textLayoutOptions.Children.Add(new TextBlock { Text = "字距", VerticalAlignment = VerticalAlignment.Center });
+        textLayoutOptions.Children.Add(textTracking);
+        textLayoutOptions.Children.Add(new TextBlock { Text = "框宽", VerticalAlignment = VerticalAlignment.Center });
+        textLayoutOptions.Children.Add(textBoxWidth);
+        textEditorPanel.Children.Add(textLayoutOptions);
         textEditorPanel.Children.Add(Command("ApplyText", "应用文字", ApplyTextAsync, layer: true));
         actions.Children.Add(textEditorPanel);
         var appearance = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
@@ -589,7 +603,11 @@ public sealed class MainWindow : Window
                 : null;
             textContent.Text = text?.Content ?? "";
             textSize.Value = text is null ? 18 : (decimal)text.FontSizePoints;
+            textColor.SelectedIndex = text is null ? 0 : TextColorIndex(text);
             textAlignment.SelectedItem = text?.Alignment ?? "left";
+            textLineSpacing.Value = text is null ? 0 : (decimal)text.LineSpacingPoints;
+            textTracking.Value = text is null ? 0 : (decimal)text.TrackingPoints;
+            textBoxWidth.Value = text?.BoxWidth is { } width ? (decimal)width : 360;
             textFont.SelectedItem = text is null
                 ? null
                 : textFont.Items.OfType<string>().FirstOrDefault(font =>
@@ -601,7 +619,12 @@ public sealed class MainWindow : Window
         textContent.IsEnabled = textEditorPanel.IsVisible;
         textFont.IsEnabled = textContent.IsEnabled;
         textSize.IsEnabled = textContent.IsEnabled;
+        textColor.IsEnabled = textContent.IsEnabled;
         textAlignment.IsEnabled = textContent.IsEnabled;
+        textLineSpacing.IsEnabled = textContent.IsEnabled;
+        textTracking.IsEnabled = textContent.IsEnabled;
+        textBoxWidth.IsEnabled = textContent.IsEnabled && selected?.IsText == true &&
+            Workspace.Session!.TextLayers.Single(item => item.Id == selected.Id).Layout == "box";
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -800,14 +823,40 @@ public sealed class MainWindow : Window
         ProjectSession session = Workspace.Session!;
         TextLayerMetadata current = session.TextLayers.Single(item => item.Id == id);
         string font = textFont.SelectedItem as string ?? current.FontPostScriptName;
+        (double red, double green, double blue) = TextColor(textColor.SelectedIndex);
         TextLayerMetadata edited = current with
         {
             Content = textContent.Text ?? "",
             FontPostScriptName = font,
             FontSizePoints = (double)(textSize.Value ?? (decimal)current.FontSizePoints),
-            Alignment = textAlignment.SelectedItem as string ?? current.Alignment
+            Red = red,
+            Green = green,
+            Blue = blue,
+            Alignment = textAlignment.SelectedItem as string ?? current.Alignment,
+            LineSpacingPoints = (double)(textLineSpacing.Value ?? (decimal)current.LineSpacingPoints),
+            TrackingPoints = (double)(textTracking.Value ?? (decimal)current.TrackingPoints),
+            BoxWidth = current.Layout == "box"
+                ? (double)(textBoxWidth.Value ?? (decimal)current.BoxWidth!.Value)
+                : null
         };
         return Task.Run(() => Workspace.UpdateText(edited));
+    }
+
+    private static (double Red, double Green, double Blue) TextColor(int index) => index switch
+    {
+        1 => (1, 1, 1),
+        2 => (0.1, 0.3, 0.9),
+        3 => (1, 0.3, 0.1),
+        _ => (0, 0, 0)
+    };
+
+    private static int TextColorIndex(TextLayerMetadata metadata)
+    {
+        (double red, double green, double blue) = (metadata.Red, metadata.Green, metadata.Blue);
+        if (red == 1 && green == 1 && blue == 1) return 1;
+        if (red == 0.1 && green == 0.3 && blue == 0.9) return 2;
+        if (red == 1 && green == 0.3 && blue == 0.1) return 3;
+        return 0;
     }
     private Task AppearanceAsync()
     {

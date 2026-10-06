@@ -72,15 +72,20 @@ internal static class TextChecks
         TextLayerMetadata editedMetadata = originalMetadata with
         {
             Content = "Edited Windows text",
-            FontSizePoints = 22
+            FontSizePoints = 22,
+            Red = 0.1,
+            Green = 0.3,
+            Blue = 0.9,
+            LineSpacingPoints = 4,
+            TrackingPoints = 1.5
         };
         TextLayerWorkflow.Update(available, editedMetadata);
-        if (!available.IsDirty || available.TextLayers.Single().Content != "Edited Windows text" ||
+        if (!available.IsDirty || available.TextLayers.Single() != editedMetadata ||
             !HasInk(available.GetLayerRaster(layerId)) ||
             !SameRaster(available.GetLayerRaster(layerId), ImageProjectWorkflow.RenderFlatNormal(available)))
             throw new Exception("Text metadata edit did not redraw, update history, and refresh preview.");
-        if (!available.Undo() || available.TextLayers.Single().Content != originalMetadata.Content ||
-            !available.Redo() || available.TextLayers.Single().Content != editedMetadata.Content)
+        if (!available.Undo() || available.TextLayers.Single() != originalMetadata ||
+            !available.Redo() || available.TextLayers.Single() != editedMetadata)
             throw new Exception("Text metadata edit did not participate in undo and redo.");
         string saved = Path.Combine(output, "TextAvailableSaved.comp");
         ImageProjectWorkflow.Save(available, saved);

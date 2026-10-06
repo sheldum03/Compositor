@@ -117,14 +117,24 @@ internal static class Program
             Control<Button>(textWindow, "ApplyText").IsEffectivelyEnabled,
             "Add text button did not create a rendered, editable text layer.");
         Control<TextBox>(textWindow, "TextContent").Text = "Headless text";
+        Control<ComboBox>(textWindow, "TextColor").SelectedIndex = 2;
+        Control<NumericUpDown>(textWindow, "TextLineSpacing").Value = 4;
+        Control<NumericUpDown>(textWindow, "TextTracking").Value = 1.5m;
         Click(textWindow, "ApplyText");
-        Require(textWorkspace.Session.TextLayers.Single().Content == "Headless text" && textWorkspace.IsDirty,
-            "Created text layer did not accept the formal text editor update.");
+        TextLayerMetadata editedText = textWorkspace.Session.TextLayers.Single();
+        Require(editedText.Content == "Headless text" && editedText.Red == 0.1 && editedText.Green == 0.3 &&
+            editedText.Blue == 0.9 && editedText.LineSpacingPoints == 4 && editedText.TrackingPoints == 1.5 &&
+            textWorkspace.IsDirty,
+            "Created text layer did not accept the formal text style editor update.");
         Click(textWindow, "AddBoxTextLayer");
         TextLayerMetadata createdBoxText = textWorkspace.Session.TextLayers.Single(item => item.Id == textWorkspace.Session.ActiveLayerId);
         Require(createdBoxText.Layout == "box" && createdBoxText.BoxWidth == Math.Min(360, textWorkspace.Session.Width) &&
             textWorkspace.Session.TextLayers.Count == 2,
             "Add box-text button did not create a bounded box layout.");
+        Control<NumericUpDown>(textWindow, "TextBoxWidth").Value = 120;
+        Click(textWindow, "ApplyText");
+        Require(textWorkspace.Session.TextLayers.Single(item => item.Id == createdBoxText.Id).BoxWidth == 120,
+            "Box text editor did not commit the bounded layout width.");
         textWorkspace.Save(); textWindow.Close(); Dispatcher.UIThread.RunJobs();
         var reopenedText = ImageProjectWorkflow.OpenEditable(textProject);
         Require(reopenedText.TextLayers.Count == 2 && reopenedText.TextLayers.Any(item => item.Content == "Headless text") &&
