@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using SkiaSharp;
 
 namespace Compositor.Imaging;
 
@@ -38,7 +39,16 @@ public sealed class FontLibrary
         try
         {
             File.WriteAllBytes(temporary, bytes);
-            string family = TextLayerWorkflow.RegisterImportedTypeface(temporary, faceIndex);
+            SKTypeface typeface = SKTypeface.FromFile(temporary, faceIndex)
+                ?? throw new InvalidDataException("The font face could not be loaded.");
+            string family = typeface.FamilyName;
+            ImportedFont? conflict = entries.FirstOrDefault(entry =>
+                entry.FaceIndex == faceIndex &&
+                NormalizeFamily(entry.FamilyName) == NormalizeFamily(family) &&
+                !entry.Sha256.Equals(hash, StringComparison.OrdinalIgnoreCase));
+            if (conflict is not null)
+                throw new InvalidDataException($"A different font with the same family and face is already imported: {family}.");
+            family = TextLayerWorkflow.RegisterImportedTypeface(temporary, faceIndex);
             File.Move(temporary, destination, overwrite: true);
             var existing = entries.FirstOrDefault(entry =>
                 entry.Sha256.Equals(hash, StringComparison.OrdinalIgnoreCase) && entry.FaceIndex == faceIndex);
@@ -86,6 +96,16 @@ public sealed class FontLibrary
         catch (IOException) { return false; }
         catch (UnauthorizedAccessException) { return false; }
     }
+
+    private static string NormalizeFamily(string value)
+    {
+        string normalized = new string(value.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+        foreach (string suffix in new[] { "regular", "normal", "roman", "book", "medium", "semibold", "bold", "italic" })
+            if (normalized.EndsWith(suffix, StringComparison.Ordinal) && normalized.Length > suffix.Length)
+                return normalized[..^suffix.Length];
+        return normalized;
+    }
+
     private List<ImportedFont> LoadCatalog()
     {
         if (!File.Exists(catalogPath)) return [];

@@ -43,6 +43,17 @@ internal static class FontLibraryChecks
         catch (InvalidDataException) { }
         if (Directory.GetFiles(damagedRoot).Length != 0)
             throw new Exception("Rejected damaged font left a file in the user font directory.");
+        int entriesBeforeConflict = library.Entries.Count;
+        try
+        {
+            _ = library.Import(Path.Combine(fonts, "conflict.ttf"));
+            throw new Exception("A different font with the same family and face was accepted.");
+        }
+        catch (InvalidDataException exception) when (exception.Message.Contains("same family and face", StringComparison.Ordinal)) { }
+        if (library.Entries.Count != entriesBeforeConflict ||
+            Directory.GetFiles(root, "*.tmp-*", SearchOption.TopDirectoryOnly).Length != 0 ||
+            !File.Exists(Path.Combine(root, first.FileName)))
+            throw new Exception("Rejecting a conflicting font changed the existing font identity or left a temporary asset.");
         try
         {
             _ = library.Import(Path.Combine(fonts, "wrong-extension.zip"));
