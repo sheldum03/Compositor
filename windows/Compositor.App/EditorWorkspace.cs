@@ -290,6 +290,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyNoise(source, settings), "选区添加杂色");
     }
 
+    public void PreviewLensCorrectionFilter(LensCorrectionSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyLensCorrection(source, settings), "选区镜头校正");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();
