@@ -65,6 +65,7 @@ public sealed class MainWindow : Window
     private int activeProjectIndex;
     private bool refreshing, allowClose;
     private EditorWorkspace? clipboardProject;
+    private FontLibrary? fontLibrary;
     private FlatLayerInfo? draggingLayer;
     private Point layerDragStart;
     private bool draggingLayers;
@@ -86,6 +87,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(Command("New", "新建", NewAsync));
         toolbar.Children.Add(Command("Open", "打开工程", OpenAsync));
         toolbar.Children.Add(Command("Import", "导入图片", ImportAsync));
+        toolbar.Children.Add(Command("ImportFont", "导入字体", ImportFontAsync));
         toolbar.Children.Add(Command("Save", "保存", SaveAsync, document: true));
         toolbar.Children.Add(Command("SaveAs", "另存为", SaveAsAsync, document: true));
         toolbar.Children.Add(Command("Undo", "撤销", () => Task.Run(() => Workspace.Undo()), document: true));
@@ -1083,6 +1085,23 @@ public sealed class MainWindow : Window
             AddProjectTab(next);
         }
     }
+
+    private async Task ImportFontAsync()
+    {
+        var selected = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "导入字体", AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("字体") { Patterns = ["*.otf", "*.ttf", "*.ttc"] }]
+        });
+        if (selected.Count == 0) return;
+        ImportedFont imported = await Task.Run(() => FontLibrary.Import(LocalPath(selected[0])));
+        textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
+        textFont.SelectedItem = imported.FamilyName;
+        status.Text = $"已导入字体：{imported.FamilyName}";
+    }
+
+    private FontLibrary FontLibrary => fontLibrary ??= new FontLibrary(Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Compositor", "fonts"));
 
     private async Task SaveAsAsync()
     {

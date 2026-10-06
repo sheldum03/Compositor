@@ -175,6 +175,7 @@ CheckNewCanvas(output);
 CheckLayerSelection(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
+FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
 if (args.Length == 4)
 {

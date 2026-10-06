@@ -11,8 +11,31 @@ public sealed record TextLayerRenderResult(TextLayerStatus Status, TileRaster Ra
 
 public static class TextLayerWorkflow
 {
-    public static IReadOnlyList<string> AvailableFonts =>
-        SKFontManager.Default.GetFontFamilies().OrderBy(family => family, StringComparer.OrdinalIgnoreCase).ToArray();
+    private static readonly object FontGate = new();
+    private static readonly Dictionary<string, SKTypeface> ImportedTypefaces = new(StringComparer.Ordinal);
+
+    public static IReadOnlyList<string> AvailableFonts
+    {
+        get
+        {
+            lock (FontGate)
+            {
+                return SKFontManager.Default.GetFontFamilies()
+                    .Concat(ImportedTypefaces.Values.Select(typeface => typeface.FamilyName))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(family => family, StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+            }
+        }
+    }
+
+    public static string RegisterImportedTypeface(string path, int faceIndex = 0)
+    {
+        SKTypeface typeface = SKTypeface.FromFile(path, faceIndex)
+            ?? throw new InvalidDataException("The font face could not be loaded.");
+        lock (FontGate) ImportedTypefaces.TryAdd(Normalize(typeface.FamilyName), typeface);
+        return typeface.FamilyName;
+    }
 
     public static IReadOnlyList<TextLayerStatus> Inspect(ProjectSession session) =>
         session.TextLayers.Select(metadata => Status(metadata)).ToArray();
@@ -103,6 +126,8 @@ public static class TextLayerWorkflow
     private static SKTypeface? FindTypeface(string postScriptName)
     {
         string requested = Normalize(postScriptName);
+        lock (FontGate)
+            if (ImportedTypefaces.TryGetValue(requested, out SKTypeface? imported)) return imported;
         foreach (string family in SKFontManager.Default.GetFontFamilies())
         {
             if (Normalize(family) is not { } normalized || normalized != requested) continue;
