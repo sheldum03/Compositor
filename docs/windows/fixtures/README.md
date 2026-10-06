@@ -1,6 +1,6 @@
 # W-002 固定工程与 Mac 参考图
 
-生成日期：2026-09-20。源基线 `d562565`，加上 W-001 的 Levels alpha 与 sRGB Dodge/Burn 修复。精确源码提交和命令见 [执行记录](../execution-log.md)。
+生成日期：2026-09-20。源基线 `d562565`，加上 W-001 的 Levels alpha 与 sRGB Dodge/Burn 修复。精确源码提交和命令见[开发计划](../development-plan.md)及对应证据记录。
 
 这些是**按各版本 schema 重建的非空样本**，不是历史应用发布包输出。仓库可追溯的最早 ProjectStore（`2dae6a2`）已经写 v7，未找到 v1–6 的历史编码器。各版本字段依据 `docs/project-format.md`、当前 reader 的版本约束、真实 Swift Codable 编码。没有从空 v8 manifest 改版本数字。
 
