@@ -45,7 +45,8 @@ jobs:
           @("ImageOS=$env:ImageOS", "ImageVersion=$env:ImageVersion", "Commit=$env:GITHUB_SHA") |
             Set-Content build/evidence/runner.txt
           dotnet --info | Tee-Object build/evidence/dotnet.txt
-          python -m pip install cmake==3.31.6
+          # CMake 4.2 adds the Visual Studio 18 2026 generator used by windows-2025.
+          python -m pip install cmake==4.2.8
           cmake --version | Tee-Object build/evidence/cmake.txt
           $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
           $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
