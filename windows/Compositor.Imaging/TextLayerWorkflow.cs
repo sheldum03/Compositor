@@ -62,6 +62,35 @@ public static class TextLayerWorkflow
 
     public static TextHitTestResult HitTest(TextLayerMetadata metadata, double resolution, float x, float y)
     {
+        return HitTestLocal(metadata, resolution, x, y);
+    }
+
+    public static TextHitTestResult HitTest(TextLayerMetadata metadata, LayerTransformInfo transform,
+        int rasterWidth, int rasterHeight, double resolution, float x, float y)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        if (rasterWidth < 1 || rasterHeight < 1) throw new ArgumentOutOfRangeException(nameof(rasterWidth));
+        if (!double.IsFinite(transform.X) || !double.IsFinite(transform.Y) ||
+            !double.IsFinite(transform.Width) || !double.IsFinite(transform.Height) ||
+            !double.IsFinite(transform.Rotation) || transform.Width <= 0 || transform.Height <= 0)
+            throw new InvalidDataException("Invalid text layer transform.");
+        double centeredX = x - (transform.X + transform.Width / 2);
+        double centeredY = y - (transform.Y + transform.Height / 2);
+        double radians = -transform.Rotation * Math.PI / 180;
+        double cos = Math.Cos(radians), sin = Math.Sin(radians);
+        double localX = centeredX * cos - centeredY * sin;
+        double localY = centeredX * sin + centeredY * cos;
+        if (transform.FlipX) localX = -localX;
+        if (transform.FlipY) localY = -localY;
+        localX += transform.Width / 2;
+        localY += transform.Height / 2;
+        float sourceX = (float)(localX * rasterWidth / transform.Width);
+        float sourceY = (float)(localY * rasterHeight / transform.Height);
+        return HitTestLocal(metadata, resolution, sourceX, sourceY);
+    }
+
+    private static TextHitTestResult HitTestLocal(TextLayerMetadata metadata, double resolution, float x, float y)
+    {
         ArgumentNullException.ThrowIfNull(metadata);
         if (!float.IsFinite(x) || !float.IsFinite(y)) throw new ArgumentOutOfRangeException(nameof(x));
         SKTypeface typeface = FindTypeface(metadata.FontPostScriptName)

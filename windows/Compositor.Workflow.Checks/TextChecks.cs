@@ -69,6 +69,17 @@ internal static class TextChecks
         TextHitTestResult textEnd = TextLayerWorkflow.HitTest(originalMetadata, 72, 1000, 0);
         if (textStart.CharacterIndex != 0 || textStart.LineIndex != 0 || textEnd.CharacterIndex != originalMetadata.Content.Length)
             throw new Exception("Text hit testing did not expose stable UTF-16 offsets for the point layout.");
+        LayerTransformInfo mirroredTransform = new(8, 12, available.Width, available.Height, 0, true, false);
+        TextHitTestResult mirroredHit = TextLayerWorkflow.HitTest(originalMetadata, mirroredTransform,
+            available.Width, available.Height, 72, 104, 12);
+        if (mirroredHit.CharacterIndex != 0 || mirroredHit.LineIndex != 0)
+            throw new Exception("Mirrored text hit testing did not map the transformed document point.");
+        LayerTransformInfo rotatedTransform = new(8, 12, available.Width, available.Height, 90, false, false);
+        (double rotatedX, double rotatedY) = ForwardTransform(rotatedTransform, 0, 0);
+        TextHitTestResult rotatedHit = TextLayerWorkflow.HitTest(originalMetadata, rotatedTransform,
+            available.Width, available.Height, 72, (float)rotatedX, (float)rotatedY);
+        if (rotatedHit.CharacterIndex != 0 || rotatedHit.LineIndex != 0)
+            throw new Exception("Rotated text hit testing did not map the transformed document point.");
         TextLayerMetadata editedMetadata = originalMetadata with
         {
             Content = "Edited Windows text",
@@ -144,5 +155,17 @@ internal static class TextChecks
         for (int column = 0; column * TileRaster.TileSize < expected.Width; column++)
             if (!expected.ReadTileCopy(column, row).SequenceEqual(actual.ReadTileCopy(column, row))) return false;
         return true;
+    }
+
+    private static (double X, double Y) ForwardTransform(LayerTransformInfo transform, double x, double y)
+    {
+        double localX = x - transform.Width / 2;
+        double localY = y - transform.Height / 2;
+        if (transform.FlipX) localX = -localX;
+        if (transform.FlipY) localY = -localY;
+        double radians = transform.Rotation * Math.PI / 180;
+        double rotatedX = localX * Math.Cos(radians) - localY * Math.Sin(radians);
+        double rotatedY = localX * Math.Sin(radians) + localY * Math.Cos(radians);
+        return (transform.X + transform.Width / 2 + rotatedX, transform.Y + transform.Height / 2 + rotatedY);
     }
 }
