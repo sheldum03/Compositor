@@ -355,6 +355,7 @@ public static class ProjectStore
             "Levels" => LevelsSettings.TryRead(adjustment["levelsSettings"], out _),
             "Hue/Saturation" => HueSaturationSettings.TryRead(adjustment["hueSaturationSettings"], out _),
             "Curves" => CurvesSettings.TryRead(adjustment["curvesSettings"], out _),
+            "Gradient Map" => GradientMapSettings.TryRead(adjustment["gradientMapSettings"], out _),
             _ => false
         };
         if (!settingsValid ||

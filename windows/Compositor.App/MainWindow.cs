@@ -71,6 +71,13 @@ public sealed class MainWindow : Window
     private readonly ComboBox curvesChannel = new() { Name = "CurvesChannel", Width = 82,
         ItemsSource = new[] { "RGB", "红", "绿", "蓝" }, SelectedIndex = 0 };
     private readonly StackPanel curvesAdjustmentEditor = new() { Name = "CurvesAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown gradientShadowRed = new() { Name = "GradientShadowRed", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
+    private readonly NumericUpDown gradientShadowGreen = new() { Name = "GradientShadowGreen", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
+    private readonly NumericUpDown gradientShadowBlue = new() { Name = "GradientShadowBlue", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
+    private readonly NumericUpDown gradientHighlightRed = new() { Name = "GradientHighlightRed", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
+    private readonly NumericUpDown gradientHighlightGreen = new() { Name = "GradientHighlightGreen", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
+    private readonly NumericUpDown gradientHighlightBlue = new() { Name = "GradientHighlightBlue", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
+    private readonly StackPanel gradientMapAdjustmentEditor = new() { Name = "GradientMapAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -196,6 +203,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddLevelsAdjustment", "新增色阶调整", AddLevelsAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddHueSaturationAdjustment", "新增色相/饱和度", AddHueSaturationAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddCurvesAdjustment", "新增曲线调整", AddCurvesAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddGradientMapAdjustment", "新增渐变映射", AddGradientMapAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -295,6 +303,16 @@ public sealed class MainWindow : Window
         curvesAdjustmentEditor.Children.Add(Command("ApplyCurvesAdjustment", "应用曲线", ApplyCurvesAdjustmentAsync, layer: true));
         actions.Children.Add(curvesAdjustmentEditor);
         curvesChannel.SelectionChanged += (_, _) => { if (!refreshing) UpdateCurvesControls(); };
+        gradientMapAdjustmentEditor.Children.Add(new TextBlock { Text = "暗部 RGB", VerticalAlignment = VerticalAlignment.Center });
+        gradientMapAdjustmentEditor.Children.Add(gradientShadowRed);
+        gradientMapAdjustmentEditor.Children.Add(gradientShadowGreen);
+        gradientMapAdjustmentEditor.Children.Add(gradientShadowBlue);
+        gradientMapAdjustmentEditor.Children.Add(new TextBlock { Text = "高光 RGB", VerticalAlignment = VerticalAlignment.Center });
+        gradientMapAdjustmentEditor.Children.Add(gradientHighlightRed);
+        gradientMapAdjustmentEditor.Children.Add(gradientHighlightGreen);
+        gradientMapAdjustmentEditor.Children.Add(gradientHighlightBlue);
+        gradientMapAdjustmentEditor.Children.Add(Command("ApplyGradientMapAdjustment", "应用渐变映射", ApplyGradientMapAdjustmentAsync, layer: true));
+        actions.Children.Add(gradientMapAdjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -692,6 +710,7 @@ public sealed class MainWindow : Window
         LevelsSettings? levels = null;
         HueSaturationSettings? hueSaturation = null;
         CurvesSettings? curves = null;
+        GradientMapSettings? gradientMap = null;
         refreshing = true;
         try
         {
@@ -721,6 +740,8 @@ public sealed class MainWindow : Window
                 hueSaturation = Workspace.Session!.GetHueSaturationAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Curves")
                 curves = Workspace.Session!.GetCurvesAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Gradient Map")
+                gradientMap = Workspace.Session!.GetGradientMapAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -738,6 +759,12 @@ public sealed class MainWindow : Window
             curvesShadow.Value = curves is null ? 0 : (decimal)curves.Shadow;
             curvesMid.Value = curves is null ? 128 : (decimal)curves.Mid;
             curvesHighlight.Value = curves is null ? 255 : (decimal)curves.Highlight;
+            gradientShadowRed.Value = gradientMap is null ? 0 : gradientMap.Shadow.Red;
+            gradientShadowGreen.Value = gradientMap is null ? 0 : gradientMap.Shadow.Green;
+            gradientShadowBlue.Value = gradientMap is null ? 0 : gradientMap.Shadow.Blue;
+            gradientHighlightRed.Value = gradientMap is null ? 255 : gradientMap.Highlight.Red;
+            gradientHighlightGreen.Value = gradientMap is null ? 255 : gradientMap.Highlight.Green;
+            gradientHighlightBlue.Value = gradientMap is null ? 255 : gradientMap.Highlight.Blue;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -761,10 +788,13 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit;
         bool showCurvesEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Curves" &&
             !multiple && Workspace.CanEdit;
+        bool showGradientMapEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Gradient Map" &&
+            !multiple && Workspace.CanEdit;
         adjustmentEditor.IsVisible = showExposureEditor;
         levelsAdjustmentEditor.IsVisible = showLevelsEditor;
         hueSaturationAdjustmentEditor.IsVisible = showHueSaturationEditor;
         curvesAdjustmentEditor.IsVisible = showCurvesEditor;
+        gradientMapAdjustmentEditor.IsVisible = showGradientMapEditor;
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
             levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
@@ -772,6 +802,8 @@ public sealed class MainWindow : Window
             adjustmentColorize.IsEnabled = showHueSaturationEditor;
         curvesShadow.IsEnabled = curvesMid.IsEnabled = curvesHighlight.IsEnabled = showCurvesEditor;
         curvesChannel.IsEnabled = showCurvesEditor;
+        gradientShadowRed.IsEnabled = gradientShadowGreen.IsEnabled = gradientShadowBlue.IsEnabled =
+            gradientHighlightRed.IsEnabled = gradientHighlightGreen.IsEnabled = gradientHighlightBlue.IsEnabled = showGradientMapEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -813,6 +845,11 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyCurvesAdjustment")
                 button.IsEnabled = showCurvesEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddGradientMapAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyGradientMapAdjustment")
+                button.IsEnabled = showGradientMapEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -1002,6 +1039,7 @@ public sealed class MainWindow : Window
     private Task AddLevelsAdjustmentAsync() => Task.Run(() => Workspace.AddLevelsAdjustment());
     private Task AddHueSaturationAdjustmentAsync() => Task.Run(() => Workspace.AddHueSaturationAdjustment());
     private Task AddCurvesAdjustmentAsync() => Task.Run(() => Workspace.AddCurvesAdjustment());
+    private Task AddGradientMapAdjustmentAsync() => Task.Run(() => Workspace.AddGradientMapAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
@@ -1035,6 +1073,15 @@ public sealed class MainWindow : Window
             _ => current with { Shadow = channel.Shadow, Mid = channel.Mid, Highlight = channel.Highlight }
         };
         return Task.Run(() => Workspace.ApplyActiveCurvesAdjustment(settings));
+    }
+    private Task ApplyGradientMapAdjustmentAsync()
+    {
+        var settings = new GradientMapSettings(
+            new GradientMapStop((int)(gradientShadowRed.Value ?? 0), (int)(gradientShadowGreen.Value ?? 0),
+                (int)(gradientShadowBlue.Value ?? 0)),
+            new GradientMapStop((int)(gradientHighlightRed.Value ?? 255), (int)(gradientHighlightGreen.Value ?? 255),
+                (int)(gradientHighlightBlue.Value ?? 255)));
+        return Task.Run(() => Workspace.ApplyActiveGradientMapAdjustment(settings));
     }
     private Task DuplicateLayerAsync()
     {

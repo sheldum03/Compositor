@@ -196,6 +196,42 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyGradientMap(TileRaster image, GradientMapSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var table = new (byte Red, byte Green, byte Blue)[256];
+        for (int index = 0; index < table.Length; index++)
+        {
+            var mapped = settings.Apply(index / 255d);
+            table[index] = (
+                (byte)Math.Round(mapped.Red * 255, MidpointRounding.AwayFromZero),
+                (byte)Math.Round(mapped.Green * 255, MidpointRounding.AwayFromZero),
+                (byte)Math.Round(mapped.Blue * 255, MidpointRounding.AwayFromZero));
+        }
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < pixels.Length; pixel += 4)
+            {
+                int alpha = pixels[pixel + 3];
+                if (alpha == 0) continue;
+                double red = pixels[pixel] * 255d / alpha;
+                double green = pixels[pixel + 1] * 255d / alpha;
+                double blue = pixels[pixel + 2] * 255d / alpha;
+                int low = Math.Clamp((int)Math.Round(0.2126 * red + 0.7152 * green + 0.0722 * blue,
+                    MidpointRounding.AwayFromZero), 0, 255);
+                (byte mappedRed, byte mappedGreen, byte mappedBlue) = table[low];
+                pixels[pixel] = (byte)Math.Clamp(Math.Round(mappedRed * alpha / 255d, MidpointRounding.AwayFromZero), 0, alpha);
+                pixels[pixel + 1] = (byte)Math.Clamp(Math.Round(mappedGreen * alpha / 255d, MidpointRounding.AwayFromZero), 0, alpha);
+                pixels[pixel + 2] = (byte)Math.Clamp(Math.Round(mappedBlue * alpha / 255d, MidpointRounding.AwayFromZero), 0, alpha);
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+    }
+
     public static TileRaster ApplyMask(TileRaster image, GrayTileRaster mask)
     {
         if (image.Width != mask.Width || image.Height != mask.Height)

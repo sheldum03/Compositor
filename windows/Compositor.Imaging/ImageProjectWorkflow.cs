@@ -10,7 +10,7 @@ public static class ImageProjectWorkflow
 {
     private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster? Raster,
         ExposureSettings? Exposure, LevelsSettings? Levels, HueSaturationSettings? HueSaturation,
-        CurvesSettings? Curves);
+        CurvesSettings? Curves, GradientMapSettings? GradientMap);
 
     public static ProjectSession Import(string imagePath, string projectDirectory)
     {
@@ -534,14 +534,16 @@ public static class ImageProjectWorkflow
             {
                 string? kind = adjustmentNode["kind"]?.GetValue<string>();
                 if (kind == "Exposure" && ExposureSettings.TryRead(adjustmentNode["exposureSettings"], out var exposure))
-                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null, null, null, null));
                 else if (kind == "Levels" && LevelsSettings.TryRead(adjustmentNode["levelsSettings"], out var levels))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, levels, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, levels, null, null, null));
                 else if (kind == "Hue/Saturation" && HueSaturationSettings.TryRead(adjustmentNode["hueSaturationSettings"], out var hueSaturation))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, hueSaturation, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, hueSaturation, null, null));
                 else if (kind == "Curves" && CurvesSettings.TryRead(adjustmentNode["curvesSettings"], out var curves))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, curves));
-                else throw new NotSupportedException("Only valid Exposure, Levels, Hue/Saturation and Curves adjustment layers are supported.");
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, curves, null));
+                else if (kind == "Gradient Map" && GradientMapSettings.TryRead(adjustmentNode["gradientMapSettings"], out var gradientMap))
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, gradientMap));
+                else throw new NotSupportedException("Only valid Exposure, Levels, Hue/Saturation, Curves and Gradient Map adjustment layers are supported.");
                 continue;
             }
             string imageName = layer["imageFile"]!.GetValue<string>();
@@ -583,7 +585,7 @@ public static class ImageProjectWorkflow
             var transform = layer["transform"]!.AsObject();
             if (!IsIdentityTransform(transform, width, height))
                 raster = TransformCachedRaster(raster, transform, width, height);
-            prepared.Add(new FlatLayerRender(layer, id, raster, null, null, null, null));
+            prepared.Add(new FlatLayerRender(layer, id, raster, null, null, null, null, null));
         }
         var byId = prepared.ToDictionary(layer => layer.Id);
         var resolved = new Dictionary<Guid, TileRaster>();
@@ -632,9 +634,10 @@ public static class ImageProjectWorkflow
             var layer = prepared[index];
             if ((renderOnly is null || renderOnly.Contains(layer.Id)) && layer.Manifest["isVisible"]!.GetValue<bool>())
             {
-                if (layer.Exposure is not null || layer.Levels is not null || layer.HueSaturation is not null || layer.Curves is not null)
+                if (layer.Exposure is not null || layer.Levels is not null || layer.HueSaturation is not null ||
+                    layer.Curves is not null || layer.GradientMap is not null)
                 {
-                    result = ApplyAdjustment(result, layer.Exposure, layer.Levels, layer.HueSaturation, layer.Curves,
+                    result = ApplyAdjustment(result, layer.Exposure, layer.Levels, layer.HueSaturation, layer.Curves, layer.GradientMap,
                         layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
                     continue;
                 }
@@ -658,7 +661,7 @@ public static class ImageProjectWorkflow
         return result;
 
         static TileRaster ApplyAdjustment(TileRaster source, ExposureSettings? exposure, LevelsSettings? levels,
-            HueSaturationSettings? hueSaturation, CurvesSettings? curves, double opacity)
+            HueSaturationSettings? hueSaturation, CurvesSettings? curves, GradientMapSettings? gradientMap, double opacity)
         {
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
                 throw new NotSupportedException("Adjustment layer opacity is not supported.");
@@ -671,6 +674,8 @@ public static class ImageProjectWorkflow
                 ? RasterCompositor.ApplyHueSaturation(source, hueSaturationSettings)
                 : curves is { } curvesSettings
                 ? RasterCompositor.ApplyCurves(source, curvesSettings)
+                : gradientMap is { } gradientMapSettings
+                ? RasterCompositor.ApplyGradientMap(source, gradientMapSettings)
                 : throw new InvalidDataException("Adjustment settings are missing.");
             if (opacity == 1) return adjusted;
             var result = new TileRaster(source.Width, source.Height);
@@ -1201,6 +1206,7 @@ public static class ImageProjectWorkflow
                 "Levels" => LevelsSettings.TryRead(node["levelsSettings"], out _),
                 "Hue/Saturation" => HueSaturationSettings.TryRead(node["hueSaturationSettings"], out _),
                 "Curves" => CurvesSettings.TryRead(node["curvesSettings"], out _),
+                "Gradient Map" => GradientMapSettings.TryRead(node["gradientMapSettings"], out _),
                 _ => false
             };
             if (!settingsValid || layer["blendMode"]?.GetValue<string>() is { } adjustmentBlend && adjustmentBlend != "Normal" ||

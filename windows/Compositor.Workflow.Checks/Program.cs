@@ -185,6 +185,7 @@ CheckExposureAdjustment(output);
 CheckLevelsAdjustment(output);
 CheckHueSaturationAdjustment(output);
 CheckCurvesAdjustment(output);
+CheckGradientMapAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1611,6 +1612,42 @@ static void CheckCurvesAdjustment(string output)
         throw new Exception("Curves adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Curves adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckGradientMapAdjustment(string output)
+{
+    string project = Path.Combine(output, "GradientMapAdjustment.comp");
+    var session = ProjectSession.CreateBlank(2, 1);
+    TileRaster source = new TileRaster(2, 1).ReplaceTile(0, 0,
+        [32, 16, 8, 128, 100, 40, 20, 255]);
+    session.ReplaceRaster(source);
+    var settings = new GradientMapSettings(new GradientMapStop(0, 20, 60), new GradientMapStop(220, 240, 255));
+    Guid adjustmentId = session.AddGradientMapAdjustment("Gradient Map", settings, 1);
+    if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
+        session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Gradient Map" ||
+        session.GetGradientMapAdjustment(adjustmentId) != settings)
+        throw new Exception("Gradient Map adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyGradientMap(source, settings);
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    if (Pixel(expected, 0, 0)[3] != Pixel(source, 0, 0)[3])
+        throw new Exception("Gradient Map adjustment changed alpha.");
+
+    var changedSettings = new GradientMapSettings(new GradientMapStop(30, 0, 40), new GradientMapStop(255, 210, 120));
+    session.SetGradientMapAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyGradientMap(source, changedSettings), changed);
+    if (!session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Gradient Map adjustment did not participate in undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Gradient Map" ||
+        reopened.GetGradientMapAdjustment(adjustmentId) != changedSettings)
+        throw new Exception("Gradient Map adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Gradient Map adjustment layer metadata, premultiplied pixels, history and save/reopen");
 }
 
 static void CloneProject(string source, string destination)

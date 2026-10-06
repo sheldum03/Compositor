@@ -161,6 +161,27 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the curves adjustment transaction.");
+        TileRaster gradientMapBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddGradientMapAdjustment");
+        FlatLayerInfo gradientMapLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == gradientMapLayer.Id &&
+            Control<Button>(window, "ApplyGradientMapAdjustment").IsEffectivelyEnabled,
+            "Gradient Map adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "GradientShadowRed").Value = 10;
+        Control<NumericUpDown>(window, "GradientShadowGreen").Value = 20;
+        Control<NumericUpDown>(window, "GradientShadowBlue").Value = 30;
+        Control<NumericUpDown>(window, "GradientHighlightRed").Value = 240;
+        Control<NumericUpDown>(window, "GradientHighlightGreen").Value = 220;
+        Control<NumericUpDown>(window, "GradientHighlightBlue").Value = 180;
+        Click(window, "ApplyGradientMapAdjustment");
+        GradientMapSettings appliedGradientMap = workspace.Session.GetGradientMapAdjustment(gradientMapLayer.Id);
+        Require(appliedGradientMap == new GradientMapSettings(new GradientMapStop(10, 20, 30), new GradientMapStop(240, 220, 180)),
+            "Gradient Map adjustment controls did not commit both color stops.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyGradientMap(gradientMapBase, appliedGradientMap));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Gradient Map adjustment transaction.");
         Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");

@@ -293,3 +293,77 @@ public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double 
         return value;
     }
 }
+
+public sealed record GradientMapStop(int Red = 0, int Green = 0, int Blue = 0)
+{
+    public bool IsValid => Red is >= 0 and <= 255 && Green is >= 0 and <= 255 && Blue is >= 0 and <= 255;
+
+    public JsonObject ToJson() => new()
+    {
+        ["red"] = Red,
+        ["green"] = Green,
+        ["blue"] = Blue
+    };
+
+    public static bool TryRead(JsonNode? node, out GradientMapStop stop)
+    {
+        stop = new GradientMapStop();
+        if (node is null) return false;
+        try
+        {
+            var value = node.AsObject();
+            stop = new GradientMapStop(
+                value["red"]?.GetValue<int>() ?? 0,
+                value["green"]?.GetValue<int>() ?? 0,
+                value["blue"]?.GetValue<int>() ?? 0);
+            return stop.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+}
+
+public sealed record GradientMapSettings(GradientMapStop Shadow, GradientMapStop Highlight)
+{
+    public GradientMapSettings() : this(new(), new(255, 255, 255)) { }
+
+    public bool IsValid => Shadow.IsValid && Highlight.IsValid;
+
+    public bool IsIdentity => Shadow == new GradientMapStop() && Highlight == new GradientMapStop(255, 255, 255);
+
+    public (double Red, double Green, double Blue) Apply(double value)
+    {
+        if (!IsValid) throw new InvalidOperationException("Invalid gradient map settings.");
+        double amount = Math.Clamp(value, 0, 1);
+        return (
+            (Shadow.Red + (Highlight.Red - Shadow.Red) * amount) / 255d,
+            (Shadow.Green + (Highlight.Green - Shadow.Green) * amount) / 255d,
+            (Shadow.Blue + (Highlight.Blue - Shadow.Blue) * amount) / 255d);
+    }
+
+    public static bool TryRead(JsonNode? node, out GradientMapSettings settings)
+    {
+        settings = new GradientMapSettings();
+        if (node is null) return true;
+        try
+        {
+            var value = node.AsObject();
+            if (!GradientMapStop.TryRead(value["shadow"], out var shadow) ||
+                !GradientMapStop.TryRead(value["highlight"], out var highlight)) return false;
+            settings = new GradientMapSettings(shadow, highlight);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new()
+    {
+        ["shadow"] = Shadow.ToJson(),
+        ["highlight"] = Highlight.ToJson()
+    };
+}

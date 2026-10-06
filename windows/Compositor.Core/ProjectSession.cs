@@ -859,6 +859,45 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public Guid AddGradientMapAdjustment(string name, GradientMapSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Gradient Map",
+            ["gradientMapSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
+    public GradientMapSettings GetGradientMapAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Gradient Map" ||
+            !GradientMapSettings.TryRead(adjustment["gradientMapSettings"], out var settings))
+            throw new NotSupportedException("Only Gradient Map adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetGradientMapAdjustment(Guid layerId, GradientMapSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Gradient Map")
+            throw new NotSupportedException("Only Gradient Map adjustment layers are supported in this slice.");
+        if (GetGradientMapAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["gradientMapSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
         Guid? destinationParentId = null)
     {
