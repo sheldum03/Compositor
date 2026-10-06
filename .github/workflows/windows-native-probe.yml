@@ -6,6 +6,7 @@ on:
     branches: [codex/windows-implementation]
     paths:
       - .github/workflows/windows-native-probe.yml
+      - .gitattributes
       - experiments/windows/native/**
       - experiments/windows/dotnet-bridge/**
       - experiments/windows/avalonia/**
