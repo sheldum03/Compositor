@@ -350,6 +350,9 @@ public sealed class MainWindow : Window
         levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "输出白", VerticalAlignment = VerticalAlignment.Center });
         levelsAdjustmentEditor.Children.Add(levelsOutputWhite);
         levelsAdjustmentEditor.Children.Add(levelsChannel);
+        levelsAdjustmentEditor.Children.Add(Command("AutoLevelsContrast", "自动对比度", () => ApplyAutoLevelsAsync(false, LevelsAutoMode.Contrast), layer: true));
+        levelsAdjustmentEditor.Children.Add(Command("AutoLevelsColor", "自动颜色", () => ApplyAutoLevelsAsync(false, LevelsAutoMode.Color), layer: true));
+        levelsAdjustmentEditor.Children.Add(Command("AutoLevelsNeutral", "自动中性色", () => ApplyAutoLevelsAsync(false, LevelsAutoMode.Neutral), layer: true));
         levelsAdjustmentEditor.Children.Add(Command("ApplyLevelsAdjustment", "应用色阶", ApplyLevelsAdjustmentAsync, layer: true));
         actions.Children.Add(levelsAdjustmentEditor);
         hueSaturationAdjustmentEditor.Children.Add(new TextBlock { Text = "色相", VerticalAlignment = VerticalAlignment.Center });
@@ -434,6 +437,9 @@ public sealed class MainWindow : Window
         selectionLevelsEditor.Children.Add(new TextBlock { Text = "输出白", VerticalAlignment = VerticalAlignment.Center });
         selectionLevelsEditor.Children.Add(selectionLevelsOutputWhite);
         selectionLevelsEditor.Children.Add(selectionLevelsChannel);
+        selectionLevelsEditor.Children.Add(Command("AutoSelectionLevelsContrast", "自动对比度", () => ApplyAutoLevelsAsync(true, LevelsAutoMode.Contrast), layer: true));
+        selectionLevelsEditor.Children.Add(Command("AutoSelectionLevelsColor", "自动颜色", () => ApplyAutoLevelsAsync(true, LevelsAutoMode.Color), layer: true));
+        selectionLevelsEditor.Children.Add(Command("AutoSelectionLevelsNeutral", "自动中性色", () => ApplyAutoLevelsAsync(true, LevelsAutoMode.Neutral), layer: true));
         selectionLevelsEditor.Children.Add(Command("PreviewSelectionLevels", "预览选区色阶", PreviewSelectionLevelsAsync, layer: true));
         selectionLevelsEditor.Children.Add(Command("CommitSelectionLevels", "提交选区色阶", CommitSelectionLevelsAsync, layer: true));
         selectionLevelsEditor.Children.Add(Command("CancelSelectionLevels", "取消滤镜预览", CancelSelectionLevelsAsync, layer: true));
@@ -1118,6 +1124,8 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyLevelsAdjustment")
                 button.IsEnabled = showLevelsEditor && !Workspace.HasFloatingSelection;
+            if (button.Name is "AutoLevelsContrast" or "AutoLevelsColor" or "AutoLevelsNeutral")
+                button.IsEnabled = showLevelsEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddHueSaturationAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
@@ -1159,6 +1167,8 @@ public sealed class MainWindow : Window
             if (button.Name is "CommitSelectionExposure" or "CancelSelectionExposure")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "PreviewSelectionLevels")
+                button.IsEnabled = showSelectionLevelsEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "AutoSelectionLevelsContrast" or "AutoSelectionLevelsColor" or "AutoSelectionLevelsNeutral")
                 button.IsEnabled = showSelectionLevelsEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionLevels" or "CancelSelectionLevels")
                 button.IsEnabled = Workspace.HasFilterPreview;
@@ -1393,6 +1403,13 @@ public sealed class MainWindow : Window
     private Task AddNoiseAdjustmentAsync() => Task.Run(() => Workspace.AddNoiseAdjustment());
     private Task AddLensCorrectionAdjustmentAsync() => Task.Run(() => Workspace.AddLensCorrectionAdjustment());
     private Task AddGrainAdjustmentAsync() => Task.Run(() => Workspace.AddGrainAdjustment());
+    private async Task ApplyAutoLevelsAsync(bool selectionOnly, LevelsAutoMode mode)
+    {
+        double[][] histogram = await Task.Run(() => Workspace.GetLevelsHistogram(selectionOnly));
+        LevelsSettings settings = LevelsSettings.FromHistogram(histogram, mode);
+        if (selectionOnly) Workspace.PreviewLevelsFilter(settings);
+        else Workspace.ApplyActiveLevelsAdjustment(settings);
+    }
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),

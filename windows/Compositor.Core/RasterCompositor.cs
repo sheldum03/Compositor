@@ -75,6 +75,34 @@ public static class RasterCompositor
         return result;
     }
 
+    public static double[][] ComputeLevelsHistogram(TileRaster image, GrayTileRaster? coverage = null)
+    {
+        if (coverage is not null && (coverage.Width != image.Width || coverage.Height != image.Height))
+            throw new ArgumentException("Histogram coverage dimensions must match the image.", nameof(coverage));
+        var bins = Enumerable.Range(0, 4).Select(_ => new double[256]).ToArray();
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            var pixels = image.ReadTileCopy(column, row);
+            var mask = coverage?.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < pixels.Length; pixel += 4)
+            {
+                int alpha = pixels[pixel + 3];
+                if (alpha == 0) continue;
+                double weight = alpha / 255d * (mask is null ? 1 : mask[pixel / 4] / 255d);
+                if (weight <= 0) continue;
+                for (int channel = 0; channel < 3; channel++)
+                {
+                    int value = Math.Clamp((int)Math.Round(pixels[pixel + channel] * 255d / alpha,
+                        MidpointRounding.AwayFromZero), 0, 255);
+                    bins[channel + 1][value] += weight;
+                    bins[0][value] += weight / 3d;
+                }
+            }
+        }
+        return bins;
+    }
+
     public static TileRaster ApplyHueSaturation(TileRaster image, HueSaturationSettings settings)
     {
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));

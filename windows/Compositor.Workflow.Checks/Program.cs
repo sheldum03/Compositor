@@ -183,6 +183,7 @@ CheckNewCanvas(output);
 CheckLayerSelection(output);
 CheckExposureAdjustment(output);
 CheckLevelsAdjustment(output);
+CheckLevelsAutomatic(output);
 CheckHueSaturationAdjustment(output);
 CheckCurvesAdjustment(output);
 CheckGradientMapAdjustment(output);
@@ -1552,6 +1553,32 @@ static void CheckLevelsAdjustment(string output)
         throw new Exception("Levels adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Levels adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckLevelsAutomatic(string output)
+{
+    TileRaster source = new TileRaster(4, 1).ReplaceTile(0, 0,
+        [20, 40, 60, 255, 20, 40, 60, 255, 230, 220, 210, 255, 230, 220, 210, 255]);
+    double[][] histogram = RasterCompositor.ComputeLevelsHistogram(source);
+    LevelsSettings contrast = LevelsSettings.FromHistogram(histogram, LevelsAutoMode.Contrast);
+    if (contrast.Rgb != new LevelRange(20, 230) || contrast.Red != new LevelRange() ||
+        contrast.Green != new LevelRange() || contrast.Blue != new LevelRange())
+        throw new Exception("Automatic contrast Levels did not use a shared channel interval.");
+    LevelsSettings color = LevelsSettings.FromHistogram(histogram, LevelsAutoMode.Color);
+    if (color.Rgb != new LevelRange() || color.Red != new LevelRange(20, 230) ||
+        color.Green != new LevelRange(40, 220) || color.Blue != new LevelRange(60, 210))
+        throw new Exception("Automatic color Levels did not calculate per-channel endpoints.");
+    LevelsSettings neutral = LevelsSettings.FromHistogram(histogram, LevelsAutoMode.Neutral);
+    if (!neutral.IsValid || neutral.Red.InputBlack != 20 || neutral.Blue.InputWhite != 210)
+        throw new Exception("Automatic neutral Levels produced invalid channel settings.");
+    GrayTileRaster coverage = GrayTileRaster.Rectangle(4, 1, 0, 0, 2, 1);
+    double[][] selected = RasterCompositor.ComputeLevelsHistogram(source, coverage);
+    if (selected[1][20] <= 0 || selected[1][230] != 0)
+        throw new Exception("Levels histogram did not apply selection coverage.");
+    TileRaster changed = RasterCompositor.ApplyLevels(source, color);
+    if (changed.ReadTileCopy(0, 0)[3] != 255 || changed.ReadTileCopy(0, 0)[0] == source.ReadTileCopy(0, 0)[0])
+        throw new Exception("Automatic color Levels did not produce an editable raster result.");
+    Console.WriteLine("PASS: Levels histogram coverage and contrast/color/neutral auto algorithms");
 }
 
 static void CheckHueSaturationAdjustment(string output)

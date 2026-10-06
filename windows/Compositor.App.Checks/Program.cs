@@ -198,6 +198,14 @@ internal static class Program
         Click(window, "SelectAll");
         TileRaster levelsFilterSource = workspace.Session.GetLayerRaster(Guid.Parse(id));
         bool levelsFilterBaselineDirty = workspace.IsDirty;
+        Require(Control<Button>(window, "AutoSelectionLevelsColor").IsEffectivelyEnabled,
+            "Selection Levels automatic color button was not enabled for an active selection.");
+        Click(window, "AutoSelectionLevelsColor");
+        Require(workspace.HasFilterPreview && workspace.IsDirty == levelsFilterBaselineDirty,
+            "Automatic selection Levels preview changed document history.");
+        Click(window, "CancelSelectionLevels");
+        Require(!workspace.HasFilterPreview && workspace.IsDirty == levelsFilterBaselineDirty,
+            "Cancelling automatic selection Levels did not restore the source state.");
         Control<ComboBox>(window, "SelectionLevelsChannel").SelectedIndex = 1;
         Control<NumericUpDown>(window, "SelectionLevelsInputBlack").Value = 20;
         Control<NumericUpDown>(window, "SelectionLevelsInputWhite").Value = 220;
@@ -363,6 +371,13 @@ internal static class Program
         Require(workspace.Session.ActiveLayerId == levelsLayer.Id &&
             Control<Button>(window, "ApplyLevelsAdjustment").IsEffectivelyEnabled,
             "Levels adjustment button did not create an editable active adjustment layer.");
+        Require(Control<Button>(window, "AutoLevelsContrast").IsEffectivelyEnabled,
+            "Levels automatic contrast button was not enabled for an active adjustment layer.");
+        Click(window, "AutoLevelsContrast");
+        LevelsSettings automaticLevels = workspace.Session.GetLevelsAdjustment(levelsLayer.Id);
+        Require(automaticLevels.IsValid &&
+            CheckEqualNoThrow(workspace.Preview!, RasterCompositor.ApplyLevels(levelsBase, automaticLevels)),
+            "Automatic contrast Levels did not commit the histogram-derived settings.");
         Control<NumericUpDown>(window, "LevelsInputBlack").Value = 16;
         Control<NumericUpDown>(window, "LevelsInputWhite").Value = 240;
         Control<NumericUpDown>(window, "LevelsGamma").Value = 1.2m;
@@ -374,6 +389,7 @@ internal static class Program
             "Levels adjustment controls did not commit the RGB range.");
         CheckEqual(workspace.Preview!, RasterCompositor.ApplyLevels(levelsBase, appliedLevels));
         Click(window, "Undo");
+        if (workspace.Session.GetLevelsAdjustment(levelsLayer.Id) != new LevelsSettings()) Click(window, "Undo");
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the levels adjustment transaction.");
@@ -2284,7 +2300,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut and Ctrl+Shift+Z redo shortcuts with pixel history restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "cross-parent grouped clipping visible-result Layer via Copy with external group transform/mask/appearance, root insertion and save/reopen", "cross-parent fifteen-level clipping visible-result Layer via Copy with chain preservation, root insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "destructive active-layer invert with alpha preservation and undo/redo", "selection Gaussian Blur preview/cancel/commit with undo", "selection Motion Blur preview/cancel/commit with undo", "selection Add Noise preview/cancel/commit with undo", "selection Lens Correction preview/cancel/commit with undo", "selection Exposure preview/cancel/commit with undo", "selection RGB/R/G/B Levels preview/cancel/commit with undo", "selection Hue/Saturation preview/cancel/commit with undo", "selection RGB/R/G/B Curves preview/cancel/commit with undo", "selection RGB Gradient Map preview/cancel/commit with undo", "selection Grain preview/cancel/commit with undo", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut and Ctrl+Shift+Z redo shortcuts with pixel history restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "cross-parent grouped clipping visible-result Layer via Copy with external group transform/mask/appearance, root insertion and save/reopen", "cross-parent fifteen-level clipping visible-result Layer via Copy with chain preservation, root insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "destructive active-layer invert with alpha preservation and undo/redo", "selection Gaussian Blur preview/cancel/commit with undo", "selection Motion Blur preview/cancel/commit with undo", "selection Add Noise preview/cancel/commit with undo", "selection Lens Correction preview/cancel/commit with undo", "selection Exposure preview/cancel/commit with undo", "selection RGB/R/G/B Levels preview/cancel/commit with undo", "root Levels histogram-driven automatic contrast", "selection Levels automatic color preview/cancel", "selection Hue/Saturation preview/cancel/commit with undo", "selection RGB/R/G/B Curves preview/cancel/commit with undo", "selection RGB Gradient Map preview/cancel/commit with undo", "selection Grain preview/cancel/commit with undo", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

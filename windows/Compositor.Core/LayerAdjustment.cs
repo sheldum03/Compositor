@@ -121,6 +121,13 @@ public sealed record LevelRange(double InputBlack = 0, double InputWhite = 255, 
     };
 }
 
+public enum LevelsAutoMode
+{
+    Contrast,
+    Color,
+    Neutral
+}
+
 public sealed record LevelsSettings(LevelRange Rgb, LevelRange Red, LevelRange Green, LevelRange Blue)
 {
     public LevelsSettings() : this(new(), new(), new(), new()) { }
@@ -139,6 +146,63 @@ public sealed record LevelsSettings(LevelRange Rgb, LevelRange Red, LevelRange G
             _ => throw new ArgumentOutOfRangeException(nameof(channel))
         };
         return Rgb.Apply(range.Apply(value));
+    }
+
+    public static LevelsSettings FromHistogram(IReadOnlyList<double[]> histogram, LevelsAutoMode mode)
+    {
+        if (histogram.Count < 4 || histogram.Any(bins => bins.Length != 256))
+            throw new ArgumentException("Levels histogram must contain four 256-bin channels.", nameof(histogram));
+        var result = new LevelRange[4];
+
+        static (double Low, double High)? Endpoints(double[] bins)
+        {
+            double total = bins.Sum(value => value > 0 && double.IsFinite(value) ? value : 0);
+            if (total <= 0) return null;
+            double sum = 0;
+            int low = 0, high = 255;
+            for (int index = 0; index < 256; index++)
+            {
+                sum += Math.Max(0, bins[index]);
+                if (sum > total * 0.001) { low = index; break; }
+            }
+            sum = 0;
+            for (int index = 255; index >= 0; index--)
+            {
+                sum += Math.Max(0, bins[index]);
+                if (sum > total * 0.001) { high = index; break; }
+            }
+            return low < high ? (low, high) : null;
+        }
+
+        if (mode == LevelsAutoMode.Contrast)
+        {
+            var limits = Enumerable.Range(1, 3).Select(channel => Endpoints(histogram[channel])).
+                Where(value => value is not null).Select(value => value!.Value).ToArray();
+            if (limits.Length > 0)
+                result[0] = new LevelRange(limits.Min(value => value.Low), limits.Max(value => value.High));
+        }
+        else
+        {
+            for (int channel = 1; channel <= 3; channel++)
+            {
+                var limits = Endpoints(histogram[channel]);
+                if (limits is null) continue;
+                var range = new LevelRange(limits.Value.Low, limits.Value.High);
+                if (mode == LevelsAutoMode.Neutral)
+                {
+                    double total = histogram[channel].Sum(value => value > 0 && double.IsFinite(value) ? value : 0);
+                    if (total > 0)
+                    {
+                        double mean = histogram[channel].Select((value, index) =>
+                            range.Apply(index / 255d) * Math.Max(0, value)).Sum() / total;
+                        if (mean > 0 && mean < 1)
+                            range = range with { Gamma = Math.Clamp(Math.Log(mean) / Math.Log(0.5), 0.1, 9.99) };
+                    }
+                }
+                result[channel] = range;
+            }
+        }
+        return new LevelsSettings(result[0] ?? new(), result[1] ?? new(), result[2] ?? new(), result[3] ?? new());
     }
 
     public static bool TryRead(JsonNode? node, out LevelsSettings settings)

@@ -127,6 +127,17 @@ public static class ImageProjectWorkflow
         return RenderFlatNormalCore(session, null, null, null, layerIds);
     }
 
+    public static TileRaster RenderFlatNormalBeforeLayer(ProjectSession session, Guid layerId)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        if (!session.CanEdit) throw new NotSupportedException("Layer subset rendering requires an editable project.");
+        if (session.HasGroups) throw new NotSupportedException("Rendering before a layer does not support groups.");
+        int index = session.Layers.ToList().FindIndex(layer => layer.Id == layerId);
+        if (index < 0) throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        var layerIds = session.Layers.Take(index).Select(layer => layer.Id).ToHashSet();
+        return RenderFlatNormalCore(session, null, null, null, layerIds);
+    }
+
     public static TileRaster RenderLayersForMerge(ProjectSession session, IReadOnlyList<Guid> layerIds)
     {
         ArgumentNullException.ThrowIfNull(layerIds);

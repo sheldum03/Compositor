@@ -305,6 +305,37 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyLevels(source, settings), "选区色阶");
     }
 
+    public double[][] GetLevelsHistogram(bool selectionOnly)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        ProjectSession session = RequireSession();
+        if (session.HasGroups || session.ActiveLayerId is not { } layerId)
+            throw new NotSupportedException("色阶直方图目前只支持无组平面工程。");
+        FlatLayerInfo layer = session.Layers.Single(item => item.Id == layerId);
+        TileRaster source;
+        GrayTileRaster? coverage = null;
+        if (layer.IsAdjustment)
+        {
+            if (layer.AdjustmentKind != "Levels" || selectionOnly)
+                throw new NotSupportedException("调整层色阶直方图只支持当前色阶调整层的原始合成结果。");
+            source = ImageProjectWorkflow.RenderFlatNormalBeforeLayer(session, layerId);
+        }
+        else
+        {
+            if (layer.IsGroup || layer.IsText || layer.IsAdjustment || layer.HasMask ||
+                !session.IsLayerTransformIdentity(layerId))
+                throw new NotSupportedException("色阶直方图目前只支持无蒙版、无变换的平面栅格图层。");
+            source = session.GetLayerRaster(layerId);
+            if (selectionOnly)
+            {
+                if (Selection is null) throw new InvalidOperationException("当前没有选区。");
+                coverage = SelectionForLayer(session, layerId, Selection);
+            }
+        }
+        return RasterCompositor.ComputeLevelsHistogram(source, coverage);
+    }
+
     public void PreviewHueSaturationFilter(HueSaturationSettings settings)
     {
         PreviewSelectionFilter(source => RasterCompositor.ApplyHueSaturation(source, settings), "选区色相/饱和度");
