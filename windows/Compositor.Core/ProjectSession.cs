@@ -1232,6 +1232,13 @@ public sealed class ProjectSession
         lowerNode["isVisible"] = selected.Any(layer => layer.IsVisible);
         lowerNode["opacity"] = 1d;
         lowerNode["blendMode"] = "Normal";
+        var lowerTransform = lowerNode["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Layer transform data is missing.");
+        lowerTransform["origin"] = new JsonArray(0d, 0d);
+        lowerTransform["size"] = new JsonArray((double)Width, (double)Height);
+        lowerTransform["rotation"] = 0d;
+        lowerTransform["flipX"] = false;
+        lowerTransform["flipY"] = false;
         lowerNode.Remove("maskFile");
         lowerNode.Remove("maskEnabled");
         lowerNode.Remove("maskSourceID");

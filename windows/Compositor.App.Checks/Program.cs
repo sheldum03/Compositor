@@ -248,6 +248,53 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedAppearanceClipping), appearanceClippingBefore);
         appearanceClippingWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string transformedMergeProject = Path.Combine(output, "TransformedMerge.comp");
+        var transformedMergeWorkspace = new EditorWorkspace();
+        transformedMergeWorkspace.Import(fixture, transformedMergeProject);
+        Guid transformedLowerId = transformedMergeWorkspace.Session!.Layers[0].Id;
+        Guid transformedUpperId = transformedMergeWorkspace.Session.AddBlankLayer("Transformed upper", 1);
+        transformedMergeWorkspace.Edit(session =>
+        {
+            session.SetLayerTransform(transformedLowerId, 12, 9, session.Width - 24, session.Height - 18, 11);
+            session.SetLayerTransform(transformedUpperId, 28, 17, session.Width - 56, session.Height - 34, -7);
+            session.SetLayerOpacity(transformedLowerId, 0.68);
+            session.SetLayerBlendMode(transformedUpperId, "Screen");
+            session.SetLayerOpacity(transformedUpperId, 0.57);
+        });
+        transformedMergeWorkspace.Save();
+        TileRaster transformedMergeBefore = ImageProjectWorkflow.RenderFlatNormal(transformedMergeWorkspace.Session);
+        var transformedMergeWindow = new MainWindow(transformedMergeWorkspace);
+        transformedMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var transformedMergeList = Control<ListBox>(transformedMergeWindow, "Layers");
+        transformedMergeList.SelectedItems!.Clear();
+        foreach (FlatLayerInfo layerInfo in transformedMergeList.ItemsView!.Cast<FlatLayerInfo>())
+            transformedMergeList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(transformedMergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "Transformed flat layers did not enable the merge command.");
+        Click(transformedMergeWindow, "MergeLayerDown");
+        Require(transformedMergeWorkspace.Session.Layers.Count == 1 && transformedMergeWorkspace.IsDirty,
+            "Transformed flat merge did not produce one layer.");
+        LayerTransformInfo transformedMergedTransform = transformedMergeWorkspace.Session.GetLayerTransform(transformedLowerId);
+        Require(transformedMergedTransform.X == 0 && transformedMergedTransform.Y == 0 &&
+            transformedMergedTransform.Width == transformedMergeWorkspace.Session.Width &&
+            transformedMergedTransform.Height == transformedMergeWorkspace.Session.Height &&
+            transformedMergedTransform.Rotation == 0 && !transformedMergedTransform.FlipX && !transformedMergedTransform.FlipY,
+            "Transformed flat merge did not normalize the merged layer transform.");
+        CheckEqual(transformedMergeWorkspace.Preview!, transformedMergeBefore);
+        Click(transformedMergeWindow, "Undo");
+        Require(transformedMergeWorkspace.Session.Layers.Count == 2 && !transformedMergeWorkspace.IsDirty,
+            "Undo did not restore transformed flat layers and saved state.");
+        CheckEqual(transformedMergeWorkspace.Preview!, transformedMergeBefore);
+        Click(transformedMergeWindow, "Redo");
+        transformedMergeWorkspace.Save();
+        var reopenedTransformedMerge = ImageProjectWorkflow.OpenEditable(transformedMergeProject);
+        Require(reopenedTransformedMerge.Layers.Count == 1 &&
+            reopenedTransformedMerge.GetLayerTransform(reopenedTransformedMerge.Layers[0].Id).Rotation == 0,
+            "Saved transformed flat merge did not reopen with normalized transform metadata.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedTransformedMerge), transformedMergeBefore);
+        transformedMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string multiMergeProject = Path.Combine(output, "MultiMerge.comp");
         var multiMergeWorkspace = new EditorWorkspace();
         multiMergeWorkspace.Import(fixture, multiMergeProject);
@@ -758,7 +805,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
                 "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
