@@ -690,6 +690,9 @@ internal static class Program
         Require(crossGroupTarget.Session.Layers.Count == groupedTargetBeforeFlatCopy + 1 &&
             copiedIntoGroup.Name == crossLayerSource.Session.Layers.Single(layer => layer.Id == crossLayerSourceId).Name,
             "A grouped target did not insert a copied layer as a group sibling.");
+        crossGroupTarget.Session.SelectLayer(copiedGroupChildren[0].Id);
+        Require(!crossGroupSource.CanCopyLayerTo(crossGroupTarget, crossGroupChildId),
+            "A raster layer inside a transformed group was incorrectly enabled for isolated copy.");
         crossGroupSource.Edit(session => session.SetGroupTransform(
             crossGroupId, 0, 0, session.Width, session.Height, 0));
         TileRaster groupedLeafRaster = crossGroupSource.Session.GetLayerRaster(crossGroupChildId);
