@@ -53,11 +53,17 @@ jobs:
           if (!$vs) { throw "Visual Studio installation with x64 C++ tools was not found." }
           $devenv = Get-Item "$vs/Common7/IDE/devenv.exe" -ErrorAction Stop
           $vsMajor = $devenv.VersionInfo.ProductMajorPart
-          $cmakeHelp = cmake --help | Out-String
-          $generators = [regex]::Matches($cmakeHelp, '(?m)^\s*(Visual Studio \d+ \d{4})(?: \[arch\])?\s+=') |
-            ForEach-Object { $_.Groups[1].Value }
-          $generator = $generators | Where-Object { $_ -match "Visual Studio $vsMajor " } | Select-Object -First 1
-          if (!$generator) { throw "CMake has no Visual Studio generator for installed VS major $vsMajor." }
+          $year = switch ($vsMajor) {
+            18 { 2026 }
+            17 { 2022 }
+            16 { 2019 }
+            15 { 2017 }
+            default { throw "Unsupported Visual Studio major $vsMajor." }
+          }
+          $generator = "Visual Studio $vsMajor $year"
+          if (-not ((cmake --help | Out-String) -match [regex]::Escape($generator))) {
+            throw "CMake has no '$generator' generator."
+          }
           "VS_GENERATOR=$generator" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "VS_INSTALLATION=$vs" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "Generator=$generator" | Tee-Object build/evidence/msvc-generator.txt
