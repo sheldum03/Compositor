@@ -1390,7 +1390,7 @@ public sealed class ProjectSession
         {
             return sourceLayer.IsGroup
                 ? ValidateGroupCopy(source, sourceLayerId, sourceIndex)
-                : ValidateGroupedLeafCopy(source, sourceLayer);
+                : ValidateGroupedStackCopy(source, sourceLayer);
         }
         var stackIds = new HashSet<Guid> { sourceLayerId };
         bool changed;
@@ -1418,12 +1418,38 @@ public sealed class ProjectSession
         return sourceIndexes;
     }
 
-    private static int[] ValidateGroupedLeafCopy(ProjectSession source, FlatLayerInfo sourceLayer)
+    private static int[] ValidateGroupedStackCopy(ProjectSession source, FlatLayerInfo sourceLayer)
     {
-        if (sourceLayer.MaskSourceId is not null)
-            throw new NotSupportedException("A clipped layer inside a group must be copied with its clipping source.");
-        if (sourceLayer.HasMask && source.GetLayerMask(sourceLayer.Id) is null)
-            throw new InvalidDataException("Source layer mask asset is missing.");
+        var stackIds = new HashSet<Guid> { sourceLayer.Id };
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (FlatLayerInfo layer in source.Layers)
+            {
+                if (layer.MaskSourceId is { } sourceId && stackIds.Contains(sourceId) && stackIds.Add(layer.Id))
+                    changed = true;
+                if (stackIds.Contains(layer.Id) && layer.MaskSourceId is { } groupedSourceParentId && stackIds.Add(groupedSourceParentId))
+                    changed = true;
+            }
+        } while (changed);
+        int[] sourceIndexes = stackIds.Select(source.FindLayer).OrderBy(index => index).ToArray();
+        if (sourceIndexes[^1] - sourceIndexes[0] + 1 != sourceIndexes.Length)
+            throw new NotSupportedException("Clipping stack must remain contiguous when copied.");
+        Guid? commonParentId = source.Layers[sourceIndexes[0]].ParentId;
+        if (sourceIndexes.Any(index => source.Layers[index].ParentId != commonParentId))
+            throw new NotSupportedException("A grouped clipping stack must remain in one parent group.");
+        foreach (FlatLayerInfo layer in source.Layers)
+        {
+            bool included = stackIds.Contains(layer.Id);
+            if (included && layer.IsGroup)
+                throw new NotSupportedException("Group layers cannot be copied as part of a clipping stack.");
+            if (included && layer.HasMask && source.GetLayerMask(layer.Id) is null)
+                throw new InvalidDataException("Source layer mask asset is missing.");
+            if (included && layer.MaskSourceId is { } sourceId && !stackIds.Contains(sourceId) ||
+                !included && layer.MaskSourceId is { } externalSourceId && stackIds.Contains(externalSourceId))
+                throw new NotSupportedException("A grouped clipping stack cannot retain an external relationship.");
+        }
         Guid? parentId = sourceLayer.ParentId;
         while (parentId is { } current)
         {
@@ -1436,7 +1462,7 @@ public sealed class ProjectSession
                 throw new NotSupportedException("A layer inside an enabled group mask must be copied with its group.");
             parentId = parent.ParentId;
         }
-        return [source.FindLayer(sourceLayer.Id)];
+        return sourceIndexes;
     }
 
     private static int[] ValidateGroupCopy(ProjectSession source, Guid groupId, int groupIndex)
@@ -1481,8 +1507,9 @@ public sealed class ProjectSession
         var idMap = sourceIndexes.ToDictionary(
             index => Guid.Parse((sourceLayers[index]!.AsObject())["id"]!.GetValue<string>()),
             _ => Guid.NewGuid());
-        bool groupedLeaf = source.HasGroups && sourceIndexes.Count == 1 &&
-            source.Layers[sourceIndexes[0]].IsGroup is false;
+        bool groupedStack = source.HasGroups && sourceIndexes.Count > 0 &&
+            source.Layers[sourceIndexes[0]].ParentId is not null &&
+            sourceIndexes.All(index => source.Layers[index].IsGroup is false);
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
         var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!);
@@ -1504,7 +1531,7 @@ public sealed class ProjectSession
                 Guid sourceParentId = Guid.Parse(parentNode.GetValue<string>());
                 if (!idMap.TryGetValue(sourceParentId, out Guid targetParentId))
                 {
-                    if (groupedLeaf)
+                    if (groupedStack)
                     {
                         if (destinationParentId is { } groupedLeafParent)
                             layer["parentID"] = groupedLeafParent.ToString("D");
