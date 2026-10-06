@@ -171,6 +171,7 @@ CheckGroupedLayerViaCopy(output, fixtures);
 CheckGroupedLeafLayerViaCopy(output, fixtures);
 CheckGroupedClippingStackLayerViaCopy(output, fixtures);
 CheckGroupedNestedClippingStackLayerViaCopy(output, fixtures);
+CheckGroupedDiscontinuousClippingStackLayerViaCopy(output, fixtures);
 CheckTransformedGroupedLeafLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
@@ -647,6 +648,51 @@ static void CheckGroupedNestedClippingStackLayerViaCopy(string output, string fi
         throw new Exception("Saved nested grouped clipping stack lost its relationships or parent mask.");
     AssertRaster(expected, reopened.GetLayerRaster(copiedId));
     Console.WriteLine("PASS: nested grouped clipping-stack visible-result copy preserves chained relationships and save/reopen");
+}
+
+static void CheckGroupedDiscontinuousClippingStackLayerViaCopy(string output, string fixtures)
+{
+    string expectedSource = Path.Combine(output, "GroupedDiscontinuousClippingExpected.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), expectedSource);
+    var expectedSession = ImageProjectWorkflow.OpenEditable(expectedSource);
+    Guid expectedBaseId = expectedSession.Layers.Single().Id;
+    Guid expectedChildId = expectedSession.AddBlankLayer("Clipped child", 1);
+    expectedSession.SetLayerOpacity(expectedChildId, 0.66);
+    expectedSession.SetLayerBlendMode(expectedChildId, "Screen");
+    expectedSession.SetLayerMaskSource(expectedChildId, expectedBaseId);
+    expectedSession.GroupLayers([expectedBaseId, expectedChildId], "Expected parent");
+    TileRaster expected = ImageProjectWorkflow.RenderLayerForCopy(expectedSession, expectedChildId);
+
+    string source = Path.Combine(output, "GroupedDiscontinuousClippingCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid baseId = session.Layers.Single().Id;
+    Guid unrelatedId = session.AddBlankLayer("Unrelated sibling", 1);
+    Guid childId = session.AddBlankLayer("Clipped child", 2);
+    session.SetLayerOpacity(childId, 0.66);
+    session.SetLayerBlendMode(childId, "Screen");
+    session.SetLayerMaskSource(childId, baseId);
+    Guid groupId = session.GroupLayers([baseId, unrelatedId, childId], "Discontinuous parent");
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(session, childId))
+        throw new Exception("A same-parent discontinuous clipping stack was not enabled for visible-result copy.");
+    TileRaster actual = ImageProjectWorkflow.RenderLayerForCopy(session, childId);
+    AssertRaster(expected, actual);
+    int childIndex = session.Layers.ToList().FindIndex(layer => layer.Id == childId);
+    int insertion = ImageProjectWorkflow.GetGroupedLayerCopyInsertionIndex(session, childId);
+    if (insertion != childIndex + 1)
+        throw new Exception("Discontinuous clipping-stack copy did not insert after the selected target.");
+    Guid copiedId = session.AddRasterLayerToGroup("Layer via Copy", actual, insertion, groupId);
+    if (session.Layers.ToList().FindIndex(layer => layer.Id == copiedId) != insertion ||
+        session.Layers.Single(layer => layer.Id == copiedId).ParentId != groupId)
+        throw new Exception("Discontinuous clipping-stack copy did not preserve the parent insertion point.");
+    string saved = Path.Combine(output, "GroupedDiscontinuousClippingCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    if (reopened.Layers.Single(layer => layer.Id == childId).MaskSourceId != baseId ||
+        reopened.Layers.Single(layer => layer.Id == copiedId).ParentId != groupId)
+        throw new Exception("Saved discontinuous clipping stack lost its original relationship or parent.");
+    AssertRaster(actual, reopened.GetLayerRaster(copiedId));
+    Console.WriteLine("PASS: same-parent discontinuous clipping-stack visible-result copy preserves target semantics and save/reopen");
 }
 
 static void CheckTransformedGroupedLeafLayerViaCopy(string output, string fixtures)

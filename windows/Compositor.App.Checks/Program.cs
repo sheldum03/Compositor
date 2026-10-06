@@ -1379,6 +1379,65 @@ internal static class Program
                 reopenedNestedGroupedStackCopy.GetLayerRaster(nestedGroupedStackCopiedId)),
             "Saved nested grouped clipping-stack copy did not preserve the chain or raster.");
         nestedGroupedStackCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var discontinuousGroupedStackWorkspace = new EditorWorkspace();
+        string discontinuousGroupedStackPath = Path.Combine(output, "GroupedDiscontinuousClippingStackLayerViaCopy.comp");
+        discontinuousGroupedStackWorkspace.Import(fixture, discontinuousGroupedStackPath);
+        Guid discontinuousBaseId = discontinuousGroupedStackWorkspace.Session!.ActiveLayerId!.Value;
+        Guid discontinuousUnrelatedId = discontinuousGroupedStackWorkspace.Session.AddBlankLayer("Unrelated sibling", 1);
+        Guid discontinuousChildId = discontinuousGroupedStackWorkspace.Session.AddBlankLayer("Clipped child", 2);
+        discontinuousGroupedStackWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(discontinuousChildId, 0.66);
+            session.SetLayerBlendMode(discontinuousChildId, "Screen");
+            session.SetLayerMaskSource(discontinuousChildId, discontinuousBaseId);
+        });
+        Guid discontinuousGroupId = discontinuousGroupedStackWorkspace.Session.GroupLayers(
+            [discontinuousBaseId, discontinuousUnrelatedId, discontinuousChildId], "Discontinuous clipping parent");
+        discontinuousGroupedStackWorkspace.Save();
+        discontinuousGroupedStackWorkspace.Session.SelectLayer(discontinuousChildId);
+        discontinuousGroupedStackWorkspace.SelectRectangle(new Rect(0, 0,
+            discontinuousGroupedStackWorkspace.Session.Width / 2,
+            discontinuousGroupedStackWorkspace.Session.Height));
+        TileRaster discontinuousExpected = ImageProjectWorkflow.RenderLayerForCopy(
+            discontinuousGroupedStackWorkspace.Session, discontinuousChildId);
+        int discontinuousChildIndex = discontinuousGroupedStackWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == discontinuousChildId);
+        var discontinuousGroupedStackWindow = new MainWindow(discontinuousGroupedStackWorkspace);
+        discontinuousGroupedStackWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(discontinuousGroupedStackWindow, "Layers").SelectedItem =
+            discontinuousGroupedStackWorkspace.Session.Layers.Single(layer => layer.Id == discontinuousChildId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(discontinuousGroupedStackWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A same-parent discontinuous clipping stack did not enable Layer via Copy.");
+        Click(discontinuousGroupedStackWindow, "LayerViaCopy");
+        Guid discontinuousCopiedId = discontinuousGroupedStackWorkspace.Session.ActiveLayerId!.Value;
+        FlatLayerInfo discontinuousCopied = discontinuousGroupedStackWorkspace.Session.Layers
+            .Single(layer => layer.Id == discontinuousCopiedId);
+        int discontinuousCopiedIndex = discontinuousGroupedStackWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == discontinuousCopiedId);
+        Require(discontinuousCopied.ParentId == discontinuousGroupId &&
+            discontinuousCopiedIndex == discontinuousChildIndex + 1,
+            "Discontinuous clipping-stack Layer via Copy did not insert after the selected target.");
+        TileRaster discontinuousCopiedRaster = discontinuousGroupedStackWorkspace.Session
+            .GetLayerRaster(discontinuousCopiedId);
+        for (int y = 0; y < discontinuousCopiedRaster.Height; y++)
+        for (int x = 0; x < discontinuousCopiedRaster.Width; x++)
+        {
+            byte[] actual = PixelAt(discontinuousCopiedRaster, x, y);
+            if (x < discontinuousCopiedRaster.Width / 2)
+                Require(actual.SequenceEqual(PixelAt(discontinuousExpected, x, y)),
+                    "Discontinuous clipping-stack Layer via Copy changed selected pixels.");
+            else Require(actual.All(channel => channel == 0),
+                "Discontinuous clipping-stack Layer via Copy retained pixels outside the selection.");
+        }
+        discontinuousGroupedStackWorkspace.Save();
+        var reopenedDiscontinuous = ImageProjectWorkflow.OpenEditable(discontinuousGroupedStackPath);
+        Require(reopenedDiscontinuous.Layers.Single(layer => layer.Id == discontinuousChildId).MaskSourceId == discontinuousBaseId &&
+            reopenedDiscontinuous.Layers.Single(layer => layer.Id == discontinuousCopiedId).ParentId == discontinuousGroupId &&
+            CheckEqualNoThrow(discontinuousCopiedRaster,
+                reopenedDiscontinuous.GetLayerRaster(discontinuousCopiedId)),
+            "Saved discontinuous clipping-stack copy did not preserve the relationship, parent or raster.");
+        discontinuousGroupedStackWindow.Close(); Dispatcher.UIThread.RunJobs();
         var transformedGroupedLeafWorkspace = new EditorWorkspace();
         string transformedGroupedLeafPath = Path.Combine(output, "TransformedGroupedLeafLayerViaCopy.comp");
         transformedGroupedLeafWorkspace.Import(fixture, transformedGroupedLeafPath);
@@ -1526,7 +1585,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

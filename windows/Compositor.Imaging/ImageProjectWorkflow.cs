@@ -262,21 +262,16 @@ public static class ImageProjectWorkflow
         }
         int rootIndex = session.Layers.ToList().FindIndex(layer => layer.Id == root.Id);
         if (rootIndex < 0) throw new ArgumentException("Layer does not belong to this project.", nameof(target));
-        var stack = new List<FlatLayerInfo> { root };
-        var stackIds = new HashSet<Guid> { root.Id };
-        int nextIndex = rootIndex + 1;
-        while (nextIndex < session.Layers.Count)
+        var stack = new List<FlatLayerInfo>();
+        for (FlatLayerInfo? current = target; current is not null;)
         {
-            FlatLayerInfo candidate = session.Layers[nextIndex];
-            if (candidate.ParentId != parentId || candidate.MaskSourceId is not { } sourceId ||
-                !stackIds.Contains(sourceId)) break;
-            stack.Add(candidate);
-            stackIds.Add(candidate.Id);
-            nextIndex++;
+            stack.Add(current);
+            current = current.MaskSourceId is { } sourceId
+                ? session.Layers.SingleOrDefault(layer => layer.Id == sourceId)
+                : null;
         }
-        foreach (FlatLayerInfo layer in session.Layers)
-            if (layer.ParentId == parentId && layer.MaskSourceId is { } source && stackIds.Contains(source) && !stackIds.Contains(layer.Id))
-                throw new NotSupportedException("A clipping stack must remain contiguous when copied.");
+        stack.Reverse();
+        var stackIds = stack.Select(layer => layer.Id).ToHashSet();
         foreach (FlatLayerInfo layer in stack)
         {
             if (layer.IsGroup || layer.IsText)
