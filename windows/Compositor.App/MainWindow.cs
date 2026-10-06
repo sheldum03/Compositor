@@ -33,6 +33,13 @@ public sealed class MainWindow : Window
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
     private readonly ListBox layers = new() { Name = "Layers", SelectionMode = SelectionMode.Multiple };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
+    private readonly StackPanel textEditorPanel = new() { Spacing = 6, IsVisible = false };
+    private readonly TextBox textContent = new() { Name = "TextContent", AcceptsReturn = true, TextWrapping = TextWrapping.Wrap,
+        Height = 72, Watermark = "文字内容" };
+    private readonly ComboBox textFont = new() { Name = "TextFont", Width = 220 };
+    private readonly NumericUpDown textSize = new() { Name = "TextSize", Minimum = 1, Maximum = 2000, Value = 18, Width = 80 };
+    private readonly ComboBox textAlignment = new() { Name = "TextAlignment", Width = 90,
+        ItemsSource = new[] { "left", "center", "right" }, SelectedIndex = 0 };
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly NumericUpDown layerMoveX = new() { Name = "LayerMoveX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
@@ -186,11 +193,23 @@ public sealed class MainWindow : Window
         actions.Children.Add(structure);
         actions.Children.Add(layerName);
         actions.Children.Add(Command("Rename", "应用名称", RenameAsync, layer: true));
+        textEditorPanel.Children.Add(new TextBlock { Text = "文字", Margin = new Thickness(0, 8, 0, 0) });
+        textEditorPanel.Children.Add(textContent);
+        var textOptions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        textOptions.Children.Add(new TextBlock { Text = "字体", VerticalAlignment = VerticalAlignment.Center });
+        textOptions.Children.Add(textFont);
+        textOptions.Children.Add(new TextBlock { Text = "字号", VerticalAlignment = VerticalAlignment.Center });
+        textOptions.Children.Add(textSize);
+        textOptions.Children.Add(textAlignment);
+        textEditorPanel.Children.Add(textOptions);
+        textEditorPanel.Children.Add(Command("ApplyText", "应用文字", ApplyTextAsync, layer: true));
+        actions.Children.Add(textEditorPanel);
         var appearance = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         appearance.Children.Add(new TextBlock { Text = "透明度 %", VerticalAlignment = VerticalAlignment.Center });
         appearance.Children.Add(layerOpacity);
         appearance.Children.Add(layerBlendMode);
         actions.Children.Add(appearance);
+        textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         var move = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         move.Children.Add(new TextBlock { Text = "X", VerticalAlignment = VerticalAlignment.Center });
         move.Children.Add(layerMoveX);
@@ -212,7 +231,7 @@ public sealed class MainWindow : Window
         layers.ItemTemplate = new FuncDataTemplate<FlatLayerInfo>((item, _) => new TextBlock
         {
             Text = item is null ? "" : (item.IsVisible ? "●  " : "○  ") +
-                (item.MaskSourceId is not null ? "[剪贴] " : "") + item.Name,
+                (item.MaskSourceId is not null ? "[剪贴] " : "") + (item.IsText ? "[文字] " : "") + item.Name,
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
@@ -561,9 +580,24 @@ public sealed class MainWindow : Window
             layerName.Text = selected?.Name ?? "";
             layerOpacity.Value = selected is null ? 100 : (decimal)(selected.Opacity * 100);
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
+            var text = selected?.IsText == true
+                ? Workspace.Session!.TextLayers.SingleOrDefault(item => item.Id == selected.Id)
+                : null;
+            textContent.Text = text?.Content ?? "";
+            textSize.Value = text is null ? 18 : (decimal)text.FontSizePoints;
+            textAlignment.SelectedItem = text?.Alignment ?? "left";
+            textFont.SelectedItem = text is null
+                ? null
+                : textFont.Items.OfType<string>().FirstOrDefault(font =>
+                    string.Equals(font, text.FontPostScriptName, StringComparison.OrdinalIgnoreCase));
         }
         finally { refreshing = false; }
         layerName.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
+        textEditorPanel.IsVisible = Workspace.CanEdit && selected?.IsText == true && !multiple;
+        textContent.IsEnabled = textEditorPanel.IsVisible;
+        textFont.IsEnabled = textContent.IsEnabled;
+        textSize.IsEnabled = textContent.IsEnabled;
+        textAlignment.IsEnabled = textContent.IsEnabled;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -578,6 +612,8 @@ public sealed class MainWindow : Window
                 button.IsEnabled = false;
             if (button.Name == "LayerViaCopy")
                 button.IsEnabled = Workspace.CanLayerViaCopy;
+            if (button.Name == "ApplyText")
+                button.IsEnabled = Workspace.CanEdit && selected?.IsText == true && !multiple && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -751,6 +787,21 @@ public sealed class MainWindow : Window
         Guid id = selectedId!.Value;
         string name = layerName.Text ?? "";
         return EditAsync(s => s.RenameLayer(id, name));
+    }
+    private Task ApplyTextAsync()
+    {
+        Guid id = selectedId!.Value;
+        ProjectSession session = Workspace.Session!;
+        TextLayerMetadata current = session.TextLayers.Single(item => item.Id == id);
+        string font = textFont.SelectedItem as string ?? current.FontPostScriptName;
+        TextLayerMetadata edited = current with
+        {
+            Content = textContent.Text ?? "",
+            FontPostScriptName = font,
+            FontSizePoints = (double)(textSize.Value ?? (decimal)current.FontSizePoints),
+            Alignment = textAlignment.SelectedItem as string ?? current.Alignment
+        };
+        return Task.Run(() => Workspace.UpdateText(edited));
     }
     private Task AppearanceAsync()
     {

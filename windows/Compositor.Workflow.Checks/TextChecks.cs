@@ -64,13 +64,27 @@ internal static class TextChecks
         if (!availableRender.Status.FontAvailable || availableRender.UsedCache ||
             !HasInk(availableRender.Raster) || !SameRaster(availableRender.Raster, ImageProjectWorkflow.RenderFlatNormal(available)))
             throw new Exception("Available-font text did not take the redraw path.");
+        TextLayerMetadata originalMetadata = available.TextLayers.Single();
+        TextLayerMetadata editedMetadata = originalMetadata with
+        {
+            Content = "Edited Windows text",
+            FontSizePoints = 22
+        };
+        TextLayerWorkflow.Update(available, editedMetadata);
+        if (!available.IsDirty || available.TextLayers.Single().Content != "Edited Windows text" ||
+            !HasInk(available.GetLayerRaster(layerId)) ||
+            !SameRaster(available.GetLayerRaster(layerId), ImageProjectWorkflow.RenderFlatNormal(available)))
+            throw new Exception("Text metadata edit did not redraw, update history, and refresh preview.");
+        if (!available.Undo() || available.TextLayers.Single().Content != originalMetadata.Content ||
+            !available.Redo() || available.TextLayers.Single().Content != editedMetadata.Content)
+            throw new Exception("Text metadata edit did not participate in undo and redo.");
         string saved = Path.Combine(output, "TextAvailableSaved.comp");
         ImageProjectWorkflow.Save(available, saved);
         var reopened = ProjectStore.Open(saved);
-        if (reopened.TextLayers.Count != 1 || reopened.TextLayers[0].Content != "Windows text" ||
+        if (reopened.TextLayers.Count != 1 || reopened.TextLayers[0].Content != "Edited Windows text" ||
             reopened.TextLayers[0].FontPostScriptName != availableFamily)
             throw new Exception("Text metadata was not preserved through save and reopen.");
-        Console.WriteLine("PASS: v8 text metadata is exposed; available fonts redraw; missing fonts preserve cache and request an explicit font choice");
+        Console.WriteLine("PASS: v8 text metadata is exposed; available fonts redraw and edit with history; missing fonts preserve cache and request an explicit font choice");
     }
 
     private static bool HasInk(TileRaster raster)

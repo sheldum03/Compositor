@@ -11,8 +11,22 @@ public sealed record TextLayerRenderResult(TextLayerStatus Status, TileRaster Ra
 
 public static class TextLayerWorkflow
 {
+    public static IReadOnlyList<string> AvailableFonts =>
+        SKFontManager.Default.GetFontFamilies().OrderBy(family => family, StringComparer.OrdinalIgnoreCase).ToArray();
+
     public static IReadOnlyList<TextLayerStatus> Inspect(ProjectSession session) =>
         session.TextLayers.Select(metadata => Status(metadata)).ToArray();
+
+    public static void Update(ProjectSession session, TextLayerMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(metadata);
+        TextLayerStatus status = Status(metadata);
+        if (!status.FontAvailable)
+            throw new NotSupportedException(status.Message);
+        TileRaster cache = session.GetLayerRaster(metadata.Id);
+        session.UpdateTextLayer(metadata, RenderRaster(metadata, cache, session.Resolution));
+    }
 
     public static TextLayerRenderResult Render(ProjectSession session, Guid layerId)
     {

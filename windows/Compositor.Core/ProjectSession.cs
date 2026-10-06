@@ -5,6 +5,7 @@ namespace Compositor.Core;
 public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
 {
     public bool IsGroup { get; init; }
+    public bool IsText { get; init; }
     public Guid? ParentId { get; init; }
     public double Opacity { get; init; } = 1;
     public string BlendMode { get; init; } = "Normal";
@@ -100,6 +101,7 @@ public sealed class ProjectSession
             layer["name"]!.GetValue<string>(), layer["isVisible"]?.GetValue<bool>() ?? true)
         {
             IsGroup = layer["isGroup"]?.GetValue<bool>() ?? false,
+            IsText = layer["text"] is not null,
             ParentId = layer["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null,
             Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
@@ -242,6 +244,42 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Group layers do not have a raster asset.");
         return TryGetLoadedLayerRaster(layerId, out var raster) ? raster
             : throw new InvalidOperationException("Layer rasters have not been loaded.");
+    }
+
+    public void UpdateTextLayer(TextLayerMetadata metadata, TileRaster raster)
+    {
+        if (!CanEdit) throw new NotSupportedException("This project is read-only.");
+        ArgumentNullException.ThrowIfNull(metadata);
+        ArgumentNullException.ThrowIfNull(raster);
+        int index = FindLayer(metadata.Id);
+        var layer = Current["layers"]![index]!.AsObject();
+        if (layer["text"] is not JsonObject)
+            throw new InvalidOperationException("Layer is not a text layer.");
+        if (metadata.ImageFile != (layer["imageFile"]?.GetValue<string>() ?? ""))
+            throw new ArgumentException("Text image asset cannot be changed by a metadata edit.", nameof(metadata));
+        ValidateTextMetadata(metadata);
+        CheckRasterSize(raster);
+        var next = (JsonObject)Current.DeepClone();
+        var text = next["layers"]![index]!["text"]!.AsObject();
+        text["alignment"] = metadata.Alignment;
+        text["alpha"] = metadata.Alpha;
+        text["blue"] = metadata.Blue;
+        text["content"] = metadata.Content;
+        text["fontPostScriptName"] = metadata.FontPostScriptName;
+        text["fontSizePoints"] = metadata.FontSizePoints;
+        text["green"] = metadata.Green;
+        text["layout"] = metadata.Layout == "point"
+            ? new JsonObject { ["point"] = new JsonObject() }
+            : new JsonObject { ["box"] = new JsonObject { ["width"] = metadata.BoxWidth!.Value } };
+        text["lineSpacingPoints"] = metadata.LineSpacingPoints;
+        text["red"] = metadata.Red;
+        text["trackingPoints"] = metadata.TrackingPoints;
+        var rasters = new Dictionary<Guid, TileRaster>(
+            snapshots[cursor].LayerRasters ?? throw new InvalidOperationException("Layer rasters have not been loaded."))
+        {
+            [metadata.Id] = raster
+        };
+        Commit(new Snapshot(next, rasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
     public GrayTileRaster? GetLayerMask(Guid layerId)
@@ -1745,6 +1783,25 @@ public sealed class ProjectSession
         if (raster.Width != Current["width"]!.GetValue<int>() ||
             raster.Height != Current["height"]!.GetValue<int>())
             throw new ArgumentException("Raster dimensions do not match the canvas.", nameof(raster));
+    }
+
+    private static void ValidateTextMetadata(TextLayerMetadata metadata)
+    {
+        if (metadata.Content.Length is < 1 or > 1_000_000 ||
+            metadata.FontPostScriptName.Length is < 1 or > 1024 ||
+            metadata.Alignment is not ("left" or "center" or "right") ||
+            metadata.Layout is not ("point" or "box") ||
+            !double.IsFinite(metadata.FontSizePoints) || metadata.FontSizePoints is < 1 or > 2000 ||
+            !double.IsFinite(metadata.Red) || metadata.Red is < 0 or > 1 ||
+            !double.IsFinite(metadata.Green) || metadata.Green is < 0 or > 1 ||
+            !double.IsFinite(metadata.Blue) || metadata.Blue is < 0 or > 1 ||
+            !double.IsFinite(metadata.Alpha) || metadata.Alpha is < 0 or > 1 ||
+            !double.IsFinite(metadata.LineSpacingPoints) || metadata.LineSpacingPoints is < -2000 or > 2000 ||
+            !double.IsFinite(metadata.TrackingPoints) || metadata.TrackingPoints is < -2000 or > 2000 ||
+            metadata.Layout == "box" && (!metadata.BoxWidth.HasValue ||
+                !double.IsFinite(metadata.BoxWidth.Value) || metadata.BoxWidth.Value is < 1 or > 30000) ||
+            metadata.Layout == "point" && metadata.BoxWidth is not null)
+            throw new ArgumentException("Text metadata is invalid.", nameof(metadata));
     }
 
     private void CheckMaskSize(GrayTileRaster mask)

@@ -781,6 +781,43 @@ internal static class CanvasChecks
         cachedTextWorkspace.Export(cachedTextExport, jpeg: false);
         Require(ImageCodec.Load(cachedTextExport).Width == workspace.Session.Width,
             "Missing-font cached preview did not preserve document export dimensions.");
+        string availableTextProject = Path.Combine(output, "AvailableText.comp");
+        CopyDirectory(cachedTextProject, availableTextProject);
+        string availableTextManifestPath = Path.Combine(availableTextProject, "manifest.json");
+        var availableTextManifest = JsonNode.Parse(File.ReadAllText(availableTextManifestPath))!.AsObject();
+        var availableTextLayer = availableTextManifest["layers"]!.AsArray()[^1]!.AsObject();
+        string availableTextFont = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
+            ?? throw new Exception("No installed font was available for the App text edit check.");
+        availableTextLayer["text"]!["fontPostScriptName"] = availableTextFont;
+        File.WriteAllText(availableTextManifestPath, availableTextManifest.ToJsonString());
+        var availableTextWorkspace = new EditorWorkspace();
+        availableTextWorkspace.Open(availableTextProject);
+        var availableTextWindow = new MainWindow(availableTextWorkspace);
+        availableTextWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var availableTextContent = Find<TextBox>(availableTextWindow, "TextContent");
+        Require(availableTextWorkspace.CanEdit && availableTextContent.IsEffectivelyEnabled &&
+            Find<Button>(availableTextWindow, "ApplyText").IsEffectivelyEnabled,
+            "Available-font text did not expose the editable text controls.");
+        availableTextContent.Text = "Edited from the Windows text panel";
+        Find<Button>(availableTextWindow, "ApplyText").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var textTimer = Stopwatch.StartNew();
+        while (availableTextWindow.IsBusy)
+        {
+            Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+            if (textTimer.Elapsed.TotalSeconds > 30) throw new TimeoutException("Text edit did not finish.");
+        }
+        ProjectSession availableTextSession = availableTextWorkspace.Session
+            ?? throw new Exception("Text edit closed its project session.");
+        Require(availableTextWorkspace.IsDirty &&
+            availableTextSession.TextLayers.Single().Content == "Edited from the Windows text panel",
+            "Text panel edit did not update the text metadata or dirty state.");
+        Require(availableTextWorkspace.Undo() &&
+            availableTextSession.TextLayers.Single().Content == "Missing font cache" &&
+            availableTextWorkspace.Redo() &&
+            availableTextSession.TextLayers.Single().Content == "Edited from the Windows text panel",
+            "Text panel edit did not participate in undo and redo.");
+        availableTextWindow.Close(); Dispatcher.UIThread.RunJobs();
         var resizeWorkspace = new EditorWorkspace();
         resizeWorkspace.Open(project);
         int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;

@@ -101,6 +101,14 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
+    public void UpdateText(TextLayerMetadata metadata)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        TextLayerWorkflow.Update(RequireSession(), metadata);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
     public void BakeGroupTransform(Guid groupId)
     {
         RequireIdle();
