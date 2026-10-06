@@ -65,6 +65,10 @@ internal static class TextChecks
             !HasInk(availableRender.Raster) || !SameRaster(availableRender.Raster, ImageProjectWorkflow.RenderFlatNormal(available)))
             throw new Exception("Available-font text did not take the redraw path.");
         TextLayerMetadata originalMetadata = available.TextLayers.Single();
+        TextHitTestResult textStart = TextLayerWorkflow.HitTest(originalMetadata, 72, 0, 0);
+        TextHitTestResult textEnd = TextLayerWorkflow.HitTest(originalMetadata, 72, 1000, 0);
+        if (textStart.CharacterIndex != 0 || textStart.LineIndex != 0 || textEnd.CharacterIndex != originalMetadata.Content.Length)
+            throw new Exception("Text hit testing did not expose stable UTF-16 offsets for the point layout.");
         TextLayerMetadata editedMetadata = originalMetadata with
         {
             Content = "Edited Windows text",
@@ -94,13 +98,28 @@ internal static class TextChecks
             created.TextLayers.Single().Content != "Created Windows text" ||
             !HasInk(created.GetLayerRaster(createdId)))
             throw new Exception("Creating a text layer did not persist metadata and rendered pixels.");
-        if (!created.Undo() || created.Layers.Count != 1 || !created.Redo() || created.Layers.Count != 2)
-            throw new Exception("Creating a text layer did not participate in undo and redo.");
+        TextLayerMetadata createdBoxMetadata = createdMetadata with
+        {
+            Content = "中文 English 🙂 é second line",
+            Layout = "box",
+            BoxWidth = 72
+        };
+        TileRaster createdBoxRaster = TextLayerWorkflow.RenderText(createdBoxMetadata, created.Width, created.Height, created.Resolution);
+        Guid createdBoxId = created.AddTextLayer("Created box text", createdBoxMetadata, createdBoxRaster, created.Layers.Count);
+        TextHitTestResult boxHit = TextLayerWorkflow.HitTest(created.TextLayers.Single(item => item.Id == createdBoxId), 72, 1, 1);
+        if (boxHit.LineIndex != 0 || boxHit.CharacterIndex != 0 || !boxHit.IsInside)
+            throw new Exception("Box text hit testing did not map the first line to the start of the content.");
+        if (!created.Undo() || created.Layers.Count != 2 || !created.Redo() || created.Layers.Count != 3)
+            throw new Exception("Creating text layers did not participate in undo and redo.");
         string createdPath = Path.Combine(output, "TextCreated.comp");
         ImageProjectWorkflow.Save(created, createdPath);
         var reopenedCreated = ProjectStore.Open(createdPath);
-        if (reopenedCreated.TextLayers.Count != 1 || reopenedCreated.TextLayers[0].Content != "Created Windows text" ||
-            !HasInk(ImageCodec.Load(Path.Combine(createdPath, "images", reopenedCreated.TextLayers[0].ImageFile))))
+        if (reopenedCreated.TextLayers.Count != 2 ||
+            reopenedCreated.TextLayers[0].Content != "Created Windows text" ||
+            reopenedCreated.TextLayers[1].Content != "中文 English 🙂 é second line" ||
+            reopenedCreated.TextLayers[1].Layout != "box" ||
+            !HasInk(ImageCodec.Load(Path.Combine(createdPath, "images", reopenedCreated.TextLayers[0].ImageFile))) ||
+            !HasInk(ImageCodec.Load(Path.Combine(createdPath, "images", reopenedCreated.TextLayers[1].ImageFile))))
             throw new Exception("Created text layer was not preserved through save and reopen.");
         Console.WriteLine("PASS: v8 text metadata is exposed; text layers can be created, edited, saved, and reopened; missing fonts preserve cache and request an explicit font choice");
     }

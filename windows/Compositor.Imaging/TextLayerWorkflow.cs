@@ -9,6 +9,8 @@ public sealed record TextLayerStatus(TextLayerMetadata Metadata, bool FontAvaila
 
 public sealed record TextLayerRenderResult(TextLayerStatus Status, TileRaster Raster, bool UsedCache);
 
+public sealed record TextHitTestResult(int CharacterIndex, int LineIndex, bool IsInside);
+
 public static class TextLayerWorkflow
 {
     private static readonly object FontGate = new();
@@ -56,6 +58,57 @@ public static class TextLayerWorkflow
         ArgumentNullException.ThrowIfNull(metadata);
         if (width < 1 || height < 1) throw new ArgumentOutOfRangeException(nameof(width));
         return RenderRaster(metadata, new TileRaster(width, height), resolution);
+    }
+
+    public static TextHitTestResult HitTest(TextLayerMetadata metadata, double resolution, float x, float y)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        if (!float.IsFinite(x) || !float.IsFinite(y)) throw new ArgumentOutOfRangeException(nameof(x));
+        SKTypeface typeface = FindTypeface(metadata.FontPostScriptName)
+            ?? throw new NotSupportedException("The original text font became unavailable while hit testing.");
+        if (!double.IsFinite(resolution) || resolution <= 0) throw new InvalidDataException("Invalid document resolution.");
+        float scale = (float)(resolution / 72);
+        using var paint = new SKPaint
+        {
+            Typeface = typeface,
+            TextSize = (float)(metadata.FontSizePoints * scale),
+            IsAntialias = true,
+            SubpixelText = true,
+            LcdRenderText = false
+        };
+        float tracking = (float)(metadata.TrackingPoints * scale);
+        float lineSpacing = (float)(metadata.LineSpacingPoints * scale);
+        float lineHeight = Math.Max(1, paint.FontMetrics.Descent - paint.FontMetrics.Ascent + lineSpacing);
+        float layoutWidth = metadata.Layout == "box" ? (float)metadata.BoxWidth!.Value : float.PositiveInfinity;
+        string[] lines = LayoutLines(metadata.Content, paint, tracking, layoutWidth);
+        int lineIndex = Math.Clamp((int)MathF.Floor(Math.Max(0, y) / lineHeight), 0, lines.Length - 1);
+        string line = lines[lineIndex];
+        float lineWidth = Measure(line, paint, tracking);
+        float start = metadata.Alignment switch
+        {
+            "center" when float.IsFinite(layoutWidth) => (layoutWidth - lineWidth) / 2,
+            "right" when float.IsFinite(layoutWidth) => layoutWidth - lineWidth,
+            _ => 0
+        };
+        float localX = x - start;
+        int localIndex = 0;
+        float cursor = 0;
+        foreach (string element in Elements(line))
+        {
+            float advance = paint.MeasureText(element) + tracking;
+            if (localX < cursor + advance / 2) break;
+            cursor += advance;
+            localIndex += element.Length;
+        }
+        int contentIndex = 0;
+        for (int index = 0; index < lineIndex; index++)
+        {
+            contentIndex += lines[index].Length;
+            if (contentIndex < metadata.Content.Length && metadata.Content[contentIndex] == '\n') contentIndex++;
+        }
+        contentIndex = Math.Clamp(contentIndex + localIndex, 0, metadata.Content.Length);
+        bool inside = y >= 0 && y < lines.Length * lineHeight && x >= start && x <= start + lineWidth;
+        return new TextHitTestResult(contentIndex, lineIndex, inside);
     }
 
     public static TextLayerRenderResult Render(ProjectSession session, Guid layerId)
