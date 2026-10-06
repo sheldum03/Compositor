@@ -52,10 +52,11 @@ internal static class FontLibraryChecks
         string recoveryRoot = Path.Combine(output, "RecoveredFontLibrary");
         var recoverySource = new FontLibrary(recoveryRoot);
         ImportedFont recoveryFont = recoverySource.Import(source);
-        File.WriteAllBytes(Path.Combine(recoveryRoot, recoveryFont.FileName), [0, 1, 2, 3]);
+        string recoveryCatalog = Path.Combine(recoveryRoot, "fonts.json");
+        File.WriteAllText(recoveryCatalog,
+            File.ReadAllText(recoveryCatalog).Replace(recoveryFont.Sha256, new string('0', 64), StringComparison.Ordinal));
         var recovered = new FontLibrary(recoveryRoot);
-        if (recovered.Entries.Count != 0 ||
-            JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(Path.Combine(recoveryRoot, "fonts.json")))?.Count != 0)
+        if (recovered.Entries.Count != 0 || JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(recoveryCatalog))?.Count != 0)
             throw new Exception("A damaged persisted font was not removed from the restored catalog.");
         Console.WriteLine("PASS: font library persists, deduplicates, restores, and selects TTC faces while rejecting invalid inputs");
     }
