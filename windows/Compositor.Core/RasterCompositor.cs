@@ -232,6 +232,71 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyGaussianBlur(TileRaster image, GaussianBlurSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int width = image.Width, height = image.Height, radius = settings.Radius;
+        byte[] input = new byte[checked(width * height * 4)];
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = image.TileDimensions(column, row);
+            byte[] tile = image.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(
+                    input.AsSpan(((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize) * 4, size.Width * 4));
+        }
+        double sigma = Math.Max(0.5, radius / 2d);
+        double[] kernel = new double[radius * 2 + 1];
+        double total = 0;
+        for (int offset = -radius; offset <= radius; offset++)
+        {
+            double weight = Math.Exp(-(offset * offset) / (2 * sigma * sigma));
+            kernel[offset + radius] = weight;
+            total += weight;
+        }
+        for (int index = 0; index < kernel.Length; index++) kernel[index] /= total;
+        double[] horizontal = new double[input.Length], blurred = new double[input.Length];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        for (int channel = 0; channel < 4; channel++)
+        {
+            double value = 0;
+            for (int offset = -radius; offset <= radius; offset++)
+            {
+                int sampleX = Math.Clamp(x + offset, 0, width - 1);
+                value += input[(y * width + sampleX) * 4 + channel] * kernel[offset + radius];
+            }
+            horizontal[(y * width + x) * 4 + channel] = value;
+        }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        for (int channel = 0; channel < 4; channel++)
+        {
+            double value = 0;
+            for (int offset = -radius; offset <= radius; offset++)
+            {
+                int sampleY = Math.Clamp(y + offset, 0, height - 1);
+                value += horizontal[(sampleY * width + x) * 4 + channel] * kernel[offset + radius];
+            }
+            blurred[(y * width + x) * 4 + channel] = value;
+        }
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            for (int channel = 0; channel < 4; channel++)
+                tile[(y * size.Width + x) * 4 + channel] = (byte)Math.Clamp(
+                    Math.Round(blurred[((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize + x) * 4 + channel], MidpointRounding.AwayFromZero), 0, 255);
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+    }
+
     public static TileRaster ApplyMask(TileRaster image, GrayTileRaster mask)
     {
         if (image.Width != mask.Width || image.Height != mask.Height)

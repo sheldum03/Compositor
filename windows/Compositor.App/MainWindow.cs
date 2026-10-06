@@ -78,6 +78,8 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown gradientHighlightGreen = new() { Name = "GradientHighlightGreen", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
     private readonly NumericUpDown gradientHighlightBlue = new() { Name = "GradientHighlightBlue", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
     private readonly StackPanel gradientMapAdjustmentEditor = new() { Name = "GradientMapAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
+    private readonly NumericUpDown gaussianBlurRadius = new() { Name = "GaussianBlurRadius", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
+    private readonly StackPanel gaussianBlurAdjustmentEditor = new() { Name = "GaussianBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -204,6 +206,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddHueSaturationAdjustment", "新增色相/饱和度", AddHueSaturationAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddCurvesAdjustment", "新增曲线调整", AddCurvesAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddGradientMapAdjustment", "新增渐变映射", AddGradientMapAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddGaussianBlurAdjustment", "新增高斯模糊", AddGaussianBlurAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -313,6 +316,10 @@ public sealed class MainWindow : Window
         gradientMapAdjustmentEditor.Children.Add(gradientHighlightBlue);
         gradientMapAdjustmentEditor.Children.Add(Command("ApplyGradientMapAdjustment", "应用渐变映射", ApplyGradientMapAdjustmentAsync, layer: true));
         actions.Children.Add(gradientMapAdjustmentEditor);
+        gaussianBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "半径", VerticalAlignment = VerticalAlignment.Center });
+        gaussianBlurAdjustmentEditor.Children.Add(gaussianBlurRadius);
+        gaussianBlurAdjustmentEditor.Children.Add(Command("ApplyGaussianBlurAdjustment", "应用高斯模糊", ApplyGaussianBlurAdjustmentAsync, layer: true));
+        actions.Children.Add(gaussianBlurAdjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -711,6 +718,7 @@ public sealed class MainWindow : Window
         HueSaturationSettings? hueSaturation = null;
         CurvesSettings? curves = null;
         GradientMapSettings? gradientMap = null;
+        GaussianBlurSettings? gaussianBlur = null;
         refreshing = true;
         try
         {
@@ -742,6 +750,8 @@ public sealed class MainWindow : Window
                 curves = Workspace.Session!.GetCurvesAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Gradient Map")
                 gradientMap = Workspace.Session!.GetGradientMapAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Gaussian Blur")
+                gaussianBlur = Workspace.Session!.GetGaussianBlurAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -765,6 +775,7 @@ public sealed class MainWindow : Window
             gradientHighlightRed.Value = gradientMap is null ? 255 : gradientMap.Highlight.Red;
             gradientHighlightGreen.Value = gradientMap is null ? 255 : gradientMap.Highlight.Green;
             gradientHighlightBlue.Value = gradientMap is null ? 255 : gradientMap.Highlight.Blue;
+            gaussianBlurRadius.Value = gaussianBlur is null ? 1 : gaussianBlur.Radius;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -790,11 +801,14 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit;
         bool showGradientMapEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Gradient Map" &&
             !multiple && Workspace.CanEdit;
+        bool showGaussianBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Gaussian Blur" &&
+            !multiple && Workspace.CanEdit;
         adjustmentEditor.IsVisible = showExposureEditor;
         levelsAdjustmentEditor.IsVisible = showLevelsEditor;
         hueSaturationAdjustmentEditor.IsVisible = showHueSaturationEditor;
         curvesAdjustmentEditor.IsVisible = showCurvesEditor;
         gradientMapAdjustmentEditor.IsVisible = showGradientMapEditor;
+        gaussianBlurAdjustmentEditor.IsVisible = showGaussianBlurEditor;
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
             levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
@@ -803,7 +817,8 @@ public sealed class MainWindow : Window
         curvesShadow.IsEnabled = curvesMid.IsEnabled = curvesHighlight.IsEnabled = showCurvesEditor;
         curvesChannel.IsEnabled = showCurvesEditor;
         gradientShadowRed.IsEnabled = gradientShadowGreen.IsEnabled = gradientShadowBlue.IsEnabled =
-            gradientHighlightRed.IsEnabled = gradientHighlightGreen.IsEnabled = gradientHighlightBlue.IsEnabled = showGradientMapEditor;
+        gradientHighlightRed.IsEnabled = gradientHighlightGreen.IsEnabled = gradientHighlightBlue.IsEnabled = showGradientMapEditor;
+        gaussianBlurRadius.IsEnabled = showGaussianBlurEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -850,6 +865,11 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyGradientMapAdjustment")
                 button.IsEnabled = showGradientMapEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddGaussianBlurAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyGaussianBlurAdjustment")
+                button.IsEnabled = showGaussianBlurEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -1040,6 +1060,7 @@ public sealed class MainWindow : Window
     private Task AddHueSaturationAdjustmentAsync() => Task.Run(() => Workspace.AddHueSaturationAdjustment());
     private Task AddCurvesAdjustmentAsync() => Task.Run(() => Workspace.AddCurvesAdjustment());
     private Task AddGradientMapAdjustmentAsync() => Task.Run(() => Workspace.AddGradientMapAdjustment());
+    private Task AddGaussianBlurAdjustmentAsync() => Task.Run(() => Workspace.AddGaussianBlurAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
@@ -1082,6 +1103,11 @@ public sealed class MainWindow : Window
             new GradientMapStop((int)(gradientHighlightRed.Value ?? 255), (int)(gradientHighlightGreen.Value ?? 255),
                 (int)(gradientHighlightBlue.Value ?? 255)));
         return Task.Run(() => Workspace.ApplyActiveGradientMapAdjustment(settings));
+    }
+    private Task ApplyGaussianBlurAdjustmentAsync()
+    {
+        var settings = new GaussianBlurSettings((int)(gaussianBlurRadius.Value ?? 1));
+        return Task.Run(() => Workspace.ApplyActiveGaussianBlurAdjustment(settings));
     }
     private Task DuplicateLayerAsync()
     {

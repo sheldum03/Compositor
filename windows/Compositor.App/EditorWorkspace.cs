@@ -211,6 +211,18 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
+    public void AddGaussianBlurAdjustment(GaussianBlurSettings? settings = null)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        RequireEditableSession();
+        int index = session.ActiveLayerId is { } active
+            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
+            : session.Layers.Count;
+        session.AddGaussianBlurAdjustment("Gaussian Blur", settings ?? new GaussianBlurSettings(), index);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
     public void ApplyActiveExposureAdjustment(ExposureSettings settings)
     {
         RequireIdle();
@@ -254,6 +266,15 @@ public sealed class EditorWorkspace
         if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).IsAdjustment)
             throw new InvalidOperationException("当前图层不是调整层。");
         Edit(editSession => editSession.SetGradientMapAdjustment(layerId, settings));
+    }
+
+    public void ApplyActiveGaussianBlurAdjustment(GaussianBlurSettings settings)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).IsAdjustment)
+            throw new InvalidOperationException("当前图层不是调整层。");
+        Edit(editSession => editSession.SetGaussianBlurAdjustment(layerId, settings));
     }
 
     public void BakeGroupTransform(Guid groupId)

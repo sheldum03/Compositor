@@ -356,6 +356,7 @@ public static class ProjectStore
             "Hue/Saturation" => HueSaturationSettings.TryRead(adjustment["hueSaturationSettings"], out _),
             "Curves" => CurvesSettings.TryRead(adjustment["curvesSettings"], out _),
             "Gradient Map" => GradientMapSettings.TryRead(adjustment["gradientMapSettings"], out _),
+            "Gaussian Blur" => GaussianBlurSettings.TryRead(adjustment["gaussianBlurSettings"], out _),
             _ => false
         };
         if (!settingsValid ||

@@ -898,6 +898,45 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public Guid AddGaussianBlurAdjustment(string name, GaussianBlurSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Gaussian Blur",
+            ["gaussianBlurSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
+    public GaussianBlurSettings GetGaussianBlurAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Gaussian Blur" ||
+            !GaussianBlurSettings.TryRead(adjustment["gaussianBlurSettings"], out var settings))
+            throw new NotSupportedException("Only Gaussian Blur adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetGaussianBlurAdjustment(Guid layerId, GaussianBlurSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Gaussian Blur")
+            throw new NotSupportedException("Only Gaussian Blur adjustment layers are supported in this slice.");
+        if (GetGaussianBlurAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["gaussianBlurSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
         Guid? destinationParentId = null)
     {

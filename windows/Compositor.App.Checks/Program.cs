@@ -182,6 +182,22 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the Gradient Map adjustment transaction.");
+        TileRaster gaussianBlurBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddGaussianBlurAdjustment");
+        FlatLayerInfo gaussianBlurLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == gaussianBlurLayer.Id &&
+            Control<Button>(window, "ApplyGaussianBlurAdjustment").IsEffectivelyEnabled,
+            "Gaussian Blur adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "GaussianBlurRadius").Value = 3;
+        Click(window, "ApplyGaussianBlurAdjustment");
+        GaussianBlurSettings appliedGaussianBlur = workspace.Session.GetGaussianBlurAdjustment(gaussianBlurLayer.Id);
+        Require(appliedGaussianBlur == new GaussianBlurSettings(3),
+            "Gaussian Blur adjustment controls did not commit the radius.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyGaussianBlur(gaussianBlurBase, appliedGaussianBlur));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Gaussian Blur adjustment transaction.");
         Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");

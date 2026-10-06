@@ -367,3 +367,27 @@ public sealed record GradientMapSettings(GradientMapStop Shadow, GradientMapStop
         ["highlight"] = Highlight.ToJson()
     };
 }
+
+public sealed record GaussianBlurSettings(int Radius = 1)
+{
+    public bool IsValid => Radius is >= 1 and <= 32;
+
+    public bool IsIdentity => false;
+
+    public static bool TryRead(JsonNode? node, out GaussianBlurSettings settings)
+    {
+        settings = new GaussianBlurSettings();
+        if (node is null) return true;
+        try
+        {
+            settings = new GaussianBlurSettings(node.AsObject()["radius"]?.GetValue<int>() ?? 1);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new() { ["radius"] = Radius };
+}
