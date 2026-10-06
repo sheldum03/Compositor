@@ -574,6 +574,30 @@ internal static class CanvasChecks
             transformedFloatingWorkspace.Undo() &&
             SamePixels(transformedFloatingBefore, transformedFloatingWorkspace.Session.GetLayerRaster(transformedFloatingLayerId)),
             "Committing a transformed floating selection did not create an undoable source edit.");
+        var transformedCrossSource = new EditorWorkspace();
+        transformedCrossSource.Open(project);
+        transformedCrossSource.MoveActiveLayer(12, 8);
+        transformedCrossSource.SelectRectangle(new Rect(112, 108, 20, 20));
+        transformedCrossSource.CopySelection();
+        var transformedCrossTarget = new EditorWorkspace();
+        transformedCrossTarget.Open(project);
+        Guid transformedCrossTargetId = transformedCrossTarget.Session!.ActiveLayerId!.Value;
+        TileRaster transformedCrossTargetBefore = transformedCrossTarget.Session.GetLayerRaster(transformedCrossTargetId);
+        Require(transformedCrossTarget.CanPasteSelectionFrom(transformedCrossSource),
+            "A transformed source did not enable cross-project selection paste.");
+        transformedCrossTarget.PasteSelectionFrom(transformedCrossSource);
+        Require(transformedCrossTarget.HasFloatingSelection &&
+            SamePixels(transformedCrossTargetBefore, transformedCrossTarget.Session.GetLayerRaster(transformedCrossTargetId)) &&
+            transformedCrossTarget.CanPasteSelection,
+            "Cross-project transformed selection paste was not normalized to the target document coordinates.");
+        transformedCrossTarget.CommitFloatingSelection();
+        Require(transformedCrossTarget.IsDirty && !transformedCrossTarget.HasFloatingSelection,
+            "Cross-project transformed selection paste did not commit as one target history step.");
+        string transformedCrossTargetPath = Path.Combine(output, "TransformedCrossProjectPaste.comp");
+        transformedCrossTarget.SaveAs(transformedCrossTargetPath);
+        var reopenedTransformedCrossTarget = ImageProjectWorkflow.OpenEditable(transformedCrossTargetPath);
+        Require(SamePixels(transformedCrossTarget.Preview!, ImageProjectWorkflow.RenderFlatNormal(reopenedTransformedCrossTarget)),
+            "Saved cross-project transformed selection paste did not reopen with the same preview.");
         var areaWorkspace = new EditorWorkspace();
         areaWorkspace.Open(project);
         Guid areaLayerId = areaWorkspace.Session!.ActiveLayerId!.Value;
