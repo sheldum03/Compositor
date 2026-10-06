@@ -158,9 +158,10 @@ public static class ImageProjectWorkflow
             ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
         if (session.HasGroups)
         {
-            if (!target.IsGroup || target.ParentId is not null)
-                throw new NotSupportedException("Layer copy in grouped projects only supports root groups in this slice.");
-            return RenderCachedCore(session, useLoadedAssets: true, rootOnly: layerId, applyRootAppearance: true);
+            if (!target.IsGroup)
+                throw new NotSupportedException("Layer copy in grouped projects only supports group layers in this slice.");
+            return RenderCachedCore(session, useLoadedAssets: true,
+                renderRoots: new HashSet<Guid> { layerId });
         }
         if (target.IsGroup) throw new NotSupportedException("Layer copy only supports raster layers.");
 

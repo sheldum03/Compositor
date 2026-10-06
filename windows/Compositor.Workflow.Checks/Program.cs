@@ -490,21 +490,31 @@ static void CheckGroupedLayerViaCopy(string output, string fixtures)
     session.SetLayerOpacity(overlayId, 0.63);
     session.SetLayerBlendMode(overlayId, "Screen");
     session.SetLayerMaskSource(overlayId, baseId);
-    Guid groupId = session.GroupLayers([baseId, overlayId], "Visible group");
-    session.SetLayerOpacity(groupId, 0.82);
-    session.SetLayerBlendMode(groupId, "Multiply");
-    session.SetGroupTransform(groupId, 4, 3, session.Width - 8, session.Height - 6, 8);
+    Guid innerGroupId = session.GroupLayers([baseId, overlayId], "Visible group");
+    session.SetLayerOpacity(innerGroupId, 0.82);
+    session.SetLayerBlendMode(innerGroupId, "Multiply");
+    session.SetGroupTransform(innerGroupId, 4, 3, session.Width - 8, session.Height - 6, 8);
+    session.EnsureLayerMask(innerGroupId);
+    session.ReplaceLayerMask(innerGroupId,
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+    Guid groupId = session.GroupLayers([innerGroupId], "Outer group");
+    session.SetLayerOpacity(groupId, 0.76);
+    session.SetLayerBlendMode(groupId, "Screen");
+    session.SetGroupTransform(groupId, 2, 1, session.Width - 4, session.Height - 2, 5);
     session.EnsureLayerMask(groupId);
     session.ReplaceLayerMask(groupId,
-        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width, session.Height / 2));
     TileRaster expected = ImageProjectWorkflow.RenderFlatNormal(session);
     TileRaster copied = ImageProjectWorkflow.RenderLayerForCopy(session, groupId);
     AssertRaster(expected, copied);
+    TileRaster nestedCopied = ImageProjectWorkflow.RenderLayerForCopy(session, innerGroupId);
+    AssertRaster(expected, nestedCopied);
     string saved = Path.Combine(output, "GroupedLayerCopySaved.comp");
     ImageProjectWorkflow.Save(session, saved);
     var reopened = ImageProjectWorkflow.OpenEditable(saved);
     AssertRaster(expected, ImageProjectWorkflow.RenderLayerForCopy(reopened, groupId));
-    Console.WriteLine("PASS: root group visible-result copy preserves clipping, group mask, appearance and transform Alpha");
+    AssertRaster(expected, ImageProjectWorkflow.RenderLayerForCopy(reopened, innerGroupId));
+    Console.WriteLine("PASS: root and nested group visible-result copy preserves clipping, group masks, appearance and transforms Alpha");
 }
 
 static void CheckEditableLayerTransform(string output, string fixtures)

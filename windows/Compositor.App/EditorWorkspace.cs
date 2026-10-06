@@ -620,7 +620,7 @@ public sealed class EditorWorkspace
                 return false;
             FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
             if (session.HasGroups)
-                return layer.IsGroup && layer.ParentId is null;
+                return layer.IsGroup;
             return !layer.IsGroup &&
                 (!layer.HasMask || session.GetLayerMask(layerId) is not null);
         }
@@ -636,9 +636,15 @@ public sealed class EditorWorkspace
         int destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == sourceId) + 1;
         FlatLayerInfo sourceLayer = session.Layers.Single(layer => layer.Id == sourceId);
         if (sourceLayer.IsGroup)
+        {
+            Guid rootId = sourceId;
+            while (session.Layers.Single(layer => layer.Id == rootId).ParentId is { } parentId)
+                rootId = parentId;
+            destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == rootId) + 1;
             while (destinationIndex < session.Layers.Count &&
-                IsDescendantOf(session.Layers[destinationIndex], sourceId, session.Layers))
+                IsDescendantOf(session.Layers[destinationIndex], rootId, session.Layers))
                 destinationIndex++;
+        }
         TileRaster copied = ApplySelection(ImageProjectWorkflow.RenderLayerForCopy(session, sourceId), Selection!, keepSelected: true);
         Edit(current =>
         {

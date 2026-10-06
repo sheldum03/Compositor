@@ -1140,6 +1140,44 @@ internal static class Program
             else Require(actual.All(channel => channel == 0),
                 "Root group Layer via Copy retained pixels outside the selection.");
         }
+        Guid nestedOuterGroupId = Guid.Empty;
+        groupCopyWorkspace.Edit(session =>
+        {
+            nestedOuterGroupId = session.GroupLayers([groupMergeGroupId], "Nested outer group");
+            session.SetLayerOpacity(nestedOuterGroupId, 0.76);
+            session.SetLayerBlendMode(nestedOuterGroupId, "Screen");
+            session.SetGroupTransform(nestedOuterGroupId, 2, 1, session.Width - 4, session.Height - 2, 5);
+            session.EnsureLayerMask(nestedOuterGroupId);
+        });
+        groupCopyWorkspace.Edit(session => session.ReplaceLayerMask(nestedOuterGroupId,
+            GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width, session.Height / 2)));
+        groupCopyWorkspace.SelectRectangle(new Rect(0, 0, groupCopyWorkspace.Session!.Width / 2,
+            groupCopyWorkspace.Session.Height));
+        TileRaster expectedNestedGroupCopy = ImageProjectWorkflow.RenderLayerForCopy(
+            groupCopyWorkspace.Session, nestedOuterGroupId);
+        Control<ListBox>(groupCopyWindow, "Layers").SelectedItem =
+            groupCopyWorkspace.Session.Layers.Single(layer => layer.Id == nestedOuterGroupId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(groupCopyWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A nested group with ancestor masks did not enable Layer via Copy.");
+        int nestedGroupCopyLayerCount = groupCopyWorkspace.Session.Layers.Count;
+        Click(groupCopyWindow, "LayerViaCopy");
+        Guid nestedCopiedLayerId = groupCopyWorkspace.Session.ActiveLayerId!.Value;
+        FlatLayerInfo nestedCopiedLayer = groupCopyWorkspace.Session.Layers.Single(layer => layer.Id == nestedCopiedLayerId);
+        Require(groupCopyWorkspace.Session.Layers.Count == nestedGroupCopyLayerCount + 1 &&
+            !nestedCopiedLayer.IsGroup && nestedCopiedLayer.ParentId is null &&
+            groupCopyWorkspace.Session.Layers.Any(layer => layer.Id == nestedOuterGroupId),
+            "Nested group Layer via Copy did not create a root-level flat result.");
+        TileRaster actualNestedGroupCopy = groupCopyWorkspace.Session.GetLayerRaster(nestedCopiedLayerId);
+        for (int y = 0; y < actualNestedGroupCopy.Height; y++)
+        for (int x = 0; x < actualNestedGroupCopy.Width; x++)
+        {
+            byte[] expected = PixelAt(expectedNestedGroupCopy, x, y), actual = PixelAt(actualNestedGroupCopy, x, y);
+            if (x < actualNestedGroupCopy.Width / 2) Require(expected.SequenceEqual(actual),
+                "Nested group Layer via Copy changed selected pixels.");
+            else Require(actual.All(channel => channel == 0),
+                "Nested group Layer via Copy retained pixels outside the selection.");
+        }
         groupCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
         var groupMergeWindow = new MainWindow(groupMergeWorkspace);
         groupMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
