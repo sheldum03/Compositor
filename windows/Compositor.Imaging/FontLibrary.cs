@@ -16,6 +16,18 @@ public sealed record FontFace(int FaceIndex, string FamilyName)
     public string SelectionName => TextLayerWorkflow.ImportedFontSelectionName(FamilyName, FaceIndex);
 }
 
+public sealed record FontRecoveryIssue(string FileName, string Reason);
+
+public sealed record FontRecoveryReport(IReadOnlyList<FontRecoveryIssue> Issues)
+{
+    public bool HasIssues => Issues.Count > 0;
+
+    public string Message => Issues.Count == 0
+        ? string.Empty
+        : $"字体库恢复：已清理 {Issues.Count} 个失效条目：" +
+          string.Join("；", Issues.Select(issue => $"{issue.FileName}（{issue.Reason}）"));
+}
+
 public sealed class FontLibrary
 {
     private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -30,10 +42,11 @@ public sealed class FontLibrary
         catalogPath = Path.Combine(root, "fonts.json");
         Directory.CreateDirectory(root);
         entries = LoadCatalog();
-        Restore();
+        RecoveryReport = Restore();
     }
 
     public IReadOnlyList<ImportedFont> Entries => entries.AsReadOnly();
+    public FontRecoveryReport RecoveryReport { get; }
 
     public static IReadOnlyList<FontFace> EnumerateFaces(string sourcePath)
     {
@@ -102,25 +115,41 @@ public sealed class FontLibrary
         }
     }
 
-    private void Restore()
+    private FontRecoveryReport Restore()
     {
         var restored = new List<ImportedFont>();
+        var issues = new List<FontRecoveryIssue>();
         foreach (ImportedFont entry in entries)
         {
             string path = Path.Combine(root, entry.FileName);
-            if (!File.Exists(path) || !MatchesHash(path, entry.Sha256)) continue;
+            if (!File.Exists(path))
+            {
+                issues.Add(new FontRecoveryIssue(entry.FileName, "文件缺失"));
+                continue;
+            }
+            if (!MatchesHash(path, entry.Sha256))
+            {
+                issues.Add(new FontRecoveryIssue(entry.FileName, "文件哈希不匹配"));
+                continue;
+            }
             try
             {
                 _ = TextLayerWorkflow.RegisterImportedTypeface(path, entry.FaceIndex);
                 if (!restored.Any(item => item.Sha256.Equals(entry.Sha256, StringComparison.OrdinalIgnoreCase) &&
                     item.FaceIndex == entry.FaceIndex)) restored.Add(entry);
+                else issues.Add(new FontRecoveryIssue(entry.FileName, "catalog 重复条目"));
             }
-            catch (Exception) when (entry.FaceIndex >= 0) { }
+            catch (Exception) when (entry.FaceIndex >= 0)
+            {
+                issues.Add(new FontRecoveryIssue(entry.FileName, "字体面不可用"));
+            }
         }
-        if (restored.Count == entries.Count) return;
+        if (issues.Count == 0 && restored.Count == entries.Count)
+            return new FontRecoveryReport([]);
         entries.Clear();
         entries.AddRange(restored);
         SaveCatalog();
+        return new FontRecoveryReport(issues.AsReadOnly());
     }
 
     private static bool MatchesHash(string path, string expected)

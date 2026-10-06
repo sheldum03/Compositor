@@ -945,6 +945,25 @@ internal static class CanvasChecks
             importWindow.Close(); Dispatcher.UIThread.RunJobs();
         }
         else Console.WriteLine("SKIA TTC face-index support is unavailable on this host; Windows CI covers the dialog path.");
+        string recoveryRoot = Path.Combine(output, "FontRecoveryStatus");
+        Directory.CreateDirectory(recoveryRoot);
+        File.WriteAllText(Path.Combine(recoveryRoot, "fonts.json"), JsonSerializer.Serialize(new[]
+        {
+            new ImportedFont("missing-user-font.ttf", "Missing user font", 0, new string('0', 64))
+        }));
+        var recoveryLibrary = new FontLibrary(recoveryRoot);
+        var recoveryWindow = new MainWindow(new EditorWorkspace(), recoveryLibrary);
+        recoveryWindow.Show(); Dispatcher.UIThread.RunJobs();
+        string recoveryStatus = Find<TextBlock>(recoveryWindow, "Status").Text ?? "";
+        Require(recoveryLibrary.RecoveryReport.Issues.Count == 1 &&
+            recoveryLibrary.RecoveryReport.Issues[0].FileName == "missing-user-font.ttf" &&
+            recoveryLibrary.RecoveryReport.Issues[0].Reason == "文件缺失" &&
+            recoveryStatus.Contains("1 个失效条目", StringComparison.Ordinal) &&
+            recoveryStatus.Contains("missing-user-font.ttf", StringComparison.Ordinal) &&
+            recoveryStatus.Contains("文件缺失", StringComparison.Ordinal) &&
+            JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(Path.Combine(recoveryRoot, "fonts.json")))?.Count == 0,
+            "Font recovery did not expose the missing filename and reason in the formal startup status.");
+        recoveryWindow.Close(); Dispatcher.UIThread.RunJobs();
         var resizeWorkspace = new EditorWorkspace();
         resizeWorkspace.Open(project);
         int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;

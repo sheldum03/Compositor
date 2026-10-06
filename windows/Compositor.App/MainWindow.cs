@@ -59,7 +59,7 @@ public sealed class MainWindow : Window
     private readonly CheckBox wandContiguous = new() { Name = "WandContiguous", Content = "连续" , IsChecked = true };
     private readonly ComboBox selectionOperation = new() { Name = "SelectionOperation", Width = 90, ItemsSource = new[] { "替换", "加选", "减选" }, SelectedIndex = 0 };
     private readonly NumericUpDown selectionFeatherRadius = new() { Name = "SelectionFeatherRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
-    private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap };
+    private readonly TextBlock status = new() { Name = "Status", TextWrapping = TextWrapping.Wrap };
     private readonly List<Button> documentButtons = [];
     private readonly List<Button> layerButtons = [];
     private readonly List<Button> maskButtons = [];
@@ -447,6 +447,7 @@ public sealed class MainWindow : Window
         };
         Refresh();
         status.Text = Workspace.Session is null ? "新建画布、打开 .comp 工程文件夹，或导入 PNG / JPEG 图片开始。" : "工程已打开。";
+        if (FontLibrary.RecoveryReport.HasIssues) status.Text = FontLibrary.RecoveryReport.Message;
     }
 
     private Button Command(string name, string title, Func<Task> action, bool document = false, bool layer = false, bool mask = false)

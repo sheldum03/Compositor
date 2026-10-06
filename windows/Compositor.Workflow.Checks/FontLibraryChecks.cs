@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using Compositor.Core;
 using Compositor.Imaging;
@@ -90,14 +91,29 @@ internal static class FontLibraryChecks
         }
         catch (NotSupportedException) { }
         string recoveryRoot = Path.Combine(output, "RecoveredFontLibrary");
-        var recoverySource = new FontLibrary(recoveryRoot);
-        ImportedFont recoveryFont = recoverySource.Import(source);
         string recoveryCatalog = Path.Combine(recoveryRoot, "fonts.json");
-        File.WriteAllText(recoveryCatalog,
-            File.ReadAllText(recoveryCatalog).Replace(recoveryFont.Sha256, new string('0', 64), StringComparison.Ordinal));
+        Directory.CreateDirectory(recoveryRoot);
+        string mismatchFile = "mismatch.ttf";
+        File.Copy(source, Path.Combine(recoveryRoot, mismatchFile));
+        string damagedFile = "damaged.ttf";
+        File.Copy(Path.Combine(fonts, "damaged.ttf"), Path.Combine(recoveryRoot, damagedFile));
+        var recoveryEntries = new List<ImportedFont>
+        {
+            new("missing.ttf", "Missing recovery font", 0, new string('0', 64)),
+            new(mismatchFile, "Mismatched recovery font", 0, new string('0', 64)),
+            new(damagedFile, "Damaged recovery font", 0,
+                Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(recoveryRoot, damagedFile)))).ToLowerInvariant())
+        };
+        File.WriteAllText(recoveryCatalog, JsonSerializer.Serialize(recoveryEntries));
         var recovered = new FontLibrary(recoveryRoot);
-        if (recovered.Entries.Count != 0 || JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(recoveryCatalog))?.Count != 0)
-            throw new Exception("A damaged persisted font was not removed from the restored catalog.");
+        if (recovered.Entries.Count != 0 || JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(recoveryCatalog))?.Count != 0 ||
+            recovered.RecoveryReport.Issues.Count != 3 ||
+            !recovered.RecoveryReport.Issues.Any(issue => issue.FileName == "missing.ttf" && issue.Reason == "文件缺失") ||
+            !recovered.RecoveryReport.Issues.Any(issue => issue.FileName == mismatchFile && issue.Reason == "文件哈希不匹配") ||
+            !recovered.RecoveryReport.Issues.Any(issue => issue.FileName == damagedFile && issue.Reason == "字体面不可用") ||
+            !recovered.RecoveryReport.Message.Contains("3 个失效条目", StringComparison.Ordinal) ||
+            !recovered.RecoveryReport.Message.Contains("missing.ttf", StringComparison.Ordinal))
+            throw new Exception("Font recovery did not clean invalid entries or expose file-specific diagnostics.");
         Console.WriteLine("PASS: font library persists, deduplicates, restores, and selects TTC faces while rejecting invalid inputs");
     }
 }
