@@ -24,7 +24,7 @@ dotnet build windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Relea
 dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures <output>
 ```
 
-Workflow 检查验证角度为 45 度、距离为 3 像素时的覆盖区域变化和选区外像素不变；App 检查通过生产 Avalonia 窗口实际点击预览、取消、再次预览、提交和撤销，验证预览不改变 dirty/history、取消恢复原栅格、提交形成一次像素事务。GitHub Actions push run 将在提交后记录 Smoke、Imaging、Workflow、SaveCrash、App 五个生产检查的最终状态。
+Workflow 检查验证角度为 45 度、距离为 3 像素时的覆盖区域变化和选区外像素不变；App 检查通过生产 Avalonia 窗口实际点击预览、取消、再次预览、提交和撤销，验证预览不改变 dirty/history、取消恢复原栅格、提交形成一次像素事务。GitHub Actions push [run 37531698368](https://github.com/sheldum03/Compositor/actions/runs/37531698368)、实现 PR [run 37531704876](https://github.com/sheldum03/Compositor/actions/runs/37531704876)和证据 PR [run 37531741572](https://github.com/sheldum03/Compositor/actions/runs/37531741572)的 Smoke、Imaging、Workflow、SaveCrash、App 五个生产检查全部通过。
 
 ## 边界
 
