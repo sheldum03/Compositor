@@ -638,6 +638,7 @@ internal static class Program
         crossGroupSource.Import(fixture, Path.Combine(output, "CrossGroupSource.comp"));
         Guid crossGroupChildId = crossGroupSource.Session!.Layers[0].Id;
         Guid crossGroupSecondChildId = crossGroupSource.Session.AddBlankLayer("Grouped second", 1);
+        crossGroupSource.Edit(session => session.SetLayerMaskSource(crossGroupSecondChildId, crossGroupChildId));
         Guid crossGroupId = crossGroupSource.Session.GroupLayers([crossGroupChildId, crossGroupSecondChildId], "Copied group");
         crossGroupSource.Edit(session =>
         {
@@ -660,8 +661,9 @@ internal static class Program
         Require(copiedGroupChildren.Length == 2 &&
             crossGroupTarget.Session.GetLayerTransform(copiedGroup.Id) == crossGroupSource.Session.GetLayerTransform(crossGroupId) &&
             copiedGroup.HasMask && !copiedGroup.MaskEnabled &&
+            copiedGroupChildren[1].MaskSourceId == copiedGroupChildren[0].Id &&
             CheckEqualNoThrow(crossGroupSource.Session.GetLayerMask(crossGroupId)!, crossGroupTarget.Session.GetLayerMask(copiedGroup.Id)!),
-            "Cross-project group copy did not preserve group transform or mask metadata.");
+            "Cross-project group copy did not preserve group transform, clipping or mask metadata.");
         foreach (FlatLayerInfo sourceChild in crossGroupSource.Session.Layers.Where(layer => layer.ParentId == crossGroupId))
         {
             FlatLayerInfo targetChild = copiedGroupChildren.Single(layer => layer.Name == sourceChild.Name);
