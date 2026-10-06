@@ -30,13 +30,14 @@ public sealed class EditorWorkspace
     private SelectionOutline? floatingPreviousOutline;
     private SelectionMoveHistory? selectionMoveHistory;
     private bool selectionMoveUndone;
+    private bool readOnlyTextCache;
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public ProjectSession? Session { get; private set; }
-    public bool CanEdit => Session?.CanEdit == true;
+    public bool CanEdit => Session?.CanEdit == true && !readOnlyTextCache;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
         ? "只读缓存预览：文字字体或文字语义未就绪，请先选择字体后再编辑。"
         : "只读缓存预览：当前工程包含暂不支持的语义，编辑功能已禁用。";
@@ -54,6 +55,7 @@ public sealed class EditorWorkspace
         RequireIdle();
         var next = ProjectSession.CreateBlank(width, height, resolution);
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
+        readOnlyTextCache = false;
         Session = next;
         Preview = preview;
         ClearClipboard();
@@ -65,8 +67,9 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         var next = ProjectStore.Open(directory);
+        readOnlyTextCache = next.HasTextLayers && TextLayerWorkflow.Inspect(next).Any(status => !status.FontAvailable);
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
-        if (next.CanEdit) next = ImageProjectWorkflow.OpenEditable(directory);
+        if (next.CanEdit && !readOnlyTextCache) next = ImageProjectWorkflow.OpenEditable(directory);
         Session = next;
         Preview = preview;
         ClearClipboard();
@@ -79,6 +82,7 @@ public sealed class EditorWorkspace
         RequireIdle();
         var next = ImageProjectWorkflow.Import(image, directory);
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
+        readOnlyTextCache = false;
         Session = next;
         Preview = preview;
         ClearClipboard();
@@ -322,12 +326,14 @@ public sealed class EditorWorkspace
     public void Save()
     {
         RequireIdle();
+        RequireEditableSession();
         ImageProjectWorkflow.Save(RequireSession(), ProjectDirectory ?? throw new InvalidOperationException("请先选择新工程的保存位置。"));
     }
 
     public void SaveAs(string directory)
     {
         RequireIdle();
+        RequireEditableSession();
         if (Path.Exists(directory)) throw new IOException("请选择尚不存在的新工程文件夹。");
         ImageProjectWorkflow.Save(RequireSession(), directory);
     }
