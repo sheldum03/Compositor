@@ -2,7 +2,7 @@
 
 日期：2026-10-06
 
-功能提交：待提交（受限非 Normal 外观合并）
+功能提交：`336cd57 Support non-normal appearance layer merge`
 
 ## 已实现范围
 
