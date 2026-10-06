@@ -196,6 +196,7 @@ CheckSelectionLevelsFilter(output);
 CheckSelectionHueSaturationFilter(output);
 CheckSelectionCurvesFilter(output);
 CheckSelectionGradientMapFilter(output);
+CheckSelectionGrainFilter(output);
 CheckMotionBlurAdjustment(output);
 CheckNoiseAdjustment(output);
 CheckLensCorrectionAdjustment(output);
@@ -1927,6 +1928,32 @@ static void CheckSelectionGradientMapFilter(string output)
         if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
             throw new Exception("Selection Gradient Map changed pixels outside the selection.");
     Console.WriteLine("PASS: selection Gradient Map blends the filtered raster through coverage without changing outside pixels");
+}
+
+static void CheckSelectionGrainFilter(string output)
+{
+    var sourcePixels = new byte[9 * 7 * 4];
+    for (int y = 0; y < 7; y++)
+    for (int x = 0; x < 9; x++)
+    {
+        int pixel = (y * 9 + x) * 4;
+        sourcePixels[pixel] = 128;
+        sourcePixels[pixel + 1] = 128;
+        sourcePixels[pixel + 2] = 128;
+        sourcePixels[pixel + 3] = 255;
+    }
+    TileRaster source = new TileRaster(9, 7).ReplaceTile(0, 0, sourcePixels);
+    GrayTileRaster selection = GrayTileRaster.Rectangle(9, 7, 0, 0, 4, 7);
+    GrainSettings settings = new(60, 2, 40, 7);
+    TileRaster filtered = RasterCompositor.ApplyGrain(source, settings);
+    TileRaster changed = RasterCompositor.BlendThroughMask(source, filtered, selection);
+    if (SameRaster(source, changed))
+        throw new Exception("Selection Grain did not change covered pixels.");
+    for (int y = 0; y < 7; y++)
+    for (int x = 4; x < 9; x++)
+        if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
+            throw new Exception("Selection Grain changed pixels outside the selection.");
+    Console.WriteLine("PASS: selection Grain blends the filtered raster through coverage without changing outside pixels");
 }
 
 static void CheckMotionBlurAdjustment(string output)

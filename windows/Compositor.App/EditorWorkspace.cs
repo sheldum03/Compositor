@@ -320,6 +320,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyGradientMap(source, settings), "选区渐变映射");
     }
 
+    public void PreviewGrainFilter(GrainSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyGrain(source, settings), "选区颗粒");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();
