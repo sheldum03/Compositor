@@ -101,6 +101,11 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown selectionLevelsOutputBlack = new() { Name = "SelectionLevelsOutputBlack", Minimum = 0, Maximum = 255, Value = 0, Width = 54 };
     private readonly NumericUpDown selectionLevelsOutputWhite = new() { Name = "SelectionLevelsOutputWhite", Minimum = 0, Maximum = 255, Value = 255, Width = 54 };
     private readonly StackPanel selectionLevelsEditor = new() { Name = "SelectionLevelsEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown selectionHue = new() { Name = "SelectionHue", Minimum = -360, Maximum = 360, Value = 0, Width = 62 };
+    private readonly NumericUpDown selectionSaturation = new() { Name = "SelectionSaturation", Minimum = -100, Maximum = 100, Value = 0, Width = 62 };
+    private readonly NumericUpDown selectionLightness = new() { Name = "SelectionLightness", Minimum = -100, Maximum = 100, Value = 0, Width = 62 };
+    private readonly CheckBox selectionColorize = new() { Name = "SelectionColorize", Content = "着色" };
+    private readonly StackPanel selectionHueSaturationEditor = new() { Name = "SelectionHueSaturationEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown motionBlurAngle = new() { Name = "MotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown motionBlurDistance = new() { Name = "MotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel motionBlurAdjustmentEditor = new() { Name = "MotionBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
@@ -410,6 +415,17 @@ public sealed class MainWindow : Window
         selectionLevelsEditor.Children.Add(Command("CommitSelectionLevels", "提交选区色阶", CommitSelectionLevelsAsync, layer: true));
         selectionLevelsEditor.Children.Add(Command("CancelSelectionLevels", "取消滤镜预览", CancelSelectionLevelsAsync, layer: true));
         actions.Children.Add(selectionLevelsEditor);
+        selectionHueSaturationEditor.Children.Add(new TextBlock { Text = "选区色相", VerticalAlignment = VerticalAlignment.Center });
+        selectionHueSaturationEditor.Children.Add(selectionHue);
+        selectionHueSaturationEditor.Children.Add(new TextBlock { Text = "饱和度", VerticalAlignment = VerticalAlignment.Center });
+        selectionHueSaturationEditor.Children.Add(selectionSaturation);
+        selectionHueSaturationEditor.Children.Add(new TextBlock { Text = "明度", VerticalAlignment = VerticalAlignment.Center });
+        selectionHueSaturationEditor.Children.Add(selectionLightness);
+        selectionHueSaturationEditor.Children.Add(selectionColorize);
+        selectionHueSaturationEditor.Children.Add(Command("PreviewSelectionHueSaturation", "预览选区色相/饱和度", PreviewSelectionHueSaturationAsync, layer: true));
+        selectionHueSaturationEditor.Children.Add(Command("CommitSelectionHueSaturation", "提交选区色相/饱和度", CommitSelectionHueSaturationAsync, layer: true));
+        selectionHueSaturationEditor.Children.Add(Command("CancelSelectionHueSaturation", "取消滤镜预览", CancelSelectionHueSaturationAsync, layer: true));
+        actions.Children.Add(selectionHueSaturationEditor);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         motionBlurAdjustmentEditor.Children.Add(motionBlurAngle);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
@@ -946,6 +962,7 @@ public sealed class MainWindow : Window
         bool showSelectionLensCorrectionEditor = showSelectionGaussianBlurEditor;
         bool showSelectionExposureEditor = showSelectionGaussianBlurEditor;
         bool showSelectionLevelsEditor = showSelectionGaussianBlurEditor;
+        bool showSelectionHueSaturationEditor = showSelectionGaussianBlurEditor;
         bool showMotionBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Motion Blur" &&
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
@@ -966,6 +983,7 @@ public sealed class MainWindow : Window
         selectionLensCorrectionEditor.IsVisible = showSelectionLensCorrectionEditor;
         selectionExposureEditor.IsVisible = showSelectionExposureEditor;
         selectionLevelsEditor.IsVisible = showSelectionLevelsEditor;
+        selectionHueSaturationEditor.IsVisible = showSelectionHueSaturationEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
         lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
@@ -991,6 +1009,8 @@ public sealed class MainWindow : Window
         selectionLevelsInputBlack.IsEnabled = selectionLevelsInputWhite.IsEnabled = selectionLevelsGamma.IsEnabled =
             selectionLevelsOutputBlack.IsEnabled = selectionLevelsOutputWhite.IsEnabled =
             showSelectionLevelsEditor && !Workspace.HasFilterPreview;
+        selectionHue.IsEnabled = selectionSaturation.IsEnabled = selectionLightness.IsEnabled = selectionColorize.IsEnabled =
+            showSelectionHueSaturationEditor && !Workspace.HasFilterPreview;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
         lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
@@ -1069,6 +1089,10 @@ public sealed class MainWindow : Window
             if (button.Name == "PreviewSelectionLevels")
                 button.IsEnabled = showSelectionLevelsEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionLevels" or "CancelSelectionLevels")
+                button.IsEnabled = Workspace.HasFilterPreview;
+            if (button.Name == "PreviewSelectionHueSaturation")
+                button.IsEnabled = showSelectionHueSaturationEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "CommitSelectionHueSaturation" or "CancelSelectionHueSaturation")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1380,6 +1404,15 @@ public sealed class MainWindow : Window
     }
     private Task CommitSelectionLevelsAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionLevelsAsync() => Task.Run(Workspace.CancelFilterPreview);
+    private Task PreviewSelectionHueSaturationAsync()
+    {
+        var settings = new HueSaturationSettings((double)(selectionHue.Value ?? 0),
+            (double)(selectionSaturation.Value ?? 0), (double)(selectionLightness.Value ?? 0),
+            selectionColorize.IsChecked == true);
+        return Task.Run(() => Workspace.PreviewHueSaturationFilter(settings));
+    }
+    private Task CommitSelectionHueSaturationAsync() => Task.Run(Workspace.CommitFilterPreview);
+    private Task CancelSelectionHueSaturationAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task ApplyMotionBlurAdjustmentAsync()
     {
         var settings = new MotionBlurSettings((double)(motionBlurAngle.Value ?? 0),

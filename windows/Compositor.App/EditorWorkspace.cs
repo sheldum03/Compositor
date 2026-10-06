@@ -305,6 +305,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyLevels(source, settings), "选区色阶");
     }
 
+    public void PreviewHueSaturationFilter(HueSaturationSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyHueSaturation(source, settings), "选区色相/饱和度");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();
