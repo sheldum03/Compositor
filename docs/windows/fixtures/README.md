@@ -18,7 +18,7 @@
 | F08 | 8 | 中文/英文/Emoji/组合字符的可编辑框文本与 PNG 缓存 |
 | B01–B13 | 8 | 按 LayerBlendMode.allCases 顺序的全部混合；每个有两个半透明彩色层。使用当前格式，不宣称后加的四种非分离模式属于历史 v3 |
 
-每个 `*.comp/` 对应 `*-mac.png`。`checksums.json` 固定所有 manifest、PNG 资产和参考导出的 SHA-256/字节数，hash 验证文件身份而非跨平台编码一致性。跨平台应比较解码像素与元数据语义，不能以 PNG 压缩字节不同判失败。
+每个 `*.comp/` 对应 `*-mac.png`。`checksums.json` 固定所有 Mac manifest、PNG 资产和参考导出的 SHA-256/字节数，hash 验证文件身份而非跨平台编码一致性。`windows/F05.png` 是由 Windows runner 复核得到的独立平台参考，不计入该 Mac 冻结清单；F05 的检查按平台选择参考并仍逐像素 exact。跨平台应比较解码像素与元数据语义，不能以 PNG 压缩字节不同判失败。
 
 当前 Mac 冻结像素测试要求 exact；Windows 浮点混合/取样容差尚未决定，不能直接放宽统一阈值。小型 64×48 工程用于正确性，不证明 4K 性能。测试临时输出另含 `*-resaved-v8.comp`，入库保留原 schema 样本即可。
 

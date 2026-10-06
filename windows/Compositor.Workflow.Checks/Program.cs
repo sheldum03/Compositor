@@ -199,7 +199,10 @@ static void CheckCachedGroupRendering(string output, string fixtures)
     foreach (string name in new[] { "F02", "F05", "F06" })
     {
         string project = Path.Combine(referenceRoot, name + ".comp");
-        string reference = Path.Combine(referenceRoot, name + "-mac.png");
+        // Skia's high-quality F05 transform has stable platform-specific RGB rounding.
+        string reference = name == "F05" && OperatingSystem.IsWindows()
+            ? Path.Combine(referenceRoot, "windows", "F05.png")
+            : Path.Combine(referenceRoot, name + "-mac.png");
         var session = ProjectStore.Open(project);
         if (session.CanEdit) throw new Exception($"Cached group fixture {name} became editable.");
         TileRaster actual = ImageProjectWorkflow.RenderFlatNormal(session);
