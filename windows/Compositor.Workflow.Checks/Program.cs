@@ -172,6 +172,7 @@ CheckGroupedLeafLayerViaCopy(output, fixtures);
 CheckGroupedClippingStackLayerViaCopy(output, fixtures);
 CheckGroupedNestedClippingStackLayerViaCopy(output, fixtures);
 CheckGroupedDiscontinuousClippingStackLayerViaCopy(output, fixtures);
+CheckCrossParentGroupedLeafLayerViaCopy(output, fixtures);
 CheckTransformedGroupedLeafLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
@@ -693,6 +694,53 @@ static void CheckGroupedDiscontinuousClippingStackLayerViaCopy(string output, st
         throw new Exception("Saved discontinuous clipping stack lost its original relationship or parent.");
     AssertRaster(actual, reopened.GetLayerRaster(copiedId));
     Console.WriteLine("PASS: same-parent discontinuous clipping-stack visible-result copy preserves target semantics and save/reopen");
+}
+
+static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtures)
+{
+    string source = Path.Combine(output, "CrossParentGroupedLeafCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid sourceId = session.Layers.Single().Id;
+    Guid targetId = session.AddBlankLayer("Cross-parent clipped target", session.Layers.Count);
+    TileRaster targetRaster = session.GetLayerRaster(targetId);
+    var targetSize = targetRaster.TileDimensions(0, 0);
+    byte[] targetTile = targetRaster.ReadTileCopy(0, 0);
+    int targetOffset = (16 * targetSize.Width + 16) * 4;
+    targetTile[targetOffset] = 150; targetTile[targetOffset + 1] = 40;
+    targetTile[targetOffset + 2] = 20; targetTile[targetOffset + 3] = 220;
+    session.ReplaceLayerRaster(targetId, targetRaster.ReplaceTile(0, 0, targetTile));
+    Guid sourceGroupId = session.GroupLayer(sourceId, "External source parent");
+    Guid targetGroupId = session.GroupLayer(targetId, "Cross-parent target parent");
+    ImageProjectWorkflow.Save(session, source);
+    var crossParentManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(source, "manifest.json")))!.AsObject();
+    crossParentManifest["layers"]!.AsArray().Single(node =>
+        Guid.Parse(node!["id"]!.GetValue<string>()) == targetId)!["maskSourceID"] = sourceId.ToString("D");
+    File.WriteAllText(Path.Combine(source, "manifest.json"), crossParentManifest.ToJsonString());
+    session = ImageProjectWorkflow.OpenEditable(source);
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(session, targetId) ||
+        !ImageProjectWorkflow.GroupedLayerCopyRequiresRootInsertion(session, targetId))
+        throw new Exception("A cross-parent grouped clipping target was not enabled for root visible-result copy.");
+    TileRaster expected = ImageProjectWorkflow.RenderLayerForCopy(session, targetId);
+    int targetGroupIndex = session.Layers.ToList().FindIndex(layer => layer.Id == targetGroupId);
+    int insertion = targetGroupIndex + 1;
+    while (insertion < session.Layers.Count &&
+        session.Layers[insertion].ParentId is { } parentId && parentId == targetGroupId)
+        insertion++;
+    Guid copiedId = session.AddRootRasterLayer("Layer via Copy", expected, insertion);
+    FlatLayerInfo copied = session.Layers.Single(layer => layer.Id == copiedId);
+    if (copied.ParentId is not null || session.Layers.ToList().FindIndex(layer => layer.Id == copiedId) != insertion)
+        throw new Exception("Cross-parent grouped clipping copy did not insert after the target group subtree.");
+    AssertRaster(expected, session.GetLayerRaster(copiedId));
+    string saved = Path.Combine(output, "CrossParentGroupedLeafCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    if (reopened.Layers.Single(layer => layer.Id == targetId).MaskSourceId != sourceId ||
+        reopened.Layers.Single(layer => layer.Id == copiedId).ParentId is not null ||
+        reopened.Layers.Single(layer => layer.Id == sourceId).ParentId != sourceGroupId)
+        throw new Exception("Saved cross-parent grouped clipping copy lost its relation or root placement.");
+    AssertRaster(expected, reopened.GetLayerRaster(copiedId));
+    Console.WriteLine("PASS: cross-parent grouped clipping visible-result copy preserves root insertion, relationship and save/reopen");
 }
 
 static void CheckTransformedGroupedLeafLayerViaCopy(string output, string fixtures)

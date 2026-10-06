@@ -161,6 +161,12 @@ public static class ImageProjectWorkflow
             if (target.IsGroup)
                 return RenderCachedCore(session, useLoadedAssets: true,
                     renderRoots: new HashSet<Guid> { layerId });
+            if (HasCrossParentClipping(session, target))
+            {
+                ValidateCrossParentGroupedLeafCopy(session, target);
+                return RenderCachedCore(session, useLoadedAssets: true,
+                    renderRoots: new HashSet<Guid> { layerId });
+            }
             IReadOnlyList<FlatLayerInfo> groupedStack = ValidateGroupedLeafCopy(session, target,
                 allowTransformedAncestors: true);
             if (HasTransformedGroupedAncestor(session, target))
@@ -212,7 +218,11 @@ public static class ImageProjectWorkflow
         {
             if (session.HasGroups && target.IsGroup) return true;
             if (target.IsGroup) return false;
-            if (session.HasGroups) ValidateGroupedLeafCopy(session, target, allowTransformedAncestors: true);
+            if (session.HasGroups)
+            {
+                if (HasCrossParentClipping(session, target)) ValidateCrossParentGroupedLeafCopy(session, target);
+                else ValidateGroupedLeafCopy(session, target, allowTransformedAncestors: true);
+            }
             else if (target.HasMask && session.GetLayerMask(target.Id) is null) return false;
             return true;
         }
@@ -237,8 +247,77 @@ public static class ImageProjectWorkflow
         FlatLayerInfo target = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
             ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
         if (target.IsGroup) return false;
+        if (HasCrossParentClipping(session, target))
+        {
+            ValidateCrossParentGroupedLeafCopy(session, target);
+            return true;
+        }
         _ = ValidateGroupedLeafCopy(session, target, allowTransformedAncestors: true);
         return HasTransformedGroupedAncestor(session, target);
+    }
+
+    private static bool HasCrossParentClipping(ProjectSession session, FlatLayerInfo target)
+    {
+        Guid? targetParent = target.ParentId;
+        if (targetParent is null) return false;
+        var seen = new HashSet<Guid>();
+        FlatLayerInfo current = target;
+        while (current.MaskSourceId is { } sourceId)
+        {
+            if (!seen.Add(current.Id)) throw new NotSupportedException("Clipping relationships contain a cycle.");
+            FlatLayerInfo source = session.Layers.SingleOrDefault(layer => layer.Id == sourceId)
+                ?? throw new InvalidDataException("Clipping source is missing.");
+            if (source.ParentId != targetParent) return true;
+            current = source;
+        }
+        return false;
+    }
+
+    private static void ValidateCrossParentGroupedLeafCopy(ProjectSession session, FlatLayerInfo target)
+    {
+        if (target.ParentId is null)
+            throw new NotSupportedException("A grouped layer copy must stay inside a parent group.");
+        if (target.IsGroup || target.IsText)
+            throw new NotSupportedException("Only raster layers support cross-parent clipping copy.");
+
+        var seen = new HashSet<Guid>();
+        FlatLayerInfo current = target;
+        while (true)
+        {
+            if (!seen.Add(current.Id))
+                throw new NotSupportedException("Clipping relationships contain a cycle.");
+            if (current.IsGroup || current.IsText)
+                throw new NotSupportedException("Only raster clipping relationships support cross-parent copy.");
+            if (current.HasMask && session.GetLayerMask(current.Id) is null)
+                throw new InvalidDataException("Source layer mask asset is missing.");
+            if (current.MaskSourceId is not { } sourceId) break;
+            FlatLayerInfo source = session.Layers.SingleOrDefault(layer => layer.Id == sourceId)
+                ?? throw new InvalidDataException("Clipping source is missing.");
+            int sourceIndex = session.Layers.ToList().FindIndex(layer => layer.Id == source.Id);
+            int currentIndex = session.Layers.ToList().FindIndex(layer => layer.Id == current.Id);
+            if (sourceIndex < 0 || currentIndex < 0 || sourceIndex >= currentIndex)
+                throw new NotSupportedException("A clipping source must precede its target.");
+            if (source.ParentId != target.ParentId)
+                ValidateExternalSourceContext(session, source);
+            current = source;
+        }
+    }
+
+    private static void ValidateExternalSourceContext(ProjectSession session, FlatLayerInfo source)
+    {
+        Guid? parentId = source.ParentId;
+        while (parentId is { } groupId)
+        {
+            FlatLayerInfo group = session.Layers.SingleOrDefault(layer => layer.Id == groupId)
+                ?? throw new InvalidDataException("Clipping source parent is missing.");
+            if (!group.IsGroup)
+                throw new InvalidDataException("Clipping source parent is not a group.");
+            if (!session.IsGroupTransformIdentity(group.Id) ||
+                (group.HasMask && group.MaskEnabled) || group.Opacity != 1 || group.BlendMode != "Normal")
+                throw new NotSupportedException(
+                    "Cross-parent clipping copy requires an identity, unmasked, Normal source parent.");
+            parentId = group.ParentId;
+        }
     }
 
     private static IReadOnlyList<FlatLayerInfo> ValidateGroupedLeafCopy(ProjectSession session,
