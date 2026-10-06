@@ -109,15 +109,16 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
-    public void AddTextLayer(string content = "文字")
+    public void AddTextLayer(string content = "文字", bool box = false)
     {
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
         string font = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
             ?? throw new NotSupportedException("No usable font is installed.");
+        double? boxWidth = box ? Math.Min(360, session.Width) : null;
         var metadata = new TextLayerMetadata(Guid.Empty, "", content, font, 18,
-            0, 0, 0, 1, "left", 0, 0, "point", null);
+            0, 0, 0, 1, "left", 0, 0, box ? "box" : "point", boxWidth);
         TileRaster raster = TextLayerWorkflow.RenderText(metadata, session.Width, session.Height, session.Resolution);
         int index = session.ActiveLayerId is { } active
             ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1

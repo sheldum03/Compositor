@@ -164,6 +164,7 @@ public sealed class MainWindow : Window
         var structure = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
         structure.Children.Add(Command("AddTextLayer", "新增文字", AddTextLayerAsync, document: true));
+        structure.Children.Add(Command("AddBoxTextLayer", "新增框文字", AddBoxTextLayerAsync, document: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -553,7 +554,7 @@ public sealed class MainWindow : Window
         {
             button.IsEnabled = Workspace.Session is not null &&
                 (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
-            if (groupedProject && button.Name is "AddLayer" or "AddTextLayer" or "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
+            if (groupedProject && button.Name is "AddLayer" or "AddTextLayer" or "AddBoxTextLayer" or "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
                 button.IsEnabled = false;
         }
         if (Workspace.HasFloatingSelection)
@@ -714,6 +715,7 @@ public sealed class MainWindow : Window
         session.AddBlankLayer("Layer " + (session.Layers.Count + 1), index);
     });
     private Task AddTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer());
+    private Task AddBoxTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer("文字", box: true));
     private Task DuplicateLayerAsync()
     {
         Guid id = selectedId!.Value;

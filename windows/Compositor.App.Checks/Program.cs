@@ -120,9 +120,15 @@ internal static class Program
         Click(textWindow, "ApplyText");
         Require(textWorkspace.Session.TextLayers.Single().Content == "Headless text" && textWorkspace.IsDirty,
             "Created text layer did not accept the formal text editor update.");
+        Click(textWindow, "AddBoxTextLayer");
+        TextLayerMetadata createdBoxText = textWorkspace.Session.TextLayers.Single(item => item.Id == textWorkspace.Session.ActiveLayerId);
+        Require(createdBoxText.Layout == "box" && createdBoxText.BoxWidth == Math.Min(360, textWorkspace.Session.Width) &&
+            textWorkspace.Session.TextLayers.Count == 2,
+            "Add box-text button did not create a bounded box layout.");
         textWorkspace.Save(); textWindow.Close(); Dispatcher.UIThread.RunJobs();
         var reopenedText = ImageProjectWorkflow.OpenEditable(textProject);
-        Require(reopenedText.TextLayers.Count == 1 && reopenedText.TextLayers[0].Content == "Headless text",
+        Require(reopenedText.TextLayers.Count == 2 && reopenedText.TextLayers.Any(item => item.Content == "Headless text") &&
+            reopenedText.TextLayers.Any(item => item.Layout == "box"),
             "Created text layer did not survive save and reopen.");
 
         string mergeProject = Path.Combine(output, "MergeLayer.comp");
@@ -1134,7 +1140,7 @@ internal static class Program
         var groupedItem = Control<ListBox>(groupedWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.IsGroup);
         Control<ListBox>(groupedWindow, "Layers").SelectedItem = groupedItem;
         Dispatcher.UIThread.RunJobs();
-        foreach (string name in new[] { "AddLayer", "AddTextLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
+        foreach (string name in new[] { "AddLayer", "AddTextLayer", "AddBoxTextLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
             "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
             "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection", "BakeLayerTransform" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
