@@ -1111,6 +1111,36 @@ internal static class Program
             GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height)));
         groupMergeWorkspace.Save();
         TileRaster groupMergeBefore = ImageProjectWorkflow.RenderFlatNormal(groupMergeWorkspace.Session);
+        var groupCopyWorkspace = new EditorWorkspace();
+        groupCopyWorkspace.Open(groupMergeProject);
+        groupCopyWorkspace.SelectRectangle(new Rect(0, 0, groupCopyWorkspace.Session!.Width / 2, groupCopyWorkspace.Session.Height));
+        TileRaster expectedGroupCopy = ImageProjectWorkflow.RenderLayerForCopy(groupCopyWorkspace.Session, groupMergeGroupId);
+        var groupCopyWindow = new MainWindow(groupCopyWorkspace);
+        groupCopyWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(groupCopyWindow, "Layers").SelectedItem =
+            groupCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupMergeGroupId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(groupCopyWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A root group with a mask and clipping stack did not enable Layer via Copy.");
+        int groupCopyLayerCount = groupCopyWorkspace.Session.Layers.Count;
+        Click(groupCopyWindow, "LayerViaCopy");
+        Require(groupCopyWorkspace.Session.Layers.Any(layer => layer.Name == "Layer via Copy"),
+            "Root group Layer via Copy command failed: " + Control<TextBlock>(groupCopyWindow, "Status").Text);
+        FlatLayerInfo groupCopyLayer = groupCopyWorkspace.Session.Layers.Single(layer => layer.Name == "Layer via Copy");
+        Require(groupCopyWorkspace.Session.Layers.Count == groupCopyLayerCount + 1 && groupCopyLayer.ParentId is null &&
+            !groupCopyLayer.IsGroup && groupCopyWorkspace.Session.Layers.Any(layer => layer.Id == groupMergeGroupId),
+            "Root group Layer via Copy did not create a flat sibling layer.");
+        TileRaster actualGroupCopy = groupCopyWorkspace.Session.GetLayerRaster(groupCopyLayer.Id);
+        for (int y = 0; y < actualGroupCopy.Height; y++)
+        for (int x = 0; x < actualGroupCopy.Width; x++)
+        {
+            byte[] expected = PixelAt(expectedGroupCopy, x, y), actual = PixelAt(actualGroupCopy, x, y);
+            if (x < actualGroupCopy.Width / 2) Require(expected.SequenceEqual(actual),
+                "Root group Layer via Copy changed selected pixels.");
+            else Require(actual.All(channel => channel == 0),
+                "Root group Layer via Copy retained pixels outside the selection.");
+        }
+        groupCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
         var groupMergeWindow = new MainWindow(groupMergeWorkspace);
         groupMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
         Control<ListBox>(groupMergeWindow, "Layers").SelectedItem =
@@ -1194,7 +1224,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

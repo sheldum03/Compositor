@@ -616,9 +616,11 @@ public sealed class EditorWorkspace
         get
         {
             if (!CanEdit || HasActiveStroke || HasFloatingSelection || Selection is not { CoveredPixels: > 0 } ||
-                Session is not { } session || session.HasGroups || session.ActiveLayerId is not { } layerId)
+                Session is not { } session || session.ActiveLayerId is not { } layerId)
                 return false;
             FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
+            if (session.HasGroups)
+                return layer.IsGroup && layer.ParentId is null;
             return !layer.IsGroup &&
                 (!layer.HasMask || session.GetLayerMask(layerId) is not null);
         }
@@ -628,12 +630,21 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         if (!CanLayerViaCopy)
-            throw new NotSupportedException("Layer via Copy 目前只支持平面图层，组图层不支持。");
+            throw new NotSupportedException("Layer via Copy 目前只支持平面图层或根组图层。");
         var session = RequireSession();
         Guid sourceId = session.ActiveLayerId!.Value;
         int destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == sourceId) + 1;
+        FlatLayerInfo sourceLayer = session.Layers.Single(layer => layer.Id == sourceId);
+        if (sourceLayer.IsGroup)
+            while (destinationIndex < session.Layers.Count &&
+                IsDescendantOf(session.Layers[destinationIndex], sourceId, session.Layers))
+                destinationIndex++;
         TileRaster copied = ApplySelection(ImageProjectWorkflow.RenderLayerForCopy(session, sourceId), Selection!, keepSelected: true);
-        Edit(current => current.AddRasterLayer("Layer via Copy", copied, destinationIndex));
+        Edit(current =>
+        {
+            if (sourceLayer.IsGroup) _ = current.AddRootRasterLayer("Layer via Copy", copied, destinationIndex);
+            else _ = current.AddRasterLayer("Layer via Copy", copied, destinationIndex);
+        });
         ClearSelectionWithoutHistory();
         ResetSelectionHistory();
     }

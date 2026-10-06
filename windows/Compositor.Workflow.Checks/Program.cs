@@ -167,6 +167,7 @@ CheckCompositing(output, fixtures);
 CheckCachedGroupRendering(output, fixtures);
 CheckCachedGroupTransform(output, fixtures);
 CheckGroupStructureCreation(output, fixtures);
+CheckGroupedLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
@@ -469,6 +470,41 @@ static void CheckGroupStructureCreation(string output, string fixtures)
     if (!SameRaster(clippedReference, ImageProjectWorkflow.RenderFlatNormal(clippedReopened)))
         throw new Exception("Masked clipping-stack ungroup did not survive save and reopen.");
     Console.WriteLine("PASS: root, nested and transformed masked groups preserve render through group/ungroup and save/reopen");
+}
+
+static void CheckGroupedLayerViaCopy(string output, string fixtures)
+{
+    string source = Path.Combine(output, "GroupedLayerCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid baseId = session.Layers.Single().Id;
+    Guid overlayId = session.AddBlankLayer("Group overlay", 1);
+    TileRaster overlayRaster = session.GetLayerRaster(overlayId);
+    var size = overlayRaster.TileDimensions(0, 0);
+    byte[] tile = overlayRaster.ReadTileCopy(0, 0);
+    int offset = (12 * size.Width + 12) * 4;
+    tile[offset] = 150; tile[offset + 1] = 70; tile[offset + 2] = 30; tile[offset + 3] = 180;
+    session.ReplaceLayerRaster(overlayId, overlayRaster.ReplaceTile(0, 0, tile));
+    session.SetLayerOpacity(baseId, 0.72);
+    session.SetLayerBlendMode(baseId, "Multiply");
+    session.SetLayerOpacity(overlayId, 0.63);
+    session.SetLayerBlendMode(overlayId, "Screen");
+    session.SetLayerMaskSource(overlayId, baseId);
+    Guid groupId = session.GroupLayers([baseId, overlayId], "Visible group");
+    session.SetLayerOpacity(groupId, 0.82);
+    session.SetLayerBlendMode(groupId, "Multiply");
+    session.SetGroupTransform(groupId, 4, 3, session.Width - 8, session.Height - 6, 8);
+    session.EnsureLayerMask(groupId);
+    session.ReplaceLayerMask(groupId,
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+    TileRaster expected = ImageProjectWorkflow.RenderFlatNormal(session);
+    TileRaster copied = ImageProjectWorkflow.RenderLayerForCopy(session, groupId);
+    AssertRaster(expected, copied);
+    string saved = Path.Combine(output, "GroupedLayerCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    AssertRaster(expected, ImageProjectWorkflow.RenderLayerForCopy(reopened, groupId));
+    Console.WriteLine("PASS: root group visible-result copy preserves clipping, group mask, appearance and transform Alpha");
 }
 
 static void CheckEditableLayerTransform(string output, string fixtures)

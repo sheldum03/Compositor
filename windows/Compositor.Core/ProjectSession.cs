@@ -640,6 +640,16 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
+    public Guid AddRootRasterLayer(string name, TileRaster raster, int destinationIndex)
+    {
+        RequireGroupStructureEditing();
+        if (!HasGroups) throw new NotSupportedException("Root raster insertion requires a grouped project.");
+        CheckRasterSize(raster);
+        if (destinationIndex < Layers.Count && Layers[destinationIndex].ParentId is not null)
+            throw new NotSupportedException("Root raster insertion must stay outside group subtrees.");
+        return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
+    }
+
     public Guid AddTextLayer(string name, TextLayerMetadata metadata, TileRaster raster, int destinationIndex)
     {
         RequireLayerStructureEditing();

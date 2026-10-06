@@ -154,11 +154,15 @@ public static class ImageProjectWorkflow
     public static TileRaster RenderLayerForCopy(ProjectSession session, Guid layerId)
     {
         if (!session.CanEdit) throw new NotSupportedException("Layer copy requires an editable project.");
-        if (session.HasGroups) throw new NotSupportedException("Layer copy does not support groups.");
         FlatLayerInfo target = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
             ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
-        if (target.IsGroup)
-            throw new NotSupportedException("Layer copy only supports raster layers.");
+        if (session.HasGroups)
+        {
+            if (!target.IsGroup || target.ParentId is not null)
+                throw new NotSupportedException("Layer copy in grouped projects only supports root groups in this slice.");
+            return RenderCachedCore(session, useLoadedAssets: true, rootOnly: layerId, applyRootAppearance: true);
+        }
+        if (target.IsGroup) throw new NotSupportedException("Layer copy only supports raster layers.");
 
         var resolving = new HashSet<Guid>();
         TileRaster Resolve(Guid id)
