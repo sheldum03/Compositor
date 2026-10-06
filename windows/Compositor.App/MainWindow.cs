@@ -247,6 +247,7 @@ public sealed class MainWindow : Window
         move.Children.Add(Command("MoveLayer", "移动图层/组", MoveLayerAsync, layer: true));
         actions.Children.Add(move);
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
+        actions.Children.Add(Command("InvertLayer", "反相图层", InvertLayerAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
         var maskEdit = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         maskEdit.Children.Add(Command("RevealMaskSelection", "选区显示", () => ApplyMaskSelectionAsync(true), layer: true, mask: true));
@@ -674,6 +675,9 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanLayerViaCopy;
             if (button.Name == "ApplyText")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsText == true && !multiple && !Workspace.HasFloatingSelection;
+            if (button.Name == "InvertLayer")
+                button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false, IsText: false } &&
+                    !multiple && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -973,6 +977,7 @@ public sealed class MainWindow : Window
             session.SetLayerBlendMode(id, mode);
         });
     }
+    private Task InvertLayerAsync() => Task.Run(Workspace.InvertActiveLayer);
     private Task VisibilityAsync()
     {
         Guid id = selectedId!.Value;

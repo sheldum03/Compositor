@@ -989,6 +989,20 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.ReplaceLayerMask(layerId, current.Blur(radius)));
     }
 
+    public void InvertActiveLayer()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId)
+            throw new InvalidOperationException("当前工程没有活动图层。");
+        FlatLayerInfo layer = session.Layers.Single(item => item.Id == layerId);
+        if (layer.IsGroup)
+            throw new NotSupportedException("组图层不能直接反相，请先选择栅格图层。");
+        TileRaster current = session.GetLayerRaster(layerId);
+        TileRaster next = InvertPixels(current);
+        if (!SamePixels(current, next)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, next));
+    }
+
     public void SetActiveLayerClipping(bool enabled)
     {
         RequireIdle();
@@ -1197,6 +1211,25 @@ public sealed class EditorWorkspace
         for (int column = 0; column * TileRaster.TileSize < first.Width; column++)
             if (!first.ReadTileCopy(column, row).SequenceEqual(second.ReadTileCopy(column, row))) return false;
         return true;
+    }
+
+    private static TileRaster InvertPixels(TileRaster source)
+    {
+        TileRaster result = new(source.Width, source.Height);
+        for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+        {
+            byte[] tile = source.ReadTileCopy(column, row);
+            for (int i = 0; i < tile.Length; i += 4)
+            {
+                byte alpha = tile[i + 3];
+                tile[i] = (byte)(alpha - tile[i]);
+                tile[i + 1] = (byte)(alpha - tile[i + 1]);
+                tile[i + 2] = (byte)(alpha - tile[i + 2]);
+            }
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
     }
 
     private static bool SameCoverage(GrayTileRaster first, GrayTileRaster second)
