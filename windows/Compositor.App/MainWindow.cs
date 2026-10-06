@@ -574,7 +574,7 @@ public sealed class MainWindow : Window
         {
             button.IsEnabled = Workspace.CanEdit && selected is not null && !Workspace.HasFloatingSelection;
             if (multiple && button.Name is not ("GroupLayer" or "MergeLayerDown")) button.IsEnabled = false;
-            if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "MergeLayerDown" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
+            if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
             if (button.Name == "LayerViaCopy")
                 button.IsEnabled = Workspace.CanLayerViaCopy;
@@ -608,12 +608,12 @@ public sealed class MainWindow : Window
                     .Select(item => (Layer: item, Index: layerList.FindIndex(layer => layer.Id == item.Id)))
                     .OrderBy(item => item.Index)
                     .ToArray();
-                Guid[] mergeIds = multiple
-                    ? selectedItems.Select(item => item.Id).ToArray()
-                    : ordered.Length == 1 && ordered[0].Index > 0
-                        ? [layerList[ordered[0].Index - 1].Id, ordered[0].Layer.Id]
-                        : [];
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && !Workspace.HasFloatingSelection &&
+                Guid[] mergeIds;
+                if (multiple) mergeIds = selectedItems.Select(item => item.Id).ToArray();
+                else if (ordered.Length == 1 && currentSession?.PreviousSiblingId(ordered[0].Layer.Id) is { } previousId)
+                    mergeIds = [previousId, ordered[0].Layer.Id];
+                else mergeIds = [];
+                button.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
                     Workspace.CanMergeSelectedLayers(mergeIds);
             }
         }

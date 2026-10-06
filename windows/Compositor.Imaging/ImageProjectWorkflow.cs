@@ -123,6 +123,34 @@ public static class ImageProjectWorkflow
         return RenderFlatNormalCore(session, null, null, null, layerIds);
     }
 
+    public static TileRaster RenderLayersForMerge(ProjectSession session, IReadOnlyList<Guid> layerIds)
+    {
+        ArgumentNullException.ThrowIfNull(layerIds);
+        if (!session.CanEdit) throw new NotSupportedException("Layer merge rendering requires an editable project.");
+        Guid[] distinctIds = layerIds.Distinct().ToArray();
+        if (distinctIds.Length < 2) throw new InvalidOperationException("Please select at least two layers.");
+        FlatLayerInfo[] layers = session.Layers.ToArray();
+        (FlatLayerInfo Layer, int Index)[] selected = distinctIds.Select(id =>
+        {
+            int index = Array.FindIndex(layers, layer => layer.Id == id);
+            if (index < 0) throw new ArgumentException("Layer does not belong to this project.", nameof(layerIds));
+            return (Layer: layers[index], Index: index);
+        }).OrderBy(item => item.Index).ToArray();
+        Guid? parentId = selected[0].Layer.ParentId;
+        if (selected.Any(item => item.Layer.ParentId != parentId))
+            throw new NotSupportedException("Only sibling layers can be merged.");
+        int[] siblingIndexes = layers.Select((layer, index) => (layer, index))
+            .Where(item => item.layer.ParentId == parentId).Select(item => item.index).ToArray();
+        int[] siblingPositions = selected.Select(item => Array.IndexOf(siblingIndexes, item.Index))
+            .OrderBy(index => index).ToArray();
+        if (siblingPositions.Any(index => index < 0) ||
+            siblingPositions[^1] - siblingPositions[0] + 1 != siblingPositions.Length)
+            throw new InvalidOperationException("Only contiguous sibling layers can be merged.");
+
+        return RenderCachedCore(session, useLoadedAssets: true,
+            renderRoots: selected.Select(item => item.Layer.Id).ToHashSet());
+    }
+
     public static TileRaster RenderLayerForCopy(ProjectSession session, Guid layerId)
     {
         if (!session.CanEdit) throw new NotSupportedException("Layer copy requires an editable project.");
@@ -316,7 +344,7 @@ public static class ImageProjectWorkflow
 
     private static TileRaster RenderCachedCore(ProjectSession session, bool useLoadedAssets = false,
         Guid? overrideLayerId = null, TileRaster? overrideRaster = null, GrayTileRaster? overrideMask = null,
-        Guid? rootOnly = null)
+        Guid? rootOnly = null, bool applyRootAppearance = false, IReadOnlySet<Guid>? renderRoots = null)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -373,6 +401,43 @@ public static class ImageProjectWorkflow
             .GroupBy(layer => layer.Manifest["parentID"] is { } parent
                 ? Guid.Parse(parent.GetValue<string>()) : Guid.Empty)
             .ToDictionary(group => group.Key, group => group.ToArray());
+        HashSet<Guid>? renderIds = null;
+        if (renderRoots is { Count: > 0 })
+        {
+            renderIds = renderRoots.ToHashSet();
+            foreach (Guid selectedRootId in renderRoots)
+            {
+                if (!prepared.ContainsKey(selectedRootId))
+                    throw new ArgumentException("The requested layer does not exist.", nameof(renderRoots));
+                foreach (CachedLayer candidate in prepared.Values)
+                {
+                    Guid? parentId = candidate.Manifest["parentID"] is { } parent
+                        ? Guid.Parse(parent.GetValue<string>()) : null;
+                    var seen = new HashSet<Guid>();
+                    while (parentId is { } current && seen.Add(current))
+                    {
+                        if (current == selectedRootId)
+                        {
+                            renderIds.Add(candidate.Id);
+                            break;
+                        }
+                        parentId = prepared.TryGetValue(current, out var parentLayer) &&
+                            parentLayer.Manifest["parentID"] is { } nextParent
+                            ? Guid.Parse(nextParent.GetValue<string>()) : null;
+                    }
+                }
+                Guid? ancestorId = prepared[selectedRootId].Manifest["parentID"] is { } parentNode
+                    ? Guid.Parse(parentNode.GetValue<string>()) : null;
+                var ancestorSeen = new HashSet<Guid>();
+                while (ancestorId is { } ancestor && ancestorSeen.Add(ancestor))
+                {
+                    renderIds.Add(ancestor);
+                    ancestorId = prepared.TryGetValue(ancestor, out var ancestorLayer) &&
+                        ancestorLayer.Manifest["parentID"] is { } nextParent
+                        ? Guid.Parse(nextParent.GetValue<string>()) : null;
+                }
+            }
+        }
         var resolved = new Dictionary<Guid, TileRaster>();
         var resolving = new HashSet<Guid>();
         TileRaster ResolveLeaf(Guid layerId)
@@ -438,6 +503,7 @@ public static class ImageProjectWorkflow
                 for (int index = 0; index < descendants.Length; index++)
                 {
                     var child = descendants[index];
+                    if (renderIds is not null && !renderIds.Contains(child.Id)) continue;
                     if (!(child.Manifest["isVisible"]?.GetValue<bool>() ?? true)) continue;
                     if (child.Raster is null)
                     {
@@ -487,15 +553,21 @@ public static class ImageProjectWorkflow
 
         if (rootOnly is { } rootId)
         {
-            if (!prepared.TryGetValue(rootId, out var root) || root.Raster is not null)
-                throw new ArgumentException("The requested layer is not a group.", nameof(rootOnly));
-            return RenderNode(root, Array.Empty<GrayTileRaster>());
+            if (!prepared.TryGetValue(rootId, out var root))
+                throw new ArgumentException("The requested layer does not exist.", nameof(rootOnly));
+            TileRaster rootRaster = root.Raster is null
+                ? RenderNode(root, Array.Empty<GrayTileRaster>())
+                : ResolveLeaf(root.Id);
+            return applyRootAppearance
+                ? CompositeChild(new TileRaster(width, height), root, rootRaster)
+                : rootRaster;
         }
 
         var output = new TileRaster(width, height);
         if (children.TryGetValue(Guid.Empty, out var roots))
             foreach (var root in roots)
             {
+                if (renderIds is not null && !renderIds.Contains(root.Id)) continue;
                 TileRaster raster = RenderNode(root, Array.Empty<GrayTileRaster>());
                 output = CompositeChild(output, root, raster);
             }

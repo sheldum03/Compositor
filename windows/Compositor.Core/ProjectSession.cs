@@ -76,6 +76,15 @@ public sealed class ProjectSession
             MaskEnabled = layer["maskFile"] is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true),
             MaskSourceId = layer["maskSourceID"] is { } source ? Guid.Parse(source.GetValue<string>()) : null
         }).ToArray();
+    public Guid? PreviousSiblingId(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        Guid? parentId = Layers[index].ParentId;
+        for (int candidate = index - 1; candidate >= 0; candidate--)
+            if (Layers[candidate].ParentId == parentId)
+                return Layers[candidate].Id;
+        return null;
+    }
     public TileRaster? Raster => ImageName.Length != 0 &&
         TryGetLoadedLayerRaster(Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>()), out var raster) ? raster : null;
     internal bool RequiresRasterEncoding => ImageName.Length != 0 && TryGetRasterForEncoding(ImageName, out _);
@@ -1260,6 +1269,104 @@ public sealed class ProjectSession
             if (masks.Count == 0) masks = null;
         }
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));
+    }
+
+    public void MergeLayerRoots(IReadOnlyList<Guid> layerIds, TileRaster mergedRaster)
+    {
+        RequireGroupStructureEditing();
+        Guid[] distinctIds = layerIds.Distinct().ToArray();
+        if (distinctIds.Length < 2)
+            throw new InvalidOperationException("请至少选择两个图层。");
+        if (mergedRaster.Width != Width || mergedRaster.Height != Height)
+            throw new ArgumentException("Merged raster dimensions do not match the canvas.", nameof(mergedRaster));
+        FlatLayerInfo[] layers = Layers.ToArray();
+        (FlatLayerInfo Layer, int Index)[] selected = distinctIds.Select(id =>
+        {
+            int index = FindLayer(id);
+            return (Layer: layers[index], Index: index);
+        }).OrderBy(item => item.Index).ToArray();
+        Guid? parentId = selected[0].Layer.ParentId;
+        if (selected.Any(item => item.Layer.ParentId != parentId))
+            throw new NotSupportedException("只能合并同级图层。");
+        int[] siblingIndexes = layers.Select((layer, index) => (layer, index))
+            .Where(item => item.layer.ParentId == parentId)
+            .Select(item => item.index).ToArray();
+        int[] selectedSiblingPositions = selected.Select(item => Array.IndexOf(siblingIndexes, item.Index)).OrderBy(index => index).ToArray();
+        if (selectedSiblingPositions.Any(index => index < 0) ||
+            selectedSiblingPositions[^1] - selectedSiblingPositions[0] + 1 != selectedSiblingPositions.Length)
+            throw new InvalidOperationException("只能合并连续同级图层。");
+
+        var included = selected.Select(item => item.Layer.Id).ToHashSet();
+        foreach (FlatLayerInfo layer in layers)
+        {
+            if (layer.ParentId is not { } layerParent) continue;
+            var seen = new HashSet<Guid>();
+            while (seen.Add(layerParent))
+            {
+                if (included.Contains(layerParent))
+                {
+                    included.Add(layer.Id);
+                    break;
+                }
+                FlatLayerInfo? parent = layers.SingleOrDefault(candidate => candidate.Id == layerParent);
+                if (parent?.ParentId is not { } nextParent) break;
+                layerParent = nextParent;
+            }
+        }
+        foreach (FlatLayerInfo layer in layers)
+        {
+            bool includedLayer = included.Contains(layer.Id);
+            if (includedLayer && layer.MaskSourceId is { } sourceId && !included.Contains(sourceId) ||
+                !includedLayer && layer.MaskSourceId is { } externalSourceId && included.Contains(externalSourceId))
+                throw new NotSupportedException("剪贴关系必须与选中的图层一起合并。");
+        }
+
+        FlatLayerInfo lower = selected[0].Layer;
+        string mergedName = string.Join(" + ", selected.Select(item => item.Layer.Name));
+        if (mergedName.Length > 1000) mergedName = lower.Name;
+        var next = (JsonObject)Current.DeepClone();
+        var nextLayers = next["layers"]!.AsArray();
+        var lowerNode = nextLayers[selected[0].Index]!.AsObject();
+        lowerNode["name"] = mergedName;
+        lowerNode["isGroup"] = false;
+        lowerNode["isVisible"] = selected.Any(item => item.Layer.IsVisible);
+        lowerNode["opacity"] = 1d;
+        lowerNode["blendMode"] = "Normal";
+        lowerNode["imageFile"] = lower.Id.ToString("D").ToUpperInvariant() + ".png";
+        lowerNode.Remove("maskFile");
+        lowerNode.Remove("maskEnabled");
+        lowerNode.Remove("maskSourceID");
+        lowerNode["transform"] = new JsonObject
+        {
+            ["origin"] = new JsonArray(0d, 0d),
+            ["size"] = new JsonArray((double)Width, (double)Height),
+            ["rotation"] = 0d,
+            ["flipX"] = false,
+            ["flipY"] = false,
+            ["sampling"] = "High quality"
+        };
+        for (int index = nextLayers.Count - 1; index >= 0; index--)
+        {
+            Guid id = Guid.Parse(nextLayers[index]!["id"]!.GetValue<string>());
+            if (included.Contains(id) && id != lower.Id) nextLayers.RemoveAt(index);
+        }
+        next["activeLayerID"] = lower.Id.ToString("D");
+        var currentRasters = snapshots[cursor].LayerRasters
+            ?? throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
+        var nextRasters = new Dictionary<Guid, TileRaster>(currentRasters)
+        {
+            [lower.Id] = mergedRaster
+        };
+        foreach (Guid id in included)
+            if (id != lower.Id) nextRasters.Remove(id);
+        Dictionary<Guid, GrayTileRaster>? nextMasks = snapshots[cursor].LayerMasks is { } currentMasks
+            ? new Dictionary<Guid, GrayTileRaster>(currentMasks) : null;
+        if (nextMasks is not null)
+        {
+            foreach (Guid id in included) nextMasks.Remove(id);
+            if (nextMasks.Count == 0) nextMasks = null;
+        }
+        Commit(new Snapshot(next, nextRasters, nextMasks, ++nextRevision));
     }
 
     private int[] ValidateLayerCopyFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,

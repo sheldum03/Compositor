@@ -924,6 +924,69 @@ internal static class Program
         Require(!groupCreationWorkspace.Session.HasGroups, "Ungroup button did not remove a pass-through group.");
         groupCreationWorkspace.Save();
         groupCreationWindow.Close(); Dispatcher.UIThread.RunJobs();
+
+        string groupMergeProject = Path.Combine(output, "GroupMerge.comp");
+        var groupMergeWorkspace = new EditorWorkspace();
+        groupMergeWorkspace.Import(fixture, groupMergeProject);
+        Guid groupMergeLowerId = groupMergeWorkspace.Session!.Layers[0].Id;
+        Guid groupMergeChildId = groupMergeWorkspace.Session.AddBlankLayer("Group base", 1);
+        Guid groupMergeOverlayId = groupMergeWorkspace.Session.AddBlankLayer("Group overlay", 2);
+        TileRaster groupMergeBaseRaster = groupMergeWorkspace.Session.GetLayerRaster(groupMergeLowerId);
+        TileRaster groupMergeOverlayRaster = groupMergeWorkspace.Session.GetLayerRaster(groupMergeOverlayId);
+        var groupMergeOverlaySize = groupMergeOverlayRaster.TileDimensions(0, 0);
+        byte[] groupMergeOverlayTile = groupMergeOverlayRaster.ReadTileCopy(0, 0);
+        int groupMergeOverlayOffset = (12 * groupMergeOverlaySize.Width + 12) * 4;
+        groupMergeOverlayTile[groupMergeOverlayOffset] = 130;
+        groupMergeOverlayTile[groupMergeOverlayOffset + 1] = 50;
+        groupMergeOverlayTile[groupMergeOverlayOffset + 2] = 25;
+        groupMergeOverlayTile[groupMergeOverlayOffset + 3] = 170;
+        groupMergeWorkspace.Edit(session =>
+        {
+            session.ReplaceLayerRaster(groupMergeChildId, groupMergeBaseRaster);
+            session.ReplaceLayerRaster(groupMergeOverlayId, groupMergeOverlayRaster.ReplaceTile(0, 0, groupMergeOverlayTile));
+            session.SetLayerOpacity(groupMergeChildId, 0.74);
+            session.SetLayerBlendMode(groupMergeOverlayId, "Screen");
+            session.SetLayerOpacity(groupMergeOverlayId, 0.63);
+            session.SetLayerMaskSource(groupMergeOverlayId, groupMergeChildId);
+        });
+        Guid groupMergeGroupId = groupMergeWorkspace.Session.GroupLayers(
+            [groupMergeChildId, groupMergeOverlayId], "Merge group");
+        groupMergeWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(groupMergeGroupId, 0.82);
+            session.SetLayerBlendMode(groupMergeGroupId, "Multiply");
+            session.SetGroupTransform(groupMergeGroupId, 4, 3, session.Width - 8, session.Height - 6, 8);
+        });
+        groupMergeWorkspace.Save();
+        TileRaster groupMergeBefore = ImageProjectWorkflow.RenderFlatNormal(groupMergeWorkspace.Session);
+        var groupMergeWindow = new MainWindow(groupMergeWorkspace);
+        groupMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(groupMergeWindow, "Layers").SelectedItem =
+            groupMergeWorkspace.Session.Layers.Single(layer => layer.Id == groupMergeGroupId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(groupMergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "A grouped root with a lower sibling did not enable the group merge command.");
+        Click(groupMergeWindow, "MergeLayerDown");
+        Require(groupMergeWorkspace.Session.Layers.Count == 1 &&
+            groupMergeWorkspace.Session.ActiveLayerId == groupMergeLowerId && groupMergeWorkspace.IsDirty &&
+            !groupMergeWorkspace.Session.HasGroups,
+            "Group merge did not flatten the selected root subtree into the lower sibling.");
+        CheckEqual(groupMergeWorkspace.Preview!, groupMergeBefore);
+        Click(groupMergeWindow, "Undo");
+        Require(groupMergeWorkspace.Session.Layers.Count == 4 && groupMergeWorkspace.Session.HasGroups &&
+            !groupMergeWorkspace.IsDirty,
+            "Undo did not restore the grouped merge source tree and saved state.");
+        CheckEqual(groupMergeWorkspace.Preview!, groupMergeBefore);
+        Click(groupMergeWindow, "Redo");
+        Require(groupMergeWorkspace.Session.Layers.Count == 1 && !groupMergeWorkspace.Session.HasGroups,
+            "Redo did not restore the flattened group merge.");
+        groupMergeWorkspace.Save();
+        var reopenedGroupMerge = ImageProjectWorkflow.OpenEditable(groupMergeProject);
+        Require(reopenedGroupMerge.Layers.Count == 1 && !reopenedGroupMerge.HasGroups,
+            "Saved group merge did not reopen as one flat layer.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedGroupMerge), groupMergeBefore);
+        groupMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string grouped = CreateEditableGroupFixture(output, args[0]);
         var groupedWorkspace = new EditorWorkspace();
         groupedWorkspace.Open(grouped);
@@ -976,7 +1039,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

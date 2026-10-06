@@ -115,9 +115,9 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (session.ActiveLayerId is not { } upperId)
             throw new InvalidOperationException("当前工程没有活动图层。");
-        int upperIndex = session.Layers.ToList().FindIndex(layer => layer.Id == upperId);
-        if (upperIndex <= 0) throw new InvalidOperationException("当前图层下方没有可合并的图层。");
-        MergeSelectedLayers([session.Layers[upperIndex - 1].Id, upperId]);
+        if (session.PreviousSiblingId(upperId) is not { } previousId)
+            throw new InvalidOperationException("当前图层下方没有可合并的同级图层。");
+        MergeSelectedLayers([previousId, upperId]);
     }
 
     public bool CanMoveLayer(Guid layerId, int offset)
@@ -197,9 +197,16 @@ public sealed class EditorWorkspace
         RequireIdle();
         var session = RequireSession();
         var selected = ValidateMergeSelection(session, layerIds);
-        TileRaster merged = ImageProjectWorkflow.RenderFlatNormalLayers(session,
-            selected.Select(item => item.Layer.Id).ToHashSet());
-        Edit(editSession => editSession.MergeLayers(selected.Select(item => item.Layer.Id).ToArray(), merged));
+        bool grouped = session.HasGroups;
+        TileRaster merged = grouped
+            ? ImageProjectWorkflow.RenderLayersForMerge(session, selected.Select(item => item.Layer.Id).ToArray())
+            : ImageProjectWorkflow.RenderFlatNormalLayers(session, selected.Select(item => item.Layer.Id).ToHashSet());
+        Edit(editSession =>
+        {
+            Guid[] selectedIds = selected.Select(item => item.Layer.Id).ToArray();
+            if (grouped) editSession.MergeLayerRoots(selectedIds, merged);
+            else editSession.MergeLayers(selectedIds, merged);
+        });
     }
 
     public bool CanMergeSelectedLayers(IReadOnlyList<Guid> layerIds)
@@ -223,9 +230,10 @@ public sealed class EditorWorkspace
             if (index < 0) throw new ArgumentException("图层不属于当前工程。", nameof(layerIds));
             return (Layer: layers[index], Index: index);
         }).OrderBy(item => item.Index).ToArray();
+        if (session.HasGroups) return ValidateGroupedMergeSelection(selected, layers);
         if (selected[^1].Index - selected[0].Index + 1 != selected.Length)
             throw new InvalidOperationException("只能合并连续图层。");
-        if (session.HasGroups || selected.Any(item => item.Layer.IsGroup))
+        if (selected.Any(item => item.Layer.IsGroup))
             throw new NotSupportedException("组图层暂不支持合并。");
         var selectedIds = selected.Select(item => item.Layer.Id).ToHashSet();
         foreach (FlatLayerInfo layer in session.Layers)
@@ -235,6 +243,34 @@ public sealed class EditorWorkspace
                 throw new NotSupportedException("剪贴目标必须与其源图层一起合并。");
             if (targetSelected && session.Layers.Any(candidate => candidate.MaskSourceId == layer.Id && !selectedIds.Contains(candidate.Id)))
                 throw new NotSupportedException("剪贴源不能在目标图层之外被合并。");
+        }
+        return selected;
+    }
+
+    private static (FlatLayerInfo Layer, int Index)[] ValidateGroupedMergeSelection(
+        (FlatLayerInfo Layer, int Index)[] selected, IReadOnlyList<FlatLayerInfo> layers)
+    {
+        Guid? parentId = selected[0].Layer.ParentId;
+        if (selected.Any(item => item.Layer.ParentId != parentId))
+            throw new NotSupportedException("只能合并同级图层。");
+        int[] siblingIndexes = layers.Select((layer, index) => (layer, index))
+            .Where(item => item.layer.ParentId == parentId).Select(item => item.index).ToArray();
+        int[] siblingPositions = selected.Select(item => Array.IndexOf(siblingIndexes, item.Index))
+            .OrderBy(index => index).ToArray();
+        if (siblingPositions.Any(index => index < 0) ||
+            siblingPositions[^1] - siblingPositions[0] + 1 != siblingPositions.Length)
+            throw new InvalidOperationException("只能合并连续同级图层。");
+
+        var included = selected.Select(item => item.Layer.Id).ToHashSet();
+        foreach (FlatLayerInfo layer in layers)
+            if (selected.Any(root => layer.Id != root.Layer.Id && IsDescendantOf(layer, root.Layer.Id, layers)))
+                included.Add(layer.Id);
+        foreach (FlatLayerInfo layer in layers)
+        {
+            bool includedLayer = included.Contains(layer.Id);
+            if (includedLayer && layer.MaskSourceId is { } sourceId && !included.Contains(sourceId) ||
+                !includedLayer && layer.MaskSourceId is { } externalSourceId && included.Contains(externalSourceId))
+                throw new NotSupportedException("剪贴关系必须与选中的图层一起合并。");
         }
         return selected;
     }
