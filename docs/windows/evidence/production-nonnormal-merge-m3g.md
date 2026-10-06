@@ -2,7 +2,7 @@
 
 日期：2026-10-06
 
-功能提交：`336cd57 Support non-normal appearance layer merge`
+功能提交：`2eb2337 Cover non-normal clipping merge regression`（渲染逻辑由 `336cd57` 接入）
 
 ## 已实现范围
 
