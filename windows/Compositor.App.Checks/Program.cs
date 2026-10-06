@@ -634,6 +634,50 @@ internal static class Program
         mismatchedCrossLayerTarget.New(64, 64, 72);
         Require(!crossLayerSource.CanCopyLayerTo(mismatchedCrossLayerTarget, crossLayerSourceId),
             "Cross-project layer copy incorrectly allowed mismatched canvas dimensions.");
+        var crossGroupSource = new EditorWorkspace();
+        crossGroupSource.Import(fixture, Path.Combine(output, "CrossGroupSource.comp"));
+        Guid crossGroupChildId = crossGroupSource.Session!.Layers[0].Id;
+        Guid crossGroupSecondChildId = crossGroupSource.Session.AddBlankLayer("Grouped second", 1);
+        Guid crossGroupId = crossGroupSource.Session.GroupLayers([crossGroupChildId, crossGroupSecondChildId], "Copied group");
+        crossGroupSource.Edit(session =>
+        {
+            session.SetGroupTransform(crossGroupId, 8, 11, session.Width - 16, session.Height - 22, 13);
+            session.EnsureLayerMask(crossGroupId);
+            session.SetLayerMaskEnabled(crossGroupId, false);
+        });
+        crossGroupSource.Save();
+        var crossGroupTarget = new EditorWorkspace();
+        string crossGroupTargetPath = Path.Combine(output, "CrossGroupTarget.comp");
+        crossGroupTarget.Import(fixture, crossGroupTargetPath);
+        int crossGroupTargetCount = crossGroupTarget.Session!.Layers.Count;
+        Require(crossGroupSource.CanCopyLayerTo(crossGroupTarget, crossGroupId),
+            "Grouped source did not enable complete group copy to a flat target.");
+        crossGroupSource.CopyLayerTo(crossGroupTarget, crossGroupId);
+        Require(crossGroupTarget.Session.Layers.Count == crossGroupTargetCount + 3,
+            "Cross-project group copy did not add the group subtree.");
+        FlatLayerInfo copiedGroup = crossGroupTarget.Session.Layers.Single(layer => layer.IsGroup);
+        FlatLayerInfo[] copiedGroupChildren = crossGroupTarget.Session.Layers.Where(layer => layer.ParentId == copiedGroup.Id).ToArray();
+        Require(copiedGroupChildren.Length == 2 &&
+            crossGroupTarget.Session.GetLayerTransform(copiedGroup.Id) == crossGroupSource.Session.GetLayerTransform(crossGroupId) &&
+            copiedGroup.HasMask && !copiedGroup.MaskEnabled &&
+            CheckEqualNoThrow(crossGroupSource.Session.GetLayerMask(crossGroupId)!, crossGroupTarget.Session.GetLayerMask(copiedGroup.Id)!),
+            "Cross-project group copy did not preserve group transform or mask metadata.");
+        foreach (FlatLayerInfo sourceChild in crossGroupSource.Session.Layers.Where(layer => layer.ParentId == crossGroupId))
+        {
+            FlatLayerInfo targetChild = copiedGroupChildren.Single(layer => layer.Name == sourceChild.Name);
+            Require(CheckEqualNoThrow(crossGroupSource.Session.GetLayerRaster(sourceChild.Id),
+                    crossGroupTarget.Session.GetLayerRaster(targetChild.Id)),
+                "Cross-project group copy did not preserve child pixels.");
+        }
+        Require(crossGroupTarget.Session.ActiveLayerId == copiedGroup.Id,
+            "Cross-project group copy did not activate the copied group.");
+        crossGroupTarget.Save();
+        var reopenedCrossGroup = ImageProjectWorkflow.OpenEditable(crossGroupTargetPath);
+        FlatLayerInfo reopenedGroup = reopenedCrossGroup.Layers.Single(layer => layer.IsGroup);
+        Require(reopenedCrossGroup.Layers.Count == crossGroupTargetCount + 3 &&
+            reopenedCrossGroup.Layers.Count(layer => layer.ParentId == reopenedGroup.Id) == 2 &&
+            reopenedGroup.HasMask && !reopenedGroup.MaskEnabled,
+            "Saved cross-project group copy did not reopen with its subtree and mask.");
         var clippedCrossLayerSource = new EditorWorkspace();
         clippedCrossLayerSource.Import(fixture, Path.Combine(output, "ClippedCrossLayerSource.comp"));
         Guid clippedSourceId = clippedCrossLayerSource.Session!.Layers[0].Id;
@@ -854,7 +898,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

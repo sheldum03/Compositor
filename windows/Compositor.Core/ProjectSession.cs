@@ -577,7 +577,7 @@ public sealed class ProjectSession
         ArgumentNullException.ThrowIfNull(source);
         RequireLayerStructureEditing();
         int[] sourceIndexes = ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex);
-        return InsertLayerStack(source, sourceIndexes, destinationIndex);
+        return InsertLayerStack(source, sourceIndexes, sourceLayerId, destinationIndex);
     }
 
     public Guid GroupLayer(Guid layerId, string name) => GroupLayers([layerId], name);
@@ -1265,8 +1265,8 @@ public sealed class ProjectSession
         if (ReferenceEquals(this, source)) throw new ArgumentException("Source and target projects must differ.", nameof(source));
         if (!CanEdit || Current["version"]!.GetValue<int>() != 8 || HasGroups)
             throw new NotSupportedException("Cross-project layer copy requires a flat editable v8 target project.");
-        if (!source.CanEdit || source.Current["version"]!.GetValue<int>() != 8 || source.HasGroups)
-            throw new NotSupportedException("Cross-project layer copy requires a flat editable v8 source project.");
+        if (!source.CanEdit || source.Current["version"]!.GetValue<int>() != 8)
+            throw new NotSupportedException("Cross-project layer copy requires an editable v8 source project.");
         if (Width != source.Width || Height != source.Height)
             throw new NotSupportedException("Cross-project layer copy requires matching canvas dimensions.");
         if (snapshots[cursor].LayerRasters is null || source.snapshots[source.cursor].LayerRasters is null)
@@ -1275,8 +1275,12 @@ public sealed class ProjectSession
             throw new ArgumentOutOfRangeException(nameof(destinationIndex));
         int sourceIndex = source.FindLayer(sourceLayerId);
         FlatLayerInfo sourceLayer = source.Layers[sourceIndex];
-        if (sourceLayer.IsGroup)
-            throw new NotSupportedException("Group layers cannot be copied across projects in this slice.");
+        if (source.HasGroups)
+        {
+            if (!sourceLayer.IsGroup)
+                throw new NotSupportedException("Raster layers inside a grouped project must be copied with their group.");
+            return ValidateGroupCopy(source, sourceLayerId, sourceIndex);
+        }
         var stackIds = new HashSet<Guid> { sourceLayerId };
         bool changed;
         do
@@ -1303,7 +1307,42 @@ public sealed class ProjectSession
         return sourceIndexes;
     }
 
-    private Guid InsertLayerStack(ProjectSession source, IReadOnlyList<int> sourceIndexes, int destinationIndex)
+    private static int[] ValidateGroupCopy(ProjectSession source, Guid groupId, int groupIndex)
+    {
+        var stackIds = new HashSet<Guid> { groupId };
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (FlatLayerInfo layer in source.Layers)
+                if (layer.ParentId is { } parentId && stackIds.Contains(parentId) && stackIds.Add(layer.Id))
+                    changed = true;
+        } while (changed);
+        int[] sourceIndexes = stackIds.Select(source.FindLayer).OrderBy(index => index).ToArray();
+        if (sourceIndexes.Length == 0 || sourceIndexes[0] != groupIndex ||
+            sourceIndexes[^1] - sourceIndexes[0] + 1 != sourceIndexes.Length)
+            throw new NotSupportedException("A copied group subtree must remain contiguous.");
+        foreach (FlatLayerInfo layer in source.Layers)
+        {
+            bool included = stackIds.Contains(layer.Id);
+            if (included && layer.ParentId is { } parentId && !stackIds.Contains(parentId))
+                throw new NotSupportedException("A copied group cannot retain an external parent.");
+            if (included && layer.MaskSourceId is { } sourceId && !stackIds.Contains(sourceId) ||
+                !included && layer.MaskSourceId is { } externalSourceId && stackIds.Contains(externalSourceId))
+                throw new NotSupportedException("A copied group cannot retain an external clipping relationship.");
+        }
+        foreach (int index in sourceIndexes)
+        {
+            FlatLayerInfo layer = source.Layers[index];
+            if (layer.HasMask && source.GetLayerMask(layer.Id) is null)
+                throw new InvalidDataException("Source group mask asset is missing.");
+            if (!layer.IsGroup) _ = source.GetLayerRaster(layer.Id);
+        }
+        return sourceIndexes;
+    }
+
+    private Guid InsertLayerStack(ProjectSession source, IReadOnlyList<int> sourceIndexes, Guid sourceActiveLayerId,
+        int destinationIndex)
     {
         if (sourceIndexes.Count == 0) throw new ArgumentException("At least one source layer is required.", nameof(sourceIndexes));
         var sourceLayers = source.Current["layers"]!.AsArray();
@@ -1323,8 +1362,15 @@ public sealed class ProjectSession
             Guid targetId = idMap[sourceId];
             var layer = sourceLayers[sourceIndex]!.DeepClone().AsObject();
             layer["id"] = targetId.ToString("D");
-            layer["imageFile"] = targetId.ToString("D").ToUpperInvariant() + ".png";
-            layer.Remove("parentID");
+            if (layer["imageFile"] is not null)
+                layer["imageFile"] = targetId.ToString("D").ToUpperInvariant() + ".png";
+            if (layer["parentID"] is { } parentNode)
+            {
+                Guid sourceParentId = Guid.Parse(parentNode.GetValue<string>());
+                if (!idMap.TryGetValue(sourceParentId, out Guid targetParentId))
+                    throw new InvalidDataException("Copied group relationship points outside the copied subtree.");
+                layer["parentID"] = targetParentId.ToString("D");
+            }
             if (layer["maskSourceID"] is { } sourceNode)
             {
                 Guid sourceMaskId = Guid.Parse(sourceNode.GetValue<string>());
@@ -1341,11 +1387,12 @@ public sealed class ProjectSession
                 masks[targetId] = mask;
             }
             nextLayers.Insert(destinationIndex + offset, layer);
-            rasters[targetId] = source.GetLayerRaster(sourceId);
+            if (layer["isGroup"]?.GetValue<bool>() != true)
+                rasters[targetId] = source.GetLayerRaster(sourceId);
         }
-        next["activeLayerID"] = idMap[Guid.Parse((sourceLayers[sourceIndexes[^1]]!.AsObject())["id"]!.GetValue<string>())].ToString("D");
+        next["activeLayerID"] = idMap[sourceActiveLayerId].ToString("D");
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));
-        return idMap[Guid.Parse((sourceLayers[sourceIndexes[0]]!.AsObject())["id"]!.GetValue<string>())];
+        return idMap[sourceActiveLayerId];
     }
 
     private Guid InsertLayer(JsonObject layer, TileRaster raster, int destinationIndex, GrayTileRaster? mask = null)
