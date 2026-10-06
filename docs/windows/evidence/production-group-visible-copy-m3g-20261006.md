@@ -18,6 +18,8 @@
 
 本地固定 SDK 10.0.401、Avalonia Headless、无原生选择库的 Release 构建与运行均通过；Windows production core 的 push run [37438016040](https://github.com/sheldum03/Compositor/actions/runs/37438016040) 与配对 PR run [37438022988](https://github.com/sheldum03/Compositor/actions/runs/37438022988) 均通过 Smoke、Imaging、Workflow、SaveCrash、App 五项矩阵。
 
+本次 `855d4f7` 又以 `/tmp/dotnet-sdk-root-401b` 和 `/tmp/compositor-nuget-packages` 固定环境重跑：Workflow Checks Release 构建 0 警告、0 错误，并通过根/嵌套组可见结果复制；App Checks Release 构建 0 警告、0 错误，并通过根组与嵌套组按钮、插入位置、选区像素和选区外透明度回归。
+
 ## 明确边界
 
 - 只开放根组和嵌套组的可见结果复制；组内单层/剪贴栈、跨父级复杂关系和更完整的组层级编辑仍未开放。
