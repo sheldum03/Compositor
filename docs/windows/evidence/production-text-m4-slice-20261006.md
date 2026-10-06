@@ -26,7 +26,7 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix passed on `0fb2fcd`: [run 37414601676](https://github.com/sheldum03/Compositor/actions/runs/37414601676) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, and the available-font text editor regressions; the Workflow case includes the persistent font library checks.
+The Windows production core matrix passed on `12fabb4`: [run 37414986552](https://github.com/sheldum03/Compositor/actions/runs/37414986552) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, and the available-font text editor regressions; the Workflow case includes the persistent font library and UTF-16 hit-test contract checks.
 
 ## Editor and font library slice
 
@@ -34,14 +34,15 @@ The Windows production core matrix passed on `0fb2fcd`: [run 37414601676](https:
 - `b88c8a4` adds a persistent `FontLibrary` under the user's local application data. It records hash-addressed `.otf`/`.ttf`/`.ttc` bytes in `fonts.json`, deduplicates repeated imports, restores registered faces on process start, supports explicit TTC face indexes, and exposes a formal-window import entry.
 - `2c05bcd` adds a formal point-text creation path. It selects an available font, renders the initial full-canvas cache from v8 metadata, inserts a text layer with one history step, and exposes the layer in the existing editor panel. Headless checks cover creation, editing, save, reopen, and grouped-project button protection.
 - `0fb2fcd` adds a second formal entry for box text, with a bounded width and the same initial redraw, editing, history, and save/reopen path. Headless checks cover both creation buttons and grouped-project protection.
+- `12fabb4` adds a small Skia line-layout hit-test contract. It returns a stable UTF-16 content offset, line index, and inside/outside result for point and bounded box text; checks cover an English point layout plus Chinese, Emoji, combining-mark, and wrapped box content.
 - Local App/Workflow checks passed after these changes. The Windows production run above passed all five jobs, including the editor UI and font-library regressions.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 
 ## Deliberately not covered
 
-- No Windows GUI text editor, IME, selection, hit testing, or candidate-window validation.
+- No Windows GUI text editor, IME, caret selection, or candidate-window validation. The new hit-test contract is an engine check, not a real Windows input result.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- No point/box text tool, IME, hit testing, full reflow, conflict-font visual resolver, damaged-font recovery policy, or complex v8 semantic writeback.
+- No complete point/box text tool for cached projects, IME, full reflow, conflict-font visual resolver, damaged-font recovery policy, or complex v8 semantic writeback.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.
