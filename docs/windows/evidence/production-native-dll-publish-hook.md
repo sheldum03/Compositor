@@ -26,4 +26,4 @@ dotnet publish windows/Compositor.App/Compositor.App.csproj -c Release -r win-x6
 
 Windows 实机前置：在 Windows x64 使用 `windows/native/CMakeLists.txt` 构建真实 DLL，将其放入 `windows/native/runtimes/win-x64/compositor_native.dll`，记录编译器、导出表和 SHA-256，再运行 `Compositor.Smoke` 及正式窗口检查。当前仍未完成 Windows 运行、原生 ABI、DPI/IME、文件对话框和性能验收。
 
-2026-10-06 Windows native/framework probe run `37405690037` 在 native CMake configure 阶段失败：workflow 硬编码 `Visual Studio 17 2022`，而 `windows-2025` runner 没有该生成器。production core 同期使用 CMake 默认 generator 的 `-A x64` 已通过；本次 workflow 修复同时移除 native 与 Qt probe 的硬编码 `-G`，改由 runner 默认 Visual Studio generator 选择。该失败属于 CI 生成器接线，不是 native contract 测试结果；修复后的 probe run 仍需重新验收。
+2026-10-06 Windows native/framework probe run `37405690037` 在 native CMake configure 阶段失败：workflow 硬编码 `Visual Studio 17 2022`，而 `windows-2025` runner 使用 VS18 2026。随后固定 CMake 4.2.3，按 runner 安装版本动态选择 `Visual Studio 18 2026` generator，并修复 Qt probe 在 VS `/WX` 下的 C4458 变量遮蔽；fixture JSON 通过 `.gitattributes` 固定字节。修复后的 run `37407903694` 全部通过 C/MSVC、C++ contract、DLL/ctypes、C# P/Invoke、Avalonia corpus/brush/text 与 Qt 构建及检查。该结果仍是 CI runner 证据，不替代腾讯云 Windows 实机启动、原生 DLL 部署、DPI/IME、文件对话框和性能验收。
