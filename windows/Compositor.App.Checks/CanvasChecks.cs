@@ -1039,8 +1039,6 @@ internal static class CanvasChecks
 
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
-    private static void DialogClick(Window dialog, string label) => dialog.GetVisualDescendants().OfType<Button>()
-        .Single(button => Equals(button.Content, label)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
     private static Window WaitForDialog(Window owner)
     {
         var timer = Stopwatch.StartNew();
