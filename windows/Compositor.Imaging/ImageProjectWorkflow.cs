@@ -306,9 +306,6 @@ public static class ImageProjectWorkflow
 
     private static void ValidateExternalSourceContext(ProjectSession session, FlatLayerInfo source)
     {
-        if (source.MaskSourceId is not null)
-            throw new NotSupportedException(
-                "Cross-parent clipping copy does not support a clipped external source yet.");
         Guid? parentId = source.ParentId;
         while (parentId is { } groupId)
         {
@@ -326,13 +323,39 @@ public static class ImageProjectWorkflow
         ProjectSession session, FlatLayerInfo target)
     {
         var overrides = new Dictionary<Guid, TileRaster>();
+        var rendering = new HashSet<Guid>();
+
+        TileRaster RenderExternal(Guid sourceId)
+        {
+            if (overrides.TryGetValue(sourceId, out TileRaster? cached)) return cached;
+            if (!rendering.Add(sourceId))
+                throw new NotSupportedException("Clipping relationships contain a cycle.");
+
+            FlatLayerInfo source = session.Layers.Single(layer => layer.Id == sourceId);
+            PrepareExternalDependencies(source);
+            TileRaster raster = RenderCachedCore(session, useLoadedAssets: true,
+                renderRoots: new HashSet<Guid> { sourceId }, maskSourceOverrides: overrides);
+            rendering.Remove(sourceId);
+            overrides[sourceId] = raster;
+            return raster;
+        }
+
+        void PrepareExternalDependencies(FlatLayerInfo source)
+        {
+            if (source.MaskSourceId is not { } dependencyId) return;
+            FlatLayerInfo dependency = session.Layers.Single(layer => layer.Id == dependencyId);
+            if (dependency.ParentId != source.ParentId)
+                _ = RenderExternal(dependency.Id);
+            else
+                PrepareExternalDependencies(dependency);
+        }
+
         FlatLayerInfo current = target;
         while (current.MaskSourceId is { } sourceId)
         {
             FlatLayerInfo source = session.Layers.Single(layer => layer.Id == sourceId);
             if (source.ParentId != target.ParentId)
-                overrides[source.Id] = RenderCachedCore(session, useLoadedAssets: true,
-                    renderRoots: new HashSet<Guid> { source.Id });
+                _ = RenderExternal(source.Id);
             current = source;
         }
         return overrides;
