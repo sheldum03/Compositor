@@ -52,7 +52,7 @@ jobs:
           New-Item -ItemType Directory -Path $env:EVIDENCE | Out-Null
           dotnet --info 2>&1 | Tee-Object "$env:EVIDENCE/sdk.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet restore "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" --locked-mode 2>&1 | Tee-Object "$env:EVIDENCE/restore.log"
+          dotnet restore "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" --runtime win-x64 --locked-mode 2>&1 | Tee-Object "$env:EVIDENCE/restore.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" -c Release --no-restore 2>&1 | Tee-Object "$env:EVIDENCE/build.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
