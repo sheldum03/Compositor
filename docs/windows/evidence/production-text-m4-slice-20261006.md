@@ -31,7 +31,9 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix for `0bd53f0`: [run 37427886072](https://github.com/sheldum03/Compositor/actions/runs/37427886072) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes persistent font-library recovery, TTC face identities, ambiguous family-only rejection, and the font import checks. The App case includes point/box creation, the formal text editor regressions, same-family face save/reopen, and the cancellable TTC face-index dialog path.
+10. `53ba7ba` records persisted font recovery issues for missing files, hash mismatches, unavailable faces, and duplicate catalog entries, removes those invalid entries, and surfaces the report in the formal startup status. Workflow and App Headless checks cover the report and cleanup; see [font recovery diagnostics](production-font-recovery-diagnostics-20261006.md).
+
+The Windows production core matrix for `53ba7ba`: [run 37430512440](https://github.com/sheldum03/Compositor/actions/runs/37430512440) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes persistent font-library recovery, TTC face identities, ambiguous family-only rejection, and the font import checks. The App case includes point/box creation, the formal text editor regressions, same-family face save/reopen, and the cancellable TTC face-index dialog path.
 
 The local App Headless check was rerun after the face-selector integration:
 
@@ -47,6 +49,6 @@ The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executabl
 
 - No Windows IME, candidate-window validation, or native Windows input result. The current window slice covers the Avalonia canvas caret/selection overlay and sidebar `TextBox` routing in Headless checks; it does not prove Windows text services, DPI behavior, or production-machine input.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- The dialog now covers explicit TTC face-index choice and cancellation. Damaged-font recovery UX and full user-selected font persistence across an installed application restart remain outside this slice.
+- The dialog now covers explicit TTC face-index choice and cancellation. Complete damaged-font quarantine UX and full user-selected font persistence across an installed application restart remain outside this slice; the bounded startup diagnostic and catalog cleanup are covered separately.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.
