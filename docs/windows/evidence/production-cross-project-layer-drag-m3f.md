@@ -2,7 +2,7 @@
 
 日期：2026-10-06
 
-功能提交：`90b99ef Support restricted cross-project group copy`、`3c68c54 Cover group drag copy in production window`（基础跨工程图层复制由 `ff8e405` 接入）
+功能提交：`90b99ef Support restricted cross-project group copy`、`3c68c54 Cover group drag copy in production window`、`7d9ca2f Cover group clipping relationship remap`（基础跨工程图层复制由 `ff8e405` 接入）
 
 ## 已实现范围
 
@@ -22,10 +22,10 @@ export PATH=/tmp/dotnet-sdk-root-401b:$PATH
 export NUGET_PACKAGES=/tmp/compositor-nuget-packages
 dotnet build windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-restore
 dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- \
-  windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-checks-group-drag-m3f-20261006-a
+  windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-checks-group-clip-drag-m3f-20261006-b
 ```
 
-结果：Release 构建 0 警告、0 错误；三个生产检查全部 PASS。固定检查覆盖单层 API 复制、像素与 Gray8 蒙版逐 tile 一致、opacity/blendMode/transform 保留、源工程未变、目标 Undo/Redo、保存重开、尺寸不一致拒绝；同时覆盖完整连续剪贴栈的两层复制、ID/剪贴关系重映射、两层像素保持和保存重开，以及根组子树的组 transform、组蒙版、父子关系、子层像素和保存重开；正式窗口检查覆盖单层和根组从图层列表拖到另一工程标签后的复制。
+结果：Release 构建 0 警告、0 错误；三个生产检查全部 PASS。固定检查覆盖单层 API 复制、像素与 Gray8 蒙版逐 tile 一致、opacity/blendMode/transform 保留、源工程未变、目标 Undo/Redo、保存重开、尺寸不一致拒绝；同时覆盖完整连续剪贴栈的两层复制、ID/剪贴关系重映射、两层像素保持和保存重开，以及根组子树的组 transform、组蒙版、父子关系、组内 `maskSourceID` 重映射、子层像素和保存重开；正式窗口检查覆盖单层和根组从图层列表拖到另一工程标签后的复制。
 
 同一提交随后复跑 `Compositor.Workflow.Checks`、`Compositor.Imaging.Checks` 和 `Compositor.SaveCrash.Checks`，固定 Release 构建均为 0 警告、0 错误；Workflow 全部固定场景、Imaging 全部场景及 SaveCrash 的 14 个真实保存中断场景均 PASS。它们仍是 macOS Headless 结果。
 
@@ -35,7 +35,7 @@ dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj 
 
 在同一固定 SDK 下，`win-x64` self-contained 发布成功：
 
-- 目录：`/tmp/compositor-win-x64-group-drag-3c68c54`
+- 目录：`/tmp/compositor-win-x64-group-drag-7d9ca2f`
 - 文件数：224
-- `Compositor.App.exe` SHA-256：`ba860dce13c04eb1689c9188868537d06d52a73865f16d411f0e90cc30433722`
+- `Compositor.App.exe` SHA-256：`bf027be47860e55cf89f034578836323b22acc88222fa4bcc4aea05957e3ea6e`
 - 未包含真实 `compositor_native.dll`；该包不能作为 Windows 实机或完整 Alpha 证据。
