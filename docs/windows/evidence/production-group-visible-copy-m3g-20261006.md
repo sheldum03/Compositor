@@ -16,7 +16,7 @@
 
 `Compositor.App.Checks` 在正式 Avalonia 窗口中建立相同组合，先选取左半画布，再点击“选区复制为图层”；检查按钮状态、根级插入位置、选区内像素和选区外透明度。既有合并、撤销/重做和组结构保护回归继续运行。
 
-本地固定 SDK 10.0.401、Avalonia Headless、无原生选择库的 Release 构建与运行均通过；Windows production core 仍以 CI runner 结果为准。
+本地固定 SDK 10.0.401、Avalonia Headless、无原生选择库的 Release 构建与运行均通过；Windows production core 的 push run [37435481375](https://github.com/sheldum03/Compositor/actions/runs/37435481375) 与配对 PR run [37435487827](https://github.com/sheldum03/Compositor/actions/runs/37435487827) 均通过 Smoke、Imaging、Workflow、SaveCrash、App 五项矩阵。
 
 ## 明确边界
 
