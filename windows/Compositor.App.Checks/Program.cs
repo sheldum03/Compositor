@@ -423,6 +423,54 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedClippingMerge), expectedClippingMerge);
         clippingMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string multiClippingMergeProject = Path.Combine(output, "MultiClippingMerge.comp");
+        var multiClippingMergeWorkspace = new EditorWorkspace();
+        multiClippingMergeWorkspace.Import(fixture, multiClippingMergeProject);
+        Guid multiClippingSourceId = multiClippingMergeWorkspace.Session!.Layers[0].Id;
+        Guid multiClippingFirstId = multiClippingMergeWorkspace.Session.AddBlankLayer("Clipped first", 1);
+        Guid multiClippingSecondId = multiClippingMergeWorkspace.Session.AddBlankLayer("Clipped second", 2);
+        multiClippingMergeWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(multiClippingSourceId, 0.74);
+            session.SetLayerBlendMode(multiClippingSourceId, "Multiply");
+            session.SetLayerOpacity(multiClippingFirstId, 0.63);
+            session.SetLayerBlendMode(multiClippingFirstId, "Screen");
+            session.SetLayerOpacity(multiClippingSecondId, 0.51);
+            session.SetLayerBlendMode(multiClippingSecondId, "Overlay");
+            session.SetLayerMaskSource(multiClippingFirstId, multiClippingSourceId);
+            session.SetLayerMaskSource(multiClippingSecondId, multiClippingSourceId);
+        });
+        multiClippingMergeWorkspace.Save();
+        TileRaster expectedMultiClippingMerge = ImageProjectWorkflow.RenderFlatNormal(multiClippingMergeWorkspace.Session);
+        var multiClippingMergeWindow = new MainWindow(multiClippingMergeWorkspace);
+        multiClippingMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var multiClippingMergeList = Control<ListBox>(multiClippingMergeWindow, "Layers");
+        multiClippingMergeList.SelectedItems!.Clear();
+        foreach (FlatLayerInfo layerInfo in multiClippingMergeList.ItemsView!.Cast<FlatLayerInfo>())
+            multiClippingMergeList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(multiClippingMergeWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "A multi-child clipping stack did not enable the merge command.");
+        Click(multiClippingMergeWindow, "MergeLayerDown");
+        Require(multiClippingMergeWorkspace.Session.Layers.Count == 1 && multiClippingMergeWorkspace.IsDirty,
+            "Multi-child clipping stack merge did not produce one layer.");
+        FlatLayerInfo multiClippingMergedLayer = multiClippingMergeWorkspace.Session.Layers.Single();
+        Require(multiClippingMergedLayer.MaskSourceId is null && multiClippingMergedLayer.Opacity == 1 &&
+            multiClippingMergedLayer.BlendMode == "Normal",
+            "Multi-child clipping stack merge left invalid relationship or appearance metadata.");
+        CheckEqual(multiClippingMergeWorkspace.Preview!, expectedMultiClippingMerge);
+        Click(multiClippingMergeWindow, "Undo");
+        Require(multiClippingMergeWorkspace.Session.Layers.Count == 3 && !multiClippingMergeWorkspace.IsDirty,
+            "Undo did not restore the multi-child clipping stack and saved state.");
+        Click(multiClippingMergeWindow, "Redo");
+        multiClippingMergeWorkspace.Save();
+        var reopenedMultiClippingMerge = ImageProjectWorkflow.OpenEditable(multiClippingMergeProject);
+        Require(reopenedMultiClippingMerge.Layers.Count == 1 &&
+            reopenedMultiClippingMerge.Layers[0].MaskSourceId is null,
+            "Saved multi-child clipping stack merge did not reopen as a flat layer.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedMultiClippingMerge), expectedMultiClippingMerge);
+        multiClippingMergeWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string clippingGuardProject = Path.Combine(output, "ClippingMergeGuard.comp");
         var clippingGuardWorkspace = new EditorWorkspace();
         clippingGuardWorkspace.Import(fixture, clippingGuardProject);
@@ -805,7 +853,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
                 "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
