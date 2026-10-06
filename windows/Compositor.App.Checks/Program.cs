@@ -85,7 +85,26 @@ internal static class Program
             "Invert layer did not preserve alpha or record a pixel edit.");
         Click(window, "Undo");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertBefore);
-        Click(window, "Redo");
+        bool adjustmentBaselineDirty = workspace.IsDirty;
+        TileRaster adjustmentBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddExposureAdjustment");
+        FlatLayerInfo exposureLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == exposureLayer.Id &&
+            Control<Button>(window, "ApplyExposureAdjustment").IsEffectivelyEnabled,
+            "Exposure adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "AdjustmentExposure").Value = 1.5m;
+        Control<NumericUpDown>(window, "AdjustmentOffset").Value = 0.05m;
+        Control<NumericUpDown>(window, "AdjustmentGamma").Value = 1.2m;
+        Click(window, "ApplyExposureAdjustment");
+        ExposureSettings appliedExposure = workspace.Session.GetExposureAdjustment(exposureLayer.Id);
+        TileRaster expectedExposure = RasterCompositor.ApplyExposure(adjustmentBase,
+            new ExposureSettings(1.5, 0.05, 1.2));
+        CheckEqual(workspace.Preview!, expectedExposure);
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment) && workspace.IsDirty == adjustmentBaselineDirty,
+            "Undo did not remove the exposure adjustment transaction.");
+        Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");
         string png = Path.Combine(output, "export.png"), jpeg = Path.Combine(output, "export.jpg");

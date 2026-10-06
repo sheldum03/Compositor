@@ -8,7 +8,8 @@ namespace Compositor.Imaging;
 
 public static class ImageProjectWorkflow
 {
-    private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster Raster);
+    private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster? Raster,
+        ExposureSettings? Adjustment);
 
     public static ProjectSession Import(string imagePath, string projectDirectory)
     {
@@ -118,7 +119,8 @@ public static class ImageProjectWorkflow
         ArgumentNullException.ThrowIfNull(layerIds);
         if (!session.CanEdit) throw new NotSupportedException("Layer subset rendering requires an editable project.");
         if (session.HasGroups) throw new NotSupportedException("Layer subset rendering does not support groups.");
-        if (layerIds.Count == 0 || session.Layers.Any(layer => layerIds.Contains(layer.Id) && layer.IsGroup))
+        if (layerIds.Count == 0 || session.Layers.Any(layer => layerIds.Contains(layer.Id) &&
+            (layer.IsGroup || layer.IsAdjustment)))
             throw new ArgumentException("The selected layer set is invalid.", nameof(layerIds));
         return RenderFlatNormalCore(session, null, null, null, layerIds);
     }
@@ -176,7 +178,8 @@ public static class ImageProjectWorkflow
             if (groupedStack.Count > 1)
                 return RenderGroupedClippingStackForCopy(session, groupedStack);
         }
-        if (target.IsGroup) throw new NotSupportedException("Layer copy only supports raster layers.");
+        if (target.IsGroup || target.IsAdjustment)
+            throw new NotSupportedException("Layer copy only supports raster layers.");
 
         var resolving = new HashSet<Guid>();
         TileRaster Resolve(Guid id)
@@ -525,9 +528,17 @@ public static class ImageProjectWorkflow
             var layer = node!.AsObject();
             if (!IsFlatNormalLayer(layer, width, height))
                 throw new NotSupportedException("This layer needs rendering features that are not implemented yet.");
+            Guid id = Guid.Parse(layer["id"]!.GetValue<string>());
+            if (layer["adjustment"] is { } adjustmentNode)
+            {
+                if (!ExposureSettings.TryRead(adjustmentNode["exposureSettings"], out var settings))
+                    throw new NotSupportedException("Only valid Exposure adjustment layers are supported.");
+                prepared.Add(new FlatLayerRender(layer, id, null, settings));
+                continue;
+            }
             string imageName = layer["imageFile"]!.GetValue<string>();
             TileRaster raster;
-            if (overrideLayerId == Guid.Parse(layer["id"]!.GetValue<string>())) raster = overrideRaster!;
+            if (overrideLayerId == id) raster = overrideRaster!;
             else if (session.Raster is { } memory && imageName == session.ImageName) raster = memory;
             else if (session.TryGetLoadedLayerRaster(Guid.Parse(layer["id"]!.GetValue<string>()), out var layerRaster))
                 raster = layerRaster;
@@ -549,7 +560,7 @@ public static class ImageProjectWorkflow
             if (layer["maskFile"] is { } maskFile)
             {
                 string maskPath = Path.Combine(session.SourceDirectory, "images", maskFile.GetValue<string>());
-                Guid layerId = Guid.Parse(layer["id"]!.GetValue<string>());
+                Guid layerId = id;
                 GrayTileRaster mask = overrideLayerId == layerId && overrideMask is not null
                     ? overrideMask
                     : session.TryGetLoadedLayerMask(layerId, out var loadedMask)
@@ -564,7 +575,7 @@ public static class ImageProjectWorkflow
             var transform = layer["transform"]!.AsObject();
             if (!IsIdentityTransform(transform, width, height))
                 raster = TransformCachedRaster(raster, transform, width, height);
-            prepared.Add(new FlatLayerRender(layer, Guid.Parse(layer["id"]!.GetValue<string>()), raster));
+            prepared.Add(new FlatLayerRender(layer, id, raster, null));
         }
         var byId = prepared.ToDictionary(layer => layer.Id);
         var resolved = new Dictionary<Guid, TileRaster>();
@@ -574,7 +585,8 @@ public static class ImageProjectWorkflow
             if (resolved.TryGetValue(layerId, out var cached)) return cached;
             if (!resolving.Add(layerId)) throw new InvalidDataException("Invalid mask source cycle.");
             var layer = byId[layerId];
-            TileRaster raster = layer.Raster;
+            TileRaster raster = layer.Raster
+                ?? throw new InvalidDataException("Adjustment layers cannot be clipping sources.");
             if (layer.Manifest["maskSourceID"] is { } sourceNode)
             {
                 Guid sourceId = Guid.Parse(sourceNode.GetValue<string>());
@@ -592,6 +604,7 @@ public static class ImageProjectWorkflow
         {
             double baseOpacity = baseLayer.Manifest["opacity"]?.GetValue<double>() ?? 1;
             string baseMode = baseLayer.Manifest["blendMode"]?.GetValue<string>() ?? "Normal";
+            if (baseLayer.Raster is null) throw new InvalidDataException("Adjustment layers cannot be clipping bases.");
             var stack = LayerCompositor.Composite(new TileRaster(width, height), baseLayer.Raster, baseOpacity, baseMode);
             var alpha = stack;
             stack = UnpremultiplyOpaque(stack);
@@ -599,6 +612,7 @@ public static class ImageProjectWorkflow
             {
                 double opacity = child.Manifest["opacity"]?.GetValue<double>() ?? 1;
                 string mode = child.Manifest["blendMode"]?.GetValue<string>() ?? "Normal";
+                if (child.Raster is null) throw new InvalidDataException("Adjustment layers cannot be clipped targets.");
                 stack = LayerCompositor.Composite(stack, child.Raster, opacity, mode);
             }
             return RestoreAlpha(stack, alpha);
@@ -610,6 +624,12 @@ public static class ImageProjectWorkflow
             var layer = prepared[index];
             if ((renderOnly is null || renderOnly.Contains(layer.Id)) && layer.Manifest["isVisible"]!.GetValue<bool>())
             {
+                if (layer.Adjustment is { } adjustment)
+                {
+                    result = ApplyAdjustment(result, adjustment,
+                        layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
+                    continue;
+                }
                 var clipped = new List<FlatLayerRender>();
                 int end = index + 1;
                 while (end < prepared.Count && (renderOnly is null || renderOnly.Contains(prepared[end].Id)) &&
@@ -628,6 +648,29 @@ public static class ImageProjectWorkflow
             }
         }
         return result;
+
+        static TileRaster ApplyAdjustment(TileRaster source, ExposureSettings settings, double opacity)
+        {
+            if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
+                throw new NotSupportedException("Adjustment layer opacity is not supported.");
+            if (opacity == 0) return source;
+            TileRaster adjusted = RasterCompositor.ApplyExposure(source, settings);
+            if (opacity == 1) return adjusted;
+            var result = new TileRaster(source.Width, source.Height);
+            for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+            for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+            {
+                byte[] original = source.ReadTileCopy(column, row);
+                byte[] changed = adjusted.ReadTileCopy(column, row);
+                for (int i = 0; i < original.Length; i += 4)
+                    for (int channel = 0; channel < 3; channel++)
+                        original[i + channel] = (byte)Math.Round(
+                            original[i + channel] * (1 - opacity) + changed[i + channel] * opacity,
+                            MidpointRounding.AwayFromZero);
+                result = result.ReplaceTile(column, row, original);
+            }
+            return result;
+        }
     }
 
     private sealed record CachedLayer(JsonObject Manifest, Guid Id, TileRaster? Raster, GrayTileRaster? Mask);
@@ -1065,7 +1108,8 @@ public static class ImageProjectWorkflow
     public static void Save(ProjectSession session, string projectDirectory)
     {
         if (!session.CanEdit) throw new NotSupportedException("This project cannot be saved yet.");
-        foreach (var layer in session.Layers.Where(layer => !layer.IsGroup)) session.GetLayerRaster(layer.Id);
+        foreach (var layer in session.Layers.Where(layer => !layer.IsGroup && !layer.IsAdjustment))
+            session.GetLayerRaster(layer.Id);
         foreach (var layer in session.Layers)
             if (layer.HasMask) session.GetLayerMask(layer.Id);
         ProjectStore.Save(session, projectDirectory, EncodeRaster, EncodeMask);
@@ -1123,13 +1167,23 @@ public static class ImageProjectWorkflow
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "text", "transform" }.Contains(pair.Key)) ||
-            layer["imageFile"] is null || layer["isVisible"] is null ||
+        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "text", "transform" }.Contains(pair.Key)) ||
+            layer["isVisible"] is null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>())) return false;
+        if (layer["adjustment"] is { } adjustment)
+        {
+            var node = adjustment.AsObject();
+            if (node["kind"]?.GetValue<string>() != "Exposure" ||
+                layer["blendMode"]?.GetValue<string>() is { } adjustmentBlend && adjustmentBlend != "Normal" ||
+                layer["imageFile"] is not null || layer["text"] is not null ||
+                layer["maskFile"] is not null || layer["maskSourceID"] is not null ||
+                !ExposureSettings.TryRead(node["exposureSettings"], out _)) return false;
+        }
+        else if (layer["imageFile"] is null) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();

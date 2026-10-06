@@ -151,6 +151,27 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
+    public void AddExposureAdjustment(double exposure = 1, double offset = 0, double gamma = 1)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        RequireEditableSession();
+        int index = session.ActiveLayerId is { } active
+            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
+            : session.Layers.Count;
+        session.AddExposureAdjustment("Exposure", new ExposureSettings(exposure, offset, gamma), index);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
+    public void ApplyActiveExposureAdjustment(ExposureSettings settings)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).IsAdjustment)
+            throw new InvalidOperationException("当前图层不是调整层。");
+        Edit(editSession => editSession.SetExposureAdjustment(layerId, settings));
+    }
+
     public void BakeGroupTransform(Guid groupId)
     {
         RequireIdle();
@@ -290,6 +311,8 @@ public sealed class EditorWorkspace
             if (index < 0) throw new ArgumentException("图层不属于当前工程。", nameof(layerIds));
             return (Layer: layers[index], Index: index);
         }).OrderBy(item => item.Index).ToArray();
+        if (selected.Any(item => item.Layer.IsAdjustment))
+            throw new NotSupportedException("调整层不能直接合并，请先应用或删除调整层。");
         if (session.HasGroups) return ValidateGroupedMergeSelection(selected, layers);
         if (selected[^1].Index - selected[0].Index + 1 != selected.Length)
             throw new InvalidOperationException("只能合并连续图层。");
@@ -310,6 +333,8 @@ public sealed class EditorWorkspace
     private static (FlatLayerInfo Layer, int Index)[] ValidateGroupedMergeSelection(
         (FlatLayerInfo Layer, int Index)[] selected, IReadOnlyList<FlatLayerInfo> layers)
     {
+        if (selected.Any(item => item.Layer.IsAdjustment))
+            throw new NotSupportedException("调整层不能直接合并，请先应用或删除调整层。");
         Guid? parentId = selected[0].Layer.ParentId;
         if (selected.Any(item => item.Layer.ParentId != parentId))
             throw new NotSupportedException("只能合并同级图层。");
@@ -996,6 +1021,8 @@ public sealed class EditorWorkspace
         if (session.ActiveLayerId is not { } layerId)
             throw new InvalidOperationException("当前工程没有活动图层。");
         FlatLayerInfo layer = session.Layers.Single(item => item.Id == layerId);
+        if (layer.IsAdjustment)
+            throw new NotSupportedException("调整层不能直接反相，请先选择栅格图层。");
         if (layer.IsGroup)
             throw new NotSupportedException("组图层不能直接反相，请先选择栅格图层。");
         TileRaster current = session.GetLayerRaster(layerId);
@@ -1041,7 +1068,7 @@ public sealed class EditorWorkspace
         RequireIdle();
         var session = RequireSession();
         int width = session.Width, height = session.Height;
-        var rasters = session.Layers.ToDictionary(layer => layer.Id,
+        var rasters = session.Layers.Where(layer => !layer.IsAdjustment).ToDictionary(layer => layer.Id,
             layer => RotateRaster90(session.GetLayerRaster(layer.Id), clockwise));
         var masks = session.Layers.Where(layer => layer.HasMask).ToDictionary(layer => layer.Id,
             layer => RotateMask90(session.GetLayerMask(layer.Id)!, clockwise));
@@ -1056,7 +1083,7 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (width == session.Width && height == session.Height)
             throw new ArgumentException("新尺寸必须与当前画布不同。");
-        var rasters = session.Layers.ToDictionary(layer => layer.Id,
+        var rasters = session.Layers.Where(layer => !layer.IsAdjustment).ToDictionary(layer => layer.Id,
             layer => ResizeRaster(session.GetLayerRaster(layer.Id), width, height, scale, filter));
         var masks = session.Layers.Where(layer => layer.HasMask).ToDictionary(layer => layer.Id,
             layer => ResizeMask(session.GetLayerMask(layer.Id)!, width, height, scale, filter));

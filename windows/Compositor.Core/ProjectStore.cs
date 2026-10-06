@@ -314,7 +314,7 @@ public static class ProjectStore
 
     private static bool IsEditableLayer(JsonObject layer, int width, int height, bool allowGroups)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "text", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "text", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             !allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null) ||
             layer["isGroup"]?.GetValue<bool>() == true && layer["maskSourceID"] is not null ||
@@ -324,9 +324,10 @@ public static class ProjectStore
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>()) ||
             layer["text"] is { } text && !IsValidTextMetadata(text.AsObject()) ||
-            layer["isGroup"]?.GetValue<bool>() != true &&
+            layer["adjustment"] is { } adjustment && !IsValidEditableAdjustment(layer, adjustment.AsObject(), width, height) ||
+            layer["isGroup"]?.GetValue<bool>() != true && layer["adjustment"] is null &&
             !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase) ||
-            layer["isGroup"]?.GetValue<bool>() == true && layer["imageFile"] is not null) return false;
+            layer["isGroup"]?.GetValue<bool>() == true && (layer["imageFile"] is not null || layer["adjustment"] is not null)) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();
@@ -342,6 +343,24 @@ public static class ProjectStore
             origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
             size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
             transform["rotation"]?.GetValue<double>() == 0 &&
+            transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
+    }
+
+    private static bool IsValidEditableAdjustment(JsonObject layer, JsonObject adjustment, int width, int height)
+    {
+        if (adjustment["kind"]?.GetValue<string>() != "Exposure" ||
+            layer["blendMode"]?.GetValue<string>() is { } blend && blend != "Normal" ||
+            layer["isGroup"]?.GetValue<bool>() == true || layer["imageFile"] is not null ||
+            layer["text"] is not null || layer["parentID"] is not null ||
+            layer["maskFile"] is not null || layer["maskSourceID"] is not null ||
+            !ExposureSettings.TryRead(adjustment["exposureSettings"], out _)) return false;
+        var transform = layer["transform"]?.AsObject();
+        var origin = transform?["origin"]?.AsArray();
+        var size = transform?["size"]?.AsArray();
+        return origin?.Count == 2 && size?.Count == 2 &&
+            origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
+            size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
+            transform!["rotation"]?.GetValue<double>() == 0 &&
             transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
     }
 

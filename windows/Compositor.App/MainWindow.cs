@@ -50,6 +50,10 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly NumericUpDown layerRotation = new() { Name = "LayerRotation", Minimum = -3600, Maximum = 3600, Value = 15, Width = 70 };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
+    private readonly NumericUpDown adjustmentExposure = new() { Name = "AdjustmentExposure", Minimum = -20, Maximum = 20, Value = 0, Width = 70 };
+    private readonly NumericUpDown adjustmentOffset = new() { Name = "AdjustmentOffset", Minimum = -0.5m, Maximum = 0.5m, Value = 0, Width = 70 };
+    private readonly NumericUpDown adjustmentGamma = new() { Name = "AdjustmentGamma", Minimum = 0.01m, Maximum = 9.99m, Value = 1, Width = 70 };
+    private readonly StackPanel adjustmentEditor = new() { Name = "AdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -171,6 +175,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
         structure.Children.Add(Command("AddTextLayer", "新增文字", AddTextLayerAsync, document: true));
         structure.Children.Add(Command("AddBoxTextLayer", "新增框文字", AddBoxTextLayerAsync, document: true));
+        structure.Children.Add(Command("AddExposureAdjustment", "新增曝光调整", AddExposureAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -231,6 +236,14 @@ public sealed class MainWindow : Window
         appearance.Children.Add(layerOpacity);
         appearance.Children.Add(layerBlendMode);
         actions.Children.Add(appearance);
+        adjustmentEditor.Children.Add(new TextBlock { Text = "曝光", VerticalAlignment = VerticalAlignment.Center });
+        adjustmentEditor.Children.Add(adjustmentExposure);
+        adjustmentEditor.Children.Add(new TextBlock { Text = "偏移", VerticalAlignment = VerticalAlignment.Center });
+        adjustmentEditor.Children.Add(adjustmentOffset);
+        adjustmentEditor.Children.Add(new TextBlock { Text = "伽马", VerticalAlignment = VerticalAlignment.Center });
+        adjustmentEditor.Children.Add(adjustmentGamma);
+        adjustmentEditor.Children.Add(Command("ApplyExposureAdjustment", "应用调整", ApplyExposureAdjustmentAsync, layer: true));
+        actions.Children.Add(adjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -261,7 +274,8 @@ public sealed class MainWindow : Window
         layers.ItemTemplate = new FuncDataTemplate<FlatLayerInfo>((item, _) => new TextBlock
         {
             Text = item is null ? "" : (item.IsVisible ? "●  " : "○  ") +
-                (item.MaskSourceId is not null ? "[剪贴] " : "") + (item.IsText ? "[文字] " : "") + item.Name,
+                (item.MaskSourceId is not null ? "[剪贴] " : "") + (item.IsAdjustment ? "[调整] " : "") +
+                (item.IsText ? "[文字] " : "") + item.Name,
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
@@ -623,6 +637,7 @@ public sealed class MainWindow : Window
         bool multiple = selectedItems.Length > 1;
         selectedId = selected?.Id;
         TextLayerMetadata? text = null;
+        ExposureSettings? exposure = null;
         refreshing = true;
         try
         {
@@ -644,6 +659,12 @@ public sealed class MainWindow : Window
                 ? null
                 : textFont.Items.OfType<string>().FirstOrDefault(font =>
                     string.Equals(font, text.FontPostScriptName, StringComparison.OrdinalIgnoreCase));
+            exposure = selected?.IsAdjustment == true
+                ? Workspace.Session!.GetExposureAdjustment(selected.Id)
+                : null;
+            adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
+            adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
+            adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -659,8 +680,11 @@ public sealed class MainWindow : Window
         textTracking.IsEnabled = textContent.IsEnabled;
         textBoxWidth.IsEnabled = textContent.IsEnabled && selected?.IsText == true &&
             Workspace.Session!.TextLayers.Single(item => item.Id == selected.Id).Layout == "box";
+        bool showAdjustmentEditor = selected?.IsAdjustment == true && !multiple && Workspace.CanEdit;
+        adjustmentEditor.IsVisible = showAdjustmentEditor;
+        adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showAdjustmentEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
-        layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
+        layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         UpdatePaintMode();
         bool groupedProject = Workspace.Session?.HasGroups == true;
@@ -671,27 +695,34 @@ public sealed class MainWindow : Window
             if (multiple && button.Name is not ("GroupLayer" or "MergeLayerDown")) button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
+            if (selected?.IsAdjustment == true && button.Name is "DuplicateLayer" or "LayerViaCopy" or "GroupLayer" or "SetClippingMask" or "ReleaseClippingMask")
+                button.IsEnabled = false;
             if (button.Name == "LayerViaCopy")
                 button.IsEnabled = Workspace.CanLayerViaCopy;
             if (button.Name == "ApplyText")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsText == true && !multiple && !Workspace.HasFloatingSelection;
             if (button.Name == "InvertLayer")
-                button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false, IsText: false } &&
+                button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false, IsText: false, IsAdjustment: false } &&
                     !multiple && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddExposureAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyExposureAdjustment")
+                button.IsEnabled = showAdjustmentEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, -1);
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
                 "RotateLayerCounterClockwise" or "RotateLayerClockwise")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsAdjustment && !multiple &&
                     (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection;
             if (button.Name == "RotateLayerCustom")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsAdjustment && !multiple &&
                     (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection &&
                     layerRotation.Value is not null;
             if (button.Name == "GroupLayer")
-                button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && selectedItems.All(item => !item.IsAdjustment) && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true &&
                     Workspace.Session!.IsGroupTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
@@ -699,7 +730,7 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanEdit && selected?.IsGroup == true &&
                     !Workspace.Session!.IsGroupTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
             if (button.Name == "BakeLayerTransform")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsGroup && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsGroup && !selected.IsAdjustment && !multiple &&
                     !groupedProject && !Workspace.Session!.IsLayerTransformIdentity(selected.Id) && !Workspace.HasFloatingSelection;
             if (button.Name == "MergeLayerDown")
             {
@@ -721,14 +752,14 @@ public sealed class MainWindow : Window
         {
             int index = session.Layers.ToList().FindIndex(layer => layer.Id == selected.Id);
             foreach (var button in layerButtons.Where(button => button.Name is "SetClippingMask" or "ReleaseClippingMask"))
-                button.IsEnabled = Workspace.CanEdit && !multiple && (button.Name == "ReleaseClippingMask"
+                button.IsEnabled = Workspace.CanEdit && !multiple && !selected.IsAdjustment && (button.Name == "ReleaseClippingMask"
                     ? selected.MaskSourceId is not null
                     : selected.MaskSourceId is null && index > 0);
         }
-        if (selected?.IsGroup == true)
+        if (selected?.IsGroup == true || selected?.IsAdjustment == true)
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
-        if (selected is { IsGroup: false } && Workspace.Session is { } selectedSession &&
+        if (selected is { IsGroup: false, IsAdjustment: false } && Workspace.Session is { } selectedSession &&
             !selectedSession.IsLayerTransformIdentity(selected.Id))
         foreach (var button in documentButtons.Where(button => button.Name == "PasteSelection"))
             button.IsEnabled = Workspace.CanPasteSelection ||
@@ -737,7 +768,7 @@ public sealed class MainWindow : Window
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
         foreach (var button in maskButtons)
-            button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null &&
+            button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null && selected.IsAdjustment == false &&
                 (button.Name == "AddMask" || selected.HasMask);
         maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
         resolveTextFont.IsEnabled = missingFont && !Workspace.HasFloatingSelection;
@@ -766,13 +797,14 @@ public sealed class MainWindow : Window
             !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true;
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
-        paint.IsEnabled = editable && !selectedGroup;
+        bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
+        paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
         canvas.TextEditEnabled = textMode;
-        canvas.PaintEnabled = editable && !textMode && !Workspace.HasFloatingSelection &&
+        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              maskPaint.IsChecked == true);
-        canvas.SelectionEnabled = editable && !selectedGroup && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
-        canvas.SelectionMoveEnabled = editable && !selectedGroup &&
+        canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
+        canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
 
@@ -839,6 +871,13 @@ public sealed class MainWindow : Window
     });
     private Task AddTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer());
     private Task AddBoxTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer("文字", box: true));
+    private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
+    private Task ApplyExposureAdjustmentAsync()
+    {
+        var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
+            (double)(adjustmentOffset.Value ?? 0), (double)(adjustmentGamma.Value ?? 1));
+        return Task.Run(() => Workspace.ApplyActiveExposureAdjustment(settings));
+    }
     private Task DuplicateLayerAsync()
     {
         Guid id = selectedId!.Value;
@@ -974,7 +1013,8 @@ public sealed class MainWindow : Window
         return EditAsync(session =>
         {
             session.SetLayerOpacity(id, opacityValue);
-            session.SetLayerBlendMode(id, mode);
+            if (!session.Layers.Single(layer => layer.Id == id).IsAdjustment)
+                session.SetLayerBlendMode(id, mode);
         });
     }
     private Task InvertLayerAsync() => Task.Run(Workspace.InvertActiveLayer);

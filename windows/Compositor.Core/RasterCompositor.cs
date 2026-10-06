@@ -2,6 +2,43 @@ namespace Compositor.Core;
 
 public static class RasterCompositor
 {
+    public static TileRaster ApplyExposure(TileRaster image, ExposureSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        double scale = Math.Pow(2, settings.Exposure);
+        var table = new byte[256];
+        for (int index = 0; index < table.Length; index++)
+        {
+            double encoded = index / 255d;
+            double linear = encoded <= 0.04045 ? encoded / 12.92 : Math.Pow((encoded + 0.055) / 1.055, 2.4);
+            linear = Math.Pow(Math.Max(0, linear * scale + settings.Offset), 1 / settings.Gamma);
+            double output = linear <= 0.0031308 ? linear * 12.92 : 1.055 * Math.Pow(linear, 1 / 2.4) - 0.055;
+            table[index] = (byte)Math.Round(Math.Clamp(output, 0, 1) * 255, MidpointRounding.AwayFromZero);
+        }
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < pixels.Length; pixel += 4)
+            {
+                int alpha = pixels[pixel + 3];
+                if (alpha == 0) continue;
+                for (int channel = 0; channel < 3; channel++)
+                {
+                    double straight = pixels[pixel + channel] * 255d / alpha;
+                    int low = Math.Clamp((int)straight, 0, 255);
+                    int high = Math.Min(255, low + 1);
+                    double mapped = table[low] + (table[high] - table[low]) * (straight - low);
+                    pixels[pixel + channel] = (byte)Math.Clamp(
+                        Math.Round(mapped * alpha / 255d, MidpointRounding.AwayFromZero), 0, alpha);
+                }
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+    }
+
     public static TileRaster ApplyMask(TileRaster image, GrayTileRaster mask)
     {
         if (image.Width != mask.Width || image.Height != mask.Height)

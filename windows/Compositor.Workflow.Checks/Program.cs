@@ -181,6 +181,7 @@ CheckInvalidClippingRelationships(output);
 CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
 CheckLayerSelection(output);
+CheckExposureAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1461,6 +1462,40 @@ static void CheckInvalidClippingRelationships(string output)
     File.WriteAllText(Path.Combine(cycle, "manifest.json"), cycleManifest.ToJsonString());
     ExpectInvalidData(() => ProjectStore.Open(cycle), "A cyclic clipping relationship");
     Console.WriteLine("PASS: cyclic and missing clipping relationships are rejected before rendering");
+}
+
+static void CheckExposureAdjustment(string output)
+{
+    string project = Path.Combine(output, "ExposureAdjustment.comp");
+    var session = ProjectSession.CreateBlank(2, 1);
+    Guid rasterId = session.ActiveLayerId!.Value;
+    TileRaster source = new TileRaster(2, 1).ReplaceTile(0, 0,
+        [32, 16, 8, 128, 100, 40, 20, 255]);
+    session.ReplaceRaster(source);
+    Guid adjustmentId = session.AddExposureAdjustment("Exposure", new ExposureSettings(1, 0, 1), 1);
+    if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
+        session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Exposure" ||
+        session.GetExposureAdjustment(adjustmentId) != new ExposureSettings(1, 0, 1))
+        throw new Exception("Exposure adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyExposure(source, new ExposureSettings(1, 0, 1));
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    if (Pixel(expected, 0, 0)[3] != Pixel(source, 0, 0)[3])
+        throw new Exception("Exposure adjustment changed alpha.");
+
+    session.SetExposureAdjustment(adjustmentId, new ExposureSettings(-1, 0, 1));
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyExposure(source, new ExposureSettings(-1, 0, 1)), changed);
+    if (!session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Exposure adjustment did not participate in undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Exposure")
+        throw new Exception("Exposure adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Exposure adjustment layer metadata, premultiplied pixels, history and save/reopen");
 }
 
 static void CloneProject(string source, string destination)

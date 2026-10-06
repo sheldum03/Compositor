@@ -6,6 +6,8 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
 {
     public bool IsGroup { get; init; }
     public bool IsText { get; init; }
+    public bool IsAdjustment { get; init; }
+    public string? AdjustmentKind { get; init; }
     public Guid? ParentId { get; init; }
     public double Opacity { get; init; } = 1;
     public string BlendMode { get; init; } = "Normal";
@@ -102,6 +104,8 @@ public sealed class ProjectSession
         {
             IsGroup = layer["isGroup"]?.GetValue<bool>() ?? false,
             IsText = layer["text"] is not null,
+            IsAdjustment = layer["adjustment"] is not null,
+            AdjustmentKind = layer["adjustment"]?["kind"]?.GetValue<string>(),
             ParentId = layer["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null,
             Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
@@ -221,7 +225,8 @@ public sealed class ProjectSession
         IReadOnlyDictionary<Guid, GrayTileRaster>? masks = null)
     {
         if (!CanEdit || ImageName.Length != 0 || snapshots.Count != 1 || snapshots[0].LayerRasters is not null ||
-            rasters.Count != Layers.Count(layer => !layer.IsGroup) || Layers.Where(layer => !layer.IsGroup).Any(layer => !rasters.ContainsKey(layer.Id)))
+            rasters.Count != Layers.Count(layer => !layer.IsGroup && !layer.IsAdjustment) ||
+            Layers.Where(layer => !layer.IsGroup && !layer.IsAdjustment).Any(layer => !rasters.ContainsKey(layer.Id)))
             throw new InvalidOperationException("Layer rasters can only be attached to a newly opened editable project.");
         foreach (TileRaster raster in rasters.Values) CheckRasterSize(raster);
         if (masks is not null)
@@ -242,6 +247,8 @@ public sealed class ProjectSession
         int index = FindLayer(layerId);
         if (Current["layers"]![index]!["isGroup"]?.GetValue<bool>() == true)
             throw new InvalidOperationException("Group layers do not have a raster asset.");
+        if (Current["layers"]![index]!["adjustment"] is not null)
+            throw new InvalidOperationException("Adjustment layers do not have a raster asset.");
         return TryGetLoadedLayerRaster(layerId, out var raster) ? raster
             : throw new InvalidOperationException("Layer rasters have not been loaded.");
     }
@@ -294,6 +301,7 @@ public sealed class ProjectSession
     {
         RequireMaskEditing();
         int index = FindLayer(layerId);
+        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不支持图层蒙版。");
         if (Current["layers"]![index]!["maskFile"] is not null) return;
         var next = (JsonObject)Current.DeepClone();
         var layer = next["layers"]![index]!.AsObject();
@@ -310,6 +318,7 @@ public sealed class ProjectSession
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only.");
         int index = FindLayer(layerId);
+        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不支持图层蒙版。");
         if (Current["layers"]![index]!["maskFile"] is null)
             throw new InvalidOperationException("Layer does not have a raster mask.");
         CheckMaskSize(mask);
@@ -343,6 +352,7 @@ public sealed class ProjectSession
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
         int index = FindLayer(layerId);
+        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层没有可直接编辑的像素。");
         if (Current["layers"]![index]!["text"] is not null)
             throw new NotSupportedException("Text layers require the text renderer to keep metadata and pixels in sync.");
         CheckRasterSize(raster);
@@ -426,6 +436,8 @@ public sealed class ProjectSession
         if (!CanEdit) throw new NotSupportedException("This project is read-only.");
         if (!SupportedBlendModes.Contains(mode)) throw new ArgumentException("Unknown blend mode.", nameof(mode));
         int index = FindLayer(layerId);
+        if (Layers[index].IsAdjustment && mode != "Normal")
+            throw new NotSupportedException("Exposure adjustments only support Normal blending.");
         if ((Current["layers"]![index]!["blendMode"]?.GetValue<string>() ?? "Normal") == mode) return;
         if (Current["version"]!.GetValue<int>() != 8) throw new NotSupportedException("Appearance edits require an editable v8 project.");
         var next = (JsonObject)Current.DeepClone();
@@ -553,8 +565,9 @@ public sealed class ProjectSession
             if (sourceIndex >= targetIndex)
                 throw new InvalidOperationException("剪贴源必须位于目标图层下方。");
             if (layers[targetIndex]!["isGroup"]?.GetValue<bool>() == true ||
-                layers[sourceIndex]!["isGroup"]?.GetValue<bool>() == true)
-                throw new NotSupportedException("组图层不能作为当前剪贴关系。");
+                layers[sourceIndex]!["isGroup"]?.GetValue<bool>() == true ||
+                Layers[targetIndex].IsAdjustment || Layers[sourceIndex].IsAdjustment)
+                throw new NotSupportedException("组图层和调整层不能作为当前剪贴关系。");
         }
         var current = layers[targetIndex]!;
         Guid? existing = current["maskSourceID"] is { } value ? Guid.Parse(value.GetValue<string>()) : null;
@@ -572,7 +585,8 @@ public sealed class ProjectSession
         RequireLayerStructureEditing();
         if (width is < 1 or > 30000 || height is < 1 or > 30000 || (long)width * height > 100_000_000)
             throw new ArgumentOutOfRangeException(nameof(width));
-        if (rasters.Count != Layers.Count || rasters.Any(pair => !Layers.Any(layer => layer.Id == pair.Key) ||
+        if (rasters.Count != Layers.Count(layer => !layer.IsGroup && !layer.IsAdjustment) ||
+            rasters.Any(pair => !Layers.Any(layer => layer.Id == pair.Key && !layer.IsGroup && !layer.IsAdjustment) ||
                 pair.Value.Width != width || pair.Value.Height != height))
             throw new ArgumentException("Resized layer rasters do not match the document.", nameof(rasters));
         if (snapshots[cursor].LayerMasks is { } currentMasks &&
@@ -689,6 +703,45 @@ public sealed class ProjectSession
         return InsertLayer(layer, raster, destinationIndex);
     }
 
+    public Guid AddExposureAdjustment(string name, ExposureSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Exposure",
+            ["exposureSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
+    public ExposureSettings GetExposureAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Exposure" ||
+            !ExposureSettings.TryRead(adjustment["exposureSettings"], out var settings))
+            throw new NotSupportedException("Only Exposure adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetExposureAdjustment(Guid layerId, ExposureSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Exposure")
+            throw new NotSupportedException("Only Exposure adjustment layers are supported in this slice.");
+        if (GetExposureAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["exposureSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
         Guid? destinationParentId = null)
     {
@@ -785,6 +838,8 @@ public sealed class ProjectSession
         var current = Current["layers"]![index]!.AsObject();
         if (current["isGroup"]?.GetValue<bool>() == true)
             throw new ArgumentException("Use group transform for group layers.", nameof(layerId));
+        if (current["adjustment"] is not null)
+            throw new NotSupportedException("调整层不支持图层变换。");
         var next = (JsonObject)Current.DeepClone();
         var transform = next["layers"]![index]!["transform"]?.AsObject()
             ?? throw new InvalidDataException("Layer transform data is missing.");
@@ -931,6 +986,8 @@ public sealed class ProjectSession
         var current = Current["layers"]![index]!.AsObject();
         if (current["isGroup"]?.GetValue<bool>() == true)
             throw new ArgumentException("Use group transform for group layers.", nameof(layerId));
+        if (current["adjustment"] is not null)
+            throw new NotSupportedException("调整层不支持图层变换。");
         var currentTransform = current["transform"]?.AsObject()
             ?? throw new InvalidDataException("Layer transform data is missing.");
         var currentOrigin = currentTransform["origin"]?.AsArray();
@@ -957,6 +1014,8 @@ public sealed class ProjectSession
         var currentLayer = Current["layers"]![index]!.AsObject();
         if (currentLayer["isGroup"]?.GetValue<bool>() == true)
             throw new ArgumentException("Group layers must use bake-ungroup.", nameof(layerId));
+        if (currentLayer["adjustment"] is not null)
+            throw new NotSupportedException("调整层不支持图层变换烘焙。");
         if (currentLayer["text"] is not null)
             throw new NotSupportedException("Text layers require the text renderer to keep metadata and pixels in sync.");
         CheckRasterSize(raster);
@@ -1090,6 +1149,8 @@ public sealed class ProjectSession
             ? Guid.Parse(parent.GetValue<string>()) : (Guid?)null).Distinct().ToArray();
         if (indexes.Length != layerIds.Count || parentIds.Length != 1)
             throw new NotSupportedException("Only sibling layers can be grouped in this slice.");
+        if (indexes.Any(index => Layers[index].IsAdjustment))
+            throw new NotSupportedException("调整层不能加入组。");
         foreach (int index in indexes)
             if (layers[index]!["maskSourceID"] is { } sourceNode &&
                 !selectedSet.Contains(Guid.Parse(sourceNode.GetValue<string>())))
@@ -1316,6 +1377,7 @@ public sealed class ProjectSession
     {
         RequireLayerStructureEditing();
         int index = FindLayer(layerId);
+        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不能复制为栅格图层。");
         if (Current["layers"]![index]!["maskFile"] is not null)
             throw new NotSupportedException("Duplicating a masked layer is not supported in this slice.");
         var layer = (JsonObject)Current["layers"]![index]!.DeepClone();
@@ -1774,6 +1836,24 @@ public sealed class ProjectSession
             masks[id] = mask;
         }
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));
+        return id;
+    }
+
+    private Guid InsertAdjustmentLayer(JsonObject layer, int destinationIndex)
+    {
+        string name = layer["name"]!.GetValue<string>();
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 1000)
+            throw new ArgumentException("Layer name must contain 1 to 1000 characters.", nameof(layer));
+        int count = Current["layers"]!.AsArray().Count;
+        if (destinationIndex < 0 || destinationIndex > count)
+            throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        if (count >= 10000) throw new NotSupportedException("Adding a layer exceeds the layer limit.");
+        Guid id = Guid.NewGuid();
+        layer["id"] = id.ToString("D");
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]!.AsArray().Insert(destinationIndex, layer);
+        next["activeLayerID"] = id.ToString("D");
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
         return id;
     }
 
