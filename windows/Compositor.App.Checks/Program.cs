@@ -1068,6 +1068,9 @@ internal static class Program
             session.SetLayerBlendMode(groupMergeGroupId, "Multiply");
             session.SetGroupTransform(groupMergeGroupId, 4, 3, session.Width - 8, session.Height - 6, 8);
         });
+        groupMergeWorkspace.Edit(session => session.EnsureLayerMask(groupMergeGroupId));
+        groupMergeWorkspace.Edit(session => session.ReplaceLayerMask(groupMergeGroupId,
+            GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height)));
         groupMergeWorkspace.Save();
         TileRaster groupMergeBefore = ImageProjectWorkflow.RenderFlatNormal(groupMergeWorkspace.Session);
         var groupMergeWindow = new MainWindow(groupMergeWorkspace);
@@ -1082,6 +1085,9 @@ internal static class Program
             groupMergeWorkspace.Session.ActiveLayerId == groupMergeLowerId && groupMergeWorkspace.IsDirty &&
             !groupMergeWorkspace.Session.HasGroups,
             "Group merge did not flatten the selected root subtree into the lower sibling.");
+        FlatLayerInfo groupMergedLayer = groupMergeWorkspace.Session.Layers.Single(layer => layer.Id == groupMergeLowerId);
+        Require(groupMergedLayer.Opacity == 1 && groupMergedLayer.BlendMode == "Normal" && !groupMergedLayer.HasMask,
+            "Masked group merge did not normalize the flattened layer metadata.");
         CheckEqual(groupMergeWorkspace.Preview!, groupMergeBefore);
         Click(groupMergeWindow, "Undo");
         Require(groupMergeWorkspace.Session.Layers.Count == 4 && groupMergeWorkspace.Session.HasGroups &&
