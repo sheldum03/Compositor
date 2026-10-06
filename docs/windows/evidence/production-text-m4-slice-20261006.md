@@ -29,7 +29,7 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix for `5c98329`: [run 37419132736](https://github.com/sheldum03/Compositor/actions/runs/37419132736) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and style metadata history checks. The App case includes point/box creation, the formal text editor regressions, and the explicit missing-font resolver. The follow-up font recovery commit is awaiting its replacement CI run after the Windows file-lock test correction.
+The Windows production core matrix for `4356dde`: [run 37420433872](https://github.com/sheldum03/Compositor/actions/runs/37420433872) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and the font import/recovery checks. The App case includes point/box creation, the formal text editor regressions, and the explicit missing-font resolver.
 
 The local App Headless check was rerun after the canvas integration:
 
