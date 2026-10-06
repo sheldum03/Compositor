@@ -755,9 +755,17 @@ internal static class CanvasChecks
         var cachedTextLayer = cachedTextLayers[cachedTextLayers.Count - 1]!.AsObject();
         cachedTextLayer["text"] = new JsonObject
         {
+            ["alignment"] = "left",
+            ["alpha"] = 1d,
+            ["blue"] = 0d,
             ["content"] = "Missing font cache",
             ["fontPostScriptName"] = "Compositor-Missing-Font",
-            ["fontSizePoints"] = 18
+            ["fontSizePoints"] = 18d,
+            ["green"] = 0d,
+            ["layout"] = new JsonObject { ["point"] = new JsonObject() },
+            ["lineSpacingPoints"] = 0d,
+            ["red"] = 0d,
+            ["trackingPoints"] = 0d
         };
         cachedTextLayer["transform"] = new JsonObject
         {
