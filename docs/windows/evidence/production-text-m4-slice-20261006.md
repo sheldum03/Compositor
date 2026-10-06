@@ -20,6 +20,7 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 4. The formal Avalonia window routes a left click on an editable text layer through the same transform-aware hit test and places the sidebar `TextBox` caret at the returned UTF-16 boundary. The canvas then draws the caret from that same layout result; changing the sidebar selection produces transformed canvas selection polygons. The App Headless check clicks the end of a rotated/flipped text layer and verifies the sidebar caret plus both overlays.
 5. A missing-font cache project exposes an explicit font choice and keeps the content editor disabled. Selecting an installed font reloads the editable layer assets, redraws the text, and unlocks the editor; no fallback font is selected silently. Undo restores the missing-font read-only state and redo restores the explicit replacement.
 6. `1a2f3a8` validates imported font bytes through a temporary file before moving them into the user directory, restores only catalog entries whose file hash still matches, and initializes the font library when the formal window starts. Workflow checks cover rejected damaged imports leaving no file and a mismatched persisted hash being removed from the catalog.
+7. `50a3fa2` inspects an imported face before registration and rejects a different SHA-256 with the same normalized family and face index. The temporary file is removed, the catalog keeps the original entry, and the formal command path exposes the rejection as an operation error instead of silently replacing the registered font.
 
 Command on the development host:
 
@@ -45,6 +46,6 @@ The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executabl
 
 - No Windows IME, candidate-window validation, or native Windows input result. The current window slice covers the Avalonia canvas caret/selection overlay and sidebar `TextBox` routing in Headless checks; it does not prove Windows text services, DPI behavior, or production-machine input.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- No damaged-font recovery or user-selected font persistence beyond the explicit in-session replacement path.
+- No damaged-font recovery or user-selected font persistence beyond the explicit in-session replacement path. Multi-choice UI for several same-family faces remains open; this slice rejects ambiguous same-family/different-content imports and preserves the first identity.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.
