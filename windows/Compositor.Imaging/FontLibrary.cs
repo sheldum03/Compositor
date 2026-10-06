@@ -11,6 +11,11 @@ public sealed record ImportedFont(string FileName, string FamilyName, int FaceIn
     public string SelectionName => TextLayerWorkflow.ImportedFontSelectionName(FamilyName, FaceIndex);
 }
 
+public sealed record FontFace(int FaceIndex, string FamilyName)
+{
+    public string SelectionName => TextLayerWorkflow.ImportedFontSelectionName(FamilyName, FaceIndex);
+}
+
 public sealed class FontLibrary
 {
     private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -29,6 +34,33 @@ public sealed class FontLibrary
     }
 
     public IReadOnlyList<ImportedFont> Entries => entries.AsReadOnly();
+
+    public static IReadOnlyList<FontFace> EnumerateFaces(string sourcePath)
+    {
+        string extension = Path.GetExtension(sourcePath);
+        if (!SupportedExtensions.Contains(extension))
+            throw new NotSupportedException("Only OTF, TTF, and TTC fonts can be imported.");
+        if (!File.Exists(sourcePath)) throw new FileNotFoundException("The font file was not found.", sourcePath);
+        if (new FileInfo(sourcePath).Length == 0)
+            throw new InvalidDataException("The font file is empty.");
+
+        var faces = new List<FontFace>();
+        for (int faceIndex = 0; faceIndex < 256; faceIndex++)
+        {
+            SKTypeface? typeface;
+            try { typeface = SKTypeface.FromFile(sourcePath, faceIndex); }
+            catch (Exception exception) when (faceIndex == 0)
+            {
+                throw new InvalidDataException("The font face could not be loaded.", exception);
+            }
+            catch (Exception) { break; }
+            if (typeface is null) break;
+            using (typeface) faces.Add(new FontFace(faceIndex, typeface.FamilyName));
+        }
+        if (faces.Count == 0)
+            throw new InvalidDataException("The font face could not be loaded.");
+        return faces;
+    }
 
     public ImportedFont Import(string sourcePath, int faceIndex = 0)
     {

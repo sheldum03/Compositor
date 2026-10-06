@@ -81,8 +81,9 @@ public sealed class MainWindow : Window
 
     public MainWindow() : this(new EditorWorkspace()) { }
 
-    public MainWindow(EditorWorkspace workspace)
+    public MainWindow(EditorWorkspace workspace, FontLibrary? fontLibrary = null)
     {
+        this.fontLibrary = fontLibrary;
         projects.Add(workspace);
         Width = 1120; Height = 760; MinWidth = 850; MinHeight = 540;
         FontFamily = new FontFamily("avares://Compositor.App/Fonts/SourceHanSansSC-Regular.otf#Source Han Sans SC");
@@ -1249,10 +1250,19 @@ public sealed class MainWindow : Window
             FileTypeFilter = [new FilePickerFileType("字体") { Patterns = ["*.otf", "*.ttf", "*.ttc"] }]
         });
         if (selected.Count == 0) return;
-        ImportedFont imported = await Task.Run(() => FontLibrary.Import(LocalPath(selected[0])));
+        await ImportFontFileAsync(LocalPath(selected[0]));
+    }
+
+    internal async Task<ImportedFont?> ImportFontFileAsync(string sourcePath)
+    {
+        IReadOnlyList<FontFace> faces = await Task.Run(() => FontLibrary.EnumerateFaces(sourcePath));
+        int? faceIndex = faces.Count == 1 ? faces[0].FaceIndex : await SelectFontFaceAsync(faces);
+        if (faceIndex is null) return null;
+        ImportedFont imported = await Task.Run(() => FontLibrary.Import(sourcePath, faceIndex.Value));
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textFont.SelectedItem = imported.SelectionName;
         status.Text = $"已导入字体：{imported.SelectionName}";
+        return imported;
     }
 
     private FontLibrary FontLibrary => fontLibrary ??= new FontLibrary(Path.Combine(
@@ -1316,6 +1326,30 @@ public sealed class MainWindow : Window
         dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 18, Children =
             { new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap }, buttons } };
         return await dialog.ShowDialog<string?>(this);
+    }
+
+    private async Task<int?> SelectFontFaceAsync(IReadOnlyList<FontFace> faces)
+    {
+        var dialog = Dialog("选择字体面");
+        var face = new ComboBox
+        {
+            Name = "FontFace", Width = 360, SelectedIndex = 0,
+            ItemsSource = faces.Select(item => $"{item.SelectionName}（{item.FamilyName}）").ToArray()
+        };
+        var import = new Button { Name = "ImportFontFace", Content = "导入" };
+        var cancel = new Button { Name = "CancelFontFace", Content = "取消" };
+        cancel.Click += (_, _) => dialog.Close();
+        import.Click += (_, _) =>
+        {
+            if (face.SelectedIndex >= 0) dialog.Close(faces[face.SelectedIndex].FaceIndex);
+        };
+        dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 14, Children =
+        {
+            new TextBlock { Text = "检测到多个字体面，请选择要导入的 face-index。取消将不写入字体库。", TextWrapping = TextWrapping.Wrap, MaxWidth = 420 },
+            face,
+            new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { import, cancel } }
+        } };
+        return await dialog.ShowDialog<int?>(this);
     }
 
     private Window Dialog(string title) => new()

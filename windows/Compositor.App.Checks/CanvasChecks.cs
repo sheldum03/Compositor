@@ -908,6 +908,37 @@ internal static class CanvasChecks
         var reopenedFace = ProjectStore.Open(faceProject);
         Require(reopenedFace.TextLayers.Single().FontPostScriptName == selectedFace,
             "The selected same-family face identity did not survive save and reopen.");
+        string ttcSource = Path.Combine(Path.GetDirectoryName(fixture)!, "fonts", "two-faces.ttc");
+        if (SKTypeface.FromFile(ttcSource, 1) is null)
+            ttcSource = Directory.GetFiles("/System/Library/Fonts", "*.ttc")
+                .FirstOrDefault(path => SKTypeface.FromFile(path, 1) is not null)
+                ?? throw new Exception("No multi-face TTC was available for the import dialog check.");
+        var appFontLibrary = new FontLibrary(Path.Combine(output, "AppFontLibrary"));
+        var importWindow = new MainWindow(new EditorWorkspace(), appFontLibrary);
+        importWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Task<ImportedFont?> cancelledImport = importWindow.ImportFontFileAsync(ttcSource);
+        Window importDialog = WaitForDialog(importWindow);
+        Require(Find<ComboBox>(importDialog, "FontFace").SelectedIndex == 0 &&
+            Find<Button>(importDialog, "ImportFontFace").IsEffectivelyEnabled &&
+            Find<Button>(importDialog, "CancelFontFace").IsEffectivelyEnabled,
+            "TTC import did not expose an explicit face-index choice with cancellation.");
+        DialogClick(importDialog, "取消");
+        Require(WaitForTask(cancelledImport) is null && appFontLibrary.Entries.Count == 0,
+            "Cancelling TTC face selection changed the font library.");
+        Task<ImportedFont?> selectedImport = importWindow.ImportFontFileAsync(ttcSource);
+        importDialog = WaitForDialog(importWindow);
+        var importFace = Find<ComboBox>(importDialog, "FontFace");
+        importFace.SelectedIndex = 1;
+        DialogClick(importDialog, "导入");
+        ImportedFont importedFace = WaitForTask(selectedImport)
+            ?? throw new Exception("TTC face import returned no selected face.");
+        IReadOnlyList<FontFace> importedChoices = FontLibrary.EnumerateFaces(ttcSource);
+        Require(importedFace.FaceIndex == importedChoices[1].FaceIndex &&
+            importedFace.SelectionName == importedChoices[1].SelectionName &&
+            Equals(Find<ComboBox>(importWindow, "TextFont").SelectedItem, importedFace.SelectionName) &&
+            appFontLibrary.Entries.Single().FaceIndex == importedChoices[1].FaceIndex,
+            "TTC import did not persist the selected face-index token.");
+        importWindow.Close(); Dispatcher.UIThread.RunJobs();
         var resizeWorkspace = new EditorWorkspace();
         resizeWorkspace.Open(project);
         int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;
@@ -1008,6 +1039,26 @@ internal static class CanvasChecks
 
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+    private static Window WaitForDialog(Window owner)
+    {
+        var timer = Stopwatch.StartNew();
+        while (owner.OwnedWindows.Count == 0)
+        {
+            Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+            if (timer.Elapsed > TimeSpan.FromSeconds(30)) throw new TimeoutException("Font dialog did not open.");
+        }
+        return owner.OwnedWindows.Single();
+    }
+    private static T WaitForTask<T>(Task<T> task)
+    {
+        var timer = Stopwatch.StartNew();
+        while (!task.IsCompleted)
+        {
+            Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+            if (timer.Elapsed > TimeSpan.FromSeconds(30)) throw new TimeoutException("Font import did not finish.");
+        }
+        return task.GetAwaiter().GetResult();
+    }
     private static bool Near(Point a, Point b) => Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) < 1e-8;
     private static TileRaster RenderWindow(Window window, string path)
     {

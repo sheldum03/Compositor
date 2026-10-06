@@ -27,6 +27,10 @@ internal static class FontLibraryChecks
                 .FirstOrDefault(path => SKTypeface.FromFile(path, 1) is not null);
         if (ttcSource is not null)
         {
+            IReadOnlyList<FontFace> enumeratedFaces = FontLibrary.EnumerateFaces(ttcSource);
+            if (enumeratedFaces.Count < 2 || enumeratedFaces[0].FaceIndex != 0 || enumeratedFaces[1].FaceIndex != 1 ||
+                enumeratedFaces[0].SelectionName == enumeratedFaces[1].SelectionName)
+                throw new Exception("Skia face enumeration did not expose distinct face-index selections.");
             string faceRoot = Path.Combine(output, "FontFaceLibrary");
             var faceLibrary = new FontLibrary(faceRoot);
             ImportedFont firstFace = faceLibrary.Import(ttcSource, faceIndex: 0);
