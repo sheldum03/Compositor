@@ -16,7 +16,7 @@
 
 ## 检查策略
 
-`Compositor.Workflow.Checks` 保持逐 tile exact 比较：macOS 继续比较 `F05-mac.png` / `F06-mac.png`，Windows 选择 `fixtures/windows/F05.png` / `F06.png`。没有增加 RGB 容差，也没有改变 F02/F06 的 Mac exact 检查。Windows 专用参考明确不计入 Mac 工程的 `fixtures/checksums.json` 冻结集合，并单独记录 SHA-256 与来源 run。
+`Compositor.Workflow.Checks` 保持逐 tile exact 比较：macOS 继续比较 `F05-mac.png` / `F06-mac.png`，Windows 选择 `fixtures/windows/F05.png` / `F06.png`。同一平台选择也用于 v8 可编辑组蒙版的 F06 初始预览，避免缓存预览和可编辑加载使用不同参考。没有增加 RGB 容差，也没有改变 F02 的 exact 检查。Windows 专用参考明确不计入 Mac 工程的 `fixtures/checksums.json` 冻结集合，并单独记录 SHA-256 与来源 run。
 
 ## 限制
 

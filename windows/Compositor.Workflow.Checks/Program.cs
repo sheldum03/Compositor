@@ -199,10 +199,7 @@ static void CheckCachedGroupRendering(string output, string fixtures)
     foreach (string name in new[] { "F02", "F05", "F06" })
     {
         string project = Path.Combine(referenceRoot, name + ".comp");
-        // Skia's high-quality F05/F06 transform has stable platform-specific RGB rounding.
-        string reference = OperatingSystem.IsWindows() && name is ("F05" or "F06")
-            ? Path.Combine(referenceRoot, "windows", name + ".png")
-            : Path.Combine(referenceRoot, name + "-mac.png");
+        string reference = CachedReferencePath(referenceRoot, name);
         var session = ProjectStore.Open(project);
         if (session.CanEdit) throw new Exception($"Cached group fixture {name} became editable.");
         TileRaster actual = ImageProjectWorkflow.RenderFlatNormal(session);
@@ -212,6 +209,11 @@ static void CheckCachedGroupRendering(string output, string fixtures)
     }
     Console.WriteLine("PASS: cached pass-through groups, child visibility, raster masks, clipping alpha and group masks match F02/F05/F06 references");
 }
+
+static string CachedReferencePath(string referenceRoot, string name) =>
+    OperatingSystem.IsWindows() && name is ("F05" or "F06")
+        ? Path.Combine(referenceRoot, "windows", name + ".png")
+        : Path.Combine(referenceRoot, name + "-mac.png");
 
 static void CheckCachedGroupTransform(string output, string fixtures)
 {
@@ -271,8 +273,11 @@ static void CheckEditableGroupMask(string output, string fixtures)
     if (!opened.CanEdit || !opened.HasGroups) throw new Exception("v8 group project was not accepted for editable loading.");
     var session = ImageProjectWorkflow.OpenEditable(project);
     Guid groupId = session.Layers.Single(layer => layer.IsGroup).Id;
-    TileRaster reference = ImageCodec.Load(Path.Combine(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), "F06-mac.png"));
-    AssertRaster(reference, ImageProjectWorkflow.RenderFlatNormal(session));
+    string referenceRoot = Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures"));
+    TileRaster editableInitial = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(ImageProjectWorkflow.RenderFlatNormal(ProjectStore.Open(sourceRoot)), editableInitial);
+    TileRaster reference = ImageCodec.Load(CachedReferencePath(referenceRoot, "F06"));
+    AssertRaster(reference, editableInitial);
     ExpectNotSupported(() => session.AddBlankLayer("Rejected", 0), "adding a layer to a grouped project");
     ExpectNotSupported(() => session.DuplicateLayer(groupId, "Rejected"), "duplicating a group");
     ExpectNotSupported(() => session.DeleteLayer(groupId), "deleting a group");
