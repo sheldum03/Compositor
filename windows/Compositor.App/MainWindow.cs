@@ -437,6 +437,7 @@ public sealed class MainWindow : Window
                     Key.O => OpenAsync,
                     Key.A when Workspace.Session is not null => SelectAllAsync,
                     Key.C when Workspace.Session is not null => CopySelectionAsync,
+                    Key.X when Workspace.Session is not null => CutSelectionAsync,
                     Key.V when Workspace.Session is not null => PasteSelectionAsync,
                     _ => null
                 },

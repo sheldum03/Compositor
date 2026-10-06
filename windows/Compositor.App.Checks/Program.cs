@@ -588,6 +588,22 @@ internal static class Program
         Require(tabsWindow.ProjectCount == 2 && tabsWindow.ActiveProjectIndex == 1 &&
             ReferenceEquals(tabsWindow.Workspace, secondWorkspace),
             "Project tab creation did not activate the new workspace.");
+        string shortcutProjectPath = Path.Combine(output, "ShortcutCut.comp");
+        var shortcutWorkspace = new EditorWorkspace();
+        shortcutWorkspace.Import(fixture, shortcutProjectPath);
+        var shortcutWindow = new MainWindow(shortcutWorkspace);
+        shortcutWindow.Show(); Dispatcher.UIThread.RunJobs();
+        shortcutWorkspace.SelectRectangle(new Rect(0, 0, shortcutWorkspace.Session!.Width / 2, shortcutWorkspace.Session.Height));
+        TileRaster shortcutBeforeCut = shortcutWorkspace.Session.GetLayerRaster(shortcutWorkspace.Session.ActiveLayerId!.Value);
+        RaiseKey(shortcutWindow, Key.X, KeyModifiers.Control);
+        TileRaster shortcutAfterCut = shortcutWorkspace.Session.GetLayerRaster(shortcutWorkspace.Session.ActiveLayerId!.Value);
+        Require(shortcutWorkspace.IsDirty && !CheckEqualNoThrow(shortcutBeforeCut, shortcutAfterCut),
+            "Ctrl+X did not cut the selected pixels through the production window shortcut.");
+        Click(shortcutWindow, "Undo");
+        Require(!shortcutWorkspace.IsDirty && CheckEqualNoThrow(shortcutBeforeCut,
+            shortcutWorkspace.Session.GetLayerRaster(shortcutWorkspace.Session.ActiveLayerId!.Value)),
+            "Undo after Ctrl+X did not restore the saved pixels.");
+        shortcutWindow.Close(); Dispatcher.UIThread.RunJobs();
         tabsWindow.ActivateProjectTab(0);
         Require(tabsWindow.ActiveProjectIndex == 0 && ReferenceEquals(tabsWindow.Workspace, workspace) &&
             tabsWindow.Workspace.Session!.Layers[^1].Name == "中文 Overlay",
@@ -1642,7 +1658,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut shortcut with undo pixel restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
@@ -1655,6 +1671,17 @@ internal static class Program
         var button = Control<Button>(window, name);
         Require(button.IsEffectivelyEnabled, "Button is unexpectedly disabled: " + name);
         button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Pump(window);
+    }
+    private static void RaiseKey(MainWindow window, Key key, KeyModifiers modifiers)
+    {
+        window.RaiseEvent(new KeyEventArgs
+        {
+            RoutedEvent = InputElement.KeyDownEvent,
+            Key = key,
+            KeyModifiers = modifiers,
+            Source = window
+        });
         Pump(window);
     }
     private static void DialogClick(Window dialog, string label) => dialog.GetVisualDescendants().OfType<Button>()
