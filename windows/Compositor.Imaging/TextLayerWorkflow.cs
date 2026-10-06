@@ -51,6 +51,13 @@ public static class TextLayerWorkflow
         session.UpdateTextLayer(metadata, RenderRaster(metadata, cache, session.Resolution));
     }
 
+    public static TileRaster RenderText(TextLayerMetadata metadata, int width, int height, double resolution)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        if (width < 1 || height < 1) throw new ArgumentOutOfRangeException(nameof(width));
+        return RenderRaster(metadata, new TileRaster(width, height), resolution);
+    }
+
     public static TextLayerRenderResult Render(ProjectSession session, Guid layerId)
     {
         TextLayerMetadata metadata = session.TextLayers.SingleOrDefault(layer => layer.Id == layerId)

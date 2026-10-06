@@ -640,6 +640,23 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
+    public Guid AddTextLayer(string name, TextLayerMetadata metadata, TileRaster raster, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        CheckRasterSize(raster);
+        Guid id = Guid.NewGuid();
+        string imageFile = id.ToString("D").ToUpperInvariant() + ".png";
+        TextLayerMetadata assigned = metadata with { Id = id, ImageFile = imageFile };
+        ValidateTextMetadata(assigned);
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["id"] = id.ToString("D");
+        layer["imageFile"] = imageFile;
+        layer["opacity"] = 1d;
+        layer["blendMode"] = "Normal";
+        layer["text"] = CreateTextNode(assigned);
+        return InsertLayer(layer, raster, destinationIndex);
+    }
+
     public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
         Guid? destinationParentId = null)
     {
@@ -1243,6 +1260,24 @@ public sealed class ProjectSession
                 ["origin"] = new JsonArray(0d, 0d), ["size"] = new JsonArray((double)width, (double)height),
                 ["rotation"] = 0d, ["flipX"] = false, ["flipY"] = false, ["sampling"] = "High quality"
             }
+        };
+
+    private static JsonObject CreateTextNode(TextLayerMetadata metadata) =>
+        new JsonObject
+        {
+            ["alignment"] = metadata.Alignment,
+            ["alpha"] = metadata.Alpha,
+            ["blue"] = metadata.Blue,
+            ["content"] = metadata.Content,
+            ["fontPostScriptName"] = metadata.FontPostScriptName,
+            ["fontSizePoints"] = metadata.FontSizePoints,
+            ["green"] = metadata.Green,
+            ["layout"] = metadata.Layout == "point"
+                ? new JsonObject { ["point"] = new JsonObject() }
+                : new JsonObject { ["box"] = new JsonObject { ["width"] = metadata.BoxWidth!.Value } },
+            ["lineSpacingPoints"] = metadata.LineSpacingPoints,
+            ["red"] = metadata.Red,
+            ["trackingPoints"] = metadata.TrackingPoints
         };
 
     public Guid DuplicateLayer(Guid layerId, string name)

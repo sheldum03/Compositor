@@ -103,6 +103,28 @@ internal static class Program
         Require(reopened.Layers[^1].Name == "中文 Overlay" && !reopened.Layers[^1].IsVisible, "Close-save lost layer state.");
         CheckEqual(workspace.Preview!, ImageProjectWorkflow.RenderFlatNormal(reopened));
 
+        string textProject = Path.Combine(output, "TextCreationWindow.comp");
+        var textWorkspace = new EditorWorkspace();
+        textWorkspace.Import(fixture, textProject);
+        int textLayerCount = textWorkspace.Session!.Layers.Count;
+        var textWindow = new MainWindow(textWorkspace);
+        textWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Click(textWindow, "AddTextLayer");
+        FlatLayerInfo createdText = textWorkspace.Session.Layers.Single(layer => layer.IsText);
+        Require(textWorkspace.Session.Layers.Count == textLayerCount + 1 && textWorkspace.Session.ActiveLayerId == createdText.Id &&
+            textWorkspace.Session.TextLayers.Single().Content == "文字" &&
+            textWorkspace.Session.GetLayerRaster(createdText.Id).StoredBytes > 0 &&
+            Control<Button>(textWindow, "ApplyText").IsEffectivelyEnabled,
+            "Add text button did not create a rendered, editable text layer.");
+        Control<TextBox>(textWindow, "TextContent").Text = "Headless text";
+        Click(textWindow, "ApplyText");
+        Require(textWorkspace.Session.TextLayers.Single().Content == "Headless text" && textWorkspace.IsDirty,
+            "Created text layer did not accept the formal text editor update.");
+        textWorkspace.Save(); textWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var reopenedText = ImageProjectWorkflow.OpenEditable(textProject);
+        Require(reopenedText.TextLayers.Count == 1 && reopenedText.TextLayers[0].Content == "Headless text",
+            "Created text layer did not survive save and reopen.");
+
         string mergeProject = Path.Combine(output, "MergeLayer.comp");
         var mergeWorkspace = new EditorWorkspace();
         mergeWorkspace.Import(fixture, mergeProject);
@@ -1112,7 +1134,7 @@ internal static class Program
         var groupedItem = Control<ListBox>(groupedWindow, "Layers").ItemsView!.Cast<FlatLayerInfo>().Single(layer => layer.IsGroup);
         Control<ListBox>(groupedWindow, "Layers").SelectedItem = groupedItem;
         Dispatcher.UIThread.RunJobs();
-        foreach (string name in new[] { "AddLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
+        foreach (string name in new[] { "AddLayer", "AddTextLayer", "CanvasSize", "ImageSize", "RotateClockwise", "RotateCounterClockwise",
             "DuplicateLayer", "DeleteLayer", "SetClippingMask", "ReleaseClippingMask", "MoveUp", "MoveDown",
             "CopySelection", "CutSelection", "PasteSelection", "LoadAlphaSelection", "BakeLayerTransform" })
             Require(!Control<Button>(groupedWindow, name).IsEffectivelyEnabled, "Grouped project enabled unsupported button: " + name);
@@ -1154,7 +1176,7 @@ internal static class Program
         {
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
-                "set/release clipping relationship buttons",
+                "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
                 "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."

@@ -84,7 +84,25 @@ internal static class TextChecks
         if (reopened.TextLayers.Count != 1 || reopened.TextLayers[0].Content != "Edited Windows text" ||
             reopened.TextLayers[0].FontPostScriptName != availableFamily)
             throw new Exception("Text metadata was not preserved through save and reopen.");
-        Console.WriteLine("PASS: v8 text metadata is exposed; available fonts redraw and edit with history; missing fonts preserve cache and request an explicit font choice");
+
+        var created = ProjectSession.CreateBlank(96, 48);
+        var createdMetadata = new TextLayerMetadata(Guid.Empty, "", "Created Windows text", availableFamily, 18,
+            0, 0, 0, 1, "left", 0, 0, "point", null);
+        TileRaster createdRaster = TextLayerWorkflow.RenderText(createdMetadata, created.Width, created.Height, created.Resolution);
+        Guid createdId = created.AddTextLayer("Created text", createdMetadata, createdRaster, created.Layers.Count);
+        if (!created.Layers.Single(layer => layer.Id == createdId).IsText ||
+            created.TextLayers.Single().Content != "Created Windows text" ||
+            !HasInk(created.GetLayerRaster(createdId)))
+            throw new Exception("Creating a text layer did not persist metadata and rendered pixels.");
+        if (!created.Undo() || created.Layers.Count != 1 || !created.Redo() || created.Layers.Count != 2)
+            throw new Exception("Creating a text layer did not participate in undo and redo.");
+        string createdPath = Path.Combine(output, "TextCreated.comp");
+        ImageProjectWorkflow.Save(created, createdPath);
+        var reopenedCreated = ProjectStore.Open(createdPath);
+        if (reopenedCreated.TextLayers.Count != 1 || reopenedCreated.TextLayers[0].Content != "Created Windows text" ||
+            !HasInk(ImageCodec.Load(Path.Combine(createdPath, "images", reopenedCreated.TextLayers[0].ImageFile))))
+            throw new Exception("Created text layer was not preserved through save and reopen.");
+        Console.WriteLine("PASS: v8 text metadata is exposed; text layers can be created, edited, saved, and reopened; missing fonts preserve cache and request an explicit font choice");
     }
 
     private static bool HasInk(TileRaster raster)
