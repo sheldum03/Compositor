@@ -300,6 +300,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyExposure(source, settings), "选区曝光");
     }
 
+    public void PreviewLevelsFilter(LevelsSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyLevels(source, settings), "选区色阶");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();

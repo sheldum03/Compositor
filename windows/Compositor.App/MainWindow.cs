@@ -95,6 +95,12 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown selectionExposureOffset = new() { Name = "SelectionExposureOffset", Minimum = -0.5m, Maximum = 0.5m, Value = 0, Width = 62 };
     private readonly NumericUpDown selectionExposureGamma = new() { Name = "SelectionExposureGamma", Minimum = 0.01m, Maximum = 9.99m, Value = 1, Width = 62 };
     private readonly StackPanel selectionExposureEditor = new() { Name = "SelectionExposureEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown selectionLevelsInputBlack = new() { Name = "SelectionLevelsInputBlack", Minimum = 0, Maximum = 254, Value = 0, Width = 54 };
+    private readonly NumericUpDown selectionLevelsInputWhite = new() { Name = "SelectionLevelsInputWhite", Minimum = 1, Maximum = 255, Value = 255, Width = 54 };
+    private readonly NumericUpDown selectionLevelsGamma = new() { Name = "SelectionLevelsGamma", Minimum = 0.1m, Maximum = 9.99m, Value = 1, Width = 54 };
+    private readonly NumericUpDown selectionLevelsOutputBlack = new() { Name = "SelectionLevelsOutputBlack", Minimum = 0, Maximum = 255, Value = 0, Width = 54 };
+    private readonly NumericUpDown selectionLevelsOutputWhite = new() { Name = "SelectionLevelsOutputWhite", Minimum = 0, Maximum = 255, Value = 255, Width = 54 };
+    private readonly StackPanel selectionLevelsEditor = new() { Name = "SelectionLevelsEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown motionBlurAngle = new() { Name = "MotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown motionBlurDistance = new() { Name = "MotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel motionBlurAdjustmentEditor = new() { Name = "MotionBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
@@ -390,6 +396,20 @@ public sealed class MainWindow : Window
         selectionExposureEditor.Children.Add(Command("CommitSelectionExposure", "提交选区曝光", CommitSelectionExposureAsync, layer: true));
         selectionExposureEditor.Children.Add(Command("CancelSelectionExposure", "取消滤镜预览", CancelSelectionExposureAsync, layer: true));
         actions.Children.Add(selectionExposureEditor);
+        selectionLevelsEditor.Children.Add(new TextBlock { Text = "选区输入黑", VerticalAlignment = VerticalAlignment.Center });
+        selectionLevelsEditor.Children.Add(selectionLevelsInputBlack);
+        selectionLevelsEditor.Children.Add(new TextBlock { Text = "输入白", VerticalAlignment = VerticalAlignment.Center });
+        selectionLevelsEditor.Children.Add(selectionLevelsInputWhite);
+        selectionLevelsEditor.Children.Add(new TextBlock { Text = "伽马", VerticalAlignment = VerticalAlignment.Center });
+        selectionLevelsEditor.Children.Add(selectionLevelsGamma);
+        selectionLevelsEditor.Children.Add(new TextBlock { Text = "输出黑", VerticalAlignment = VerticalAlignment.Center });
+        selectionLevelsEditor.Children.Add(selectionLevelsOutputBlack);
+        selectionLevelsEditor.Children.Add(new TextBlock { Text = "输出白", VerticalAlignment = VerticalAlignment.Center });
+        selectionLevelsEditor.Children.Add(selectionLevelsOutputWhite);
+        selectionLevelsEditor.Children.Add(Command("PreviewSelectionLevels", "预览选区色阶", PreviewSelectionLevelsAsync, layer: true));
+        selectionLevelsEditor.Children.Add(Command("CommitSelectionLevels", "提交选区色阶", CommitSelectionLevelsAsync, layer: true));
+        selectionLevelsEditor.Children.Add(Command("CancelSelectionLevels", "取消滤镜预览", CancelSelectionLevelsAsync, layer: true));
+        actions.Children.Add(selectionLevelsEditor);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         motionBlurAdjustmentEditor.Children.Add(motionBlurAngle);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
@@ -925,6 +945,7 @@ public sealed class MainWindow : Window
         bool showSelectionNoiseEditor = showSelectionGaussianBlurEditor;
         bool showSelectionLensCorrectionEditor = showSelectionGaussianBlurEditor;
         bool showSelectionExposureEditor = showSelectionGaussianBlurEditor;
+        bool showSelectionLevelsEditor = showSelectionGaussianBlurEditor;
         bool showMotionBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Motion Blur" &&
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
@@ -944,6 +965,7 @@ public sealed class MainWindow : Window
         selectionNoiseEditor.IsVisible = showSelectionNoiseEditor;
         selectionLensCorrectionEditor.IsVisible = showSelectionLensCorrectionEditor;
         selectionExposureEditor.IsVisible = showSelectionExposureEditor;
+        selectionLevelsEditor.IsVisible = showSelectionLevelsEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
         lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
@@ -966,6 +988,9 @@ public sealed class MainWindow : Window
         selectionLensCorrectionDistortion.IsEnabled = showSelectionLensCorrectionEditor && !Workspace.HasFilterPreview;
         selectionExposure.IsEnabled = selectionExposureOffset.IsEnabled = selectionExposureGamma.IsEnabled =
             showSelectionExposureEditor && !Workspace.HasFilterPreview;
+        selectionLevelsInputBlack.IsEnabled = selectionLevelsInputWhite.IsEnabled = selectionLevelsGamma.IsEnabled =
+            selectionLevelsOutputBlack.IsEnabled = selectionLevelsOutputWhite.IsEnabled =
+            showSelectionLevelsEditor && !Workspace.HasFilterPreview;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
         lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
@@ -1040,6 +1065,10 @@ public sealed class MainWindow : Window
             if (button.Name == "PreviewSelectionExposure")
                 button.IsEnabled = showSelectionExposureEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionExposure" or "CancelSelectionExposure")
+                button.IsEnabled = Workspace.HasFilterPreview;
+            if (button.Name == "PreviewSelectionLevels")
+                button.IsEnabled = showSelectionLevelsEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "CommitSelectionLevels" or "CancelSelectionLevels")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1342,6 +1371,15 @@ public sealed class MainWindow : Window
     }
     private Task CommitSelectionExposureAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionExposureAsync() => Task.Run(Workspace.CancelFilterPreview);
+    private Task PreviewSelectionLevelsAsync()
+    {
+        var range = new LevelRange((double)(selectionLevelsInputBlack.Value ?? 0),
+            (double)(selectionLevelsInputWhite.Value ?? 255), (double)(selectionLevelsGamma.Value ?? 1),
+            (double)(selectionLevelsOutputBlack.Value ?? 0), (double)(selectionLevelsOutputWhite.Value ?? 255));
+        return Task.Run(() => Workspace.PreviewLevelsFilter(new LevelsSettings(range, new(), new(), new())));
+    }
+    private Task CommitSelectionLevelsAsync() => Task.Run(Workspace.CommitFilterPreview);
+    private Task CancelSelectionLevelsAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task ApplyMotionBlurAdjustmentAsync()
     {
         var settings = new MotionBlurSettings((double)(motionBlurAngle.Value ?? 0),
