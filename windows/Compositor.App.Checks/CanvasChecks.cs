@@ -922,14 +922,14 @@ internal static class CanvasChecks
             Find<Button>(importDialog, "ImportFontFace").IsEffectivelyEnabled &&
             Find<Button>(importDialog, "CancelFontFace").IsEffectivelyEnabled,
             "TTC import did not expose an explicit face-index choice with cancellation.");
-        DialogClick(importDialog, "取消");
+        Find<Button>(importDialog, "CancelFontFace").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Require(WaitForTask(cancelledImport) is null && appFontLibrary.Entries.Count == 0,
             "Cancelling TTC face selection changed the font library.");
         Task<ImportedFont?> selectedImport = importWindow.ImportFontFileAsync(ttcSource);
         importDialog = WaitForDialog(importWindow);
         var importFace = Find<ComboBox>(importDialog, "FontFace");
         importFace.SelectedIndex = 1;
-        DialogClick(importDialog, "导入");
+        Find<Button>(importDialog, "ImportFontFace").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         ImportedFont importedFace = WaitForTask(selectedImport)
             ?? throw new Exception("TTC face import returned no selected face.");
         IReadOnlyList<FontFace> importedChoices = FontLibrary.EnumerateFaces(ttcSource);
@@ -1039,6 +1039,8 @@ internal static class CanvasChecks
 
     private static T Find<T>(Window window, string name) where T : Control =>
         window.GetVisualDescendants().OfType<T>().Single(control => control.Name == name);
+    private static void DialogClick(Window dialog, string label) => dialog.GetVisualDescendants().OfType<Button>()
+        .Single(button => Equals(button.Content, label)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
     private static Window WaitForDialog(Window owner)
     {
         var timer = Stopwatch.StartNew();
