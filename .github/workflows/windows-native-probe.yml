@@ -54,7 +54,7 @@ jobs:
           $devenv = Get-Item "$vs/Common7/IDE/devenv.exe" -ErrorAction Stop
           $vsMajor = $devenv.VersionInfo.ProductMajorPart
           $cmakeHelp = cmake --help | Out-String
-          $generators = [regex]::Matches($cmakeHelp, '(?m)^\s*(Visual Studio \d+ \d{4})\s+=') |
+          $generators = [regex]::Matches($cmakeHelp, '(?m)^\s*(Visual Studio \d+ \d{4})(?: \[arch\])?\s+=') |
             ForEach-Object { $_.Groups[1].Value }
           $generator = $generators | Where-Object { $_ -match "Visual Studio $vsMajor " } | Select-Object -First 1
           if (!$generator) { throw "CMake has no Visual Studio generator for installed VS major $vsMajor." }
