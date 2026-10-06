@@ -25,3 +25,5 @@ dotnet publish windows/Compositor.App/Compositor.App.csproj -c Release -r win-x6
 随后在功能提交 `d720166` 上重新发布：目录 `/tmp/compositor-win-x64-cross-paste-d720166`，224 个文件，`Compositor.App.exe` SHA-256 为 `160b12e30597bca23331fdada2830bed418efa465757e2fa52eb26622d18cace`，仍不含 `compositor_native.dll`。
 
 Windows 实机前置：在 Windows x64 使用 `windows/native/CMakeLists.txt` 构建真实 DLL，将其放入 `windows/native/runtimes/win-x64/compositor_native.dll`，记录编译器、导出表和 SHA-256，再运行 `Compositor.Smoke` 及正式窗口检查。当前仍未完成 Windows 运行、原生 ABI、DPI/IME、文件对话框和性能验收。
+
+2026-10-06 Windows native/framework probe run `37405690037` 在 native CMake configure 阶段失败：workflow 硬编码 `Visual Studio 17 2022`，而 `windows-2025` runner 没有该生成器。production core 同期使用 CMake 默认 generator 的 `-A x64` 已通过；本次 workflow 修复同时移除 native 与 Qt probe 的硬编码 `-G`，改由 runner 默认 Visual Studio generator 选择。该失败属于 CI 生成器接线，不是 native contract 测试结果；修复后的 probe run 仍需重新验收。
