@@ -597,6 +597,10 @@ internal static class Program
             session.SetLayerOpacity(crossLayerSourceId, 0.63);
             session.SetLayerBlendMode(crossLayerSourceId, "Multiply");
             session.MoveLayerTransform(crossLayerSourceId, 5, 7);
+            session.ScaleLayerTransform(crossLayerSourceId, 0.75);
+            session.RotateLayerTransform(crossLayerSourceId, 17);
+            session.FlipLayerTransform(crossLayerSourceId, true);
+            session.FlipLayerTransform(crossLayerSourceId, false);
         });
         crossLayerSource.Save();
         TileRaster crossLayerRaster = crossLayerSource.Session.GetLayerRaster(crossLayerSourceId);
@@ -627,6 +631,7 @@ internal static class Program
         FlatLayerInfo reopenedCopiedCrossLayer = reopenedCrossLayer.Layers[^1];
         Require(reopenedCopiedCrossLayer.Opacity == 0.63 && reopenedCopiedCrossLayer.BlendMode == "Multiply" &&
             reopenedCopiedCrossLayer.HasMask && !reopenedCopiedCrossLayer.MaskEnabled &&
+            reopenedCrossLayer.GetLayerTransform(reopenedCopiedCrossLayer.Id) == crossLayerTransform &&
             CheckEqualNoThrow(crossLayerRaster, reopenedCrossLayer.GetLayerRaster(reopenedCopiedCrossLayer.Id)) &&
             CheckEqualNoThrow(crossLayerMask, reopenedCrossLayer.GetLayerMask(reopenedCopiedCrossLayer.Id)!),
             "Saved cross-project layer copy did not survive reopen.");
@@ -811,6 +816,15 @@ internal static class Program
 
         var crossLayerUiSource = new EditorWorkspace();
         crossLayerUiSource.Import(fixture, Path.Combine(output, "CrossLayerUiSource.comp"));
+        Guid crossLayerUiSourceId = crossLayerUiSource.Session!.Layers[0].Id;
+        crossLayerUiSource.Edit(session =>
+        {
+            session.ScaleLayerTransform(crossLayerUiSourceId, 0.8);
+            session.RotateLayerTransform(crossLayerUiSourceId, -13);
+            session.FlipLayerTransform(crossLayerUiSourceId, true);
+            session.FlipLayerTransform(crossLayerUiSourceId, false);
+        });
+        LayerTransformInfo crossLayerUiTransform = crossLayerUiSource.Session.GetLayerTransform(crossLayerUiSourceId);
         crossLayerUiSource.Edit(session => session.AddBlankLayer("Second source layer", session.Layers.Count));
         var crossLayerUiTarget = new EditorWorkspace();
         crossLayerUiTarget.Import(fixture, Path.Combine(output, "CrossLayerUiTarget.comp"));
@@ -824,7 +838,9 @@ internal static class Program
         var crossLayerItems = crossLayerList.GetVisualDescendants().OfType<ListBoxItem>().ToArray();
         Require(crossLayerItems.Length >= 1,
             $"Cross-project drag source did not materialize its layer: visuals={crossLayerItems.Length}, layers={crossLayerUiSource.Session!.Layers.Count}, active={crossLayerWindow.ActiveProjectIndex}.");
-        Point crossLayerStart = crossLayerItems[0].TranslatePoint(new Point(20, crossLayerItems[0].Bounds.Height / 2), crossLayerWindow)!.Value;
+        ListBoxItem crossLayerItem = crossLayerItems.Single(item =>
+            (item.DataContext as FlatLayerInfo)?.Id == crossLayerUiSourceId);
+        Point crossLayerStart = crossLayerItem.TranslatePoint(new Point(20, crossLayerItem.Bounds.Height / 2), crossLayerWindow)!.Value;
         Button crossLayerTab = Control<Button>(crossLayerWindow, "ProjectTab1");
         Point crossLayerEnd = crossLayerTab.TranslatePoint(new Point(crossLayerTab.Bounds.Width / 2, crossLayerTab.Bounds.Height / 2), crossLayerWindow)!.Value;
         crossLayerWindow.MouseDown(crossLayerStart, MouseButton.Left);
@@ -833,10 +849,16 @@ internal static class Program
         Pump(crossLayerWindow);
         Require(crossLayerWindow.ActiveProjectIndex == 1 && crossLayerUiTarget.Session!.Layers.Count == 2,
             "Dragging a layer onto another project tab did not copy it into the target project.");
+        FlatLayerInfo copiedCrossLayerUi = crossLayerUiTarget.Session!.Layers[^1];
+        Require(crossLayerUiTarget.Session.GetLayerTransform(copiedCrossLayerUi.Id) == crossLayerUiTransform,
+            "Dragging a transformed flat layer did not preserve its non-destructive transform.");
         Click(crossLayerWindow, "Undo");
         Require(crossLayerUiTarget.Session!.Layers.Count == 1, "Cross-project drag copy did not undo in the target project.");
         Click(crossLayerWindow, "Redo");
         crossLayerUiTarget.Save();
+        var reopenedCrossLayerUiTarget = ImageProjectWorkflow.OpenEditable(Path.Combine(output, "CrossLayerUiTarget.comp"));
+        Require(reopenedCrossLayerUiTarget.GetLayerTransform(reopenedCrossLayerUiTarget.Layers[^1].Id) == crossLayerUiTransform,
+            "Saved transformed layer drag copy did not reopen with its transform.");
         crossLayerWindow.Close(); Dispatcher.UIThread.RunJobs();
 
         var crossGroupUiSource = new EditorWorkspace();
