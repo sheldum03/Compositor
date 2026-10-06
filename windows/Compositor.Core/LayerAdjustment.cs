@@ -36,6 +36,44 @@ public sealed record ExposureSettings(double Exposure = 0, double Offset = 0, do
     };
 }
 
+public sealed record HueSaturationSettings(double Hue = 0, double Saturation = 0,
+    double Lightness = 0, bool Colorize = false)
+{
+    public bool IsValid => double.IsFinite(Hue) && Hue is >= -360 and <= 360 &&
+        double.IsFinite(Saturation) && Saturation is >= -100 and <= 100 &&
+        double.IsFinite(Lightness) && Lightness is >= -100 and <= 100;
+
+    public bool IsIdentity => !Colorize && Hue == 0 && Saturation == 0 && Lightness == 0;
+
+    public static bool TryRead(JsonNode? node, out HueSaturationSettings settings)
+    {
+        settings = new HueSaturationSettings();
+        if (node is null) return true;
+        try
+        {
+            var value = node.AsObject();
+            settings = new HueSaturationSettings(
+                value["hue"]?.GetValue<double>() ?? 0,
+                value["saturation"]?.GetValue<double>() ?? 0,
+                value["lightness"]?.GetValue<double>() ?? 0,
+                value["colorize"]?.GetValue<bool>() ?? false);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new()
+    {
+        ["hue"] = Hue,
+        ["saturation"] = Saturation,
+        ["lightness"] = Lightness,
+        ["colorize"] = Colorize
+    };
+}
+
 public sealed record LevelRange(double InputBlack = 0, double InputWhite = 255, double Gamma = 1,
     double OutputBlack = 0, double OutputWhite = 255)
 {

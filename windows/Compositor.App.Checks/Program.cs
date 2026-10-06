@@ -124,6 +124,24 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the levels adjustment transaction.");
+        TileRaster hueSaturationBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddHueSaturationAdjustment");
+        FlatLayerInfo hueSaturationLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == hueSaturationLayer.Id &&
+            Control<Button>(window, "ApplyHueSaturationAdjustment").IsEffectivelyEnabled,
+            "Hue/Saturation adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "AdjustmentHue").Value = 60;
+        Control<NumericUpDown>(window, "AdjustmentSaturation").Value = 25;
+        Control<NumericUpDown>(window, "AdjustmentLightness").Value = 10;
+        Click(window, "ApplyHueSaturationAdjustment");
+        HueSaturationSettings appliedHueSaturation = workspace.Session.GetHueSaturationAdjustment(hueSaturationLayer.Id);
+        Require(appliedHueSaturation == new HueSaturationSettings(60, 25, 10),
+            "Hue/Saturation adjustment controls did not commit the master range.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyHueSaturation(hueSaturationBase, appliedHueSaturation));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Hue/Saturation adjustment transaction.");
         Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");

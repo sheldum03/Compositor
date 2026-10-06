@@ -60,6 +60,11 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown levelsOutputBlack = new() { Name = "LevelsOutputBlack", Minimum = 0, Maximum = 255, Value = 0, Width = 62 };
     private readonly NumericUpDown levelsOutputWhite = new() { Name = "LevelsOutputWhite", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
     private readonly StackPanel levelsAdjustmentEditor = new() { Name = "LevelsAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown adjustmentHue = new() { Name = "AdjustmentHue", Minimum = -360, Maximum = 360, Value = 0, Width = 70 };
+    private readonly NumericUpDown adjustmentSaturation = new() { Name = "AdjustmentSaturation", Minimum = -100, Maximum = 100, Value = 0, Width = 70 };
+    private readonly NumericUpDown adjustmentLightness = new() { Name = "AdjustmentLightness", Minimum = -100, Maximum = 100, Value = 0, Width = 70 };
+    private readonly CheckBox adjustmentColorize = new() { Name = "AdjustmentColorize", Content = "着色" };
+    private readonly StackPanel hueSaturationAdjustmentEditor = new() { Name = "HueSaturationAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -183,6 +188,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddBoxTextLayer", "新增框文字", AddBoxTextLayerAsync, document: true));
         structure.Children.Add(Command("AddExposureAdjustment", "新增曝光调整", AddExposureAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddLevelsAdjustment", "新增色阶调整", AddLevelsAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddHueSaturationAdjustment", "新增色相/饱和度", AddHueSaturationAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -263,6 +269,15 @@ public sealed class MainWindow : Window
         levelsAdjustmentEditor.Children.Add(levelsOutputWhite);
         levelsAdjustmentEditor.Children.Add(Command("ApplyLevelsAdjustment", "应用色阶", ApplyLevelsAdjustmentAsync, layer: true));
         actions.Children.Add(levelsAdjustmentEditor);
+        hueSaturationAdjustmentEditor.Children.Add(new TextBlock { Text = "色相", VerticalAlignment = VerticalAlignment.Center });
+        hueSaturationAdjustmentEditor.Children.Add(adjustmentHue);
+        hueSaturationAdjustmentEditor.Children.Add(new TextBlock { Text = "饱和度", VerticalAlignment = VerticalAlignment.Center });
+        hueSaturationAdjustmentEditor.Children.Add(adjustmentSaturation);
+        hueSaturationAdjustmentEditor.Children.Add(new TextBlock { Text = "明度", VerticalAlignment = VerticalAlignment.Center });
+        hueSaturationAdjustmentEditor.Children.Add(adjustmentLightness);
+        hueSaturationAdjustmentEditor.Children.Add(adjustmentColorize);
+        hueSaturationAdjustmentEditor.Children.Add(Command("ApplyHueSaturationAdjustment", "应用色相/饱和度", ApplyHueSaturationAdjustmentAsync, layer: true));
+        actions.Children.Add(hueSaturationAdjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -658,6 +673,7 @@ public sealed class MainWindow : Window
         TextLayerMetadata? text = null;
         ExposureSettings? exposure = null;
         LevelsSettings? levels = null;
+        HueSaturationSettings? hueSaturation = null;
         refreshing = true;
         try
         {
@@ -683,6 +699,8 @@ public sealed class MainWindow : Window
                 exposure = Workspace.Session!.GetExposureAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Levels")
                 levels = Workspace.Session!.GetLevelsAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Hue/Saturation")
+                hueSaturation = Workspace.Session!.GetHueSaturationAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -692,6 +710,10 @@ public sealed class MainWindow : Window
             levelsGamma.Value = (decimal)rgb.Gamma;
             levelsOutputBlack.Value = (decimal)rgb.OutputBlack;
             levelsOutputWhite.Value = (decimal)rgb.OutputWhite;
+            adjustmentHue.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Hue;
+            adjustmentSaturation.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Saturation;
+            adjustmentLightness.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Lightness;
+            adjustmentColorize.IsChecked = hueSaturation?.Colorize == true;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -711,11 +733,16 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit;
         bool showLevelsEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Levels" &&
             !multiple && Workspace.CanEdit;
+        bool showHueSaturationEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Hue/Saturation" &&
+            !multiple && Workspace.CanEdit;
         adjustmentEditor.IsVisible = showExposureEditor;
         levelsAdjustmentEditor.IsVisible = showLevelsEditor;
+        hueSaturationAdjustmentEditor.IsVisible = showHueSaturationEditor;
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
             levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
+        adjustmentHue.IsEnabled = adjustmentSaturation.IsEnabled = adjustmentLightness.IsEnabled =
+            adjustmentColorize.IsEnabled = showHueSaturationEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -747,6 +774,11 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyLevelsAdjustment")
                 button.IsEnabled = showLevelsEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddHueSaturationAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyHueSaturationAdjustment")
+                button.IsEnabled = showHueSaturationEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -911,6 +943,7 @@ public sealed class MainWindow : Window
     private Task AddBoxTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer("文字", box: true));
     private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
     private Task AddLevelsAdjustmentAsync() => Task.Run(() => Workspace.AddLevelsAdjustment());
+    private Task AddHueSaturationAdjustmentAsync() => Task.Run(() => Workspace.AddHueSaturationAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
@@ -923,6 +956,13 @@ public sealed class MainWindow : Window
             (double)(levelsInputWhite.Value ?? 255), (double)(levelsGamma.Value ?? 1),
             (double)(levelsOutputBlack.Value ?? 0), (double)(levelsOutputWhite.Value ?? 255));
         return Task.Run(() => Workspace.ApplyActiveLevelsAdjustment(new LevelsSettings(range, new(), new(), new())));
+    }
+    private Task ApplyHueSaturationAdjustmentAsync()
+    {
+        var settings = new HueSaturationSettings((double)(adjustmentHue.Value ?? 0),
+            (double)(adjustmentSaturation.Value ?? 0), (double)(adjustmentLightness.Value ?? 0),
+            adjustmentColorize.IsChecked == true);
+        return Task.Run(() => Workspace.ApplyActiveHueSaturationAdjustment(settings));
     }
     private Task DuplicateLayerAsync()
     {

@@ -183,6 +183,7 @@ CheckNewCanvas(output);
 CheckLayerSelection(output);
 CheckExposureAdjustment(output);
 CheckLevelsAdjustment(output);
+CheckHueSaturationAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1532,6 +1533,41 @@ static void CheckLevelsAdjustment(string output)
         throw new Exception("Levels adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Levels adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckHueSaturationAdjustment(string output)
+{
+    string project = Path.Combine(output, "HueSaturationAdjustment.comp");
+    var session = ProjectSession.CreateBlank(2, 1);
+    TileRaster source = new TileRaster(2, 1).ReplaceTile(0, 0,
+        [32, 16, 8, 128, 100, 40, 20, 255]);
+    session.ReplaceRaster(source);
+    var settings = new HueSaturationSettings(60, 25, 10);
+    Guid adjustmentId = session.AddHueSaturationAdjustment("Hue/Saturation", settings, 1);
+    if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
+        session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Hue/Saturation" ||
+        session.GetHueSaturationAdjustment(adjustmentId) != settings)
+        throw new Exception("Hue/Saturation adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyHueSaturation(source, settings);
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    if (Pixel(expected, 0, 0)[3] != Pixel(source, 0, 0)[3])
+        throw new Exception("Hue/Saturation adjustment changed alpha.");
+
+    var changedSettings = new HueSaturationSettings(0, 0, 0, true);
+    session.SetHueSaturationAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyHueSaturation(source, changedSettings), changed);
+    if (!session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Hue/Saturation adjustment did not participate in undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Hue/Saturation")
+        throw new Exception("Hue/Saturation adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Hue/Saturation adjustment layer metadata, premultiplied pixels, history and save/reopen");
 }
 
 static void CloneProject(string source, string destination)

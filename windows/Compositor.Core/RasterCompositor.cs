@@ -75,6 +75,91 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyHueSaturation(TileRaster image, HueSaturationSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            for (int pixel = 0; pixel < pixels.Length; pixel += 4)
+            {
+                int alpha = pixels[pixel + 3];
+                if (alpha == 0) continue;
+                double red = pixels[pixel] / (double)alpha;
+                double green = pixels[pixel + 1] / (double)alpha;
+                double blue = pixels[pixel + 2] / (double)alpha;
+                (double hue, double saturation, double lightness) = ToHsl(red, green, blue);
+                double lightnessAmount;
+                if (settings.Colorize)
+                {
+                    hue = WrapHue(settings.Hue);
+                    saturation = Math.Clamp(settings.Saturation / 100, 0, 1);
+                    lightnessAmount = settings.Lightness / 100;
+                }
+                else
+                {
+                    hue = WrapHue(hue + settings.Hue);
+                    saturation = Math.Clamp(saturation * (1 + settings.Saturation / 100), 0, 1);
+                    lightnessAmount = settings.Lightness / 100;
+                }
+                double amount = Math.Clamp(lightnessAmount, -1, 1);
+                lightness = amount >= 0
+                    ? lightness + (1 - lightness) * amount
+                    : lightness * (1 + amount);
+                (red, green, blue) = ToRgb(hue, saturation, Math.Clamp(lightness, 0, 1));
+                pixels[pixel] = (byte)Math.Clamp(Math.Round(red * alpha, MidpointRounding.AwayFromZero), 0, alpha);
+                pixels[pixel + 1] = (byte)Math.Clamp(Math.Round(green * alpha, MidpointRounding.AwayFromZero), 0, alpha);
+                pixels[pixel + 2] = (byte)Math.Clamp(Math.Round(blue * alpha, MidpointRounding.AwayFromZero), 0, alpha);
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+
+        static double WrapHue(double hue)
+        {
+            double wrapped = hue % 360;
+            return wrapped < 0 ? wrapped + 360 : wrapped;
+        }
+
+        static (double Hue, double Saturation, double Lightness) ToHsl(double red, double green, double blue)
+        {
+            double high = Math.Max(red, Math.Max(green, blue));
+            double low = Math.Min(red, Math.Min(green, blue));
+            double lightness = (high + low) / 2;
+            double delta = high - low;
+            if (delta <= 0) return (0, 0, lightness);
+            double saturation = delta / (1 - Math.Abs(2 * lightness - 1));
+            double hue = high == red ? (green - blue) / delta
+                : high == green ? (blue - red) / delta + 2
+                : (red - green) / delta + 4;
+            hue *= 60;
+            if (hue < 0) hue += 360;
+            return (hue, Math.Clamp(saturation, 0, 1), lightness);
+        }
+
+        static (double Red, double Green, double Blue) ToRgb(double hue, double saturation, double lightness)
+        {
+            if (saturation <= 0) return (lightness, lightness, lightness);
+            double chroma = (1 - Math.Abs(2 * lightness - 1)) * saturation;
+            double sector = hue / 60;
+            double second = chroma * (1 - Math.Abs(sector % 2 - 1));
+            double baseValue = lightness - chroma / 2;
+            var rgb = (Red: chroma, Green: 0d, Blue: 0d);
+            switch ((int)sector)
+            {
+                case 1: rgb = (second, chroma, 0); break;
+                case 2: rgb = (0, chroma, second); break;
+                case 3: rgb = (0, second, chroma); break;
+                case 4: rgb = (second, 0, chroma); break;
+                case 5: rgb = (chroma, 0, second); break;
+            }
+            return (Math.Clamp(rgb.Red + baseValue, 0, 1), Math.Clamp(rgb.Green + baseValue, 0, 1),
+                Math.Clamp(rgb.Blue + baseValue, 0, 1));
+        }
+    }
+
     public static TileRaster ApplyMask(TileRaster image, GrayTileRaster mask)
     {
         if (image.Width != mask.Width || image.Height != mask.Height)

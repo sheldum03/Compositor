@@ -729,6 +729,19 @@ public sealed class ProjectSession
         return InsertAdjustmentLayer(layer, destinationIndex);
     }
 
+    public Guid AddHueSaturationAdjustment(string name, HueSaturationSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Hue/Saturation",
+            ["hueSaturationSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
     public ExposureSettings GetExposureAdjustment(Guid layerId)
     {
         int index = FindLayer(layerId);
@@ -778,6 +791,32 @@ public sealed class ProjectSession
         if (GetLevelsAdjustment(layerId) == settings) return;
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["adjustment"]!["levelsSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    public HueSaturationSettings GetHueSaturationAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Hue/Saturation" ||
+            !HueSaturationSettings.TryRead(adjustment["hueSaturationSettings"], out var settings))
+            throw new NotSupportedException("Only Hue/Saturation adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetHueSaturationAdjustment(Guid layerId, HueSaturationSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Hue/Saturation")
+            throw new NotSupportedException("Only Hue/Saturation adjustment layers are supported in this slice.");
+        if (GetHueSaturationAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["hueSaturationSettings"] = settings.ToJson();
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
