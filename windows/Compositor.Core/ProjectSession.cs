@@ -374,6 +374,29 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public bool CanMoveLayerTo(Guid layerId, int destinationIndex)
+    {
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8 || HasGroups ||
+            snapshots[cursor].LayerRasters is null) return false;
+        try { _ = ValidateLayerMoveTo(layerId, destinationIndex); return true; }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or NotSupportedException)
+        { return false; }
+    }
+
+    public void MoveLayerTo(Guid layerId, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        var plan = ValidateLayerMoveTo(layerId, destinationIndex);
+        if (destinationIndex >= plan.StackIndexes[0] && destinationIndex <= plan.StackIndexes[^1]) return;
+        var next = (JsonObject)Current.DeepClone();
+        var reordered = next["layers"]!.AsArray();
+        var stackNodes = plan.StackIndexes.Select(index => reordered[index]!.DeepClone()).ToArray();
+        foreach (int index in plan.StackIndexes.Reverse()) reordered.RemoveAt(index);
+        int insertion = plan.Insertion;
+        foreach (JsonNode? node in stackNodes) reordered.Insert(insertion++, node);
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     private (int SourceIndex, int[] StackIndexes, int Insertion) ValidateLayerMove(Guid layerId, int destinationIndex)
     {
         var layers = Current["layers"]!.AsArray();
@@ -398,6 +421,38 @@ public sealed class ProjectSession
             throw new NotSupportedException("剪贴栈必须保持连续才能移动。");
         int direction = Math.Sign(destinationIndex - sourceIndex);
         int insertion = direction > 0 ? stackIndexes[0] + 1 : stackIndexes[0] - 1;
+        int remainingCount = layers.Count - stackIndexes.Length;
+        if (insertion < 0 || insertion > remainingCount)
+            throw new NotSupportedException("剪贴栈不能移出画布边界。");
+        return (sourceIndex, stackIndexes, insertion);
+    }
+
+    private (int SourceIndex, int[] StackIndexes, int Insertion) ValidateLayerMoveTo(Guid layerId, int destinationIndex)
+    {
+        var layers = Current["layers"]!.AsArray();
+        if ((uint)destinationIndex >= layers.Count) throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        int sourceIndex = FindLayer(layerId);
+        var stackIds = new HashSet<Guid> { layerId };
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (FlatLayerInfo layer in Layers)
+            {
+                if (layer.MaskSourceId is { } sourceId && stackIds.Contains(sourceId) && stackIds.Add(layer.Id))
+                    changed = true;
+                if (stackIds.Contains(layer.Id) && layer.MaskSourceId is { } parentId && stackIds.Add(parentId))
+                    changed = true;
+            }
+        } while (changed);
+        int[] stackIndexes = stackIds.Select(FindLayer).OrderBy(index => index).ToArray();
+        if (stackIndexes[^1] - stackIndexes[0] + 1 != stackIndexes.Length)
+            throw new NotSupportedException("剪贴栈必须保持连续才能移动。");
+        if (destinationIndex >= stackIndexes[0] && destinationIndex <= stackIndexes[^1])
+            return (sourceIndex, stackIndexes, stackIndexes[0]);
+        int insertion = destinationIndex < stackIndexes[0]
+            ? destinationIndex
+            : destinationIndex - stackIndexes.Length + 1;
         int remainingCount = layers.Count - stackIndexes.Length;
         if (insertion < 0 || insertion > remainingCount)
             throw new NotSupportedException("剪贴栈不能移出画布边界。");

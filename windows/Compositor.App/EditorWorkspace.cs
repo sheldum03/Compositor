@@ -128,6 +128,21 @@ public sealed class EditorWorkspace
         return index >= 0 && Session.CanMoveLayer(layerId, index + offset);
     }
 
+    public bool CanMoveLayerTo(Guid layerId, int destinationIndex)
+    {
+        return Session is not null && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
+            Session.CanMoveLayerTo(layerId, destinationIndex);
+    }
+
+    public void MoveLayerTo(Guid layerId, int destinationIndex)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (!session.CanMoveLayerTo(layerId, destinationIndex))
+            throw new NotSupportedException("当前工程不支持该图层拖放位置。");
+        Edit(current => current.MoveLayerTo(layerId, destinationIndex));
+    }
+
     public void MergeSelectedLayers(IReadOnlyList<Guid> layerIds)
     {
         RequireIdle();

@@ -3,10 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 using Compositor.Core;
 using Compositor.Imaging;
 
@@ -56,6 +58,9 @@ public sealed class MainWindow : Window
     private int activeProjectIndex;
     private bool refreshing, allowClose;
     private EditorWorkspace? clipboardProject;
+    private FlatLayerInfo? draggingLayer;
+    private Point layerDragStart;
+    private bool draggingLayers;
     public EditorWorkspace Workspace => projects[activeProjectIndex];
     public int ProjectCount => projects.Count;
     public int ActiveProjectIndex => activeProjectIndex;
@@ -211,6 +216,39 @@ public sealed class MainWindow : Window
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
+        layers.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
+        {
+            draggingLayer = LayerFromVisual(e.Source as Visual);
+            layerDragStart = e.GetPosition(layers);
+            draggingLayers = false;
+        }, RoutingStrategies.Tunnel);
+        layers.AddHandler(InputElement.PointerMovedEvent, (_, e) =>
+        {
+            if (draggingLayer is null || draggingLayers) return;
+            Point current = e.GetPosition(layers);
+            if (Math.Abs(current.X - layerDragStart.X) < 6 && Math.Abs(current.Y - layerDragStart.Y) < 6) return;
+            if (!Workspace.CanMoveLayerTo(draggingLayer.Id,
+                    Workspace.Session?.Layers.ToList().FindIndex(layer => layer.Id == draggingLayer.Id) ?? -1))
+            {
+                draggingLayer = null;
+                return;
+            }
+            draggingLayers = true;
+            e.Pointer.Capture(layers);
+            e.Handled = true;
+        }, RoutingStrategies.Tunnel);
+        layers.AddHandler(InputElement.PointerReleasedEvent, (_, e) =>
+        {
+            if (!draggingLayers || draggingLayer is null) { draggingLayer = null; return; }
+            FlatLayerInfo source = draggingLayer;
+            Point position = e.GetPosition(layers);
+            FlatLayerInfo? target = LayerFromVisual(layers.InputHitTest(position) as Visual);
+            draggingLayer = null; draggingLayers = false; e.Pointer.Capture(null); e.Handled = true;
+            if (target is null || target.Id == source.Id || Workspace.Session is not { } session) return;
+            int destination = session.Layers.ToList().FindIndex(layer => layer.Id == target.Id);
+            if (destination >= 0 && Workspace.CanMoveLayerTo(source.Id, destination))
+                _ = ExecuteAsync(() => MoveLayerToAsync(source.Id, destination));
+        }, RoutingStrategies.Tunnel);
         layerBlendMode.ItemsSource = ProjectSession.SupportedBlendModes;
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
@@ -819,6 +857,12 @@ public sealed class MainWindow : Window
             if (destination >= 0 && destination < s.Layers.Count) s.MoveLayer(id, destination);
         });
     }
+    private Task MoveLayerToAsync(Guid layerId, int destinationIndex) =>
+        Task.Run(() => Workspace.MoveLayerTo(layerId, destinationIndex));
+
+    private static FlatLayerInfo? LayerFromVisual(Visual? visual) =>
+        visual?.GetSelfAndVisualAncestors().OfType<ListBoxItem>()
+            .Select(item => item.DataContext).OfType<FlatLayerInfo>().FirstOrDefault();
 
     private async Task<bool> ConfirmDiscardAsync()
     {

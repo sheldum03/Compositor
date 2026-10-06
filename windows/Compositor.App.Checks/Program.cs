@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -428,6 +429,41 @@ internal static class Program
             CheckEqualNoThrow(clipboardLayer, reopenedClipboard.GetLayerRaster(reopenedClipboard.Layers[^1].Id)),
             "Saved system clipboard layer did not survive reopen.");
 
+        string dragProjectPath = Path.Combine(output, "LayerDrag.comp");
+        var dragWorkspace = new EditorWorkspace();
+        dragWorkspace.Import(fixture, dragProjectPath);
+        dragWorkspace.Edit(session =>
+        {
+            session.AddBlankLayer("Drag A", session.Layers.Count);
+            session.AddBlankLayer("Drag B", session.Layers.Count);
+            session.AddBlankLayer("Drag C", session.Layers.Count);
+        });
+        var dragWindow = new MainWindow(dragWorkspace);
+        dragWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var dragItems = Control<ListBox>(dragWindow, "Layers").GetVisualDescendants().OfType<ListBoxItem>().ToArray();
+        Require(dragItems.Length == dragWorkspace.Session!.Layers.Count,
+            "Layer list did not materialize all draggable items.");
+        FlatLayerInfo dragSource = (FlatLayerInfo)dragItems[0].DataContext!;
+        FlatLayerInfo dragTarget = (FlatLayerInfo)dragItems[^1].DataContext!;
+        Point dragStart = dragItems[0].TranslatePoint(new Point(20, dragItems[0].Bounds.Height / 2), dragWindow)!.Value;
+        Point dragEnd = dragItems[^1].TranslatePoint(new Point(20, dragItems[^1].Bounds.Height / 2), dragWindow)!.Value;
+        dragWindow.MouseDown(dragStart, MouseButton.Left);
+        dragWindow.MouseMove(new Point(dragStart.X, dragEnd.Y - 4));
+        dragWindow.MouseUp(dragEnd, MouseButton.Left);
+        Pump(dragWindow);
+        Require(dragWorkspace.Session.Layers[0].Id == dragSource.Id &&
+            dragWorkspace.Session.Layers[1].Id == dragTarget.Id,
+            $"Dragging a layer to the bottom did not reorder the layer list: source={dragSource.Name}, target={dragTarget.Name}, order={string.Join(",", dragWorkspace.Session.Layers.Select(layer => layer.Name))}, dirty={dragWorkspace.IsDirty}.");
+        Click(dragWindow, "Undo");
+        Require(dragWorkspace.Session.Layers[^1].Id == dragSource.Id,
+            "Undo did not restore the layer order after drag and drop.");
+        Click(dragWindow, "Redo");
+        dragWorkspace.Save();
+        dragWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var reopenedDrag = ImageProjectWorkflow.OpenEditable(dragProjectPath);
+        Require(reopenedDrag.Layers[0].Id == dragSource.Id && reopenedDrag.Layers[1].Id == dragTarget.Id,
+            "Saved layer drag order did not survive reopen.");
+
         var discard = new MainWindow(workspace);
         discard.Show(); Dispatcher.UIThread.RunJobs();
         Control<TextBox>(discard, "LayerName").Text = "Discard me";
@@ -516,7 +552,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
