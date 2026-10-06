@@ -26,7 +26,7 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix passed on `f16ca02`: [run 37415418695](https://github.com/sheldum03/Compositor/actions/runs/37415418695) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, available-font text editor regressions, and the style controls; the Workflow case includes the persistent font library, UTF-16 hit-test contract, and style metadata history checks.
+The Windows production core matrix passed on `6ca6c58`: [run 37415706317](https://github.com/sheldum03/Compositor/actions/runs/37415706317) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text and box-text creation, missing-font read-only preview, available-font text editor regressions, and the style controls; the Workflow case includes the persistent font library, UTF-16 hit-test contract, transform-aware hit tests, and style metadata history checks.
 
 ## Editor and font library slice
 
@@ -36,6 +36,7 @@ The Windows production core matrix passed on `f16ca02`: [run 37415418695](https:
 - `0fb2fcd` adds a second formal entry for box text, with a bounded width and the same initial redraw, editing, history, and save/reopen path. Headless checks cover both creation buttons and grouped-project protection.
 - `12fabb4` adds a small Skia line-layout hit-test contract. It returns a stable UTF-16 content offset, line index, and inside/outside result for point and bounded box text; checks cover an English point layout plus Chinese, Emoji, combining-mark, and wrapped box content.
 - `f16ca02` exposes the existing v8 color, line-spacing, tracking, and box-width fields in the formal window. One Apply action redraws and commits the full style transaction; App and Workflow checks cover the visible controls, bounded width, and undo/redo metadata equality.
+- `6ca6c58` adds a transform-aware hit-test overload. It maps document coordinates through layer origin, scale, rotation, and horizontal/vertical flips before using the same local layout; fixed checks cover a mirrored point and a 90° rotated point.
 - Local App/Workflow checks passed after these changes. The Windows production run above passed all five jobs, including the editor UI and font-library regressions.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
