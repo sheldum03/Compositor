@@ -789,7 +789,7 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
     var chainedSession = ImageProjectWorkflow.OpenEditable(chainedSource);
     Guid chainedSourceBaseId = chainedSession.Layers.Single().Id;
     var chainedSourceIds = new List<Guid> { chainedSourceBaseId };
-    for (int level = 6; level >= 1; level--)
+    for (int level = 7; level >= 1; level--)
         chainedSourceIds.Add(chainedSession.AddBlankLayer($"Intermediate clipped source {level}", chainedSession.Layers.Count));
     Guid chainedTargetId = chainedSession.AddBlankLayer("Cross-parent chain target", chainedSession.Layers.Count);
     foreach (Guid chainSourceId in chainedSourceIds.Skip(1))
@@ -820,7 +820,7 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
         chainedSession.GetLayerRaster(chainedTargetId), expectedChained, 1);
     if (!ImageProjectWorkflow.CanRenderLayerForCopy(chainedSession, chainedTargetId) ||
         !ImageProjectWorkflow.GroupedLayerCopyRequiresRootInsertion(chainedSession, chainedTargetId))
-        throw new Exception("A cross-parent seven-level clipping target was not enabled.");
+        throw new Exception("A cross-parent eight-level clipping target was not enabled.");
     TileRaster actualChained = ImageProjectWorkflow.RenderLayerForCopy(chainedSession, chainedTargetId);
     AssertRaster(expectedChained, actualChained);
     int chainedGroupIndex = chainedSession.Layers.ToList().FindIndex(layer => layer.Id == chainedTargetGroupId);
@@ -834,18 +834,18 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
     for (int level = 1; level < chainedSourceIds.Count; level++)
         if (reopenedChained.Layers.Single(layer => layer.Id == chainedSourceIds[level]).MaskSourceId !=
             chainedSourceIds[level - 1])
-            throw new Exception("Saved cross-parent seven-level clipping copy lost a source relationship.");
+            throw new Exception("Saved cross-parent eight-level clipping copy lost a source relationship.");
     for (int level = 0; level < chainedSourceIds.Count; level++)
         if (reopenedChained.Layers.Single(layer => layer.Id == chainedSourceIds[level]).ParentId !=
             chainedSourceGroupIds[level])
-            throw new Exception("Saved cross-parent seven-level clipping copy lost a source parent.");
+            throw new Exception("Saved cross-parent eight-level clipping copy lost a source parent.");
     if (reopenedChained.Layers.Single(layer => layer.Id == chainedTargetId).MaskSourceId != chainedSourceIds[^1] ||
         reopenedChained.Layers.Single(layer => layer.Id == chainedCopiedId).ParentId is not null)
-        throw new Exception("Saved cross-parent seven-level clipping copy lost its relationships or root placement.");
+        throw new Exception("Saved cross-parent eight-level clipping copy lost its relationships or root placement.");
     AssertRaster(expectedChained, reopenedChained.GetLayerRaster(chainedCopiedId));
     Console.WriteLine("PASS: cross-parent grouped clipping visible-result copy preserves root insertion, relationship and save/reopen");
     Console.WriteLine("PASS: cross-parent grouped clipping copy composes external group transform, mask and appearance");
-    Console.WriteLine("PASS: cross-parent grouped clipping copy composes a seven-level external clipping chain");
+    Console.WriteLine("PASS: cross-parent grouped clipping copy composes an eight-level external clipping chain");
 
     static void ConfigureExternalSourceGroup(ProjectSession session, Guid groupId)
     {
