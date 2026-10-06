@@ -131,13 +131,22 @@ internal static class NewDocumentChecks
         Click("Undo");
         Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
             "Undo did not restore the saved canvas dimensions.");
+        var expectedLanczos = new EditorWorkspace();
+        expectedLanczos.Open(saved);
+        Guid expectedLayerId = expectedLanczos.Session!.ActiveLayerId!.Value;
+        expectedLanczos.ResizeImage(130, 129, ResizeFilter.Lanczos3);
+        byte[] expectedLanczosPixels = Pixels(expectedLanczos.Session.GetLayerRaster(expectedLayerId));
         Begin("ImageSize");
         resizeDialog = window.OwnedWindows.Single();
         Find<NumericUpDown>(resizeDialog, "ResizeWidth").Value = 130;
         Find<NumericUpDown>(resizeDialog, "ResizeHeight").Value = 129;
+        Require(Find<ComboBox>(resizeDialog, "ResizeFilter").IsEffectivelyEnabled,
+            "Image size dialog did not enable the resampling algorithm selector.");
+        Find<ComboBox>(resizeDialog, "ResizeFilter").SelectedIndex = 1;
         DialogClick(resizeDialog, "应用"); Pump(window);
-        Require(workspace.Session.Width == 130 && workspace.Session.Height == 129 && workspace.IsDirty,
-            "Image size dialog did not commit the requested dimensions.");
+        Require(workspace.Session.Width == 130 && workspace.Session.Height == 129 && workspace.IsDirty &&
+            Pixels(workspace.Session.GetLayerRaster(workspace.Session.ActiveLayerId!.Value)).SequenceEqual(expectedLanczosPixels),
+            "Image size dialog did not apply the selected Lanczos3 resampling path.");
         Click("Undo");
         Require(workspace.Session.Width == 259 && workspace.Session.Height == 257 && !workspace.IsDirty,
             "Undo did not restore the saved image dimensions.");

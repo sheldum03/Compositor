@@ -980,7 +980,6 @@ public sealed class EditorWorkspace
 
     public void ResizeImage(int width, int height) => ResizeDocument(width, height, scale: true, ResizeFilter.Bilinear);
 
-    // Internal verification entry point; the production window still uses the existing bilinear path.
     internal void ResizeImage(int width, int height, ResizeFilter filter) => ResizeDocument(width, height, scale: true, filter);
 
     public void RotateDocument90(bool clockwise) {
