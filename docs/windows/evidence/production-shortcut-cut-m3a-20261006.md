@@ -1,7 +1,9 @@
 # Production `Ctrl+X` shortcut evidence
 
-日期：2026-10-06  
-实现提交：待提交（`MainWindow` shortcut wiring）  
+日期：2026-10-06
+
+实现提交：`3d8087c`（`MainWindow` shortcut wiring）
+
 检查入口：`windows/Compositor.App.Checks`
 
 ## 范围
