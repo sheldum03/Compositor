@@ -7,13 +7,13 @@ This evidence closes the bounded import-dialog slice of W-024. It does not close
 - `FontLibrary.EnumerateFaces` probes the selected OTF/TTF/TTC file through Skia and exposes each valid face index with its family identity.
 - A multi-face file opens an explicit Avalonia dialog. The user can select one face or cancel; cancel leaves the catalog and current selection unchanged.
 - Only the selected face index is passed to `FontLibrary.Import`. Existing temporary-file validation, same-family/face conflict rejection, hash-based recovery, deduplication, and imported `family / face N` selection tokens remain in force.
-- The formal window selects the imported token after a successful import, so the selected face survives subsequent text editing and save/reopen.
+- The formal window selects the imported token after a successful import, so the selected face survives subsequent text editing and save/reopen. The macOS Headless runtime used for local checks did not expose a second face for the bundled or system TTC candidates; that branch is recorded as skipped locally while the Windows App job above exercised it.
 
 ## Regression evidence
 
 `Compositor.Workflow.Checks` verifies that the repository TTC fixture exposes distinct face indexes and selection names. `Compositor.App.Checks` opens the formal dialog, verifies the explicit face selector and cancel button, checks that cancellation does not add a catalog entry, selects face index 1, and verifies the resulting token and catalog entry.
 
-The Windows production core matrix passed on the implementation commit [`0bd53f0`](https://github.com/sheldum03/Compositor/commit/0bd53f04ec79c74914a2ac0f211375c64ef6f85b): [run 37427881406](https://github.com/sheldum03/Compositor/actions/runs/37427881406) and [run 37427886072](https://github.com/sheldum03/Compositor/actions/runs/37427886072) both passed Smoke, Imaging, Workflow, SaveCrash, and App. The first attempt [`3819246`](https://github.com/sheldum03/Compositor/commit/38192468ae664cdfd3b0a577abf2d365b3e100f6) exposed a missing test helper; `0bd53f0` supplied that helper and moved the App fixture lookup to the repository TTC fixture so the check is deterministic on Windows.
+The Windows production core matrix passed on the final evidence commit [`6d4d85a`](https://github.com/sheldum03/Compositor/commit/6d4d85ae1768395dfaae42f0c2f3a0bf8394fab0): [run 37428393383](https://github.com/sheldum03/Compositor/actions/runs/37428393383) passed Smoke, Imaging, Workflow, SaveCrash, and App. The prior implementation run [`37427886072`](https://github.com/sheldum03/Compositor/actions/runs/37427886072) also passed the full matrix. The first attempt [`3819246`](https://github.com/sheldum03/Compositor/commit/38192468ae664cdfd3b0a577abf2d365b3e100f6) exposed a missing test helper; `0bd53f0` supplied that helper and moved the App fixture lookup to the repository TTC fixture so the check is deterministic on Windows.
 
 ## Deliberately not covered
 
