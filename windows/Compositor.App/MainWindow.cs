@@ -1334,7 +1334,7 @@ public sealed class MainWindow : Window
         var face = new ComboBox
         {
             Name = "FontFace", Width = 360, SelectedIndex = 0,
-            ItemsSource = faces.Select(item => $"{item.SelectionName}（{item.FamilyName}）").ToArray()
+            ItemsSource = faces.Select(item => $"{item.SelectionName}（face-index {item.FaceIndex}，{item.FamilyName}）").ToArray()
         };
         var import = new Button { Name = "ImportFontFace", Content = "导入" };
         var cancel = new Button { Name = "CancelFontFace", Content = "取消" };
