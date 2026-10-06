@@ -148,13 +148,14 @@ internal static class Program
         Require(workspace.Session.ActiveLayerId == curvesLayer.Id &&
             Control<Button>(window, "ApplyCurvesAdjustment").IsEffectivelyEnabled,
             "Curves adjustment button did not create an editable active adjustment layer.");
+        Control<ComboBox>(window, "CurvesChannel").SelectedIndex = 1;
         Control<NumericUpDown>(window, "CurvesShadow").Value = 20;
         Control<NumericUpDown>(window, "CurvesMid").Value = 160;
         Control<NumericUpDown>(window, "CurvesHighlight").Value = 240;
         Click(window, "ApplyCurvesAdjustment");
         CurvesSettings appliedCurves = workspace.Session.GetCurvesAdjustment(curvesLayer.Id);
-        Require(appliedCurves == new CurvesSettings(20, 160, 240),
-            "Curves adjustment controls did not commit the RGB composite curve.");
+        Require(appliedCurves == new CurvesSettings(0, 128, 255, new CurveChannelSettings(20, 160, 240)),
+            "Curves adjustment controls did not commit the red channel curve.");
         CheckEqual(workspace.Preview!, RasterCompositor.ApplyCurves(curvesBase, appliedCurves));
         Click(window, "Undo");
         Click(window, "Undo");

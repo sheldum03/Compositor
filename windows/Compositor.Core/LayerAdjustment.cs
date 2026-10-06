@@ -170,7 +170,7 @@ public sealed record LevelsSettings(LevelRange Rgb, LevelRange Red, LevelRange G
     };
 }
 
-public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double Highlight = 255)
+public sealed record CurveChannelSettings(double Shadow = 0, double Mid = 128, double Highlight = 255)
 {
     public bool IsValid => double.IsFinite(Shadow) && Shadow is >= 0 and <= 255 &&
         double.IsFinite(Mid) && Mid is >= 0 and <= 255 &&
@@ -181,17 +181,22 @@ public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double 
     public double Apply(double value)
     {
         if (!IsValid) throw new InvalidOperationException("Invalid curves settings.");
+        return ApplyValue(value, Shadow, Mid, Highlight);
+    }
+
+    internal static double ApplyValue(double value, double shadow, double mid, double highlight)
+    {
         double x = Math.Clamp(value, 0, 1) * 255;
         double y;
         if (x <= 128)
         {
-            y = Hermite(x, 0, Shadow, 128, Mid, (Mid - Shadow) / 128,
-                Slope((Mid - Shadow) / 128, (Highlight - Mid) / 127));
+            y = Hermite(x, 0, shadow, 128, mid, (mid - shadow) / 128,
+                Slope((mid - shadow) / 128, (highlight - mid) / 127));
         }
         else
         {
-            y = Hermite(x, 128, Mid, 255, Highlight,
-                Slope((Mid - Shadow) / 128, (Highlight - Mid) / 127), (Highlight - Mid) / 127);
+            y = Hermite(x, 128, mid, 255, highlight,
+                Slope((mid - shadow) / 128, (highlight - mid) / 127), (highlight - mid) / 127);
         }
         return Math.Clamp(y / 255, 0, 1);
 
@@ -212,6 +217,39 @@ public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double 
         }
     }
 
+    public JsonObject ToJson() => new()
+    {
+        ["shadow"] = Shadow,
+        ["mid"] = Mid,
+        ["highlight"] = Highlight
+    };
+}
+
+public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double Highlight = 255,
+    CurveChannelSettings? Red = null, CurveChannelSettings? Green = null, CurveChannelSettings? Blue = null)
+{
+    public bool IsValid => double.IsFinite(Shadow) && Shadow is >= 0 and <= 255 &&
+        double.IsFinite(Mid) && Mid is >= 0 and <= 255 &&
+        double.IsFinite(Highlight) && Highlight is >= 0 and <= 255 &&
+        (Red?.IsValid ?? true) && (Green?.IsValid ?? true) && (Blue?.IsValid ?? true);
+
+    public bool IsIdentity => Shadow == 0 && Mid == 128 && Highlight == 255 &&
+        (Red?.IsIdentity ?? true) && (Green?.IsIdentity ?? true) && (Blue?.IsIdentity ?? true);
+
+    public double Apply(double value) => CurveChannelSettings.ApplyValue(value, Shadow, Mid, Highlight);
+
+    public double Apply(double value, int channel)
+    {
+        CurveChannelSettings? selected = channel switch
+        {
+            0 => Red,
+            1 => Green,
+            2 => Blue,
+            _ => throw new ArgumentOutOfRangeException(nameof(channel))
+        };
+        return selected is null ? Apply(value) : selected.Apply(value);
+    }
+
     public static bool TryRead(JsonNode? node, out CurvesSettings settings)
     {
         settings = new CurvesSettings();
@@ -219,10 +257,20 @@ public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double 
         try
         {
             var value = node.AsObject();
+            CurveChannelSettings? ReadChannel(string name)
+            {
+                if (value[name] is null) return null;
+                var channel = value[name]!.AsObject();
+                return new CurveChannelSettings(
+                    channel["shadow"]?.GetValue<double>() ?? 0,
+                    channel["mid"]?.GetValue<double>() ?? 128,
+                    channel["highlight"]?.GetValue<double>() ?? 255);
+            }
             settings = new CurvesSettings(
                 value["shadow"]?.GetValue<double>() ?? 0,
                 value["mid"]?.GetValue<double>() ?? 128,
-                value["highlight"]?.GetValue<double>() ?? 255);
+                value["highlight"]?.GetValue<double>() ?? 255,
+                ReadChannel("red"), ReadChannel("green"), ReadChannel("blue"));
             return settings.IsValid;
         }
         catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
@@ -231,10 +279,17 @@ public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double 
         }
     }
 
-    public JsonObject ToJson() => new()
+    public JsonObject ToJson()
     {
-        ["shadow"] = Shadow,
-        ["mid"] = Mid,
-        ["highlight"] = Highlight
-    };
+        var value = new JsonObject
+        {
+            ["shadow"] = Shadow,
+            ["mid"] = Mid,
+            ["highlight"] = Highlight
+        };
+        if (Red is not null) value["red"] = Red.ToJson();
+        if (Green is not null) value["green"] = Green.ToJson();
+        if (Blue is not null) value["blue"] = Blue.ToJson();
+        return value;
+    }
 }

@@ -163,9 +163,14 @@ public static class RasterCompositor
     public static TileRaster ApplyCurves(TileRaster image, CurvesSettings settings)
     {
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
-        var table = new byte[256];
-        for (int index = 0; index < table.Length; index++)
-            table[index] = (byte)Math.Round(settings.Apply(index / 255d) * 255, MidpointRounding.AwayFromZero);
+        var tables = new byte[3][];
+        for (int channel = 0; channel < tables.Length; channel++)
+        {
+            tables[channel] = new byte[256];
+            for (int index = 0; index < tables[channel].Length; index++)
+                tables[channel][index] = (byte)Math.Round(settings.Apply(index / 255d, channel) * 255,
+                    MidpointRounding.AwayFromZero);
+        }
         var result = new TileRaster(image.Width, image.Height);
         for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
         for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
@@ -180,7 +185,8 @@ public static class RasterCompositor
                     double straight = pixels[pixel + channel] * 255d / alpha;
                     int low = Math.Clamp((int)straight, 0, 255);
                     int high = Math.Min(255, low + 1);
-                    double mapped = table[low] + (table[high] - table[low]) * (straight - low);
+                    double mapped = tables[channel][low] +
+                        (tables[channel][high] - tables[channel][low]) * (straight - low);
                     pixels[pixel + channel] = (byte)Math.Clamp(
                         Math.Round(mapped * alpha / 255d, MidpointRounding.AwayFromZero), 0, alpha);
                 }

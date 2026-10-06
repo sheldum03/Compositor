@@ -68,6 +68,8 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown curvesShadow = new() { Name = "CurvesShadow", Minimum = 0, Maximum = 255, Value = 0, Width = 62 };
     private readonly NumericUpDown curvesMid = new() { Name = "CurvesMid", Minimum = 0, Maximum = 255, Value = 128, Width = 62 };
     private readonly NumericUpDown curvesHighlight = new() { Name = "CurvesHighlight", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
+    private readonly ComboBox curvesChannel = new() { Name = "CurvesChannel", Width = 82,
+        ItemsSource = new[] { "RGB", "红", "绿", "蓝" }, SelectedIndex = 0 };
     private readonly StackPanel curvesAdjustmentEditor = new() { Name = "CurvesAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
@@ -283,6 +285,7 @@ public sealed class MainWindow : Window
         hueSaturationAdjustmentEditor.Children.Add(adjustmentColorize);
         hueSaturationAdjustmentEditor.Children.Add(Command("ApplyHueSaturationAdjustment", "应用色相/饱和度", ApplyHueSaturationAdjustmentAsync, layer: true));
         actions.Children.Add(hueSaturationAdjustmentEditor);
+        curvesAdjustmentEditor.Children.Add(curvesChannel);
         curvesAdjustmentEditor.Children.Add(new TextBlock { Text = "暗部", VerticalAlignment = VerticalAlignment.Center });
         curvesAdjustmentEditor.Children.Add(curvesShadow);
         curvesAdjustmentEditor.Children.Add(new TextBlock { Text = "中间调", VerticalAlignment = VerticalAlignment.Center });
@@ -291,6 +294,7 @@ public sealed class MainWindow : Window
         curvesAdjustmentEditor.Children.Add(curvesHighlight);
         curvesAdjustmentEditor.Children.Add(Command("ApplyCurvesAdjustment", "应用曲线", ApplyCurvesAdjustmentAsync, layer: true));
         actions.Children.Add(curvesAdjustmentEditor);
+        curvesChannel.SelectionChanged += (_, _) => { if (!refreshing) UpdateCurvesControls(); };
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -730,6 +734,7 @@ public sealed class MainWindow : Window
             adjustmentSaturation.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Saturation;
             adjustmentLightness.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Lightness;
             adjustmentColorize.IsChecked = hueSaturation?.Colorize == true;
+            curvesChannel.SelectedIndex = 0;
             curvesShadow.Value = curves is null ? 0 : (decimal)curves.Shadow;
             curvesMid.Value = curves is null ? 128 : (decimal)curves.Mid;
             curvesHighlight.Value = curves is null ? 255 : (decimal)curves.Highlight;
@@ -766,6 +771,7 @@ public sealed class MainWindow : Window
         adjustmentHue.IsEnabled = adjustmentSaturation.IsEnabled = adjustmentLightness.IsEnabled =
             adjustmentColorize.IsEnabled = showHueSaturationEditor;
         curvesShadow.IsEnabled = curvesMid.IsEnabled = curvesHighlight.IsEnabled = showCurvesEditor;
+        curvesChannel.IsEnabled = showCurvesEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -872,6 +878,29 @@ public sealed class MainWindow : Window
         resolveTextFont.IsEnabled = missingFont && !Workspace.HasFloatingSelection;
         UpdateSelectionControls();
         RefreshTextOverlay();
+    }
+
+    private void UpdateCurvesControls()
+    {
+        if (selectedId is not { } id || Workspace.Session is not { } session ||
+            session.Layers.Single(layer => layer.Id == id).AdjustmentKind != "Curves")
+        {
+            curvesShadow.Value = 0;
+            curvesMid.Value = 128;
+            curvesHighlight.Value = 255;
+            return;
+        }
+        CurvesSettings settings = session.GetCurvesAdjustment(id);
+        CurveChannelSettings channel = curvesChannel.SelectedIndex switch
+        {
+            1 => settings.Red ?? new CurveChannelSettings(settings.Shadow, settings.Mid, settings.Highlight),
+            2 => settings.Green ?? new CurveChannelSettings(settings.Shadow, settings.Mid, settings.Highlight),
+            3 => settings.Blue ?? new CurveChannelSettings(settings.Shadow, settings.Mid, settings.Highlight),
+            _ => new CurveChannelSettings(settings.Shadow, settings.Mid, settings.Highlight)
+        };
+        curvesShadow.Value = (decimal)channel.Shadow;
+        curvesMid.Value = (decimal)channel.Mid;
+        curvesHighlight.Value = (decimal)channel.Highlight;
     }
 
     private void UpdateSelectionControls()
@@ -995,8 +1024,16 @@ public sealed class MainWindow : Window
     }
     private Task ApplyCurvesAdjustmentAsync()
     {
-        var settings = new CurvesSettings((double)(curvesShadow.Value ?? 0),
+        var current = selectedId is { } id ? Workspace.Session!.GetCurvesAdjustment(id) : new CurvesSettings();
+        var channel = new CurveChannelSettings((double)(curvesShadow.Value ?? 0),
             (double)(curvesMid.Value ?? 128), (double)(curvesHighlight.Value ?? 255));
+        var settings = curvesChannel.SelectedIndex switch
+        {
+            1 => current with { Red = channel },
+            2 => current with { Green = channel },
+            3 => current with { Blue = channel },
+            _ => current with { Shadow = channel.Shadow, Mid = channel.Mid, Highlight = channel.Highlight }
+        };
         return Task.Run(() => Workspace.ApplyActiveCurvesAdjustment(settings));
     }
     private Task DuplicateLayerAsync()

@@ -1578,7 +1578,10 @@ static void CheckCurvesAdjustment(string output)
     TileRaster source = new TileRaster(2, 1).ReplaceTile(0, 0,
         [32, 16, 8, 128, 100, 40, 20, 255]);
     session.ReplaceRaster(source);
-    var settings = new CurvesSettings(20, 160, 240);
+    var settings = new CurvesSettings(20, 160, 240,
+        new CurveChannelSettings(10, 140, 230),
+        new CurveChannelSettings(5, 150, 245),
+        new CurveChannelSettings(15, 170, 235));
     Guid adjustmentId = session.AddCurvesAdjustment("Curves", settings, 1);
     if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
         session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Curves" ||
@@ -1589,7 +1592,10 @@ static void CheckCurvesAdjustment(string output)
     if (Pixel(expected, 0, 0)[3] != Pixel(source, 0, 0)[3])
         throw new Exception("Curves adjustment changed alpha.");
 
-    var changedSettings = new CurvesSettings(0, 128, 255);
+    var changedSettings = new CurvesSettings(0, 128, 255,
+        new CurveChannelSettings(0, 128, 255),
+        new CurveChannelSettings(0, 128, 255),
+        new CurveChannelSettings(0, 128, 255));
     session.SetCurvesAdjustment(adjustmentId, changedSettings);
     TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
     AssertRaster(RasterCompositor.ApplyCurves(source, changedSettings), changed);
@@ -1600,7 +1606,8 @@ static void CheckCurvesAdjustment(string output)
     ImageProjectWorkflow.Save(session, project);
     var reopened = ImageProjectWorkflow.OpenEditable(project);
     if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
-        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Curves")
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Curves" ||
+        reopened.GetCurvesAdjustment(adjustmentId) != changedSettings)
         throw new Exception("Curves adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Curves adjustment layer metadata, premultiplied pixels, history and save/reopen");
