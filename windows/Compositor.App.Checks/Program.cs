@@ -709,6 +709,30 @@ internal static class Program
             reopenedNestedGroupTarget.Layers.Count == nestedGroupTargetCount + 3 &&
             reopenedNestedGroupTarget.Layers.Count(layer => layer.ParentId == reopenedNestedCopiedGroup.Id) == 2,
             "Saved nested target group copy did not reopen with its parent and subtree.");
+        crossGroupSource.Edit(session => session.SetLayerMaskEnabled(crossGroupId, true));
+        TileRaster enabledGroupMaskPreview = ImageProjectWorkflow.RenderFlatNormal(crossGroupSource.Session);
+        var enabledMaskTarget = new EditorWorkspace();
+        string enabledMaskTargetPath = Path.Combine(output, "EnabledGroupMaskTarget.comp");
+        enabledMaskTarget.New(crossGroupSource.Session.Width, crossGroupSource.Session.Height, 72);
+        Guid enabledMaskLeaf = enabledMaskTarget.Session!.ActiveLayerId!.Value;
+        Guid enabledMaskTargetGroup = Guid.Empty;
+        enabledMaskTarget.Edit(session => enabledMaskTargetGroup = session.GroupLayer(enabledMaskLeaf, "Enabled mask target"));
+        enabledMaskTarget.SaveAs(enabledMaskTargetPath);
+        enabledMaskTarget.Session.SelectLayer(enabledMaskLeaf);
+        Require(!crossGroupSource.CanCopyLayerTo(enabledMaskTarget, crossGroupChildId),
+            "A layer inside an enabled group mask was incorrectly enabled for isolated copy.");
+        Require(crossGroupSource.CanCopyLayerTo(enabledMaskTarget, crossGroupId),
+            "A group with an enabled group mask was not enabled for complete subtree copy.");
+        crossGroupSource.CopyLayerTo(enabledMaskTarget, crossGroupId);
+        Require(enabledMaskTarget.Session.Layers.Single(layer => layer.IsGroup && layer.Id != enabledMaskTargetGroup).HasMask &&
+            enabledMaskTarget.Session.Layers.Single(layer => layer.IsGroup && layer.Id != enabledMaskTargetGroup).MaskEnabled &&
+            CheckEqualNoThrow(enabledGroupMaskPreview, ImageProjectWorkflow.RenderFlatNormal(enabledMaskTarget.Session)),
+            "Copying an enabled group mask did not preserve the rendered subtree.");
+        enabledMaskTarget.Save();
+        var reopenedEnabledMaskTarget = ImageProjectWorkflow.OpenEditable(enabledMaskTargetPath);
+        Require(CheckEqualNoThrow(enabledGroupMaskPreview, ImageProjectWorkflow.RenderFlatNormal(reopenedEnabledMaskTarget)),
+            "Saved enabled group mask copy did not preserve its rendered subtree.");
+        crossGroupSource.Edit(session => session.SetLayerMaskEnabled(crossGroupId, false));
         crossGroupTarget.Session.SelectLayer(copiedGroupChildren[0].Id);
         int groupedTargetBeforeFlatCopy = crossGroupTarget.Session.Layers.Count;
         Require(crossLayerSource.CanCopyLayerTo(crossGroupTarget, crossLayerSourceId),
