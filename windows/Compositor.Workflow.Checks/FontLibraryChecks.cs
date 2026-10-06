@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Compositor.Core;
 using Compositor.Imaging;
 using SkiaSharp;
 
@@ -16,7 +17,7 @@ internal static class FontLibraryChecks
             source = Directory.GetFiles("/System/Library/Fonts", "*.ttc").First(path => SKTypeface.FromFile(path) is not null);
         ImportedFont first = library.Import(source);
         if (!File.Exists(Path.Combine(root, first.FileName)) ||
-            !TextLayerWorkflow.AvailableFonts.Contains(first.FamilyName, StringComparer.OrdinalIgnoreCase))
+            !TextLayerWorkflow.AvailableFonts.Contains(first.SelectionName, StringComparer.OrdinalIgnoreCase))
             throw new Exception("Imported TTF was not persisted or made available to the text renderer.");
         if (!ReferenceEquals(first, library.Import(source)) || library.Entries.Count != 1)
             throw new Exception("Identical font imports were not deduplicated.");
@@ -26,13 +27,37 @@ internal static class FontLibraryChecks
                 .FirstOrDefault(path => SKTypeface.FromFile(path, 1) is not null);
         if (ttcSource is not null)
         {
-            ImportedFont secondFace = library.Import(ttcSource, faceIndex: 1);
-            if (secondFace.FaceIndex != 1 || !TextLayerWorkflow.AvailableFonts.Contains(secondFace.FamilyName, StringComparer.OrdinalIgnoreCase))
-                throw new Exception("TTC face selection was not persisted or registered.");
+            string faceRoot = Path.Combine(output, "FontFaceLibrary");
+            var faceLibrary = new FontLibrary(faceRoot);
+            ImportedFont firstFace = faceLibrary.Import(ttcSource, faceIndex: 0);
+            ImportedFont secondFace = faceLibrary.Import(ttcSource, faceIndex: 1);
+            if (firstFace.SelectionName == secondFace.SelectionName ||
+                !TextLayerWorkflow.AvailableFonts.Contains(firstFace.SelectionName, StringComparer.OrdinalIgnoreCase) ||
+                !TextLayerWorkflow.AvailableFonts.Contains(secondFace.SelectionName, StringComparer.OrdinalIgnoreCase))
+                throw new Exception("TTC faces did not expose distinct, selectable identities.");
+            var faceSession = ProjectSession.CreateBlank(160, 80);
+            var firstMetadata = new TextLayerMetadata(Guid.Empty, "", "A", firstFace.SelectionName, 40,
+                0, 0, 0, 1, "left", 0, 0, "point", null);
+            var secondMetadata = firstMetadata with { FontPostScriptName = secondFace.SelectionName };
+            var legacySession = ProjectSession.CreateBlank(160, 80);
+            legacySession.AddTextLayer("Ambiguous legacy face", firstMetadata with { FontPostScriptName = firstFace.FamilyName },
+                new TileRaster(160, 80), 0);
+            if (TextLayerWorkflow.Inspect(legacySession).Single().FontAvailable)
+                throw new Exception("A legacy family-only text identity silently selected one of multiple faces.");
+            Guid firstId = faceSession.AddTextLayer("Regular face", firstMetadata,
+                TextLayerWorkflow.RenderText(firstMetadata, faceSession.Width, faceSession.Height, faceSession.Resolution), 0);
+            faceSession.AddTextLayer("Second face", secondMetadata,
+                TextLayerWorkflow.RenderText(secondMetadata, faceSession.Width, faceSession.Height, faceSession.Resolution), 1);
+            string faceProject = Path.Combine(output, "FontFaces.comp");
+            ImageProjectWorkflow.Save(faceSession, faceProject);
+            var reopenedFaces = ProjectStore.Open(faceProject);
+            if (reopenedFaces.TextLayers.Single(text => text.Id == firstId).FontPostScriptName != firstFace.SelectionName ||
+                reopenedFaces.TextLayers.Single(text => text.Id != firstId).FontPostScriptName != secondFace.SelectionName)
+                throw new Exception("TTC face selection identity was not preserved through save and reopen.");
         }
         var restored = new FontLibrary(root);
-        if (restored.Entries.Count != (ttcSource is null ? 1 : 2))
-            throw new Exception("Font catalog did not restore imported faces.");
+        if (restored.Entries.Count != 1)
+            throw new Exception("Font catalog did not restore the imported face.");
         string damagedRoot = Path.Combine(output, "DamagedFontLibrary");
         var damagedLibrary = new FontLibrary(damagedRoot);
         try

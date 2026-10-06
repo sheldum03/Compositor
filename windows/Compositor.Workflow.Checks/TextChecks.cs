@@ -28,8 +28,8 @@ internal static class TextChecks
         if (!File.ReadAllBytes(missingManifest).SequenceEqual(manifestBytes))
             throw new Exception("Rendering missing-font text changed the source manifest.");
 
-        string[] families = SKFontManager.Default.GetFontFamilies();
-        string availableFamily = families.FirstOrDefault() ?? throw new Exception("No installed font was available for the text check.");
+        string availableFamily = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
+            ?? throw new Exception("No installed font was available for the text check.");
         string availableProject = Path.Combine(output, "TextAvailable.comp");
         Guid documentId = Guid.Parse("00000000-0000-4000-9000-000000000020");
         Guid layerId = Guid.Parse("00000000-0000-4000-9000-000000000021");

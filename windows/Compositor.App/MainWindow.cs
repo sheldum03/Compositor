@@ -1251,8 +1251,8 @@ public sealed class MainWindow : Window
         if (selected.Count == 0) return;
         ImportedFont imported = await Task.Run(() => FontLibrary.Import(LocalPath(selected[0])));
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
-        textFont.SelectedItem = imported.FamilyName;
-        status.Text = $"已导入字体：{imported.FamilyName}";
+        textFont.SelectedItem = imported.SelectionName;
+        status.Text = $"已导入字体：{imported.SelectionName}";
     }
 
     private FontLibrary FontLibrary => fontLibrary ??= new FontLibrary(Path.Combine(

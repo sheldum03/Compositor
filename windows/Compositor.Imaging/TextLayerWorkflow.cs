@@ -82,7 +82,16 @@ public sealed class TextLayoutSnapshot
 public static class TextLayerWorkflow
 {
     private static readonly object FontGate = new();
-    private static readonly Dictionary<string, SKTypeface> ImportedTypefaces = new(StringComparer.Ordinal);
+    private sealed record RegisteredTypeface(string SelectionName, string FamilyName, SKTypeface Typeface);
+
+    private static readonly Dictionary<string, RegisteredTypeface> ImportedTypefaces =
+        new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, SKTypeface> SystemTypefaces =
+        new(StringComparer.OrdinalIgnoreCase);
+    private static bool systemTypefacesLoaded;
+
+    public static string ImportedFontSelectionName(string family, int faceIndex) =>
+        $"{family} / face {faceIndex + 1}";
 
     public static IReadOnlyList<string> AvailableFonts
     {
@@ -90,10 +99,11 @@ public static class TextLayerWorkflow
         {
             lock (FontGate)
             {
-                return SKFontManager.Default.GetFontFamilies()
-                    .Concat(ImportedTypefaces.Values.Select(typeface => typeface.FamilyName))
+                EnsureSystemTypefaces();
+                return SystemTypefaces.Keys
+                    .Concat(ImportedTypefaces.Keys)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(family => family, StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(selection => selection, StringComparer.OrdinalIgnoreCase)
                     .ToArray();
             }
         }
@@ -103,7 +113,12 @@ public static class TextLayerWorkflow
     {
         SKTypeface typeface = SKTypeface.FromFile(path, faceIndex)
             ?? throw new InvalidDataException("The font face could not be loaded.");
-        lock (FontGate) ImportedTypefaces.TryAdd(Normalize(typeface.FamilyName), typeface);
+        string selectionName = ImportedFontSelectionName(typeface.FamilyName, faceIndex);
+        lock (FontGate)
+        {
+            ImportedTypefaces.TryAdd(selectionName,
+                new RegisteredTypeface(selectionName, typeface.FamilyName, typeface));
+        }
         return typeface.FamilyName;
     }
 
@@ -275,15 +290,51 @@ public static class TextLayerWorkflow
 
     private static SKTypeface? FindTypeface(string postScriptName)
     {
-        string requested = Normalize(postScriptName);
         lock (FontGate)
-            if (ImportedTypefaces.TryGetValue(requested, out SKTypeface? imported)) return imported;
+        {
+            EnsureSystemTypefaces();
+            if (ImportedTypefaces.TryGetValue(postScriptName, out RegisteredTypeface? imported))
+                return imported.Typeface;
+            if (SystemTypefaces.TryGetValue(postScriptName, out SKTypeface? system)) return system;
+
+            string requestedIdentity = NormalizeIdentity(postScriptName);
+            SKTypeface[] exactMatches = ImportedTypefaces.Values
+                .Where(candidate => NormalizeIdentity(candidate.SelectionName) == requestedIdentity)
+                .Select(candidate => candidate.Typeface)
+                .Concat(SystemTypefaces
+                    .Where(candidate => NormalizeIdentity(candidate.Key) == requestedIdentity)
+                    .Select(candidate => candidate.Value))
+                .Distinct()
+                .ToArray();
+            if (exactMatches.Length == 1) return exactMatches[0];
+            if (exactMatches.Length > 1) return null;
+
+            SKTypeface[] familyMatches = ImportedTypefaces.Values
+                .Where(candidate => Normalize(candidate.FamilyName) == requestedIdentity)
+                .Select(candidate => candidate.Typeface)
+                .Concat(SystemTypefaces.Values
+                    .Where(candidate => Normalize(candidate.FamilyName) == requestedIdentity))
+                .Distinct()
+                .ToArray();
+            return familyMatches.Length == 1 ? familyMatches[0] : null;
+        }
+    }
+
+    private static void EnsureSystemTypefaces()
+    {
+        if (systemTypefacesLoaded) return;
         foreach (string family in SKFontManager.Default.GetFontFamilies())
         {
-            if (Normalize(family) is not { } normalized || normalized != requested) continue;
-            return SKTypeface.FromFamilyName(family);
+            using SKFontStyleSet styles = SKFontManager.Default.GetFontStyles(family);
+            for (int index = 0; index < styles.Count; index++)
+            {
+                SKTypeface typeface = styles.CreateTypeface(index);
+                string styleName = styles.GetStyleName(index);
+                string selectionName = styles.Count == 1 ? family : $"{family} / {styleName}";
+                SystemTypefaces.TryAdd(selectionName, typeface);
+            }
         }
-        return null;
+        systemTypefacesLoaded = true;
     }
 
     private static string Normalize(string value)
@@ -294,6 +345,9 @@ public static class TextLayerWorkflow
                 return normalized[..^suffix.Length];
         return normalized;
     }
+
+    private static string NormalizeIdentity(string value) =>
+        new string(value.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
 
     private static string NormalizeNewLines(string value, out int[] originalOffsets)
     {

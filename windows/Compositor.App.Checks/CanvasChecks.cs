@@ -877,6 +877,37 @@ internal static class CanvasChecks
             availableTextSession.TextLayers.Single().Content == "Edited from the Windows text panel",
             "Text panel edit did not participate in undo and redo.");
         availableTextWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var faceChoices = TextLayerWorkflow.AvailableFonts
+            .Where(choice => choice.Contains(" / ", StringComparison.Ordinal))
+            .GroupBy(choice => choice[..choice.IndexOf(" / ", StringComparison.Ordinal)], StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() >= 2);
+        Require(faceChoices is not null, "No same-family multi-face font choices were exposed.");
+        string selectedFace = faceChoices!.Skip(1).First();
+        string faceProject = Path.Combine(output, "TextFaceSelection.comp");
+        var faceWorkspace = new EditorWorkspace();
+        faceWorkspace.Import(fixture, faceProject);
+        faceWorkspace.AddTextLayer("Face selection");
+        var faceWindow = new MainWindow(faceWorkspace);
+        faceWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Find<ListBox>(faceWindow, "Layers").SelectedItem =
+            faceWorkspace.Session!.Layers.Single(layer => layer.IsText);
+        Dispatcher.UIThread.RunJobs();
+        var faceCombo = Find<ComboBox>(faceWindow, "TextFont");
+        faceCombo.SelectedItem = selectedFace;
+        Find<Button>(faceWindow, "ApplyText").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var faceTimer = Stopwatch.StartNew();
+        while (faceWindow.IsBusy)
+        {
+            Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+            if (faceTimer.Elapsed.TotalSeconds > 30) throw new TimeoutException("Same-family face selection did not finish.");
+        }
+        Require(faceWorkspace.Session!.TextLayers.Single().FontPostScriptName == selectedFace,
+            "The text editor did not commit the selected same-family face identity.");
+        faceWorkspace.Save(); faceWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var reopenedFace = ProjectStore.Open(faceProject);
+        Require(reopenedFace.TextLayers.Single().FontPostScriptName == selectedFace,
+            "The selected same-family face identity did not survive save and reopen.");
         var resizeWorkspace = new EditorWorkspace();
         resizeWorkspace.Open(project);
         int originalWidth = resizeWorkspace.Session!.Width, originalHeight = resizeWorkspace.Session.Height;

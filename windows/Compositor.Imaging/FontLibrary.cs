@@ -1,10 +1,15 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SkiaSharp;
 
 namespace Compositor.Imaging;
 
-public sealed record ImportedFont(string FileName, string FamilyName, int FaceIndex, string Sha256);
+public sealed record ImportedFont(string FileName, string FamilyName, int FaceIndex, string Sha256)
+{
+    [JsonIgnore]
+    public string SelectionName => TextLayerWorkflow.ImportedFontSelectionName(FamilyName, FaceIndex);
+}
 
 public sealed class FontLibrary
 {
