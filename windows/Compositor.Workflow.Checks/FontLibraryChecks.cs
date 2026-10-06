@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Compositor.Imaging;
 using SkiaSharp;
 
@@ -32,18 +33,30 @@ internal static class FontLibraryChecks
         var restored = new FontLibrary(root);
         if (restored.Entries.Count != (ttcSource is null ? 1 : 2))
             throw new Exception("Font catalog did not restore imported faces.");
+        string damagedRoot = Path.Combine(output, "DamagedFontLibrary");
+        var damagedLibrary = new FontLibrary(damagedRoot);
         try
         {
-            _ = library.Import(Path.Combine(fonts, "damaged.ttf"));
+            _ = damagedLibrary.Import(Path.Combine(fonts, "damaged.ttf"));
             throw new Exception("Damaged font was accepted.");
         }
         catch (InvalidDataException) { }
+        if (Directory.GetFiles(damagedRoot).Length != 0)
+            throw new Exception("Rejected damaged font left a file in the user font directory.");
         try
         {
             _ = library.Import(Path.Combine(fonts, "wrong-extension.zip"));
             throw new Exception("Unsupported font extension was accepted.");
         }
         catch (NotSupportedException) { }
+        string recoveryRoot = Path.Combine(output, "RecoveredFontLibrary");
+        var recoverySource = new FontLibrary(recoveryRoot);
+        ImportedFont recoveryFont = recoverySource.Import(source);
+        File.WriteAllBytes(Path.Combine(recoveryRoot, recoveryFont.FileName), [0, 1, 2, 3]);
+        var recovered = new FontLibrary(recoveryRoot);
+        if (recovered.Entries.Count != 0 ||
+            JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(Path.Combine(recoveryRoot, "fonts.json")))?.Count != 0)
+            throw new Exception("A damaged persisted font was not removed from the restored catalog.");
         Console.WriteLine("PASS: font library persists, deduplicates, restores, and selects TTC faces while rejecting invalid inputs");
     }
 }

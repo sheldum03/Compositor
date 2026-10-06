@@ -230,6 +230,7 @@ public sealed class MainWindow : Window
         appearance.Children.Add(layerOpacity);
         appearance.Children.Add(layerBlendMode);
         actions.Children.Add(appearance);
+        _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
         {

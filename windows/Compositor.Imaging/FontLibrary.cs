@@ -34,28 +34,58 @@ public sealed class FontLibrary
         string hash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
         string fileName = hash + extension.ToLowerInvariant();
         string destination = Path.Combine(root, fileName);
-        if (!File.Exists(destination)) File.WriteAllBytes(destination, bytes);
-        string family = TextLayerWorkflow.RegisterImportedTypeface(destination, faceIndex);
-        var existing = entries.FirstOrDefault(entry =>
-            entry.Sha256.Equals(hash, StringComparison.OrdinalIgnoreCase) && entry.FaceIndex == faceIndex);
-        if (existing is not null) return existing;
-        var imported = new ImportedFont(fileName, family, faceIndex, hash);
-        entries.Add(imported);
-        SaveCatalog();
-        return imported;
+        string temporary = destination + ".tmp-" + Guid.NewGuid().ToString("N");
+        try
+        {
+            File.WriteAllBytes(temporary, bytes);
+            string family = TextLayerWorkflow.RegisterImportedTypeface(temporary, faceIndex);
+            File.Move(temporary, destination, overwrite: true);
+            var existing = entries.FirstOrDefault(entry =>
+                entry.Sha256.Equals(hash, StringComparison.OrdinalIgnoreCase) && entry.FaceIndex == faceIndex);
+            if (existing is not null) return existing;
+            var imported = new ImportedFont(fileName, family, faceIndex, hash);
+            entries.Add(imported);
+            SaveCatalog();
+            return imported;
+        }
+        catch
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+            throw;
+        }
     }
 
     private void Restore()
     {
+        var restored = new List<ImportedFont>();
         foreach (ImportedFont entry in entries)
         {
             string path = Path.Combine(root, entry.FileName);
-            if (!File.Exists(path)) continue;
-            try { _ = TextLayerWorkflow.RegisterImportedTypeface(path, entry.FaceIndex); }
+            if (!File.Exists(path) || !MatchesHash(path, entry.Sha256)) continue;
+            try
+            {
+                _ = TextLayerWorkflow.RegisterImportedTypeface(path, entry.FaceIndex);
+                if (!restored.Any(item => item.Sha256.Equals(entry.Sha256, StringComparison.OrdinalIgnoreCase) &&
+                    item.FaceIndex == entry.FaceIndex)) restored.Add(entry);
+            }
             catch (Exception) when (entry.FaceIndex >= 0) { }
         }
+        if (restored.Count == entries.Count) return;
+        entries.Clear();
+        entries.AddRange(restored);
+        SaveCatalog();
     }
 
+    private static bool MatchesHash(string path, string expected)
+    {
+        try
+        {
+            string actual = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+            return actual.Equals(expected, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (IOException) { return false; }
+        catch (UnauthorizedAccessException) { return false; }
+    }
     private List<ImportedFont> LoadCatalog()
     {
         if (!File.Exists(catalogPath)) return [];
