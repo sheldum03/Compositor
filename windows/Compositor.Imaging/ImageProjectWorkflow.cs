@@ -113,6 +113,45 @@ public static class ImageProjectWorkflow
             ? session.HasGroups ? RenderCachedCore(session, useLoadedAssets: true) : RenderFlatNormalCore(session, null, null, null)
             : RenderCachedCore(session);
 
+    public static TileRaster RenderLayerForCopy(ProjectSession session, Guid layerId)
+    {
+        if (!session.CanEdit) throw new NotSupportedException("Layer copy requires an editable project.");
+        if (session.HasGroups) throw new NotSupportedException("Layer copy does not support groups.");
+        FlatLayerInfo target = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        if (target.IsGroup || target.BlendMode != "Normal")
+            throw new NotSupportedException("Layer copy only supports Normal raster layers.");
+
+        var resolving = new HashSet<Guid>();
+        TileRaster Resolve(Guid id)
+        {
+            if (!resolving.Add(id)) throw new NotSupportedException("Clipping relationships contain a cycle.");
+            FlatLayerInfo layer = session.Layers.Single(item => item.Id == id);
+            TileRaster raster = session.GetLayerRaster(id);
+            if (layer.HasMask && layer.MaskEnabled)
+            {
+                GrayTileRaster mask = session.GetLayerMask(id)
+                    ?? throw new InvalidDataException("Layer mask asset is missing.");
+                raster = RasterCompositor.ApplyMask(raster, mask);
+            }
+            if (layer.MaskSourceId is { } sourceId)
+            {
+                FlatLayerInfo source = session.Layers.Single(item => item.Id == sourceId);
+                raster = RasterCompositor.ApplyAlphaMask(raster, Resolve(sourceId), source.Opacity);
+            }
+            if (!session.IsLayerTransformIdentity(id))
+            {
+                JsonObject manifest = session.Current["layers"]!.AsArray().Single(node =>
+                    Guid.Parse(node!["id"]!.GetValue<string>()) == id)!.AsObject();
+                raster = TransformCachedRaster(raster, manifest["transform"]!.AsObject(), session.Width, session.Height);
+            }
+            resolving.Remove(id);
+            return raster;
+        }
+
+        return LayerCompositor.Composite(new TileRaster(session.Width, session.Height), Resolve(layerId), target.Opacity, "Normal");
+    }
+
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)
     {
         if (!session.CanEdit) throw new NotSupportedException("Temporary pixel previews require an editable project.");

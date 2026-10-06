@@ -482,7 +482,7 @@ public sealed class EditorWorkspace
                 Session is not { } session || session.HasGroups || session.ActiveLayerId is not { } layerId)
                 return false;
             FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
-            return !layer.IsGroup && layer.BlendMode == "Normal" && session.IsLayerTransformIdentity(layerId) &&
+            return !layer.IsGroup && layer.BlendMode == "Normal" &&
                 (!layer.HasMask || session.GetLayerMask(layerId) is not null);
         }
     }
@@ -491,11 +491,11 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         if (!CanLayerViaCopy)
-            throw new NotSupportedException("Layer via Copy 目前只支持未变换的 Normal 平面图层。");
+            throw new NotSupportedException("Layer via Copy 目前只支持 Normal 平面图层，组和其他混合模式不支持。");
         var session = RequireSession();
         Guid sourceId = session.ActiveLayerId!.Value;
         int destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == sourceId) + 1;
-        TileRaster copied = ApplySelection(VisibleLayerRaster(session, sourceId), Selection!, keepSelected: true);
+        TileRaster copied = ApplySelection(ImageProjectWorkflow.RenderLayerForCopy(session, sourceId), Selection!, keepSelected: true);
         Edit(current => current.AddRasterLayer("Layer via Copy", copied, destinationIndex));
         ClearSelectionWithoutHistory();
         ResetSelectionHistory();
@@ -1218,45 +1218,6 @@ public sealed class EditorWorkspace
                 .CopyTo(output.AsSpan((targetY * width + targetX) * 4, 4));
         }
         return FromRgba(width, height, output);
-    }
-
-    private static TileRaster VisibleLayerRaster(ProjectSession session, Guid layerId)
-    {
-        var resolving = new HashSet<Guid>();
-        TileRaster Resolve(Guid id)
-        {
-            if (!resolving.Add(id)) throw new NotSupportedException("剪贴关系存在循环，不能复制可见结果。");
-            FlatLayerInfo layer = session.Layers.Single(item => item.Id == id);
-            TileRaster raster = session.GetLayerRaster(id);
-            if (layer.HasMask && layer.MaskEnabled)
-            {
-                GrayTileRaster mask = session.GetLayerMask(id)
-                    ?? throw new InvalidDataException("图层蒙版资产缺失。");
-                raster = RasterCompositor.ApplyMask(raster, mask);
-            }
-            if (layer.MaskSourceId is { } sourceId)
-            {
-                FlatLayerInfo source = session.Layers.Single(item => item.Id == sourceId);
-                raster = RasterCompositor.ApplyAlphaMask(raster, Resolve(sourceId), source.Opacity);
-            }
-            resolving.Remove(id);
-            return raster;
-        }
-
-        FlatLayerInfo target = session.Layers.Single(layer => layer.Id == layerId);
-        return ApplyOpacity(Resolve(layerId), target.Opacity);
-    }
-
-    private static TileRaster ApplyOpacity(TileRaster source, double opacity)
-    {
-        if (opacity == 1) return source;
-        byte[] pixels = ToRgba(source);
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            pixels[i] = (byte)Math.Clamp(
-                Math.Round(pixels[i] * opacity, MidpointRounding.AwayFromZero), 0, 255);
-        }
-        return FromRgba(source.Width, source.Height, pixels);
     }
 
     private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale)

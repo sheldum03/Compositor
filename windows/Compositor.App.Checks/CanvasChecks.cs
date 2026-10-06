@@ -87,6 +87,20 @@ internal static class CanvasChecks
         bool visibleCopyUndone = visibleResultCopy.Undo();
         Require(visibleCopyUndone && visibleResultCopy.Session.Layers.Count == visibleBaselineCount,
             $"Undo did not remove the masked clipping Layer via Copy result: undone={visibleCopyUndone}, layers={visibleResultCopy.Session.Layers.Count}.");
+        var transformedCopy = new EditorWorkspace();
+        transformedCopy.Open(project);
+        Guid transformedSourceId = transformedCopy.Session!.ActiveLayerId!.Value;
+        int transformedBaselineCount = transformedCopy.Session.Layers.Count;
+        transformedCopy.MoveActiveLayer(18, 14);
+        transformedCopy.SelectAll();
+        Require(transformedCopy.CanLayerViaCopy,
+            "Layer via Copy did not allow a Normal layer with a non-destructive transform.");
+        TileRaster expectedTransformedCopy = ImageProjectWorkflow.RenderLayerForCopy(transformedCopy.Session, transformedSourceId);
+        transformedCopy.LayerViaCopy();
+        TileRaster actualTransformedCopy = transformedCopy.Session.GetLayerRaster(transformedCopy.Session.ActiveLayerId!.Value);
+        Require(Bytes(actualTransformedCopy).SequenceEqual(Bytes(expectedTransformedCopy)) &&
+            transformedCopy.Session.Layers.Count == transformedBaselineCount + 1 && !transformedCopy.HasSelection,
+            "Layer via Copy did not bake the transformed visible result into the new layer.");
         var hardCanvas = new TileRaster(21, 21);
         var hardStroke = new SoftBrushStroke(hardCanvas, new SoftBrushSettings(9, 1, [1, 0, 0], 1));
         hardStroke.Append(new BrushPoint(10.5, 10.5));
