@@ -105,8 +105,8 @@ private:
         auto files = QJsonDocument::fromJson(readFile(fixtures + "/checksums.json")).array();
         require(files.size() == 9, "Expected nine frozen brush files");
         for (auto value : files) {
-            auto file = value.toObject(); auto data = readFile(fixtures + "/" + file["path"].toString());
-            require(data.size() == file["bytes"].toInteger() && QCryptographicHash::hash(data, QCryptographicHash::Sha256).toHex() == file["sha256"].toString().toUtf8(), "Brush fixture changed");
+            auto file = value.toObject(); auto contents = readFile(fixtures + "/" + file["path"].toString());
+            require(contents.size() == file["bytes"].toInteger() && QCryptographicHash::hash(contents, QCryptographicHash::Sha256).toHex() == file["sha256"].toString().toUtf8(), "Brush fixture changed");
         }
     }
     void initialize() {
