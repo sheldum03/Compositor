@@ -21,21 +21,22 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 5. A missing-font cache project exposes an explicit font choice and keeps the content editor disabled. Selecting an installed font reloads the editable layer assets, redraws the text, and unlocks the editor; no fallback font is selected silently. Undo restores the missing-font read-only state and redo restores the explicit replacement.
 6. `1a2f3a8` validates imported font bytes through a temporary file before moving them into the user directory, restores only catalog entries whose file hash still matches, and initializes the font library when the formal window starts. Workflow checks cover rejected damaged imports leaving no file and a mismatched persisted hash being removed from the catalog.
 7. `50a3fa2` inspects an imported face before registration and rejects a different SHA-256 with the same normalized family and face index. The temporary file is removed, the catalog keeps the original entry, and the formal command path exposes the rejection as an operation error instead of silently replacing the registered font.
+8. The font selector now exposes distinct system style choices and imported `family / face N` identities. Exact face selections are used for rendering and written through the existing v8 `fontPostScriptName` field; a legacy family-only value becomes unavailable when several faces share that family instead of silently choosing one. Workflow checks cover two TTC faces, ambiguous legacy identity, render, save/reopen, and catalog restore; App Headless covers selecting a second same-family choice in the formal window and preserving it through save/reopen.
 
 Command on the development host:
 
 ```text
-dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-workflow-font-recovery-20261006-2
+dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-workflow-font-faces-20261006-2
 ```
 
 Exit code: `0`.
 
-The Windows production core matrix for `4356dde`: [run 37420433872](https://github.com/sheldum03/Compositor/actions/runs/37420433872) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and the font import/recovery checks. The App case includes point/box creation, the formal text editor regressions, and the explicit missing-font resolver.
+The Windows production core matrix for `cac9652`: [run 37425130598](https://github.com/sheldum03/Compositor/actions/runs/37425130598) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, TTC face identities, ambiguous family-only rejection, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and the font import/recovery checks. The App case includes point/box creation, the formal text editor regressions, same-family face selection/save-reopen, and the explicit missing-font resolver.
 
-The local App Headless check was rerun after the canvas integration:
+The local App Headless check was rerun after the face-selector integration:
 
 ```text
-dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-font-undo-20261006-1
+dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-font-faces-20261006-1
 ```
 
 It passed the production soft-brush/pointer workflow, dialog/window workflow, text caret/selection overlay check, explicit missing-font resolver check, and resolver undo/redo read-only-state check. The local Workflow Checks Release build and run also passed the font import/recovery checks and all existing checks.
@@ -46,6 +47,6 @@ The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executabl
 
 - No Windows IME, candidate-window validation, or native Windows input result. The current window slice covers the Avalonia canvas caret/selection overlay and sidebar `TextBox` routing in Headless checks; it does not prove Windows text services, DPI behavior, or production-machine input.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- No damaged-font recovery or user-selected font persistence beyond the explicit in-session replacement path. Multi-choice UI for several same-family faces remains open; this slice rejects ambiguous same-family/different-content imports and preserves the first identity.
+- The import dialog still imports the default face of a font file; it does not yet expose a face-index chooser. Damaged-font recovery UX and full user-selected font persistence remain outside this slice.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.
