@@ -798,6 +798,31 @@ internal static class CanvasChecks
         Require(availableTextWorkspace.CanEdit && availableTextContent.IsEffectivelyEnabled &&
             Find<Button>(availableTextWindow, "ApplyText").IsEffectivelyEnabled,
             "Available-font text did not expose the editable text controls.");
+        CanvasView availableTextCanvas = Find<CanvasView>(availableTextWindow, "Canvas");
+        TextLayerMetadata availableTextMetadata = availableTextWorkspace.Session!.TextLayers.Single();
+        TextLayoutLine availableTextLine = TextLayerWorkflow.Layout(availableTextMetadata,
+            availableTextWorkspace.Session.Resolution, availableTextWorkspace.Session.GetLayerRaster(availableTextMetadata.Id).Width).Lines[0];
+        TileRaster availableTextRaster = availableTextWorkspace.Session.GetLayerRaster(availableTextMetadata.Id);
+        LayerTransformInfo availableTextTransform = availableTextWorkspace.Session.GetLayerTransform(availableTextMetadata.Id);
+        Point textSourceEnd = new(availableTextLine.X + availableTextLine.Width, availableTextLine.Y + availableTextLine.Height / 2);
+        double localX = textSourceEnd.X * availableTextTransform.Width / availableTextRaster.Width - availableTextTransform.Width / 2;
+        double localY = textSourceEnd.Y * availableTextTransform.Height / availableTextRaster.Height - availableTextTransform.Height / 2;
+        if (availableTextTransform.FlipX) localX = -localX;
+        if (availableTextTransform.FlipY) localY = -localY;
+        double rotation = availableTextTransform.Rotation * Math.PI / 180;
+        Point textDocumentEnd = new(
+            availableTextTransform.X + availableTextTransform.Width / 2 + localX * Math.Cos(rotation) - localY * Math.Sin(rotation),
+            availableTextTransform.Y + availableTextTransform.Height / 2 + localX * Math.Sin(rotation) + localY * Math.Cos(rotation));
+        Point textViewEnd = availableTextCanvas.Viewport.ToView(textDocumentEnd);
+        Point textWindowEnd = availableTextCanvas.TranslatePoint(textViewEnd, availableTextWindow)
+            ?? throw new Exception("Available-font text canvas is detached.");
+        availableTextWindow.MouseDown(textWindowEnd, MouseButton.Left);
+        availableTextWindow.MouseUp(textWindowEnd, MouseButton.Left);
+        Dispatcher.UIThread.RunJobs();
+        Require(availableTextContent.CaretIndex == availableTextMetadata.Content.Length &&
+            availableTextContent.SelectionStart == availableTextMetadata.Content.Length &&
+            availableTextContent.SelectionEnd == availableTextMetadata.Content.Length,
+            $"Canvas text hit did not place the sidebar caret at the end of the text: caret={availableTextContent.CaretIndex}, start={availableTextContent.SelectionStart}, end={availableTextContent.SelectionEnd}, length={availableTextMetadata.Content.Length}, document={textDocumentEnd}, view={textViewEnd}.");
         availableTextContent.Text = "Edited from the Windows text panel";
         Find<Button>(availableTextWindow, "ApplyText").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Dispatcher.UIThread.RunJobs();

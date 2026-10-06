@@ -326,6 +326,16 @@ public sealed class MainWindow : Window
             else Workspace.CommitStroke(point);
         });
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
+        canvas.TextHitTest = TextCaretAt;
+        canvas.TextCaretPressed += (characterIndex, extend) =>
+        {
+            if (!textContent.IsEffectivelyEnabled) return;
+            if (extend) textContent.SelectionEnd = characterIndex;
+            else textContent.SelectionStart = textContent.SelectionEnd = characterIndex;
+            textContent.CaretIndex = characterIndex;
+            textContent.Focus();
+            status.Text = "文字光标已定位。";
+        };
         paint.IsCheckedChanged += (_, _) =>
         {
             if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; maskPaint.IsChecked = false; }
@@ -722,15 +732,32 @@ public sealed class MainWindow : Window
         bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
+        bool textMode = editable && !selectedGroup && Workspace.Session!.TextLayers.SingleOrDefault(text => text.Id == selectedId) is { } text &&
+            TextLayerWorkflow.Inspect(Workspace.Session).Single(status => status.Metadata.Id == text.Id).FontAvailable &&
+            !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true;
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
         paint.IsEnabled = editable && !selectedGroup;
-        canvas.PaintEnabled = editable && !Workspace.HasFloatingSelection &&
+        canvas.TextEditEnabled = textMode;
+        canvas.PaintEnabled = editable && !textMode && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              maskPaint.IsChecked == true);
         canvas.SelectionEnabled = editable && !selectedGroup && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
         canvas.SelectionMoveEnabled = editable && !selectedGroup &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
+    }
+
+    private int? TextCaretAt(Point document)
+    {
+        if (!Workspace.CanEdit || selectedId is not { } id || Workspace.Session is not { } session)
+            return null;
+        TextLayerMetadata? metadata = session.TextLayers.SingleOrDefault(text => text.Id == id);
+        if (metadata is null || !TextLayerWorkflow.Inspect(session).Single(status => status.Metadata.Id == id).FontAvailable)
+            return null;
+        TileRaster raster = session.GetLayerRaster(id);
+        Compositor.Imaging.TextHitTestResult hit = TextLayerWorkflow.HitTest(metadata, session.GetLayerTransform(id),
+            raster.Width, raster.Height, session.Resolution, (float)document.X, (float)document.Y);
+        return hit.IsInside ? hit.CharacterIndex : null;
     }
     private Task AddLayerAsync() => EditAsync(session =>
     {

@@ -25,6 +25,8 @@ public sealed class CanvasView : Control
     public bool SelectionEnabled { get; set; }
     public bool LassoEnabled { get; set; }
     public bool SelectionMoveEnabled { get; set; }
+    public bool TextEditEnabled { get; set; }
+    public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
     public bool IsSelecting => captured is not null && selecting;
@@ -37,6 +39,7 @@ public sealed class CanvasView : Control
     public event Action<IReadOnlyList<Point>>? LassoFinished;
     public event Action<Point, Point>? SelectionMoveFinished;
     public event Action? SelectionCanceled;
+    public event Action<int, bool>? TextCaretPressed;
 
     public CanvasView()
     {
@@ -49,6 +52,13 @@ public sealed class CanvasView : Control
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             LastDocumentPointer = document;
+            if (!pan && TextEditEnabled && properties.IsLeftButtonPressed)
+            {
+                if (TextHitTest?.Invoke(document) is { } characterIndex)
+                    TextCaretPressed?.Invoke(characterIndex, e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                e.Handled = true;
+                return;
+            }
             bool select = !pan && SelectionEnabled && properties.IsLeftButtonPressed;
             bool moveSelection = !pan && SelectionMoveEnabled && properties.IsLeftButtonPressed;
             if (!pan && !select && !moveSelection && (!PaintEnabled || !properties.IsLeftButtonPressed || document.X < 0 || document.Y < 0 ||
