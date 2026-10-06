@@ -158,10 +158,10 @@ public static class ImageProjectWorkflow
             ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
         if (session.HasGroups)
         {
-            if (!target.IsGroup)
-                throw new NotSupportedException("Layer copy in grouped projects only supports group layers in this slice.");
-            return RenderCachedCore(session, useLoadedAssets: true,
-                renderRoots: new HashSet<Guid> { layerId });
+            if (target.IsGroup)
+                return RenderCachedCore(session, useLoadedAssets: true,
+                    renderRoots: new HashSet<Guid> { layerId });
+            ValidateGroupedLeafCopy(session, target);
         }
         if (target.IsGroup) throw new NotSupportedException("Layer copy only supports raster layers.");
 
@@ -195,6 +195,52 @@ public static class ImageProjectWorkflow
         // Layer via Copy takes the layer's own pixels in document coordinates. The source
         // opacity/blend mode are not baked into the new default-Normal raster layer.
         return Resolve(layerId);
+    }
+
+    public static bool CanRenderLayerForCopy(ProjectSession session, Guid layerId)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        FlatLayerInfo? target = session.Layers.SingleOrDefault(layer => layer.Id == layerId);
+        if (target is null || !session.CanEdit) return false;
+        try
+        {
+            if (session.HasGroups && target.IsGroup) return true;
+            if (target.IsGroup) return false;
+            if (session.HasGroups) ValidateGroupedLeafCopy(session, target);
+            else if (target.HasMask && session.GetLayerMask(target.Id) is null) return false;
+            return true;
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or InvalidDataException or NotSupportedException)
+        {
+            return false;
+        }
+    }
+
+    private static void ValidateGroupedLeafCopy(ProjectSession session, FlatLayerInfo target)
+    {
+        if (target.ParentId is not { } parentId)
+            throw new NotSupportedException("A grouped layer copy must stay inside its parent group.");
+        if (target.IsText)
+            throw new NotSupportedException("Text layers require the text renderer for grouped layer copy.");
+        if (!session.IsLayerTransformIdentity(target.Id))
+            throw new NotSupportedException("A transformed grouped layer must be copied with its group.");
+        if (target.MaskSourceId is not null || session.Layers.Any(layer => layer.MaskSourceId == target.Id))
+            throw new NotSupportedException("A clipping stack must be copied as a stack in this slice.");
+        if (target.HasMask && session.GetLayerMask(target.Id) is null)
+            throw new InvalidDataException("Source layer mask asset is missing.");
+        Guid? currentId = parentId;
+        while (currentId is { } groupId)
+        {
+            FlatLayerInfo group = session.Layers.SingleOrDefault(layer => layer.Id == groupId)
+                ?? throw new InvalidDataException("Grouped layer parent is missing.");
+            if (!group.IsGroup)
+                throw new InvalidDataException("Grouped layer parent is not a group.");
+            if (!session.IsGroupTransformIdentity(group.Id))
+                throw new NotSupportedException("A layer inside a transformed group must be copied with its group.");
+            if (group.HasMask && group.MaskEnabled && session.GetLayerMask(group.Id) is null)
+                throw new InvalidDataException("Group mask asset is missing.");
+            currentId = group.ParentId;
+        }
     }
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)

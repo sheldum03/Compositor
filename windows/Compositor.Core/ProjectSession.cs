@@ -650,6 +650,28 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
+    public Guid AddRasterLayerToGroup(string name, TileRaster raster, int destinationIndex, Guid parentId)
+    {
+        RequireGroupStructureEditing();
+        CheckRasterSize(raster);
+        int parentIndex = FindLayer(parentId);
+        if (!Layers[parentIndex].IsGroup)
+            throw new ArgumentException("The destination parent must be a group.", nameof(parentId));
+        if (destinationIndex <= parentIndex || destinationIndex > Layers.Count)
+            throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        int lastDescendant = parentIndex;
+        for (int index = parentIndex + 1; index < Layers.Count; index++)
+        {
+            if (!IsDescendantOf(Layers[index], parentId)) break;
+            lastDescendant = index;
+        }
+        if (destinationIndex > lastDescendant + 1)
+            throw new NotSupportedException("The destination layer must stay inside its parent group.");
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["parentID"] = parentId.ToString("D");
+        return InsertLayer(layer, raster, destinationIndex);
+    }
+
     public Guid AddTextLayer(string name, TextLayerMetadata metadata, TileRaster raster, int destinationIndex)
     {
         RequireLayerStructureEditing();

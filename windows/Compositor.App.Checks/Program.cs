@@ -1179,6 +1179,59 @@ internal static class Program
                 "Nested group Layer via Copy retained pixels outside the selection.");
         }
         groupCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var groupedLeafCopyWorkspace = new EditorWorkspace();
+        string groupedLeafCopyPath = Path.Combine(output, "GroupedLeafLayerViaCopy.comp");
+        groupedLeafCopyWorkspace.Import(fixture, groupedLeafCopyPath);
+        Guid groupedLeafId = groupedLeafCopyWorkspace.Session!.ActiveLayerId!.Value;
+        Guid groupedLeafGroupId = Guid.Empty;
+        groupedLeafCopyWorkspace.Edit(session =>
+        {
+            groupedLeafGroupId = session.GroupLayer(groupedLeafId, "Masked parent");
+            session.EnsureLayerMask(groupedLeafGroupId);
+            session.ReplaceLayerMask(groupedLeafGroupId,
+                GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+            session.SetLayerMaskEnabled(groupedLeafGroupId, true);
+        });
+        groupedLeafCopyWorkspace.Save();
+        groupedLeafCopyWorkspace.Session.SelectLayer(groupedLeafId);
+        groupedLeafCopyWorkspace.SelectRectangle(new Rect(0, 0,
+            groupedLeafCopyWorkspace.Session.Width / 2, groupedLeafCopyWorkspace.Session.Height));
+        var groupedLeafCopyWindow = new MainWindow(groupedLeafCopyWorkspace);
+        groupedLeafCopyWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(groupedLeafCopyWindow, "Layers").SelectedItem =
+            groupedLeafCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupedLeafId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(groupedLeafCopyWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A grouped raster with an enabled parent mask did not enable Layer via Copy.");
+        int groupedLeafCopyCount = groupedLeafCopyWorkspace.Session.Layers.Count;
+        TileRaster groupedLeafSourceRaster = groupedLeafCopyWorkspace.Session.GetLayerRaster(groupedLeafId);
+        Click(groupedLeafCopyWindow, "LayerViaCopy");
+        Guid groupedLeafCopiedId = groupedLeafCopyWorkspace.Session.ActiveLayerId!.Value;
+        FlatLayerInfo groupedLeafCopied = groupedLeafCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupedLeafCopiedId);
+        Require(groupedLeafCopyWorkspace.Session.Layers.Count == groupedLeafCopyCount + 1 &&
+            groupedLeafCopied.ParentId == groupedLeafGroupId && !groupedLeafCopied.IsGroup &&
+            groupedLeafCopyWorkspace.Session.Layers.Single(layer => layer.Id == groupedLeafGroupId).MaskEnabled,
+            "Grouped Layer via Copy did not insert a raster sibling under the masked parent.");
+        TileRaster groupedLeafCopiedRaster = groupedLeafCopyWorkspace.Session.GetLayerRaster(groupedLeafCopiedId);
+        for (int y = 0; y < groupedLeafCopiedRaster.Height; y++)
+        for (int x = 0; x < groupedLeafCopiedRaster.Width; x++)
+        {
+            byte[] actual = PixelAt(groupedLeafCopiedRaster, x, y);
+            if (x < groupedLeafCopiedRaster.Width / 2)
+                Require(actual.SequenceEqual(PixelAt(groupedLeafSourceRaster, x, y)),
+                    "Grouped Layer via Copy changed pixels inside the selection.");
+            else Require(actual.All(channel => channel == 0),
+                "Grouped Layer via Copy retained pixels outside the selection.");
+        }
+        groupedLeafCopyWorkspace.Save();
+        var reopenedGroupedLeafCopy = ImageProjectWorkflow.OpenEditable(groupedLeafCopyPath);
+        Require(reopenedGroupedLeafCopy.Layers.Single(layer => layer.Id == groupedLeafCopiedId).ParentId == groupedLeafGroupId &&
+            reopenedGroupedLeafCopy.Layers.Single(layer => layer.Id == groupedLeafGroupId).MaskEnabled &&
+            CheckEqualNoThrow(groupedLeafCopiedRaster, reopenedGroupedLeafCopy.GetLayerRaster(groupedLeafCopiedId)) &&
+            PixelAt(ImageProjectWorkflow.RenderFlatNormal(reopenedGroupedLeafCopy), reopenedGroupedLeafCopy.Width - 1,
+                reopenedGroupedLeafCopy.Height / 2)[3] == 0,
+            "Saved grouped Layer via Copy did not preserve the parent mask or raster.");
+        groupedLeafCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
         var groupMergeWindow = new MainWindow(groupMergeWorkspace);
         groupMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
         Control<ListBox>(groupMergeWindow, "Layers").SelectedItem =

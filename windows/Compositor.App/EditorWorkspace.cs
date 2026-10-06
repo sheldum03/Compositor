@@ -620,7 +620,7 @@ public sealed class EditorWorkspace
                 return false;
             FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
             if (session.HasGroups)
-                return layer.IsGroup;
+                return layer.IsGroup || ImageProjectWorkflow.CanRenderLayerForCopy(session, layerId);
             return !layer.IsGroup &&
                 (!layer.HasMask || session.GetLayerMask(layerId) is not null);
         }
@@ -630,11 +630,12 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         if (!CanLayerViaCopy)
-            throw new NotSupportedException("Layer via Copy 目前只支持平面图层或根组图层。");
+            throw new NotSupportedException("Layer via Copy 目前只支持平面图层、受限组内平面图层或组可见结果。");
         var session = RequireSession();
         Guid sourceId = session.ActiveLayerId!.Value;
         int destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == sourceId) + 1;
         FlatLayerInfo sourceLayer = session.Layers.Single(layer => layer.Id == sourceId);
+        TileRaster copied = ApplySelection(ImageProjectWorkflow.RenderLayerForCopy(session, sourceId), Selection!, keepSelected: true);
         if (sourceLayer.IsGroup)
         {
             Guid rootId = sourceId;
@@ -645,7 +646,15 @@ public sealed class EditorWorkspace
                 IsDescendantOf(session.Layers[destinationIndex], rootId, session.Layers))
                 destinationIndex++;
         }
-        TileRaster copied = ApplySelection(ImageProjectWorkflow.RenderLayerForCopy(session, sourceId), Selection!, keepSelected: true);
+        else if (session.HasGroups)
+        {
+            Guid parentId = sourceLayer.ParentId
+                ?? throw new NotSupportedException("组内图层复制需要一个父组。");
+            Edit(current => current.AddRasterLayerToGroup("Layer via Copy", copied, destinationIndex, parentId));
+            ClearSelectionWithoutHistory();
+            ResetSelectionHistory();
+            return;
+        }
         Edit(current =>
         {
             if (sourceLayer.IsGroup) _ = current.AddRootRasterLayer("Layer via Copy", copied, destinationIndex);

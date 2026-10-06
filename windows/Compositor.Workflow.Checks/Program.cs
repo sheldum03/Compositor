@@ -168,6 +168,7 @@ CheckCachedGroupRendering(output, fixtures);
 CheckCachedGroupTransform(output, fixtures);
 CheckGroupStructureCreation(output, fixtures);
 CheckGroupedLayerViaCopy(output, fixtures);
+CheckGroupedLeafLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
@@ -515,6 +516,43 @@ static void CheckGroupedLayerViaCopy(string output, string fixtures)
     AssertRaster(expected, ImageProjectWorkflow.RenderLayerForCopy(reopened, groupId));
     AssertRaster(expected, ImageProjectWorkflow.RenderLayerForCopy(reopened, innerGroupId));
     Console.WriteLine("PASS: root and nested group visible-result copy preserves clipping, group masks, appearance and transforms Alpha");
+}
+
+static void CheckGroupedLeafLayerViaCopy(string output, string fixtures)
+{
+    string source = Path.Combine(output, "GroupedLeafCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid leafId = session.Layers.Single().Id;
+    TileRaster sourceRaster = session.GetLayerRaster(leafId);
+    Guid groupId = session.GroupLayer(leafId, "Masked parent");
+    session.EnsureLayerMask(groupId);
+    session.ReplaceLayerMask(groupId,
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+    session.SetLayerMaskEnabled(groupId, true);
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(session, leafId))
+        throw new Exception("A raster layer inside an identity group with an enabled group mask was not enabled for isolated copy.");
+    TileRaster copied = ImageProjectWorkflow.RenderLayerForCopy(session, leafId);
+    AssertRaster(sourceRaster, copied);
+    int insertion = session.Layers.ToList().FindIndex(layer => layer.Id == leafId) + 1;
+    Guid copiedId = session.AddRasterLayerToGroup("Layer via Copy", copied, insertion, groupId);
+    FlatLayerInfo copiedLayer = session.Layers.Single(layer => layer.Id == copiedId);
+    if (copiedLayer.ParentId != groupId || copiedLayer.IsGroup ||
+        !session.Layers.Single(layer => layer.Id == groupId).MaskEnabled)
+        throw new Exception("Grouped Layer via Copy did not preserve its parent or enabled group mask.");
+    TileRaster rendered = ImageProjectWorkflow.RenderFlatNormal(session);
+    if (Pixel(rendered, session.Width - 1, session.Height / 2)[3] != 0)
+        throw new Exception("The enabled parent group mask did not clip the copied grouped layer.");
+    string saved = Path.Combine(output, "GroupedLeafCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    FlatLayerInfo reopenedCopy = reopened.Layers.Single(layer => layer.Id == copiedId);
+    if (reopenedCopy.ParentId != groupId || !reopened.Layers.Single(layer => layer.Id == groupId).MaskEnabled)
+        throw new Exception("Saved grouped Layer via Copy lost its parent or group mask state.");
+    AssertRaster(sourceRaster, reopened.GetLayerRaster(copiedId));
+    if (Pixel(ImageProjectWorkflow.RenderFlatNormal(reopened), reopened.Width - 1, reopened.Height / 2)[3] != 0)
+        throw new Exception("Saved grouped Layer via Copy did not retain the enabled parent mask.");
+    Console.WriteLine("PASS: grouped raster Layer via Copy preserves parent insertion, enabled group mask clipping and save/reopen");
 }
 
 static void CheckEditableLayerTransform(string output, string fixtures)
