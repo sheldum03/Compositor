@@ -47,11 +47,24 @@ jobs:
           dotnet --info | Tee-Object build/evidence/dotnet.txt
           python -m pip install cmake==3.31.6
           cmake --version | Tee-Object build/evidence/cmake.txt
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw "Visual Studio installation with x64 C++ tools was not found." }
+          $devenv = Get-Item "$vs/Common7/IDE/devenv.exe" -ErrorAction Stop
+          $vsMajor = $devenv.VersionInfo.ProductMajorPart
+          $cmakeHelp = cmake --help | Out-String
+          $generators = [regex]::Matches($cmakeHelp, '(?m)^\s*(Visual Studio \d+ \d{4})\s+=') |
+            ForEach-Object { $_.Groups[1].Value }
+          $generator = $generators | Where-Object { $_ -match "Visual Studio $vsMajor " } | Select-Object -First 1
+          if (!$generator) { throw "CMake has no Visual Studio generator for installed VS major $vsMajor." }
+          "VS_GENERATOR=$generator" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "VS_INSTALLATION=$vs" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "Generator=$generator" | Tee-Object build/evidence/msvc-generator.txt
       - name: Build the existing C sources with MSVC
         id: native-build
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          cmake -S experiments/windows/native -B build/native -A x64 2>&1 |
+          cmake -S experiments/windows/native -B build/native -G "$env:VS_GENERATOR" -A x64 2>&1 |
             Tee-Object build/evidence/configure.txt
           cmake --build build/native --config Release --parallel 4 2>&1 |
             Tee-Object build/evidence/build.txt
@@ -63,7 +76,7 @@ jobs:
       - name: Check DLL exports and ctypes boundary
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          $vs = & "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $vs = $env:VS_INSTALLATION
           $dumpbin = Get-ChildItem "$vs/VC/Tools/MSVC/*/bin/Hostx64/x64/dumpbin.exe" | Sort-Object FullName -Descending | Select-Object -First 1
           if (!$dumpbin) { throw "dumpbin.exe not found" }
           & $dumpbin.FullName /EXPORTS build/native/Release/compositor_native.dll | Tee-Object build/evidence/exports.txt
@@ -137,7 +150,7 @@ jobs:
         if: ${{ !cancelled() && steps.qt-sdk.outcome == 'success' }}
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          cmake -S experiments/windows/qt -B build/qt -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_ROOT" 2>&1 |
+          cmake -S experiments/windows/qt -B build/qt -G "$env:VS_GENERATOR" -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_ROOT" 2>&1 |
             Tee-Object build/evidence/qt-configure.txt
           cmake --build build/qt --config Release --parallel 4 2>&1 | Tee-Object build/evidence/qt-build.txt
       - name: Run the Qt build's native contract tests
