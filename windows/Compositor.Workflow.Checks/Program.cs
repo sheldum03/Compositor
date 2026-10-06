@@ -791,8 +791,8 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
     for (int level = 4; level >= 1; level--)
         chainedSourceIds.Add(chainedSession.AddBlankLayer($"Intermediate clipped source {level}", chainedSession.Layers.Count));
     Guid chainedTargetId = chainedSession.AddBlankLayer("Cross-parent chain target", chainedSession.Layers.Count);
-    foreach (Guid sourceId in chainedSourceIds.Skip(1))
-        chainedSession.ReplaceLayerRaster(sourceId, chainedSession.GetLayerRaster(chainedSourceBaseId));
+    foreach (Guid chainSourceId in chainedSourceIds.Skip(1))
+        chainedSession.ReplaceLayerRaster(chainSourceId, chainedSession.GetLayerRaster(chainedSourceBaseId));
     chainedSession.ReplaceLayerRaster(chainedTargetId, chainedSession.GetLayerRaster(chainedSourceBaseId));
     chainedSession.SetLayerOpacity(chainedSourceBaseId, 0.72);
     var chainedSourceGroupIds = new List<Guid>();

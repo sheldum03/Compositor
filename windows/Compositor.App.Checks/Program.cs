@@ -1603,8 +1603,8 @@ internal static class Program
                 crossParentChainSourceIds.Add(session.AddBlankLayer(
                     $"Intermediate clipped source {level}", session.Layers.Count));
             crossParentChainTargetId = session.AddBlankLayer("Cross-parent chain target", session.Layers.Count);
-            foreach (Guid sourceId in crossParentChainSourceIds.Skip(1))
-                session.ReplaceLayerRaster(sourceId, session.GetLayerRaster(crossParentChainSourceBaseId));
+            foreach (Guid chainSourceId in crossParentChainSourceIds.Skip(1))
+                session.ReplaceLayerRaster(chainSourceId, session.GetLayerRaster(crossParentChainSourceBaseId));
             session.ReplaceLayerRaster(crossParentChainTargetId,
                 session.GetLayerRaster(crossParentChainSourceBaseId));
             session.SetLayerOpacity(crossParentChainSourceBaseId, 0.72);
