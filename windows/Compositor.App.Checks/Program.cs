@@ -852,6 +852,63 @@ internal static class Program
         Require(reopenedCrossLayerStack.Layers[^1].MaskSourceId == reopenedCrossLayerStack.Layers[^2].Id,
             "Saved cross-project clipping stack did not reopen with remapped relationship.");
 
+        var discontinuousCrossSource = new EditorWorkspace();
+        discontinuousCrossSource.Import(fixture, Path.Combine(output, "DiscontinuousCrossLayerSource.comp"));
+        Guid discontinuousCrossBaseId = discontinuousCrossSource.Session!.Layers[0].Id;
+        discontinuousCrossSource.Session.AddBlankLayer("Unrelated sibling", 1);
+        Guid discontinuousCrossTargetId = discontinuousCrossSource.Session.AddBlankLayer("Discontinuous target", 2);
+        discontinuousCrossSource.Edit(session => session.SetLayerMaskSource(
+            discontinuousCrossTargetId, discontinuousCrossBaseId));
+        var discontinuousCrossTarget = new EditorWorkspace();
+        string discontinuousCrossTargetPath = Path.Combine(output, "DiscontinuousCrossLayerTarget.comp");
+        discontinuousCrossTarget.Import(fixture, discontinuousCrossTargetPath);
+        int discontinuousCrossTargetCount = discontinuousCrossTarget.Session!.Layers.Count;
+        Require(discontinuousCrossSource.CanCopyLayerTo(discontinuousCrossTarget, discontinuousCrossTargetId),
+            "A flat discontinuous clipping stack did not enable cross-project copy.");
+        discontinuousCrossSource.CopyLayerTo(discontinuousCrossTarget, discontinuousCrossTargetId);
+        FlatLayerInfo copiedDiscontinuousBase = discontinuousCrossTarget.Session.Layers[^2];
+        FlatLayerInfo copiedDiscontinuousTarget = discontinuousCrossTarget.Session.Layers[^1];
+        Require(discontinuousCrossTarget.Session.Layers.Count == discontinuousCrossTargetCount + 2 &&
+            copiedDiscontinuousTarget.MaskSourceId == copiedDiscontinuousBase.Id,
+            "Cross-project discontinuous clipping copy did not remap the relationship or layer count.");
+        discontinuousCrossTarget.Save();
+        var reopenedDiscontinuousCross = ImageProjectWorkflow.OpenEditable(discontinuousCrossTargetPath);
+        Require(reopenedDiscontinuousCross.Layers[^1].MaskSourceId == reopenedDiscontinuousCross.Layers[^2].Id,
+            "Saved cross-project discontinuous clipping copy did not reopen with its relationship.");
+
+        var groupedDiscontinuousCrossSource = new EditorWorkspace();
+        groupedDiscontinuousCrossSource.Import(fixture,
+            Path.Combine(output, "GroupedDiscontinuousCrossLayerSource.comp"));
+        Guid groupedDiscontinuousBaseId = groupedDiscontinuousCrossSource.Session!.Layers[0].Id;
+        groupedDiscontinuousCrossSource.Session.AddBlankLayer("Unrelated sibling", 1);
+        Guid groupedDiscontinuousTargetId = groupedDiscontinuousCrossSource.Session
+            .AddBlankLayer("Discontinuous grouped target", 2);
+        groupedDiscontinuousCrossSource.Edit(session => session.SetLayerMaskSource(
+            groupedDiscontinuousTargetId, groupedDiscontinuousBaseId));
+        _ = groupedDiscontinuousCrossSource.Session.GroupLayers(
+            [groupedDiscontinuousBaseId, groupedDiscontinuousCrossSource.Session.Layers[1].Id,
+                groupedDiscontinuousTargetId], "Discontinuous source group");
+        var groupedDiscontinuousCrossTarget = new EditorWorkspace();
+        string groupedDiscontinuousCrossTargetPath = Path.Combine(output,
+            "GroupedDiscontinuousCrossLayerTarget.comp");
+        groupedDiscontinuousCrossTarget.Import(fixture, groupedDiscontinuousCrossTargetPath);
+        Require(groupedDiscontinuousCrossSource.CanCopyLayerTo(groupedDiscontinuousCrossTarget,
+                groupedDiscontinuousTargetId),
+            "A grouped discontinuous clipping stack did not enable cross-project copy.");
+        groupedDiscontinuousCrossSource.CopyLayerTo(groupedDiscontinuousCrossTarget,
+            groupedDiscontinuousTargetId);
+        FlatLayerInfo groupedCopiedTarget = groupedDiscontinuousCrossTarget.Session!.Layers[^1];
+        FlatLayerInfo groupedCopiedBase = groupedDiscontinuousCrossTarget.Session.Layers[^2];
+        Require(groupedCopiedTarget.MaskSourceId == groupedCopiedBase.Id &&
+            groupedCopiedTarget.ParentId is null && groupedCopiedBase.ParentId is null,
+            "Cross-project grouped discontinuous clipping copy did not flatten the source parent or remap the relationship.");
+        groupedDiscontinuousCrossTarget.Save();
+        var reopenedGroupedDiscontinuousCross = ImageProjectWorkflow.OpenEditable(
+            groupedDiscontinuousCrossTargetPath);
+        Require(reopenedGroupedDiscontinuousCross.Layers[^1].MaskSourceId ==
+                reopenedGroupedDiscontinuousCross.Layers[^2].Id,
+            "Saved grouped discontinuous clipping copy did not reopen with its relationship.");
+
         var crossLayerUiSource = new EditorWorkspace();
         crossLayerUiSource.Import(fixture, Path.Combine(output, "CrossLayerUiSource.comp"));
         Guid crossLayerUiSourceId = crossLayerUiSource.Session!.Layers[0].Id;
@@ -1585,7 +1642,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

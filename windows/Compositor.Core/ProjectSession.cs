@@ -1548,8 +1548,6 @@ public sealed class ProjectSession
             }
         } while (changed);
         int[] sourceIndexes = stackIds.Select(source.FindLayer).OrderBy(index => index).ToArray();
-        if (sourceIndexes[^1] - sourceIndexes[0] + 1 != sourceIndexes.Length)
-            throw new NotSupportedException("Clipping stack must remain contiguous when copied.");
         foreach (int index in sourceIndexes)
         {
             FlatLayerInfo layer = source.Layers[index];
@@ -1576,8 +1574,6 @@ public sealed class ProjectSession
             }
         } while (changed);
         int[] sourceIndexes = stackIds.Select(source.FindLayer).OrderBy(index => index).ToArray();
-        if (sourceIndexes[^1] - sourceIndexes[0] + 1 != sourceIndexes.Length)
-            throw new NotSupportedException("Clipping stack must remain contiguous when copied.");
         Guid? commonParentId = source.Layers[sourceIndexes[0]].ParentId;
         if (sourceIndexes.Any(index => source.Layers[index].ParentId != commonParentId))
             throw new NotSupportedException("A grouped clipping stack must remain in one parent group.");
