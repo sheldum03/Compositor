@@ -63,6 +63,33 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cmake --build "$env:RUNNER_TEMP/compositor-native" --config Release 2>&1 | Tee-Object "$env:EVIDENCE/native-build.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish Windows app with native DLL
+        if: matrix.project == 'Compositor.Smoke'
+        run: |
+          $package = Join-Path $env:EVIDENCE 'package'
+          $nativeDll = Join-Path $env:RUNNER_TEMP 'compositor-native/Release/compositor_native.dll'
+          New-Item -ItemType Directory -Force -Path $package | Out-Null
+          dotnet restore windows/Compositor.App/Compositor.App.csproj --runtime win-x64 --locked-mode 2>&1 |
+            Tee-Object (Join-Path $env:EVIDENCE 'app-restore.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet publish windows/Compositor.App/Compositor.App.csproj -c Release -r win-x64 --self-contained true --no-restore -o $package `
+            -p:CompositorNativeDll=$nativeDll 2>&1 |
+            Tee-Object (Join-Path $env:EVIDENCE 'app-publish.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $app = Join-Path $package 'Compositor.App.exe'
+          $packagedDll = Join-Path $package 'compositor_native.dll'
+          if (-not (Test-Path $app)) { throw 'Published apphost is missing.' }
+          if (-not (Test-Path $packagedDll)) { throw 'Published compositor_native.dll is missing.' }
+          $appHash = (Get-FileHash $app -Algorithm SHA256).Hash
+          $dllHash = (Get-FileHash $packagedDll -Algorithm SHA256).Hash
+          $fileCount = (Get-ChildItem $package -File | Measure-Object).Count
+          [ordered]@{
+            app = $app
+            appSha256 = $appHash
+            nativeDll = $packagedDll
+            nativeDllSha256 = $dllHash
+            fileCount = $fileCount
+          } | ConvertTo-Json | Set-Content (Join-Path $env:EVIDENCE 'package.json')
       - name: Run production checks and retain outputs
         working-directory: windows
         run: |
