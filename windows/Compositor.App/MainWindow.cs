@@ -441,7 +441,13 @@ public sealed class MainWindow : Window
                     Key.V when Workspace.Session is not null => PasteSelectionAsync,
                     _ => null
                 },
-                KeyModifiers.Control | KeyModifiers.Shift when e.Key == Key.I && Workspace.HasSelection => InvertSelectionAsync,
+                KeyModifiers.Control | KeyModifiers.Shift => e.Key switch
+                {
+                    Key.S => SaveAsAsync,
+                    Key.Z when Workspace.Session is not null => () => Task.Run(() => Workspace.Redo()),
+                    Key.I when Workspace.HasSelection => InvertSelectionAsync,
+                    _ => null
+                },
                 _ => null
             };
             if (command is not null) { e.Handled = true; _ = ExecuteAsync(command); }
