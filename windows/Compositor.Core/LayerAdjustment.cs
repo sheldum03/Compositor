@@ -423,6 +423,41 @@ public sealed record MotionBlurSettings(double Angle = 0, int Distance = 1)
     };
 }
 
+public sealed record NoiseSettings(double Amount = 10, bool Gaussian = false, bool Monochromatic = false, uint Seed = 0)
+{
+    public bool IsValid => double.IsFinite(Amount) && Amount is >= 0.1 and <= 400;
+
+    public bool IsIdentity => false;
+
+    public static bool TryRead(JsonNode? node, out NoiseSettings settings)
+    {
+        settings = new NoiseSettings();
+        if (node is null) return true;
+        try
+        {
+            var value = node.AsObject();
+            settings = new NoiseSettings(
+                value["amount"]?.GetValue<double>() ?? 10,
+                value["gaussian"]?.GetValue<bool>() ?? false,
+                value["monochromatic"]?.GetValue<bool>() ?? false,
+                value["seed"]?.GetValue<uint>() ?? 0);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new()
+    {
+        ["amount"] = Amount,
+        ["gaussian"] = Gaussian,
+        ["monochromatic"] = Monochromatic,
+        ["seed"] = Seed
+    };
+}
+
 public sealed record GrainSettings(double Amount = 25, double Size = 1.5, double Roughness = 50, uint Seed = 0)
 {
     public bool IsValid => double.IsFinite(Amount) && Amount is >= 0 and <= 100 &&

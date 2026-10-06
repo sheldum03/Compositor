@@ -11,7 +11,7 @@ public static class ImageProjectWorkflow
     private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster? Raster,
         ExposureSettings? Exposure, LevelsSettings? Levels, HueSaturationSettings? HueSaturation,
         CurvesSettings? Curves, GradientMapSettings? GradientMap, GaussianBlurSettings? GaussianBlur,
-        MotionBlurSettings? MotionBlur, GrainSettings? Grain);
+        MotionBlurSettings? MotionBlur, NoiseSettings? Noise, GrainSettings? Grain);
 
     public static ProjectSession Import(string imagePath, string projectDirectory)
     {
@@ -535,22 +535,24 @@ public static class ImageProjectWorkflow
             {
                 string? kind = adjustmentNode["kind"]?.GetValue<string>();
                 if (kind == "Exposure" && ExposureSettings.TryRead(adjustmentNode["exposureSettings"], out var exposure))
-                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null, null, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null, null, null, null, null, null, null, null));
                 else if (kind == "Levels" && LevelsSettings.TryRead(adjustmentNode["levelsSettings"], out var levels))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, levels, null, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, levels, null, null, null, null, null, null, null));
                 else if (kind == "Hue/Saturation" && HueSaturationSettings.TryRead(adjustmentNode["hueSaturationSettings"], out var hueSaturation))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, hueSaturation, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, hueSaturation, null, null, null, null, null, null));
                 else if (kind == "Curves" && CurvesSettings.TryRead(adjustmentNode["curvesSettings"], out var curves))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, curves, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, curves, null, null, null, null, null));
                 else if (kind == "Gradient Map" && GradientMapSettings.TryRead(adjustmentNode["gradientMapSettings"], out var gradientMap))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, gradientMap, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, gradientMap, null, null, null, null));
                 else if (kind == "Gaussian Blur" && GaussianBlurSettings.TryRead(adjustmentNode["gaussianBlurSettings"], out var gaussianBlur))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, gaussianBlur, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, gaussianBlur, null, null, null));
                 else if (kind == "Motion Blur" && MotionBlurSettings.TryRead(adjustmentNode["motionBlurSettings"], out var motionBlur))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, motionBlur, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, motionBlur, null, null));
+                else if (kind == "Add Noise" && NoiseSettings.TryRead(adjustmentNode["noiseSettings"], out var noise))
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, noise, null));
                 else if (kind == "Grain" && GrainSettings.TryRead(adjustmentNode["grainSettings"], out var grain))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, grain));
-                else throw new NotSupportedException("Only valid Exposure, Levels, Hue/Saturation, Curves, Gradient Map, Gaussian Blur, Motion Blur and Grain adjustment layers are supported.");
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, null, grain));
+                else throw new NotSupportedException("Only valid Exposure, Levels, Hue/Saturation, Curves, Gradient Map, Gaussian Blur, Motion Blur, Add Noise and Grain adjustment layers are supported.");
                 continue;
             }
             string imageName = layer["imageFile"]!.GetValue<string>();
@@ -592,7 +594,7 @@ public static class ImageProjectWorkflow
             var transform = layer["transform"]!.AsObject();
             if (!IsIdentityTransform(transform, width, height))
                 raster = TransformCachedRaster(raster, transform, width, height);
-            prepared.Add(new FlatLayerRender(layer, id, raster, null, null, null, null, null, null, null, null));
+            prepared.Add(new FlatLayerRender(layer, id, raster, null, null, null, null, null, null, null, null, null));
         }
         var byId = prepared.ToDictionary(layer => layer.Id);
         var resolved = new Dictionary<Guid, TileRaster>();
@@ -643,9 +645,9 @@ public static class ImageProjectWorkflow
             {
                 if (layer.Exposure is not null || layer.Levels is not null || layer.HueSaturation is not null ||
                     layer.Curves is not null || layer.GradientMap is not null || layer.GaussianBlur is not null ||
-                    layer.MotionBlur is not null || layer.Grain is not null)
+                    layer.MotionBlur is not null || layer.Noise is not null || layer.Grain is not null)
                 {
-                    result = ApplyAdjustment(result, layer.Exposure, layer.Levels, layer.HueSaturation, layer.Curves, layer.GradientMap, layer.GaussianBlur, layer.MotionBlur, layer.Grain,
+                    result = ApplyAdjustment(result, layer.Exposure, layer.Levels, layer.HueSaturation, layer.Curves, layer.GradientMap, layer.GaussianBlur, layer.MotionBlur, layer.Noise, layer.Grain,
                         layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
                     continue;
                 }
@@ -670,7 +672,7 @@ public static class ImageProjectWorkflow
 
         static TileRaster ApplyAdjustment(TileRaster source, ExposureSettings? exposure, LevelsSettings? levels,
             HueSaturationSettings? hueSaturation, CurvesSettings? curves, GradientMapSettings? gradientMap,
-            GaussianBlurSettings? gaussianBlur, MotionBlurSettings? motionBlur, GrainSettings? grain, double opacity)
+            GaussianBlurSettings? gaussianBlur, MotionBlurSettings? motionBlur, NoiseSettings? noise, GrainSettings? grain, double opacity)
         {
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
                 throw new NotSupportedException("Adjustment layer opacity is not supported.");
@@ -689,6 +691,8 @@ public static class ImageProjectWorkflow
                 ? RasterCompositor.ApplyGaussianBlur(source, gaussianBlurSettings)
                 : motionBlur is { } motionBlurSettings
                 ? RasterCompositor.ApplyMotionBlur(source, motionBlurSettings)
+                : noise is { } noiseSettings
+                ? RasterCompositor.ApplyNoise(source, noiseSettings)
                 : grain is { } grainSettings
                 ? RasterCompositor.ApplyGrain(source, grainSettings)
                 : throw new InvalidDataException("Adjustment settings are missing.");
@@ -1224,6 +1228,7 @@ public static class ImageProjectWorkflow
                 "Gradient Map" => GradientMapSettings.TryRead(node["gradientMapSettings"], out _),
                 "Gaussian Blur" => GaussianBlurSettings.TryRead(node["gaussianBlurSettings"], out _),
                 "Motion Blur" => MotionBlurSettings.TryRead(node["motionBlurSettings"], out _),
+                "Add Noise" => NoiseSettings.TryRead(node["noiseSettings"], out _),
                 "Grain" => GrainSettings.TryRead(node["grainSettings"], out _),
                 _ => false
             };

@@ -358,6 +358,54 @@ public static class RasterCompositor
         }
     }
 
+    public static TileRaster ApplyNoise(TileRaster image, NoiseSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        double spread = settings.Amount / 100d * 127.5d;
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            var size = image.TileDimensions(column, row);
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                int pixel = (y * size.Width + x) * 4;
+                int alpha = pixels[pixel + 3];
+                if (alpha == 0) continue;
+                int documentX = column * TileRaster.TileSize + x;
+                int documentY = row * TileRaster.TileSize + y;
+                uint baseKey = Mix32(settings.Seed ^ Mix32(unchecked((uint)(documentY * (long)image.Width + documentX))));
+                for (int channel = 0; channel < 3; channel++)
+                {
+                    uint key = settings.Monochromatic
+                        ? baseKey
+                        : unchecked(baseKey + (uint)channel * 0x9e3779b9U);
+                    double noise = settings.Gaussian
+                        ? Math.Sqrt(-2 * Math.Log(1 - Unit(key))) * Math.Cos(2 * Math.PI * Unit(key ^ 0x68e31da4U)) * spread * (2d / 3d)
+                        : (Unit(key) * 2 - 1) * spread;
+                    double straight = pixels[pixel + channel] * 255d / alpha;
+                    straight = Math.Clamp(straight + noise, 0, 255);
+                    pixels[pixel + channel] = (byte)Math.Clamp(
+                        Math.Round(straight * alpha / 255d, MidpointRounding.AwayFromZero), 0, alpha);
+                }
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+
+        static double Unit(uint key) => (Mix32(key) >> 8) * (1d / 16777216d);
+        static uint Mix32(uint value)
+        {
+            value ^= value >> 16;
+            value = unchecked(value * 0x7feb352dU);
+            value ^= value >> 15;
+            value = unchecked(value * 0x846ca68bU);
+            return value ^ (value >> 16);
+        }
+    }
+
     public static TileRaster ApplyGrain(TileRaster image, GrainSettings settings)
     {
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));

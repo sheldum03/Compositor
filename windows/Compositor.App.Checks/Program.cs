@@ -215,6 +215,24 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the Motion Blur adjustment transaction.");
+        TileRaster noiseBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddNoiseAdjustment");
+        FlatLayerInfo noiseLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == noiseLayer.Id &&
+            Control<Button>(window, "ApplyNoiseAdjustment").IsEffectivelyEnabled,
+            "Add Noise adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "NoiseAmount").Value = 80;
+        Control<CheckBox>(window, "NoiseGaussian").IsChecked = true;
+        Control<CheckBox>(window, "NoiseMonochromatic").IsChecked = true;
+        Click(window, "ApplyNoiseAdjustment");
+        NoiseSettings appliedNoise = workspace.Session.GetNoiseAdjustment(noiseLayer.Id);
+        Require(appliedNoise == new NoiseSettings(80, true, true),
+            "Add Noise controls did not commit amount, Gaussian distribution and monochromatic mode.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyNoise(noiseBase, appliedNoise));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Add Noise adjustment transaction.");
         TileRaster grainBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
         Click(window, "AddGrainAdjustment");
         FlatLayerInfo grainLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
