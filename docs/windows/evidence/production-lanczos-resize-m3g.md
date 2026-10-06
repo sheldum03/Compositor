@@ -2,7 +2,7 @@
 
 日期：2026-10-06
 
-实现提交：`e850ed2 Expose Lanczos resize choice in image size dialog`
+实现提交：`670d770 Expose Lanczos resize choice in image size dialog`
 
 ## 已实现范围
 
