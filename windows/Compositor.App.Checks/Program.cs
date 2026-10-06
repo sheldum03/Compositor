@@ -1592,26 +1592,34 @@ internal static class Program
         var crossParentChainWorkspace = new EditorWorkspace();
         string crossParentChainPath = Path.Combine(output, "CrossParentGroupedClippingChainLayerViaCopy.comp");
         crossParentChainWorkspace.Import(fixture, crossParentChainPath);
-        Guid crossParentChainSource2Id = crossParentChainWorkspace.Session!.ActiveLayerId!.Value;
+        Guid crossParentChainSource3Id = crossParentChainWorkspace.Session!.ActiveLayerId!.Value;
+        Guid crossParentChainSource2Id = Guid.Empty;
         Guid crossParentChainSource1Id = Guid.Empty;
         Guid crossParentChainTargetId = Guid.Empty;
+        Guid crossParentChainSource3GroupId = Guid.Empty;
         Guid crossParentChainSource2GroupId = Guid.Empty;
         Guid crossParentChainSource1GroupId = Guid.Empty;
         Guid crossParentChainTargetGroupId = Guid.Empty;
         crossParentChainWorkspace.Edit(session =>
         {
+            crossParentChainSource2Id = session.AddBlankLayer("Intermediate clipped source 2", session.Layers.Count);
             crossParentChainSource1Id = session.AddBlankLayer("Intermediate clipped source", session.Layers.Count);
             crossParentChainTargetId = session.AddBlankLayer("Cross-parent chain target", session.Layers.Count);
-            session.ReplaceLayerRaster(crossParentChainTargetId, session.GetLayerRaster(crossParentChainSource2Id));
-            session.SetLayerOpacity(crossParentChainSource2Id, 0.72);
-            session.SetLayerOpacity(crossParentChainSource1Id, 0.83);
-            crossParentChainSource2GroupId = session.GroupLayer(crossParentChainSource2Id, "First external source parent");
-            crossParentChainSource1GroupId = session.GroupLayer(crossParentChainSource1Id, "Second external source parent");
+            session.ReplaceLayerRaster(crossParentChainSource2Id, session.GetLayerRaster(crossParentChainSource3Id));
+            session.ReplaceLayerRaster(crossParentChainSource1Id, session.GetLayerRaster(crossParentChainSource3Id));
+            session.ReplaceLayerRaster(crossParentChainTargetId, session.GetLayerRaster(crossParentChainSource3Id));
+            session.SetLayerOpacity(crossParentChainSource3Id, 0.72);
+            crossParentChainSource3GroupId = session.GroupLayer(crossParentChainSource3Id, "First external source parent");
+            crossParentChainSource2GroupId = session.GroupLayer(crossParentChainSource2Id, "Second external source parent");
+            crossParentChainSource1GroupId = session.GroupLayer(crossParentChainSource1Id, "Third external source parent");
             crossParentChainTargetGroupId = session.GroupLayer(crossParentChainTargetId, "Cross-parent chain target parent");
         });
         crossParentChainWorkspace.Save();
         var crossParentChainManifest = JsonNode.Parse(
             File.ReadAllText(Path.Combine(crossParentChainPath, "manifest.json")))!.AsObject();
+        crossParentChainManifest["layers"]!.AsArray().Single(node =>
+            Guid.Parse(node!["id"]!.GetValue<string>()) == crossParentChainSource2Id)!["maskSourceID"] =
+            crossParentChainSource3Id.ToString("D");
         crossParentChainManifest["layers"]!.AsArray().Single(node =>
             Guid.Parse(node!["id"]!.GetValue<string>()) == crossParentChainSource1Id)!["maskSourceID"] =
             crossParentChainSource2Id.ToString("D");
@@ -1633,7 +1641,7 @@ internal static class Program
             crossParentChainWorkspace.Session.Layers.Single(layer => layer.Id == crossParentChainTargetId);
         Dispatcher.UIThread.RunJobs();
         Require(Control<Button>(crossParentChainWindow, "LayerViaCopy").IsEffectivelyEnabled,
-            "A cross-parent two-level clipping target did not enable Layer via Copy.");
+            "A cross-parent three-level clipping target did not enable Layer via Copy.");
         Click(crossParentChainWindow, "LayerViaCopy");
         Guid crossParentChainCopiedId = crossParentChainWorkspace.Session.ActiveLayerId!.Value;
         FlatLayerInfo crossParentChainCopied = crossParentChainWorkspace.Session.Layers
@@ -1642,7 +1650,7 @@ internal static class Program
             .FindIndex(layer => layer.Id == crossParentChainCopiedId);
         Require(crossParentChainCopied.ParentId is null &&
             crossParentChainCopiedIndex == crossParentChainTargetGroupIndex + 2,
-            "Cross-parent two-level clipping copy did not insert after the target group subtree.");
+            "Cross-parent three-level clipping copy did not insert after the target group subtree.");
         TileRaster crossParentChainCopiedRaster = crossParentChainWorkspace.Session
             .GetLayerRaster(crossParentChainCopiedId);
         for (int y = 0; y < crossParentChainCopiedRaster.Height; y++)
@@ -1651,20 +1659,22 @@ internal static class Program
             byte[] actual = PixelAt(crossParentChainCopiedRaster, x, y);
             if (x < crossParentChainCopiedRaster.Width / 2)
                 Require(actual.SequenceEqual(PixelAt(crossParentChainExpected, x, y)),
-                    "Cross-parent two-level clipping Layer via Copy changed selected pixels.");
+                    "Cross-parent three-level clipping Layer via Copy changed selected pixels.");
             else Require(actual.All(channel => channel == 0),
-                "Cross-parent two-level clipping Layer via Copy retained pixels outside the selection.");
+                "Cross-parent three-level clipping Layer via Copy retained pixels outside the selection.");
         }
         crossParentChainWorkspace.Save();
         var reopenedCrossParentChain = ImageProjectWorkflow.OpenEditable(crossParentChainPath);
         Require(reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainTargetId).MaskSourceId == crossParentChainSource1Id &&
             reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainSource1Id).MaskSourceId == crossParentChainSource2Id &&
+            reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainSource2Id).MaskSourceId == crossParentChainSource3Id &&
             reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainCopiedId).ParentId is null &&
+            reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainSource3Id).ParentId == crossParentChainSource3GroupId &&
             reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainSource2Id).ParentId == crossParentChainSource2GroupId &&
             reopenedCrossParentChain.Layers.Single(layer => layer.Id == crossParentChainSource1Id).ParentId == crossParentChainSource1GroupId &&
             CheckEqualNoThrow(crossParentChainCopiedRaster,
                 reopenedCrossParentChain.GetLayerRaster(crossParentChainCopiedId)),
-            "Saved cross-parent two-level clipping copy did not preserve relationships, root placement or raster.");
+            "Saved cross-parent three-level clipping copy did not preserve relationships, root placement or raster.");
         crossParentChainWindow.Close(); Dispatcher.UIThread.RunJobs();
         var transformedGroupedLeafWorkspace = new EditorWorkspace();
         string transformedGroupedLeafPath = Path.Combine(output, "TransformedGroupedLeafLayerViaCopy.comp");
@@ -1813,7 +1823,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut and Ctrl+Shift+Z redo shortcuts with pixel history restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "cross-parent grouped clipping visible-result Layer via Copy with external group transform/mask/appearance, root insertion and save/reopen", "cross-parent two-level clipping visible-result Layer via Copy with chain preservation, root insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut and Ctrl+Shift+Z redo shortcuts with pixel history restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "cross-parent grouped clipping visible-result Layer via Copy with external group transform/mask/appearance, root insertion and save/reopen", "cross-parent three-level clipping visible-result Layer via Copy with chain preservation, root insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

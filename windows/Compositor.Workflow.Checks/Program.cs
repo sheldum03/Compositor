@@ -786,27 +786,34 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
     string chainedSource = Path.Combine(output, "CrossParentGroupedClippingChainSource.comp");
     ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), chainedSource);
     var chainedSession = ImageProjectWorkflow.OpenEditable(chainedSource);
-    Guid chainedSource2Id = chainedSession.Layers.Single().Id;
+    Guid chainedSource3Id = chainedSession.Layers.Single().Id;
+    Guid chainedSource2Id = chainedSession.AddBlankLayer("Intermediate clipped source 2", chainedSession.Layers.Count);
     Guid chainedSource1Id = chainedSession.AddBlankLayer("Intermediate clipped source", chainedSession.Layers.Count);
     Guid chainedTargetId = chainedSession.AddBlankLayer("Cross-parent chain target", chainedSession.Layers.Count);
-    chainedSession.ReplaceLayerRaster(chainedTargetId, chainedSession.GetLayerRaster(chainedSource2Id));
-    chainedSession.SetLayerOpacity(chainedSource2Id, 0.72);
-    chainedSession.SetLayerOpacity(chainedSource1Id, 0.83);
-    Guid chainedSource2GroupId = chainedSession.GroupLayer(chainedSource2Id, "First external source parent");
-    Guid chainedSource1GroupId = chainedSession.GroupLayer(chainedSource1Id, "Second external source parent");
+    chainedSession.ReplaceLayerRaster(chainedSource2Id, chainedSession.GetLayerRaster(chainedSource3Id));
+    chainedSession.ReplaceLayerRaster(chainedSource1Id, chainedSession.GetLayerRaster(chainedSource3Id));
+    chainedSession.ReplaceLayerRaster(chainedTargetId, chainedSession.GetLayerRaster(chainedSource3Id));
+    chainedSession.SetLayerOpacity(chainedSource3Id, 0.72);
+    Guid chainedSource3GroupId = chainedSession.GroupLayer(chainedSource3Id, "First external source parent");
+    Guid chainedSource2GroupId = chainedSession.GroupLayer(chainedSource2Id, "Second external source parent");
+    Guid chainedSource1GroupId = chainedSession.GroupLayer(chainedSource1Id, "Third external source parent");
     Guid chainedTargetGroupId = chainedSession.GroupLayer(chainedTargetId, "Cross-parent chain target parent");
     ImageProjectWorkflow.Save(chainedSession, chainedSource);
     var chainedManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(chainedSource, "manifest.json")))!.AsObject();
+    chainedManifest["layers"]!.AsArray().Single(node =>
+        Guid.Parse(node!["id"]!.GetValue<string>()) == chainedSource2Id)!["maskSourceID"] = chainedSource3Id.ToString("D");
     chainedManifest["layers"]!.AsArray().Single(node =>
         Guid.Parse(node!["id"]!.GetValue<string>()) == chainedSource1Id)!["maskSourceID"] = chainedSource2Id.ToString("D");
     chainedManifest["layers"]!.AsArray().Single(node =>
         Guid.Parse(node!["id"]!.GetValue<string>()) == chainedTargetId)!["maskSourceID"] = chainedSource1Id.ToString("D");
     File.WriteAllText(Path.Combine(chainedSource, "manifest.json"), chainedManifest.ToJsonString());
     chainedSession = ImageProjectWorkflow.OpenEditable(chainedSource);
-    TileRaster expectedChainedSource = RasterCompositor.ApplyAlphaMask(
-        chainedSession.GetLayerRaster(chainedSource1Id), chainedSession.GetLayerRaster(chainedSource2Id), 0.72);
+    TileRaster expectedChainedSource2 = RasterCompositor.ApplyAlphaMask(
+        chainedSession.GetLayerRaster(chainedSource2Id), chainedSession.GetLayerRaster(chainedSource3Id), 0.72);
+    TileRaster expectedChainedSource1 = RasterCompositor.ApplyAlphaMask(
+        chainedSession.GetLayerRaster(chainedSource1Id), expectedChainedSource2, 1);
     TileRaster expectedChained = RasterCompositor.ApplyAlphaMask(
-        chainedSession.GetLayerRaster(chainedTargetId), expectedChainedSource, 0.83);
+        chainedSession.GetLayerRaster(chainedTargetId), expectedChainedSource1, 1);
     if (!ImageProjectWorkflow.CanRenderLayerForCopy(chainedSession, chainedTargetId) ||
         !ImageProjectWorkflow.GroupedLayerCopyRequiresRootInsertion(chainedSession, chainedTargetId))
         throw new Exception("A cross-parent multi-level clipping target was not enabled.");
@@ -822,14 +829,16 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
     var reopenedChained = ImageProjectWorkflow.OpenEditable(chainedSource);
     if (reopenedChained.Layers.Single(layer => layer.Id == chainedTargetId).MaskSourceId != chainedSource1Id ||
         reopenedChained.Layers.Single(layer => layer.Id == chainedSource1Id).MaskSourceId != chainedSource2Id ||
+        reopenedChained.Layers.Single(layer => layer.Id == chainedSource2Id).MaskSourceId != chainedSource3Id ||
         reopenedChained.Layers.Single(layer => layer.Id == chainedCopiedId).ParentId is not null ||
         reopenedChained.Layers.Single(layer => layer.Id == chainedSource2Id).ParentId != chainedSource2GroupId ||
-        reopenedChained.Layers.Single(layer => layer.Id == chainedSource1Id).ParentId != chainedSource1GroupId)
+        reopenedChained.Layers.Single(layer => layer.Id == chainedSource1Id).ParentId != chainedSource1GroupId ||
+        reopenedChained.Layers.Single(layer => layer.Id == chainedSource3Id).ParentId != chainedSource3GroupId)
         throw new Exception("Saved cross-parent multi-level clipping copy lost its relationships or root placement.");
     AssertRaster(expectedChained, reopenedChained.GetLayerRaster(chainedCopiedId));
     Console.WriteLine("PASS: cross-parent grouped clipping visible-result copy preserves root insertion, relationship and save/reopen");
     Console.WriteLine("PASS: cross-parent grouped clipping copy composes external group transform, mask and appearance");
-    Console.WriteLine("PASS: cross-parent grouped clipping copy composes a multi-level external clipping chain");
+    Console.WriteLine("PASS: cross-parent grouped clipping copy composes a three-level external clipping chain");
 
     static void ConfigureExternalSourceGroup(ProjectSession session, Guid groupId)
     {
