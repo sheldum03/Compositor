@@ -184,6 +184,7 @@ CheckLayerSelection(output);
 CheckExposureAdjustment(output);
 CheckLevelsAdjustment(output);
 CheckHueSaturationAdjustment(output);
+CheckCurvesAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1568,6 +1569,41 @@ static void CheckHueSaturationAdjustment(string output)
         throw new Exception("Hue/Saturation adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Hue/Saturation adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckCurvesAdjustment(string output)
+{
+    string project = Path.Combine(output, "CurvesAdjustment.comp");
+    var session = ProjectSession.CreateBlank(2, 1);
+    TileRaster source = new TileRaster(2, 1).ReplaceTile(0, 0,
+        [32, 16, 8, 128, 100, 40, 20, 255]);
+    session.ReplaceRaster(source);
+    var settings = new CurvesSettings(20, 160, 240);
+    Guid adjustmentId = session.AddCurvesAdjustment("Curves", settings, 1);
+    if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
+        session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Curves" ||
+        session.GetCurvesAdjustment(adjustmentId) != settings)
+        throw new Exception("Curves adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyCurves(source, settings);
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    if (Pixel(expected, 0, 0)[3] != Pixel(source, 0, 0)[3])
+        throw new Exception("Curves adjustment changed alpha.");
+
+    var changedSettings = new CurvesSettings(0, 128, 255);
+    session.SetCurvesAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyCurves(source, changedSettings), changed);
+    if (!session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Curves adjustment did not participate in undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Curves")
+        throw new Exception("Curves adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Curves adjustment layer metadata, premultiplied pixels, history and save/reopen");
 }
 
 static void CloneProject(string source, string destination)

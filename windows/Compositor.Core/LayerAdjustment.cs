@@ -169,3 +169,72 @@ public sealed record LevelsSettings(LevelRange Rgb, LevelRange Red, LevelRange G
         ["blue"] = Blue.ToJson()
     };
 }
+
+public sealed record CurvesSettings(double Shadow = 0, double Mid = 128, double Highlight = 255)
+{
+    public bool IsValid => double.IsFinite(Shadow) && Shadow is >= 0 and <= 255 &&
+        double.IsFinite(Mid) && Mid is >= 0 and <= 255 &&
+        double.IsFinite(Highlight) && Highlight is >= 0 and <= 255;
+
+    public bool IsIdentity => Shadow == 0 && Mid == 128 && Highlight == 255;
+
+    public double Apply(double value)
+    {
+        if (!IsValid) throw new InvalidOperationException("Invalid curves settings.");
+        double x = Math.Clamp(value, 0, 1) * 255;
+        double y;
+        if (x <= 128)
+        {
+            y = Hermite(x, 0, Shadow, 128, Mid, (Mid - Shadow) / 128,
+                Slope((Mid - Shadow) / 128, (Highlight - Mid) / 127));
+        }
+        else
+        {
+            y = Hermite(x, 128, Mid, 255, Highlight,
+                Slope((Mid - Shadow) / 128, (Highlight - Mid) / 127), (Highlight - Mid) / 127);
+        }
+        return Math.Clamp(y / 255, 0, 1);
+
+        static double Slope(double left, double right)
+        {
+            if (left * right <= 0) return 0;
+            return 2 / (1 / left + 1 / right);
+        }
+
+        static double Hermite(double x, double x0, double y0, double x1, double y1,
+            double slope0, double slope1)
+        {
+            double span = x1 - x0, t = Math.Clamp((x - x0) / span, 0, 1);
+            return (2 * t * t * t - 3 * t * t + 1) * y0 +
+                (t * t * t - 2 * t * t + t) * span * slope0 +
+                (-2 * t * t * t + 3 * t * t) * y1 +
+                (t * t * t - t * t) * span * slope1;
+        }
+    }
+
+    public static bool TryRead(JsonNode? node, out CurvesSettings settings)
+    {
+        settings = new CurvesSettings();
+        if (node is null) return true;
+        try
+        {
+            var value = node.AsObject();
+            settings = new CurvesSettings(
+                value["shadow"]?.GetValue<double>() ?? 0,
+                value["mid"]?.GetValue<double>() ?? 128,
+                value["highlight"]?.GetValue<double>() ?? 255);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new()
+    {
+        ["shadow"] = Shadow,
+        ["mid"] = Mid,
+        ["highlight"] = Highlight
+    };
+}

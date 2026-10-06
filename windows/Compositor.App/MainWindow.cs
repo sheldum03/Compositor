@@ -65,6 +65,10 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown adjustmentLightness = new() { Name = "AdjustmentLightness", Minimum = -100, Maximum = 100, Value = 0, Width = 70 };
     private readonly CheckBox adjustmentColorize = new() { Name = "AdjustmentColorize", Content = "着色" };
     private readonly StackPanel hueSaturationAdjustmentEditor = new() { Name = "HueSaturationAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown curvesShadow = new() { Name = "CurvesShadow", Minimum = 0, Maximum = 255, Value = 0, Width = 62 };
+    private readonly NumericUpDown curvesMid = new() { Name = "CurvesMid", Minimum = 0, Maximum = 255, Value = 128, Width = 62 };
+    private readonly NumericUpDown curvesHighlight = new() { Name = "CurvesHighlight", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
+    private readonly StackPanel curvesAdjustmentEditor = new() { Name = "CurvesAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -189,6 +193,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddExposureAdjustment", "新增曝光调整", AddExposureAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddLevelsAdjustment", "新增色阶调整", AddLevelsAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddHueSaturationAdjustment", "新增色相/饱和度", AddHueSaturationAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddCurvesAdjustment", "新增曲线调整", AddCurvesAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -278,6 +283,14 @@ public sealed class MainWindow : Window
         hueSaturationAdjustmentEditor.Children.Add(adjustmentColorize);
         hueSaturationAdjustmentEditor.Children.Add(Command("ApplyHueSaturationAdjustment", "应用色相/饱和度", ApplyHueSaturationAdjustmentAsync, layer: true));
         actions.Children.Add(hueSaturationAdjustmentEditor);
+        curvesAdjustmentEditor.Children.Add(new TextBlock { Text = "暗部", VerticalAlignment = VerticalAlignment.Center });
+        curvesAdjustmentEditor.Children.Add(curvesShadow);
+        curvesAdjustmentEditor.Children.Add(new TextBlock { Text = "中间调", VerticalAlignment = VerticalAlignment.Center });
+        curvesAdjustmentEditor.Children.Add(curvesMid);
+        curvesAdjustmentEditor.Children.Add(new TextBlock { Text = "高光", VerticalAlignment = VerticalAlignment.Center });
+        curvesAdjustmentEditor.Children.Add(curvesHighlight);
+        curvesAdjustmentEditor.Children.Add(Command("ApplyCurvesAdjustment", "应用曲线", ApplyCurvesAdjustmentAsync, layer: true));
+        actions.Children.Add(curvesAdjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -674,6 +687,7 @@ public sealed class MainWindow : Window
         ExposureSettings? exposure = null;
         LevelsSettings? levels = null;
         HueSaturationSettings? hueSaturation = null;
+        CurvesSettings? curves = null;
         refreshing = true;
         try
         {
@@ -701,6 +715,8 @@ public sealed class MainWindow : Window
                 levels = Workspace.Session!.GetLevelsAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Hue/Saturation")
                 hueSaturation = Workspace.Session!.GetHueSaturationAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Curves")
+                curves = Workspace.Session!.GetCurvesAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -714,6 +730,9 @@ public sealed class MainWindow : Window
             adjustmentSaturation.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Saturation;
             adjustmentLightness.Value = hueSaturation is null ? 0 : (decimal)hueSaturation.Lightness;
             adjustmentColorize.IsChecked = hueSaturation?.Colorize == true;
+            curvesShadow.Value = curves is null ? 0 : (decimal)curves.Shadow;
+            curvesMid.Value = curves is null ? 128 : (decimal)curves.Mid;
+            curvesHighlight.Value = curves is null ? 255 : (decimal)curves.Highlight;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -735,14 +754,18 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit;
         bool showHueSaturationEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Hue/Saturation" &&
             !multiple && Workspace.CanEdit;
+        bool showCurvesEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Curves" &&
+            !multiple && Workspace.CanEdit;
         adjustmentEditor.IsVisible = showExposureEditor;
         levelsAdjustmentEditor.IsVisible = showLevelsEditor;
         hueSaturationAdjustmentEditor.IsVisible = showHueSaturationEditor;
+        curvesAdjustmentEditor.IsVisible = showCurvesEditor;
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
             levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
         adjustmentHue.IsEnabled = adjustmentSaturation.IsEnabled = adjustmentLightness.IsEnabled =
             adjustmentColorize.IsEnabled = showHueSaturationEditor;
+        curvesShadow.IsEnabled = curvesMid.IsEnabled = curvesHighlight.IsEnabled = showCurvesEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -779,6 +802,11 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyHueSaturationAdjustment")
                 button.IsEnabled = showHueSaturationEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddCurvesAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyCurvesAdjustment")
+                button.IsEnabled = showCurvesEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -944,6 +972,7 @@ public sealed class MainWindow : Window
     private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
     private Task AddLevelsAdjustmentAsync() => Task.Run(() => Workspace.AddLevelsAdjustment());
     private Task AddHueSaturationAdjustmentAsync() => Task.Run(() => Workspace.AddHueSaturationAdjustment());
+    private Task AddCurvesAdjustmentAsync() => Task.Run(() => Workspace.AddCurvesAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
@@ -963,6 +992,12 @@ public sealed class MainWindow : Window
             (double)(adjustmentSaturation.Value ?? 0), (double)(adjustmentLightness.Value ?? 0),
             adjustmentColorize.IsChecked == true);
         return Task.Run(() => Workspace.ApplyActiveHueSaturationAdjustment(settings));
+    }
+    private Task ApplyCurvesAdjustmentAsync()
+    {
+        var settings = new CurvesSettings((double)(curvesShadow.Value ?? 0),
+            (double)(curvesMid.Value ?? 128), (double)(curvesHighlight.Value ?? 255));
+        return Task.Run(() => Workspace.ApplyActiveCurvesAdjustment(settings));
     }
     private Task DuplicateLayerAsync()
     {

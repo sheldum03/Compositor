@@ -142,6 +142,24 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the Hue/Saturation adjustment transaction.");
+        TileRaster curvesBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddCurvesAdjustment");
+        FlatLayerInfo curvesLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == curvesLayer.Id &&
+            Control<Button>(window, "ApplyCurvesAdjustment").IsEffectivelyEnabled,
+            "Curves adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "CurvesShadow").Value = 20;
+        Control<NumericUpDown>(window, "CurvesMid").Value = 160;
+        Control<NumericUpDown>(window, "CurvesHighlight").Value = 240;
+        Click(window, "ApplyCurvesAdjustment");
+        CurvesSettings appliedCurves = workspace.Session.GetCurvesAdjustment(curvesLayer.Id);
+        Require(appliedCurves == new CurvesSettings(20, 160, 240),
+            "Curves adjustment controls did not commit the RGB composite curve.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyCurves(curvesBase, appliedCurves));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the curves adjustment transaction.");
         Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");

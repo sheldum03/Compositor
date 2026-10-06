@@ -354,6 +354,7 @@ public static class ProjectStore
             "Exposure" => ExposureSettings.TryRead(adjustment["exposureSettings"], out _),
             "Levels" => LevelsSettings.TryRead(adjustment["levelsSettings"], out _),
             "Hue/Saturation" => HueSaturationSettings.TryRead(adjustment["hueSaturationSettings"], out _),
+            "Curves" => CurvesSettings.TryRead(adjustment["curvesSettings"], out _),
             _ => false
         };
         if (!settingsValid ||
