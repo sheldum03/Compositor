@@ -25,6 +25,8 @@ public sealed class EditorWorkspace
     private TileRaster? floatingRaster;
     private GrayTileRaster? floatingMask;
     private GrayTileRaster? floatingLayerMask;
+    private Guid? filterPreviewLayerId;
+    private TileRaster? filterPreviewRaster;
     private GrayTileRaster? floatingPreviousSelection;
     private Rect? floatingPreviousBounds;
     private SelectionOutline? floatingPreviousOutline;
@@ -37,6 +39,7 @@ public sealed class EditorWorkspace
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
+    public bool HasFilterPreview => filterPreviewRaster is not null;
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true && !readOnlyTextCache;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
@@ -97,6 +100,7 @@ public sealed class EditorWorkspace
     public void Edit(Action<ProjectSession> operation)
     {
         RequireIdle();
+        CancelFilterPreview();
         var session = RequireSession();
         RequireEditableSession();
         selectionMoveHistory = null;
@@ -269,6 +273,45 @@ public sealed class EditorWorkspace
             : session.Layers.Count;
         session.AddGrainAdjustment("Grain", settings ?? new GrainSettings(), index);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
+    public void PreviewGaussianBlurFilter(GaussianBlurSettings settings)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        ProjectSession session = RequireSession();
+        if (session.HasGroups || Selection is null || session.ActiveLayerId is not { } layerId)
+            throw new NotSupportedException("选区高斯模糊目前只支持无组平面栅格图层。");
+        FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
+        if (layer.IsGroup || layer.IsAdjustment || layer.IsText || layer.HasMask ||
+            !session.IsLayerTransformIdentity(layerId))
+            throw new NotSupportedException("选区高斯模糊目前只支持无蒙版、无变换的平面栅格图层。");
+        TileRaster source = session.GetLayerRaster(layerId);
+        TileRaster filtered = RasterCompositor.ApplyGaussianBlur(source, settings);
+        TileRaster preview = RasterCompositor.BlendThroughMask(source, filtered,
+            SelectionForLayer(session, layerId, Selection));
+        filterPreviewLayerId = layerId;
+        filterPreviewRaster = preview;
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session, layerId, preview);
+    }
+
+    public void CommitFilterPreview()
+    {
+        RequireIdle();
+        RequireEditableSession();
+        if (filterPreviewLayerId is not { } layerId || filterPreviewRaster is not { } preview)
+            throw new InvalidOperationException("当前没有滤镜预览。");
+        filterPreviewLayerId = null;
+        filterPreviewRaster = null;
+        Edit(session => session.ReplaceLayerRaster(layerId, preview));
+    }
+
+    public void CancelFilterPreview()
+    {
+        if (filterPreviewRaster is null) return;
+        filterPreviewLayerId = null;
+        filterPreviewRaster = null;
+        if (Session is { } session) Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
     public void ApplyActiveExposureAdjustment(ExposureSettings settings)
@@ -552,6 +595,7 @@ public sealed class EditorWorkspace
     public bool Undo()
     {
         RequireIdle();
+        CancelFilterPreview();
         var session = RequireSession();
         if (!session.Undo())
         {
@@ -572,6 +616,7 @@ public sealed class EditorWorkspace
     public bool Redo()
     {
         RequireIdle();
+        CancelFilterPreview();
         var session = RequireSession();
         if (!session.Redo())
         {
@@ -710,6 +755,7 @@ public sealed class EditorWorkspace
 
     public void SelectLasso(IReadOnlyList<Point> points, GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
+        CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
         if (points.Count < 3) { ClearSelection(); return; }
@@ -727,6 +773,7 @@ public sealed class EditorWorkspace
 
     public void SelectAll()
     {
+        CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
         Selection = GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width, session.Height);
@@ -738,6 +785,7 @@ public sealed class EditorWorkspace
     public void InvertSelection()
     {
         RequireIdle();
+        CancelFilterPreview();
         selectionMoveHistory = null;
         if (Selection is not { } selection) throw new InvalidOperationException("请先建立选区。");
         var next = selection.Invert();
@@ -755,6 +803,7 @@ public sealed class EditorWorkspace
     public void FeatherSelection(int radius)
     {
         RequireIdle();
+        CancelFilterPreview();
         selectionMoveHistory = null;
         if (Selection is not { } selection) throw new InvalidOperationException("请先建立选区。");
         GrayTileRaster next = selection.Blur(radius);
@@ -772,6 +821,7 @@ public sealed class EditorWorkspace
     public void SelectMagicWand(Point point, int tolerance, int radius, bool contiguous,
         GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
+        CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
         var raster = Preview ?? ImageProjectWorkflow.RenderFlatNormal(session);
@@ -791,6 +841,7 @@ public sealed class EditorWorkspace
 
     private void SelectShape(Rect rectangle, GraySelectionOperation operation, bool ellipse)
     {
+        CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
         double left = Math.Max(0, Math.Min(rectangle.Left, rectangle.Right));
@@ -816,6 +867,7 @@ public sealed class EditorWorkspace
 
     public void ClearSelection()
     {
+        CancelFilterPreview();
         selectionMoveHistory = null;
         Selection = null;
         SelectionBounds = null;

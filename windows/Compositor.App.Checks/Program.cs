@@ -85,6 +85,27 @@ internal static class Program
             "Invert layer did not preserve alpha or record a pixel edit.");
         Click(window, "Undo");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertBefore);
+        Click(window, "SelectAll");
+        TileRaster filterSource = workspace.Session.GetLayerRaster(Guid.Parse(id));
+        bool filterBaselineDirty = workspace.IsDirty;
+        Control<NumericUpDown>(window, "SelectionGaussianBlurRadius").Value = 2;
+        Click(window, "PreviewSelectionGaussianBlur");
+        Require(workspace.HasFilterPreview && workspace.IsDirty == filterBaselineDirty,
+            "Selection Gaussian Blur preview incorrectly changed document history.");
+        Click(window, "CancelSelectionGaussianBlur");
+        Require(!workspace.HasFilterPreview && workspace.IsDirty == filterBaselineDirty &&
+            CheckEqualNoThrow(workspace.Session.GetLayerRaster(Guid.Parse(id)), filterSource),
+            "Cancelling selection Gaussian Blur did not restore the source raster and history.");
+        Click(window, "PreviewSelectionGaussianBlur");
+        Click(window, "CommitSelectionGaussianBlur");
+        Require(!workspace.HasFilterPreview && workspace.IsDirty &&
+            !CheckEqualNoThrow(workspace.Session.GetLayerRaster(Guid.Parse(id)), filterSource),
+            "Committing selection Gaussian Blur did not create one destructive pixel transaction.");
+        Click(window, "Undo");
+        Require(workspace.IsDirty == filterBaselineDirty &&
+            CheckEqualNoThrow(workspace.Session.GetLayerRaster(Guid.Parse(id)), filterSource),
+            "Undo did not restore the source raster after selection Gaussian Blur commit.");
+        Click(window, "ClearSelection");
         bool adjustmentBaselineDirty = workspace.IsDirty;
         TileRaster adjustmentBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
         Click(window, "AddExposureAdjustment");
@@ -2031,7 +2052,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons", "formal point-text layer creation, editing, save and reopen",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut and Ctrl+Shift+Z redo shortcuts with pixel history restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "cross-parent grouped clipping visible-result Layer via Copy with external group transform/mask/appearance, root insertion and save/reopen", "cross-parent fifteen-level clipping visible-result Layer via Copy with chain preservation, root insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "destructive active-layer invert with alpha preservation and undo/redo", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "Ctrl+X cut and Ctrl+Shift+Z redo shortcuts with pixel history restore", "cross-project transformed selection paste normalized to document coordinates and save/reopen", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "cross-project flat and grouped discontinuous clipping-stack copy with relationship remapping and save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "root group visible-result Layer via Copy with selection clipping", "grouped nested clipping-stack visible-result Layer via Copy with chain preservation", "same-parent discontinuous clipping-stack visible-result Layer via Copy with target insertion and save/reopen", "cross-parent grouped clipping visible-result Layer via Copy with external group transform/mask/appearance, root insertion and save/reopen", "cross-parent fifteen-level clipping visible-result Layer via Copy with chain preservation, root insertion and save/reopen", "transformed and non-Normal layer-via-copy visible pixels", "destructive active-layer invert with alpha preservation and undo/redo", "selection Gaussian Blur preview/cancel/commit with undo", "layer-list drag reorder with undo/redo/save/reopen", "group merge with root subtree flattening and undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");

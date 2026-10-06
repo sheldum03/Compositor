@@ -555,6 +555,39 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster BlendThroughMask(TileRaster original, TileRaster changed, GrayTileRaster coverage)
+    {
+        if (original.Width != changed.Width || original.Height != changed.Height ||
+            original.Width != coverage.Width || original.Height != coverage.Height)
+            throw new ArgumentException("Raster and coverage dimensions must match.");
+        var result = new TileRaster(original.Width, original.Height);
+        for (int row = 0; row * TileRaster.TileSize < original.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < original.Width; column++)
+        {
+            var size = original.TileDimensions(column, row);
+            byte[] source = original.ReadTileCopy(column, row);
+            byte[] replacement = changed.ReadTileCopy(column, row);
+            byte[] mask = coverage.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                int pixel = (y * size.Width + x) * 4;
+                int amount = mask[y * size.Width + x];
+                if (amount == 0) continue;
+                if (amount == 255)
+                {
+                    replacement.AsSpan(pixel, 4).CopyTo(source.AsSpan(pixel, 4));
+                    continue;
+                }
+                for (int channel = 0; channel < 4; channel++)
+                    source[pixel + channel] = (byte)((source[pixel + channel] * (255 - amount) +
+                        replacement[pixel + channel] * amount + 127) / 255);
+            }
+            result = result.ReplaceTile(column, row, source);
+        }
+        return result;
+    }
+
     public static TileRaster ApplyAlphaMask(TileRaster image, TileRaster source, double sourceOpacity = 1)
     {
         if (image.Width != source.Width || image.Height != source.Height)
