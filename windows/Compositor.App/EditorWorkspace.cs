@@ -206,8 +206,6 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("只能合并连续图层。");
         if (session.HasGroups || selected.Any(item => item.Layer.IsGroup))
             throw new NotSupportedException("组图层暂不支持合并。");
-        if (selected.Any(item => item.Layer.BlendMode != "Normal"))
-            throw new NotSupportedException("当前切片只支持 Normal 图层合并。");
         if (selected.Any(item => !session.IsLayerTransformIdentity(item.Layer.Id)))
             throw new NotSupportedException("变换图层合并前请先烘焙变换。");
         var selectedIds = selected.Select(item => item.Layer.Id).ToHashSet();

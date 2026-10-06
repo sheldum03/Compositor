@@ -153,6 +153,54 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedMerge), expectedMerge);
         mergeWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string appearanceMergeProject = Path.Combine(output, "AppearanceMerge.comp");
+        var appearanceMergeWorkspace = new EditorWorkspace();
+        appearanceMergeWorkspace.Import(fixture, appearanceMergeProject);
+        Guid appearanceLowerId = appearanceMergeWorkspace.Session!.Layers[0].Id;
+        Guid appearanceTopId = appearanceMergeWorkspace.Session.AddBlankLayer("Appearance top", 1);
+        TileRaster appearanceTopRaster = appearanceMergeWorkspace.Session.GetLayerRaster(appearanceTopId);
+        var appearanceSize = appearanceTopRaster.TileDimensions(0, 0);
+        byte[] appearanceTile = appearanceTopRaster.ReadTileCopy(0, 0);
+        int appearanceOffset = (14 * appearanceSize.Width + 14) * 4;
+        appearanceTile[appearanceOffset] = 150; appearanceTile[appearanceOffset + 1] = 70;
+        appearanceTile[appearanceOffset + 2] = 40; appearanceTile[appearanceOffset + 3] = 192;
+        appearanceMergeWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(appearanceLowerId, 0.65);
+            session.SetLayerBlendMode(appearanceLowerId, "Multiply");
+            session.SetLayerOpacity(appearanceTopId, 0.55);
+            session.SetLayerBlendMode(appearanceTopId, "Screen");
+            session.ReplaceLayerRaster(appearanceTopId, appearanceTopRaster.ReplaceTile(0, 0, appearanceTile));
+        });
+        appearanceMergeWorkspace.Save();
+        TileRaster appearanceBefore = ImageProjectWorkflow.RenderFlatNormal(appearanceMergeWorkspace.Session);
+        var appearanceWindow = new MainWindow(appearanceMergeWorkspace);
+        appearanceWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(appearanceWindow, "Layers").SelectedItem =
+            appearanceMergeWorkspace.Session.Layers.Single(layer => layer.Id == appearanceTopId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(appearanceWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "Non-Normal flat layers did not enable the restricted appearance merge command.");
+        Click(appearanceWindow, "MergeLayerDown");
+        Require(appearanceMergeWorkspace.Session.Layers.Count == 1 && appearanceMergeWorkspace.IsDirty,
+            "Non-Normal appearance merge did not produce one layer.");
+        FlatLayerInfo appearanceMerged = appearanceMergeWorkspace.Session.Layers.Single();
+        Require(appearanceMerged.Opacity == 1 && appearanceMerged.BlendMode == "Normal",
+            "Non-Normal appearance merge did not normalize output metadata.");
+        CheckEqual(appearanceMergeWorkspace.Preview!, appearanceBefore);
+        Click(appearanceWindow, "Undo");
+        Require(appearanceMergeWorkspace.Session.Layers.Count == 2 && !appearanceMergeWorkspace.IsDirty,
+            "Undo did not restore the non-Normal appearance layers.");
+        CheckEqual(appearanceMergeWorkspace.Preview!, appearanceBefore);
+        Click(appearanceWindow, "Redo");
+        appearanceMergeWorkspace.Save();
+        var reopenedAppearanceMerge = ImageProjectWorkflow.OpenEditable(appearanceMergeProject);
+        Require(reopenedAppearanceMerge.Layers.Count == 1 &&
+            reopenedAppearanceMerge.Layers[0].Opacity == 1 && reopenedAppearanceMerge.Layers[0].BlendMode == "Normal",
+            "Saved non-Normal appearance merge did not reopen as a normalized layer.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedAppearanceMerge), appearanceBefore);
+        appearanceWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string multiMergeProject = Path.Combine(output, "MultiMerge.comp");
         var multiMergeWorkspace = new EditorWorkspace();
         multiMergeWorkspace.Import(fixture, multiMergeProject);
@@ -647,7 +695,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
                 "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
