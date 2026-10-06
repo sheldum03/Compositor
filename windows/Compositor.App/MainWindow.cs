@@ -227,8 +227,11 @@ public sealed class MainWindow : Window
             if (draggingLayer is null || draggingLayers) return;
             Point current = e.GetPosition(layers);
             if (Math.Abs(current.X - layerDragStart.X) < 6 && Math.Abs(current.Y - layerDragStart.Y) < 6) return;
-            if (!Workspace.CanMoveLayerTo(draggingLayer.Id,
-                    Workspace.Session?.Layers.ToList().FindIndex(layer => layer.Id == draggingLayer.Id) ?? -1))
+            int sourceIndex = Workspace.Session?.Layers.ToList().FindIndex(layer => layer.Id == draggingLayer.Id) ?? -1;
+            bool canReorder = Workspace.CanMoveLayerTo(draggingLayer.Id, sourceIndex);
+            bool canCopyToProject = projects.Where((_, index) => index != activeProjectIndex)
+                .Any(project => Workspace.CanCopyLayerTo(project, draggingLayer.Id));
+            if (!canReorder && !canCopyToProject)
             {
                 draggingLayer = null;
                 return;
@@ -241,9 +244,18 @@ public sealed class MainWindow : Window
         {
             if (!draggingLayers || draggingLayer is null) { draggingLayer = null; return; }
             FlatLayerInfo source = draggingLayer;
+            EditorWorkspace sourceWorkspace = Workspace;
+            int? targetProjectIndex = ProjectTabAt(e.GetPosition(this));
             Point position = e.GetPosition(layers);
             FlatLayerInfo? target = LayerFromVisual(layers.InputHitTest(position) as Visual);
             draggingLayer = null; draggingLayers = false; e.Pointer.Capture(null); e.Handled = true;
+            if (targetProjectIndex is { } projectIndex && projectIndex != activeProjectIndex)
+            {
+                EditorWorkspace targetWorkspace = projects[projectIndex];
+                if (sourceWorkspace.CanCopyLayerTo(targetWorkspace, source.Id))
+                    _ = ExecuteAsync(() => CopyLayerToProjectAsync(sourceWorkspace, targetWorkspace, projectIndex, source.Id));
+                return;
+            }
             if (target is null || target.Id == source.Id || Workspace.Session is not { } session) return;
             int destination = session.Layers.ToList().FindIndex(layer => layer.Id == target.Id);
             if (destination >= 0 && Workspace.CanMoveLayerTo(source.Id, destination))
@@ -429,6 +441,17 @@ public sealed class MainWindow : Window
         var close = new Button { Name = "CloseProject", Content = "关闭项目", IsEnabled = !IsBusy && Workspace.Session is not null };
         close.Click += async (_, _) => await ExecuteAsync(CloseProjectTabAsync);
         projectTabs.Children.Add(close);
+    }
+
+    private int? ProjectTabAt(Point windowPoint)
+    {
+        for (int index = 0; index < projects.Count; index++)
+        {
+            if (projectTabs.Children[index] is not Control tab || tab.TranslatePoint(new Point(0, 0), this) is not { } origin)
+                continue;
+            if (new Rect(origin, tab.Bounds.Size).Contains(windowPoint)) return index;
+        }
+        return null;
     }
 
     public void AddProjectTab(EditorWorkspace workspace)
@@ -658,6 +681,14 @@ public sealed class MainWindow : Window
     }
 
     private Task LayerViaCopyAsync() => Task.Run(() => Workspace.LayerViaCopy());
+
+    private async Task CopyLayerToProjectAsync(EditorWorkspace source, EditorWorkspace target, int targetIndex, Guid layerId)
+    {
+        await Task.Run(() => source.CopyLayerTo(target, layerId));
+        activeProjectIndex = targetIndex;
+        selectedId = null;
+        displayedSession = null;
+    }
 
     private Task DeleteLayerAsync()
     {

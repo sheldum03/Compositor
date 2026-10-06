@@ -395,6 +395,94 @@ internal static class Program
             "Closing a project tab did not preserve the remaining workspace.");
         tabsWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string crossLayerSourcePath = Path.Combine(output, "CrossLayerSource.comp");
+        string crossLayerTargetPath = Path.Combine(output, "CrossLayerTarget.comp");
+        var crossLayerSource = new EditorWorkspace();
+        crossLayerSource.Import(fixture, crossLayerSourcePath);
+        Guid crossLayerSourceId = crossLayerSource.Session!.ActiveLayerId!.Value;
+        crossLayerSource.Edit(session =>
+        {
+            session.EnsureLayerMask(crossLayerSourceId);
+            session.SetLayerMaskEnabled(crossLayerSourceId, false);
+            session.SetLayerOpacity(crossLayerSourceId, 0.63);
+            session.SetLayerBlendMode(crossLayerSourceId, "Multiply");
+            session.MoveLayerTransform(crossLayerSourceId, 5, 7);
+        });
+        crossLayerSource.Save();
+        TileRaster crossLayerRaster = crossLayerSource.Session.GetLayerRaster(crossLayerSourceId);
+        GrayTileRaster crossLayerMask = crossLayerSource.Session.GetLayerMask(crossLayerSourceId)!;
+        LayerTransformInfo crossLayerTransform = crossLayerSource.Session.GetLayerTransform(crossLayerSourceId);
+        var crossLayerTarget = new EditorWorkspace();
+        crossLayerTarget.Import(fixture, crossLayerTargetPath);
+        int crossLayerTargetCount = crossLayerTarget.Session!.Layers.Count;
+        Require(crossLayerSource.CanCopyLayerTo(crossLayerTarget, crossLayerSourceId),
+            "Matching flat projects did not enable cross-project layer copy.");
+        crossLayerSource.CopyLayerTo(crossLayerTarget, crossLayerSourceId);
+        FlatLayerInfo copiedCrossLayer = crossLayerTarget.Session.Layers[^1];
+        Require(crossLayerTarget.Session.Layers.Count == crossLayerTargetCount + 1 &&
+            copiedCrossLayer.Name == crossLayerSource.Session.Layers.Single(layer => layer.Id == crossLayerSourceId).Name &&
+            copiedCrossLayer.Opacity == 0.63 && copiedCrossLayer.BlendMode == "Multiply" &&
+            copiedCrossLayer.HasMask && !copiedCrossLayer.MaskEnabled &&
+            crossLayerTarget.Session.GetLayerTransform(copiedCrossLayer.Id) == crossLayerTransform &&
+            !crossLayerSource.IsDirty && crossLayerTarget.IsDirty,
+            "Cross-project layer copy did not preserve metadata or source history state.");
+        Require(CheckEqualNoThrow(crossLayerRaster, crossLayerTarget.Session.GetLayerRaster(copiedCrossLayer.Id)) &&
+            CheckEqualNoThrow(crossLayerMask, crossLayerTarget.Session.GetLayerMask(copiedCrossLayer.Id)!),
+            "Cross-project layer copy did not preserve raster or mask pixels.");
+        Require(crossLayerTarget.Undo() && crossLayerTarget.Session.Layers.Count == crossLayerTargetCount &&
+            !crossLayerTarget.IsDirty && crossLayerTarget.Redo() && crossLayerTarget.Session.Layers.Count == crossLayerTargetCount + 1,
+            "Undo/redo did not isolate the cross-project layer copy in the target history.");
+        crossLayerTarget.Save();
+        var reopenedCrossLayer = ImageProjectWorkflow.OpenEditable(crossLayerTargetPath);
+        FlatLayerInfo reopenedCopiedCrossLayer = reopenedCrossLayer.Layers[^1];
+        Require(reopenedCopiedCrossLayer.Opacity == 0.63 && reopenedCopiedCrossLayer.BlendMode == "Multiply" &&
+            reopenedCopiedCrossLayer.HasMask && !reopenedCopiedCrossLayer.MaskEnabled &&
+            CheckEqualNoThrow(crossLayerRaster, reopenedCrossLayer.GetLayerRaster(reopenedCopiedCrossLayer.Id)) &&
+            CheckEqualNoThrow(crossLayerMask, reopenedCrossLayer.GetLayerMask(reopenedCopiedCrossLayer.Id)!),
+            "Saved cross-project layer copy did not survive reopen.");
+        var mismatchedCrossLayerTarget = new EditorWorkspace();
+        mismatchedCrossLayerTarget.New(64, 64, 72);
+        Require(!crossLayerSource.CanCopyLayerTo(mismatchedCrossLayerTarget, crossLayerSourceId),
+            "Cross-project layer copy incorrectly allowed mismatched canvas dimensions.");
+        var clippedCrossLayerSource = new EditorWorkspace();
+        clippedCrossLayerSource.Import(fixture, Path.Combine(output, "ClippedCrossLayerSource.comp"));
+        Guid clippedSourceId = clippedCrossLayerSource.Session!.Layers[0].Id;
+        Guid clippedTargetId = clippedCrossLayerSource.Session.AddBlankLayer("Clipped target", 1);
+        clippedCrossLayerSource.Edit(session => session.SetLayerMaskSource(clippedTargetId, clippedSourceId));
+        Require(!clippedCrossLayerSource.CanCopyLayerTo(crossLayerTarget, clippedSourceId) &&
+            !clippedCrossLayerSource.CanCopyLayerTo(crossLayerTarget, clippedTargetId),
+            "Cross-project layer copy incorrectly allowed a partial clipping stack.");
+
+        var crossLayerUiSource = new EditorWorkspace();
+        crossLayerUiSource.Import(fixture, Path.Combine(output, "CrossLayerUiSource.comp"));
+        crossLayerUiSource.Edit(session => session.AddBlankLayer("Second source layer", session.Layers.Count));
+        var crossLayerUiTarget = new EditorWorkspace();
+        crossLayerUiTarget.Import(fixture, Path.Combine(output, "CrossLayerUiTarget.comp"));
+        var crossLayerWindow = new MainWindow(crossLayerUiSource);
+        crossLayerWindow.Show(); Dispatcher.UIThread.RunJobs();
+        crossLayerWindow.AddProjectTab(crossLayerUiTarget);
+        crossLayerWindow.ActivateProjectTab(0);
+        var crossLayerList = Control<ListBox>(crossLayerWindow, "Layers");
+        crossLayerList.ScrollIntoView(0);
+        Dispatcher.UIThread.RunJobs();
+        var crossLayerItems = crossLayerList.GetVisualDescendants().OfType<ListBoxItem>().ToArray();
+        Require(crossLayerItems.Length >= 1,
+            $"Cross-project drag source did not materialize its layer: visuals={crossLayerItems.Length}, layers={crossLayerUiSource.Session!.Layers.Count}, active={crossLayerWindow.ActiveProjectIndex}.");
+        Point crossLayerStart = crossLayerItems[0].TranslatePoint(new Point(20, crossLayerItems[0].Bounds.Height / 2), crossLayerWindow)!.Value;
+        Button crossLayerTab = Control<Button>(crossLayerWindow, "ProjectTab1");
+        Point crossLayerEnd = crossLayerTab.TranslatePoint(new Point(crossLayerTab.Bounds.Width / 2, crossLayerTab.Bounds.Height / 2), crossLayerWindow)!.Value;
+        crossLayerWindow.MouseDown(crossLayerStart, MouseButton.Left);
+        crossLayerWindow.MouseMove(crossLayerEnd);
+        crossLayerWindow.MouseUp(crossLayerEnd, MouseButton.Left);
+        Pump(crossLayerWindow);
+        Require(crossLayerWindow.ActiveProjectIndex == 1 && crossLayerUiTarget.Session!.Layers.Count == 2,
+            "Dragging a layer onto another project tab did not copy it into the target project.");
+        Click(crossLayerWindow, "Undo");
+        Require(crossLayerUiTarget.Session!.Layers.Count == 1, "Cross-project drag copy did not undo in the target project.");
+        Click(crossLayerWindow, "Redo");
+        crossLayerUiTarget.Save();
+        crossLayerWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string clipboardProjectPath = Path.Combine(output, "ClipboardImage.comp");
         var clipboardWorkspace = new EditorWorkspace();
         clipboardWorkspace.Import(fixture, clipboardProjectPath);
@@ -560,7 +648,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
@@ -615,6 +703,14 @@ internal static class Program
             Require(a.ReadTileCopy(x, y).SequenceEqual(b.ReadTileCopy(x, y)), "Raster pixels changed.");
     }
     private static bool CheckEqualNoThrow(TileRaster a, TileRaster b)
+    {
+        if (a.Width != b.Width || a.Height != b.Height) return false;
+        for (int y = 0; y * TileRaster.TileSize < a.Height; y++)
+        for (int x = 0; x * TileRaster.TileSize < a.Width; x++)
+            if (!a.ReadTileCopy(x, y).SequenceEqual(b.ReadTileCopy(x, y))) return false;
+        return true;
+    }
+    private static bool CheckEqualNoThrow(GrayTileRaster a, GrayTileRaster b)
     {
         if (a.Width != b.Width || a.Height != b.Height) return false;
         for (int y = 0; y * TileRaster.TileSize < a.Height; y++)

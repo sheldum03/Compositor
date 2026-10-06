@@ -143,6 +143,34 @@ public sealed class EditorWorkspace
         Edit(current => current.MoveLayerTo(layerId, destinationIndex));
     }
 
+    public bool CanCopyLayerTo(EditorWorkspace target, Guid layerId)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        if (ReferenceEquals(this, target) || !CanEdit || !target.CanEdit || HasActiveStroke || HasFloatingSelection ||
+            target.HasActiveStroke || target.HasFloatingSelection || Session is not { } sourceSession ||
+            target.Session is not { } targetSession)
+            return false;
+        int destinationIndex = targetSession.ActiveLayerId is { } activeId
+            ? targetSession.Layers.ToList().FindIndex(layer => layer.Id == activeId) + 1
+            : targetSession.Layers.Count;
+        return targetSession.CanCopyLayerFrom(sourceSession, layerId, destinationIndex);
+    }
+
+    public void CopyLayerTo(EditorWorkspace target, Guid layerId)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        RequireIdle();
+        target.RequireIdle();
+        var sourceSession = RequireSession();
+        var targetSession = target.RequireSession();
+        if (!CanCopyLayerTo(target, layerId))
+            throw new NotSupportedException("跨工程图层拖放目前只支持相同画布尺寸的平面工程；组和剪贴栈需先单独处理。");
+        int destinationIndex = targetSession.ActiveLayerId is { } activeId
+            ? targetSession.Layers.ToList().FindIndex(layer => layer.Id == activeId) + 1
+            : targetSession.Layers.Count;
+        target.Edit(current => current.CopyLayerFrom(sourceSession, layerId, destinationIndex));
+    }
+
     public void MergeSelectedLayers(IReadOnlyList<Guid> layerIds)
     {
         RequireIdle();
