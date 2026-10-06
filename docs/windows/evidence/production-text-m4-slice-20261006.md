@@ -26,7 +26,13 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix also passed on `ea1b035`: [run 37412445067](https://github.com/sheldum03/Compositor/actions/runs/37412445067) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes the missing-font read-only preview assertion.
+The Windows production core matrix passed on `b88c8a4`: [run 37413653050](https://github.com/sheldum03/Compositor/actions/runs/37413653050) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes the missing-font read-only preview plus the available-font text editor and undo/redo regression; the Workflow case includes the persistent font library checks.
+
+## Editor and font library slice
+
+- `819727d` adds a bounded editable-font transaction: content, font family, size, and alignment are validated, redrawn from v8 metadata, committed as one history step, and retained across undo/redo, save, and reopen. The formal Avalonia window exposes the controls only for editable text layers.
+- `b88c8a4` adds a persistent `FontLibrary` under the user's local application data. It records hash-addressed `.otf`/`.ttf`/`.ttc` bytes in `fonts.json`, deduplicates repeated imports, restores registered faces on process start, supports explicit TTC face indexes, and exposes a formal-window import entry.
+- Local App/Workflow checks passed after these changes. The Windows production run above passed all five jobs, including the editor UI and font-library regressions.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 
@@ -34,6 +40,6 @@ The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executabl
 
 - No Windows GUI text editor, IME, selection, hit testing, or candidate-window validation.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- No font import, TTC face selection, damaged-font recovery, missing-font replacement UI, or user-selected font persistence.
+- No point/box text tool, IME, hit testing, full reflow, conflict-font visual resolver, damaged-font recovery policy, or complex v8 semantic writeback.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.
