@@ -350,6 +350,7 @@ public sealed class EditorWorkspace
             RestoreSelection(move.Before);
             selectionMoveUndone = true;
         }
+        RefreshTextEditability(session);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
         return true;
     }
@@ -369,8 +370,15 @@ public sealed class EditorWorkspace
             RestoreSelection(move.After);
             selectionMoveUndone = false;
         }
+        RefreshTextEditability(session);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
         return true;
+    }
+
+    private void RefreshTextEditability(ProjectSession session)
+    {
+        readOnlyTextCache = session.HasTextLayers &&
+            TextLayerWorkflow.Inspect(session).Any(status => !status.FontAvailable);
     }
 
     public void Save()

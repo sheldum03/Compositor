@@ -18,25 +18,25 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 2. A generated full-canvas v8 text project using the first installed font family: the available-font path redraws visible pixels rather than returning the transparent cache, the normal preview uses that redraw, and save/reopen keeps the text metadata.
 3. `e80ede0` makes rendering, hit testing, caret stops, and selection rectangles consume one `TextLayoutSnapshot`; checks cover wrapped box text, CRLF offsets, combining marks, and end-of-content caret placement.
 4. The formal Avalonia window routes a left click on an editable text layer through the same transform-aware hit test and places the sidebar `TextBox` caret at the returned UTF-16 boundary. The canvas then draws the caret from that same layout result; changing the sidebar selection produces transformed canvas selection polygons. The App Headless check clicks the end of a rotated/flipped text layer and verifies the sidebar caret plus both overlays.
-5. A missing-font cache project exposes an explicit font choice and keeps the content editor disabled. Selecting an installed font reloads the editable layer assets, redraws the text, and unlocks the editor; no fallback font is selected silently.
+5. A missing-font cache project exposes an explicit font choice and keeps the content editor disabled. Selecting an installed font reloads the editable layer assets, redraws the text, and unlocks the editor; no fallback font is selected silently. Undo restores the missing-font read-only state and redo restores the explicit replacement.
 
 Command on the development host:
 
 ```text
-dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-text-m4-1791259065
+dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-text-m4-20261006-1
 ```
 
 Exit code: `0`.
 
-The Windows production core matrix passed on `e80ede0`: [run 37416345270](https://github.com/sheldum03/Compositor/actions/runs/37416345270) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and style metadata history checks. The App case includes point/box creation and the formal text editor regressions.
+The Windows production core matrix passed on `5c98329`: [run 37419132736](https://github.com/sheldum03/Compositor/actions/runs/37419132736) passed Smoke, Imaging, Workflow, SaveCrash, and App. The Workflow case includes the persistent font library, UTF-16 and transform-aware hit tests, shared caret/selection geometry, and style metadata history checks. The App case includes point/box creation, the formal text editor regressions, and the explicit missing-font resolver.
 
 The local App Headless check was rerun after the canvas integration:
 
 ```text
-dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-font-resolver-20261006-1
+dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-font-undo-20261006-1
 ```
 
-It passed the production soft-brush/pointer workflow, dialog/window workflow, text caret/selection overlay check, and explicit missing-font resolver check. The Workflow Checks Release build and run also passed all existing checks.
+It passed the production soft-brush/pointer workflow, dialog/window workflow, text caret/selection overlay check, explicit missing-font resolver check, and resolver undo/redo read-only-state check. The Workflow Checks Release build and run also passed all existing checks.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 

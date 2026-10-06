@@ -802,6 +802,12 @@ internal static class CanvasChecks
         Require(cachedTextWorkspace.CanEdit && cachedTextWorkspace.Session!.TextLayers.Single().FontPostScriptName == resolverFont &&
             Find<TextBox>(cachedTextWindow, "TextContent").IsEffectivelyEnabled,
             "Explicit missing-font resolution did not unlock the text layer.");
+        Require(cachedTextWorkspace.Undo() && !cachedTextWorkspace.CanEdit &&
+            cachedTextWorkspace.Session!.TextLayers.Single().FontPostScriptName == "Compositor-Missing-Font",
+            "Undoing explicit font replacement did not restore the missing-font read-only state.");
+        Require(cachedTextWorkspace.Redo() && cachedTextWorkspace.CanEdit &&
+            cachedTextWorkspace.Session!.TextLayers.Single().FontPostScriptName == resolverFont,
+            "Redoing explicit font replacement did not restore the editable state.");
         cachedTextWindow.Close(); Dispatcher.UIThread.RunJobs();
         string availableTextProject = Path.Combine(output, "AvailableText.comp");
         CopyDirectory(cachedTextProject, availableTextProject);
