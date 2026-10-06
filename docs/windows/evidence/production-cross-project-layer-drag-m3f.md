@@ -26,6 +26,8 @@ dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj 
 
 结果：Release 构建 0 警告、0 错误；三个生产检查全部 PASS。固定检查覆盖单层 API 复制、像素与 Gray8 蒙版逐 tile 一致、opacity/blendMode/transform 保留、源工程未变、目标 Undo/Redo、保存重开、尺寸不一致拒绝；同时覆盖完整连续剪贴栈的两层复制、ID/剪贴关系重映射、两层像素保持和保存重开，并保留真实窗口从图层列表拖到另一工程标签后的复制与目标 Undo/Redo。
 
+同一提交随后复跑 `Compositor.Workflow.Checks`、`Compositor.Imaging.Checks` 和 `Compositor.SaveCrash.Checks`，固定 Release 构建均为 0 警告、0 错误；Workflow 全部固定场景、Imaging 全部场景及 SaveCrash 的 14 个真实保存中断场景均 PASS。它们仍是 macOS Headless 结果。
+
 该证据把 M3f 从“部分剪贴栈拒绝”推进到“完整连续平面剪贴栈可复制”切片；组、复杂/非连续剪贴关系、跨变换快照语义、移动而非复制、Windows 原生拖放和 Windows 实机验收继续按计划追踪。
 
 ## 产物追踪
