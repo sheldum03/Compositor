@@ -937,6 +937,45 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public Guid AddMotionBlurAdjustment(string name, MotionBlurSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Motion Blur",
+            ["motionBlurSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
+    public MotionBlurSettings GetMotionBlurAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Motion Blur" ||
+            !MotionBlurSettings.TryRead(adjustment["motionBlurSettings"], out var settings))
+            throw new NotSupportedException("Only Motion Blur adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetMotionBlurAdjustment(Guid layerId, MotionBlurSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Motion Blur")
+            throw new NotSupportedException("Only Motion Blur adjustment layers are supported in this slice.");
+        if (GetMotionBlurAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["motionBlurSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public Guid AddGrainAdjustment(string name, GrainSettings settings, int destinationIndex)
     {
         RequireLayerStructureEditing();

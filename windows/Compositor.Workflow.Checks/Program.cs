@@ -187,6 +187,7 @@ CheckHueSaturationAdjustment(output);
 CheckCurvesAdjustment(output);
 CheckGradientMapAdjustment(output);
 CheckGaussianBlurAdjustment(output);
+CheckMotionBlurAdjustment(output);
 CheckGrainAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1686,6 +1687,43 @@ static void CheckGaussianBlurAdjustment(string output)
         throw new Exception("Gaussian Blur adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Gaussian Blur adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckMotionBlurAdjustment(string output)
+{
+    string project = Path.Combine(output, "MotionBlurAdjustment.comp");
+    var session = ProjectSession.CreateBlank(5, 1);
+    TileRaster source = new TileRaster(5, 1).ReplaceTile(0, 0,
+        [0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0]);
+    session.ReplaceRaster(source);
+    var settings = new MotionBlurSettings(0, 2);
+    Guid adjustmentId = session.AddMotionBlurAdjustment("Motion Blur", settings, 1);
+    FlatLayerInfo adjustment = session.Layers.Single(layer => layer.Id == adjustmentId);
+    if (!adjustment.IsAdjustment || adjustment.AdjustmentKind != "Motion Blur" ||
+        session.GetMotionBlurAdjustment(adjustmentId) != settings)
+        throw new Exception("Motion Blur adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyMotionBlur(source, settings);
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    byte[] edge = Pixel(expected, 0, 0);
+    if (edge[3] == 0 || edge[0] > edge[3] || edge[1] > edge[3] || edge[2] > edge[3])
+        throw new Exception("Motion Blur adjustment did not preserve premultiplied alpha at transparent edges.");
+
+    var changedSettings = new MotionBlurSettings(90, 3);
+    session.SetMotionBlurAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyMotionBlur(source, changedSettings), changed);
+    if (SameRaster(expected, changed) || !session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Motion Blur adjustment did not participate in angle/distance or undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Motion Blur" ||
+        reopened.GetMotionBlurAdjustment(adjustmentId) != changedSettings)
+        throw new Exception("Motion Blur adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Motion Blur adjustment layer metadata, premultiplied pixels, history and save/reopen");
 }
 
 static void CheckGrainAdjustment(string output)

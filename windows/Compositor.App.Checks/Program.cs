@@ -198,6 +198,23 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the Gaussian Blur adjustment transaction.");
+        TileRaster motionBlurBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddMotionBlurAdjustment");
+        FlatLayerInfo motionBlurLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == motionBlurLayer.Id &&
+            Control<Button>(window, "ApplyMotionBlurAdjustment").IsEffectivelyEnabled,
+            "Motion Blur adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "MotionBlurAngle").Value = 0;
+        Control<NumericUpDown>(window, "MotionBlurDistance").Value = 2;
+        Click(window, "ApplyMotionBlurAdjustment");
+        MotionBlurSettings appliedMotionBlur = workspace.Session.GetMotionBlurAdjustment(motionBlurLayer.Id);
+        Require(appliedMotionBlur == new MotionBlurSettings(0, 2),
+            "Motion Blur controls did not commit angle and distance.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyMotionBlur(motionBlurBase, appliedMotionBlur));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Motion Blur adjustment transaction.");
         TileRaster grainBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
         Click(window, "AddGrainAdjustment");
         FlatLayerInfo grainLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);

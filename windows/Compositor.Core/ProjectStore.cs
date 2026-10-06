@@ -357,6 +357,7 @@ public static class ProjectStore
             "Curves" => CurvesSettings.TryRead(adjustment["curvesSettings"], out _),
             "Gradient Map" => GradientMapSettings.TryRead(adjustment["gradientMapSettings"], out _),
             "Gaussian Blur" => GaussianBlurSettings.TryRead(adjustment["gaussianBlurSettings"], out _),
+            "Motion Blur" => MotionBlurSettings.TryRead(adjustment["motionBlurSettings"], out _),
             "Grain" => GrainSettings.TryRead(adjustment["grainSettings"], out _),
             _ => false
         };

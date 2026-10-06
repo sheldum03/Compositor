@@ -392,6 +392,37 @@ public sealed record GaussianBlurSettings(int Radius = 1)
     public JsonObject ToJson() => new() { ["radius"] = Radius };
 }
 
+public sealed record MotionBlurSettings(double Angle = 0, int Distance = 1)
+{
+    public bool IsValid => double.IsFinite(Angle) && Angle is >= -90 and <= 90 && Distance is >= 1 and <= 32;
+
+    public bool IsIdentity => false;
+
+    public static bool TryRead(JsonNode? node, out MotionBlurSettings settings)
+    {
+        settings = new MotionBlurSettings();
+        if (node is null) return true;
+        try
+        {
+            var value = node.AsObject();
+            settings = new MotionBlurSettings(
+                value["angle"]?.GetValue<double>() ?? 0,
+                value["distance"]?.GetValue<int>() ?? 1);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new()
+    {
+        ["angle"] = Angle,
+        ["distance"] = Distance
+    };
+}
+
 public sealed record GrainSettings(double Amount = 25, double Size = 1.5, double Roughness = 50, uint Seed = 0)
 {
     public bool IsValid => double.IsFinite(Amount) && Amount is >= 0 and <= 100 &&

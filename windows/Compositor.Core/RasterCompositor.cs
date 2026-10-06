@@ -297,6 +297,67 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyMotionBlur(TileRaster image, MotionBlurSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int width = image.Width, height = image.Height, distance = settings.Distance;
+        byte[] input = new byte[checked(width * height * 4)];
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = image.TileDimensions(column, row);
+            byte[] tile = image.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(
+                    input.AsSpan(((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize) * 4, size.Width * 4));
+        }
+        double angle = settings.Angle * Math.PI / 180;
+        double directionX = Math.Cos(angle), directionY = Math.Sin(angle);
+        double[] blurred = new double[input.Length];
+        int sampleCount = distance * 2 + 1;
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        for (int channel = 0; channel < 4; channel++)
+        {
+            double value = 0;
+            for (int offset = -distance; offset <= distance; offset++)
+            {
+                double sampleX = x + directionX * offset;
+                double sampleY = y + directionY * offset;
+                value += Sample(sampleX, sampleY, channel);
+            }
+            blurred[(y * width + x) * 4 + channel] = value / sampleCount;
+        }
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            for (int channel = 0; channel < 4; channel++)
+                tile[(y * size.Width + x) * 4 + channel] = (byte)Math.Clamp(
+                    Math.Round(blurred[((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize + x) * 4 + channel], MidpointRounding.AwayFromZero), 0, 255);
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+
+        double Sample(double x, double y, int channel)
+        {
+            x = Math.Clamp(x, 0, width - 1);
+            y = Math.Clamp(y, 0, height - 1);
+            int left = (int)Math.Floor(x), top = (int)Math.Floor(y);
+            int right = Math.Min(width - 1, left + 1), bottom = Math.Min(height - 1, top + 1);
+            double horizontal = x - left, vertical = y - top;
+            double upper = input[(top * width + left) * 4 + channel] * (1 - horizontal) +
+                input[(top * width + right) * 4 + channel] * horizontal;
+            double lower = input[(bottom * width + left) * 4 + channel] * (1 - horizontal) +
+                input[(bottom * width + right) * 4 + channel] * horizontal;
+            return upper * (1 - vertical) + lower * vertical;
+        }
+    }
+
     public static TileRaster ApplyGrain(TileRaster image, GrainSettings settings)
     {
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
