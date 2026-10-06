@@ -684,6 +684,31 @@ internal static class Program
             reopenedCrossGroup.Layers.Count(layer => layer.ParentId == reopenedGroup.Id) == 2 &&
             reopenedGroup.HasMask && !reopenedGroup.MaskEnabled,
             "Saved cross-project group copy did not reopen with its subtree and mask.");
+        var nestedGroupTarget = new EditorWorkspace();
+        string nestedGroupTargetPath = Path.Combine(output, "NestedGroupTarget.comp");
+        nestedGroupTarget.Import(fixture, nestedGroupTargetPath);
+        Guid nestedTargetLeaf = nestedGroupTarget.Session!.ActiveLayerId!.Value;
+        Guid nestedTargetGroup = Guid.Empty;
+        nestedGroupTarget.Edit(session => nestedTargetGroup = session.GroupLayer(nestedTargetLeaf, "Nested target"));
+        nestedGroupTarget.Session.SelectLayer(nestedTargetLeaf);
+        int nestedGroupTargetCount = nestedGroupTarget.Session.Layers.Count;
+        Require(crossGroupSource.CanCopyLayerTo(nestedGroupTarget, crossGroupId),
+            "A root group was not enabled for copy into a nested target group.");
+        crossGroupSource.CopyLayerTo(nestedGroupTarget, crossGroupId);
+        FlatLayerInfo nestedCopiedGroup = nestedGroupTarget.Session.Layers.Single(layer =>
+            layer.IsGroup && layer.Id != nestedTargetGroup);
+        Require(nestedCopiedGroup.ParentId == nestedTargetGroup &&
+            nestedGroupTarget.Session.Layers.Count == nestedGroupTargetCount + 3 &&
+            nestedGroupTarget.Session.Layers.Count(layer => layer.ParentId == nestedCopiedGroup.Id) == 2,
+            "Copying a group into a nested target group did not preserve the target parent or subtree.");
+        nestedGroupTarget.Save();
+        var reopenedNestedGroupTarget = ImageProjectWorkflow.OpenEditable(nestedGroupTargetPath);
+        FlatLayerInfo reopenedNestedCopiedGroup = reopenedNestedGroupTarget.Layers.Single(layer =>
+            layer.IsGroup && layer.Id != nestedTargetGroup);
+        Require(reopenedNestedCopiedGroup.ParentId == nestedTargetGroup &&
+            reopenedNestedGroupTarget.Layers.Count == nestedGroupTargetCount + 3 &&
+            reopenedNestedGroupTarget.Layers.Count(layer => layer.ParentId == reopenedNestedCopiedGroup.Id) == 2,
+            "Saved nested target group copy did not reopen with its parent and subtree.");
         crossGroupTarget.Session.SelectLayer(copiedGroupChildren[0].Id);
         int groupedTargetBeforeFlatCopy = crossGroupTarget.Session.Layers.Count;
         Require(crossLayerSource.CanCopyLayerTo(crossGroupTarget, crossLayerSourceId),
