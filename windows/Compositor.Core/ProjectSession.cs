@@ -16,6 +16,11 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
 public sealed record LayerTransformInfo(double X, double Y, double Width, double Height,
     double Rotation, bool FlipX, bool FlipY);
 
+public sealed record TextLayerMetadata(Guid Id, string ImageFile, string Content,
+    string FontPostScriptName, double FontSizePoints, double Red, double Green, double Blue,
+    double Alpha, string Alignment, double LineSpacingPoints, double TrackingPoints,
+    string Layout, double? BoxWidth);
+
 public sealed class ProjectSession
 {
     public static IReadOnlyList<string> SupportedBlendModes { get; } = Array.AsReadOnly(new[]
@@ -51,10 +56,36 @@ public sealed class ProjectSession
     public string? SavedDirectory { get; private set; }
     public bool HasBeenSaved => SavedDirectory is not null;
     public bool HasTextLayers => Current["layers"]!.AsArray().Any(layer => layer?["text"] is not null);
+    public IReadOnlyList<TextLayerMetadata> TextLayers => Current["layers"]!.AsArray()
+        .Where(layer => layer?["text"] is JsonObject)
+        .Select(layer =>
+        {
+            var record = layer!.AsObject();
+            var text = record["text"]!.AsObject();
+            var layout = text["layout"]!.AsObject();
+            if (layout["point"] is not null)
+                return new TextLayerMetadata(Guid.Parse(record["id"]!.GetValue<string>()),
+                    record["imageFile"]?.GetValue<string>() ?? "", text["content"]!.GetValue<string>(),
+                    text["fontPostScriptName"]!.GetValue<string>(), text["fontSizePoints"]!.GetValue<double>(),
+                    text["red"]!.GetValue<double>(), text["green"]!.GetValue<double>(), text["blue"]!.GetValue<double>(),
+                    text["alpha"]!.GetValue<double>(), text["alignment"]!.GetValue<string>(),
+                    text["lineSpacingPoints"]!.GetValue<double>(), text["trackingPoints"]!.GetValue<double>(),
+                    "point", null);
+            var box = layout["box"]?.AsObject()
+                ?? throw new InvalidDataException("Text layout data is invalid.");
+            return new TextLayerMetadata(Guid.Parse(record["id"]!.GetValue<string>()),
+                record["imageFile"]?.GetValue<string>() ?? "", text["content"]!.GetValue<string>(),
+                text["fontPostScriptName"]!.GetValue<string>(), text["fontSizePoints"]!.GetValue<double>(),
+                text["red"]!.GetValue<double>(), text["green"]!.GetValue<double>(), text["blue"]!.GetValue<double>(),
+                text["alpha"]!.GetValue<double>(), text["alignment"]!.GetValue<string>(),
+                text["lineSpacingPoints"]!.GetValue<double>(), text["trackingPoints"]!.GetValue<double>(),
+                "box", box["width"]!.GetValue<double>());
+        }).ToArray();
     public bool HasGroups => Layers.Any(layer => layer.IsGroup);
     public string SourceDirectory => SavedDirectory ?? throw new InvalidOperationException("This document has not been saved yet.");
     public int Width => Current["width"]!.GetValue<int>();
     public int Height => Current["height"]!.GetValue<int>();
+    public double Resolution => Current["resolution"]?.GetValue<double>() ?? 72;
     public string ImageName => Current["layers"]!.AsArray().Count == 1
         ? Current["layers"]![0]?["imageFile"]?.GetValue<string>() ?? "" : "";
     internal IReadOnlyDictionary<string, byte[]> AssetHashes { get; private set; }
@@ -273,7 +304,9 @@ public sealed class ProjectSession
     public void ReplaceLayerRaster(Guid layerId, TileRaster raster)
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
-        FindLayer(layerId);
+        int index = FindLayer(layerId);
+        if (Current["layers"]![index]!["text"] is not null)
+            throw new NotSupportedException("Text layers require the text renderer to keep metadata and pixels in sync.");
         CheckRasterSize(raster);
         var current = snapshots[cursor].LayerRasters
             ?? throw new InvalidOperationException("Layer rasters have not been loaded.");
@@ -286,6 +319,8 @@ public sealed class ProjectSession
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
         int index = FindLayer(layerId);
+        if (Current["layers"]![index]!["text"] is not null)
+            throw new NotSupportedException("Text layers require the text renderer to keep metadata and pixels in sync.");
         if (Current["layers"]![index]!["maskFile"] is null)
             throw new InvalidOperationException("Layer does not have a raster mask.");
         CheckRasterSize(raster);
@@ -835,6 +870,8 @@ public sealed class ProjectSession
         var currentLayer = Current["layers"]![index]!.AsObject();
         if (currentLayer["isGroup"]?.GetValue<bool>() == true)
             throw new ArgumentException("Group layers must use bake-ungroup.", nameof(layerId));
+        if (currentLayer["text"] is not null)
+            throw new NotSupportedException("Text layers require the text renderer to keep metadata and pixels in sync.");
         CheckRasterSize(raster);
         bool hasMask = currentLayer["maskFile"] is not null;
         if (hasMask != (mask is not null))

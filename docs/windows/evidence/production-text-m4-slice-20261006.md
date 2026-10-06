@@ -1,0 +1,36 @@
+# Production text M4 slice — 2026-10-06
+
+This evidence covers one bounded W-023 slice. It does not close M4 or the Windows text acceptance gate.
+
+## Implemented contract
+
+- v8 `text` metadata is accepted by the Windows Core manifest gate and exposed as `ProjectSession.TextLayers`.
+- A text layer keeps its PNG as the authoritative cache.
+- When the requested PostScript/family name matches an installed Skia font family, the Imaging path redraws the text from the v8 metadata at the document resolution before the normal layer transform.
+- When the font is unavailable, the path returns the cached raster unchanged and reports that the user must choose a font. It never substitutes a fallback font silently.
+- Save/reopen retains the text object and its content, style, layout, and font name.
+
+## Fixed regression
+
+`Compositor.Workflow.Checks` now covers:
+
+1. `extended/F12-missing-font.comp`: metadata is present, the missing font is reported, the rendered text raster is byte-identical to the cache, and rendering does not modify the source manifest.
+2. A generated full-canvas v8 text project using the first installed font family: the available-font path redraws visible pixels rather than returning the transparent cache, the normal preview uses that redraw, and save/reopen keeps the text metadata.
+
+Command on the development host:
+
+```text
+dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p:RuntimeIdentifier= -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-text-m4-1791259065
+```
+
+Exit code: `0`.
+
+The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
+
+## Deliberately not covered
+
+- No Windows GUI text editor, IME, selection, hit testing, or candidate-window validation.
+- No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
+- No font import, TTC face selection, damaged-font recovery, missing-font replacement UI, or user-selected font persistence.
+- No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
+- Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.

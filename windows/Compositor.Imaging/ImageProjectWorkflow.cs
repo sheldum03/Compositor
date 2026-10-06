@@ -254,6 +254,12 @@ public static class ImageProjectWorkflow
                 raster = ImageCodec.Load(image);
                 if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);
             }
+            if (layer["text"] is not null)
+            {
+                TextLayerMetadata text = session.TextLayers.Single(metadata => metadata.Id == Guid.Parse(layer["id"]!.GetValue<string>()));
+                if (TextLayerWorkflow.Inspect(session).Single(status => status.Metadata.Id == text.Id).FontAvailable)
+                    raster = TextLayerWorkflow.RenderRaster(text, raster, session.Resolution);
+            }
             if (raster.Width != width || raster.Height != height)
                 throw new InvalidDataException("Layer image dimensions do not match the canvas.");
             if (layer["maskFile"] is { } maskFile)
@@ -389,6 +395,12 @@ public static class ImageProjectWorkflow
                 : useLoadedAssets && session.TryGetLoadedLayerRaster(id, out var loadedRaster)
                 ? loadedRaster
                 : ImageCodec.Load(Path.Combine(session.SourceDirectory, "images", imageName));
+            if (layer["text"] is not null)
+            {
+                TextLayerMetadata text = session.TextLayers.Single(metadata => metadata.Id == id);
+                TextLayerStatus status = TextLayerWorkflow.Inspect(session).Single(item => item.Metadata.Id == id);
+                if (status.FontAvailable) raster = TextLayerWorkflow.RenderRaster(text, raster, session.Resolution);
+            }
             if (mask is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true))
                 raster = RasterCompositor.ApplyMask(raster, mask);
             var layerTransform = layer["transform"]?.AsObject()
@@ -819,7 +831,7 @@ public static class ImageProjectWorkflow
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "text", "transform" }.Contains(pair.Key)) ||
             layer["imageFile"] is null || layer["isVisible"] is null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||

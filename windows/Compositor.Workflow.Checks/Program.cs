@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Compositor.Core;
 using Compositor.Imaging;
 using SkiaSharp;
+using Compositor.Workflow.Checks;
 
 if (args.Length is not (2 or 3 or 4)) throw new ArgumentException("Usage: Compositor.Workflow.Checks <image fixtures> <new output directory> [Mac-produced projects] [Mac-produced flat project]");
 string fixtures = Path.GetFullPath(args[0]);
@@ -173,6 +174,7 @@ CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
 CheckLayerSelection(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
+TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 if (args.Length == 3) CheckMacProduced(Path.GetFullPath(args[2]), output);
 if (args.Length == 4)
 {

@@ -1,0 +1,92 @@
+using System.Text.Json.Nodes;
+using Compositor.Core;
+using Compositor.Imaging;
+using SkiaSharp;
+
+namespace Compositor.Workflow.Checks;
+
+internal static class TextChecks
+{
+    public static void Run(string fixtures, string output)
+    {
+        string missingProject = Path.Combine(fixtures, "extended", "F12-missing-font.comp");
+        var missing = ProjectStore.Open(missingProject);
+        if (!missing.HasTextLayers || missing.TextLayers.Count != 1)
+            throw new Exception("F12 text metadata was not retained on open.");
+        TextLayerMetadata missingMetadata = missing.TextLayers[0];
+        TextLayerStatus missingStatus = TextLayerWorkflow.Inspect(missing)[0];
+        if (missingStatus.FontAvailable || !missingStatus.Message.Contains("cached pixels", StringComparison.Ordinal) ||
+            !missingStatus.Message.Contains("choose a font", StringComparison.Ordinal))
+            throw new Exception("Missing-font text did not report the cache-preserving choice.");
+        TileRaster missingCache = ImageCodec.Load(Path.Combine(missingProject, "images", missingMetadata.ImageFile));
+        TextLayerRenderResult missingRender = TextLayerWorkflow.Render(missing, missingMetadata.Id);
+        if (!missingRender.UsedCache || !SameRaster(missingCache, missingRender.Raster))
+            throw new Exception("Missing-font text did not preserve its cached raster.");
+        string missingManifest = Path.Combine(missingProject, "manifest.json");
+        byte[] manifestBytes = File.ReadAllBytes(missingManifest);
+        _ = ImageProjectWorkflow.RenderFlatNormal(missing);
+        if (!File.ReadAllBytes(missingManifest).SequenceEqual(manifestBytes))
+            throw new Exception("Rendering missing-font text changed the source manifest.");
+
+        string[] families = SKFontManager.Default.GetFontFamilies();
+        string availableFamily = families.FirstOrDefault() ?? throw new Exception("No installed font was available for the text check.");
+        string availableProject = Path.Combine(output, "TextAvailable.comp");
+        Guid documentId = Guid.Parse("00000000-0000-4000-9000-000000000020");
+        Guid layerId = Guid.Parse("00000000-0000-4000-9000-000000000021");
+        Directory.CreateDirectory(Path.Combine(availableProject, "images"));
+        string imageName = layerId.ToString("D").ToUpperInvariant() + ".png";
+        ImageCodec.SavePng(new TileRaster(96, 48), Path.Combine(availableProject, "images", imageName));
+        var manifest = new JsonObject
+        {
+            ["format"] = "com.compositor.project", ["version"] = 8,
+            ["documentID"] = documentId.ToString("D"), ["colorSpace"] = "sRGB", ["resolution"] = 72,
+            ["width"] = 96, ["height"] = 48, ["activeLayerID"] = layerId.ToString("D"),
+            ["layers"] = new JsonArray(new JsonObject
+            {
+                ["id"] = layerId.ToString("D"), ["imageFile"] = imageName, ["isVisible"] = true,
+                ["name"] = "Available text", ["text"] = new JsonObject
+                {
+                    ["alignment"] = "left", ["alpha"] = 1, ["blue"] = 0, ["content"] = "Windows text",
+                    ["fontPostScriptName"] = availableFamily, ["fontSizePoints"] = 18, ["green"] = 0,
+                    ["layout"] = new JsonObject { ["point"] = new JsonObject() }, ["lineSpacingPoints"] = 0,
+                    ["red"] = 0, ["trackingPoints"] = 0
+                },
+                ["transform"] = new JsonObject
+                {
+                    ["flipX"] = false, ["flipY"] = false, ["origin"] = new JsonArray(0, 0),
+                    ["rotation"] = 0, ["sampling"] = "High quality", ["size"] = new JsonArray(96, 48)
+                }
+            })
+        };
+        File.WriteAllText(Path.Combine(availableProject, "manifest.json"), manifest.ToJsonString());
+        var available = ImageProjectWorkflow.OpenEditable(availableProject);
+        TextLayerRenderResult availableRender = TextLayerWorkflow.Render(available, layerId);
+        if (!availableRender.Status.FontAvailable || availableRender.UsedCache ||
+            !HasInk(availableRender.Raster) || !SameRaster(availableRender.Raster, ImageProjectWorkflow.RenderFlatNormal(available)))
+            throw new Exception("Available-font text did not take the redraw path.");
+        string saved = Path.Combine(output, "TextAvailableSaved.comp");
+        ImageProjectWorkflow.Save(available, saved);
+        var reopened = ProjectStore.Open(saved);
+        if (reopened.TextLayers.Count != 1 || reopened.TextLayers[0].Content != "Windows text" ||
+            reopened.TextLayers[0].FontPostScriptName != availableFamily)
+            throw new Exception("Text metadata was not preserved through save and reopen.");
+        Console.WriteLine("PASS: v8 text metadata is exposed; available fonts redraw; missing fonts preserve cache and request an explicit font choice");
+    }
+
+    private static bool HasInk(TileRaster raster)
+    {
+        for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+            if (raster.ReadTileCopy(column, row).Where((value, index) => index % 4 == 3).Any(value => value != 0)) return true;
+        return false;
+    }
+
+    private static bool SameRaster(TileRaster expected, TileRaster actual)
+    {
+        if (expected.Width != actual.Width || expected.Height != actual.Height) return false;
+        for (int row = 0; row * TileRaster.TileSize < expected.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < expected.Width; column++)
+            if (!expected.ReadTileCopy(column, row).SequenceEqual(actual.ReadTileCopy(column, row))) return false;
+        return true;
+    }
+}

@@ -54,6 +54,10 @@ public static class ProjectStore
                 throw new InvalidDataException("Invalid layer ID.");
             string name = layer["name"]?.GetValue<string>() ?? throw new InvalidDataException("Missing layer name.");
             if (string.IsNullOrWhiteSpace(name)) throw new InvalidDataException("Blank layer name.");
+            if (layer["text"] is { } textNode &&
+                (version < 8 || layer["isGroup"]?.GetValue<bool>() == true || layer["imageFile"] is null ||
+                 textNode is not JsonObject text || !IsValidTextMetadata(text)))
+                throw new InvalidDataException("Invalid text layer metadata.");
         }
         if (manifest["activeLayerID"] is { } active &&
             (!Guid.TryParse(active.GetValue<string>(), out var activeId) || !ids.Contains(activeId)))
@@ -310,7 +314,7 @@ public static class ProjectStore
 
     private static bool IsEditableLayer(JsonObject layer, int width, int height, bool allowGroups)
     {
-        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "text", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             !allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null) ||
             layer["isGroup"]?.GetValue<bool>() == true && layer["maskSourceID"] is not null ||
@@ -319,6 +323,7 @@ public static class ProjectStore
             layer["maskFile"] is { } mask && !string.Equals(mask.GetValue<string>(), id.ToString("D") + ".mask.png", StringComparison.OrdinalIgnoreCase) ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
             layer["blendMode"] is { } blend && !ProjectSession.SupportedBlendModes.Contains(blend.GetValue<string>()) ||
+            layer["text"] is { } text && !IsValidTextMetadata(text.AsObject()) ||
             layer["isGroup"]?.GetValue<bool>() != true &&
             !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase) ||
             layer["isGroup"]?.GetValue<bool>() == true && layer["imageFile"] is not null) return false;
@@ -339,6 +344,28 @@ public static class ProjectStore
             transform["rotation"]?.GetValue<double>() == 0 &&
             transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
     }
+
+    private static bool IsValidTextMetadata(JsonObject text)
+    {
+        if (!text.All(pair => new[] { "alignment", "alpha", "blue", "content", "fontPostScriptName",
+                "fontSizePoints", "green", "layout", "lineSpacingPoints", "red", "trackingPoints" }.Contains(pair.Key)) ||
+            text["content"]?.GetValue<string>() is not { Length: > 0 } content || content.Length > 1_000_000 ||
+            text["fontPostScriptName"]?.GetValue<string>() is not { Length: > 0 } font || font.Length > 1024 ||
+            text["alignment"]?.GetValue<string>() is not ("left" or "center" or "right") ||
+            !FiniteInRange(text["fontSizePoints"], 1, 2000) ||
+            !FiniteInRange(text["red"], 0, 1) || !FiniteInRange(text["green"], 0, 1) ||
+            !FiniteInRange(text["blue"], 0, 1) || !FiniteInRange(text["alpha"], 0, 1) ||
+            !FiniteInRange(text["lineSpacingPoints"], -2000, 2000) ||
+            !FiniteInRange(text["trackingPoints"], -2000, 2000)) return false;
+        var layout = text["layout"]?.AsObject();
+        if (layout is null || layout.Count != 1) return false;
+        if (layout["point"] is not null) return layout["point"] is JsonObject point && point.Count == 0;
+        return layout["box"] is JsonObject box && box.Count == 1 && FiniteInRange(box["width"], 1, 30000);
+    }
+
+    private static bool FiniteInRange(JsonNode? value, double minimum, double maximum) =>
+        value is not null && double.IsFinite(value.GetValue<double>()) &&
+        value.GetValue<double>() >= minimum && value.GetValue<double>() <= maximum;
 
     private static (uint Width, uint Height) CheckPng(string path, bool grayMask = false)
     {
