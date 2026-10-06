@@ -650,6 +650,20 @@ public sealed class EditorWorkspace
         {
             Guid parentId = sourceLayer.ParentId
                 ?? throw new NotSupportedException("组内图层复制需要一个父组。");
+            if (ImageProjectWorkflow.GroupedLayerCopyRequiresRootInsertion(session, sourceId))
+            {
+                Guid rootId = parentId;
+                while (session.Layers.Single(layer => layer.Id == rootId).ParentId is { } ancestorId)
+                    rootId = ancestorId;
+                destinationIndex = session.Layers.ToList().FindIndex(layer => layer.Id == rootId) + 1;
+                while (destinationIndex < session.Layers.Count &&
+                    IsDescendantOf(session.Layers[destinationIndex], rootId, session.Layers))
+                    destinationIndex++;
+                Edit(current => current.AddRootRasterLayer("Layer via Copy", copied, destinationIndex));
+                ClearSelectionWithoutHistory();
+                ResetSelectionHistory();
+                return;
+            }
             destinationIndex = ImageProjectWorkflow.GetGroupedLayerCopyInsertionIndex(session, sourceId);
             Edit(current => current.AddRasterLayerToGroup("Layer via Copy", copied, destinationIndex, parentId));
             ClearSelectionWithoutHistory();

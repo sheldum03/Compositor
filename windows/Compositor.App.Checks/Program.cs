@@ -1308,6 +1308,70 @@ internal static class Program
                 reopenedGroupedStackCopy.Height / 2)[3] == 0,
             "Saved grouped clipping-stack Layer via Copy did not preserve the stack boundary, parent mask or raster.");
         groupedStackCopyWindow.Close(); Dispatcher.UIThread.RunJobs();
+        var transformedGroupedLeafWorkspace = new EditorWorkspace();
+        string transformedGroupedLeafPath = Path.Combine(output, "TransformedGroupedLeafLayerViaCopy.comp");
+        transformedGroupedLeafWorkspace.Import(fixture, transformedGroupedLeafPath);
+        Guid transformedGroupedLeafId = transformedGroupedLeafWorkspace.Session!.ActiveLayerId!.Value;
+        Guid transformedGroupedGroupId = Guid.Empty;
+        transformedGroupedLeafWorkspace.Edit(session =>
+        {
+            transformedGroupedGroupId = session.GroupLayer(transformedGroupedLeafId, "Transformed parent");
+            session.SetLayerOpacity(transformedGroupedGroupId, 0.82);
+            session.SetLayerBlendMode(transformedGroupedGroupId, "Multiply");
+            session.SetGroupTransform(transformedGroupedGroupId, 4, 3,
+                session.Width - 8, session.Height - 6, 8);
+            session.EnsureLayerMask(transformedGroupedGroupId);
+            session.ReplaceLayerMask(transformedGroupedGroupId,
+                GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0,
+                    session.Width / 2, session.Height));
+            session.SetLayerMaskEnabled(transformedGroupedGroupId, true);
+        });
+        transformedGroupedLeafWorkspace.Save();
+        transformedGroupedLeafWorkspace.Session.SelectLayer(transformedGroupedLeafId);
+        transformedGroupedLeafWorkspace.SelectRectangle(new Rect(0, 0,
+            transformedGroupedLeafWorkspace.Session.Width / 2,
+            transformedGroupedLeafWorkspace.Session.Height));
+        TileRaster transformedGroupedExpected = ImageProjectWorkflow.RenderLayerForCopy(
+            transformedGroupedLeafWorkspace.Session, transformedGroupedLeafId);
+        int transformedGroupedCopyCount = transformedGroupedLeafWorkspace.Session.Layers.Count;
+        int transformedGroupedIndex = transformedGroupedLeafWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == transformedGroupedGroupId);
+        var transformedGroupedLeafWindow = new MainWindow(transformedGroupedLeafWorkspace);
+        transformedGroupedLeafWindow.Show(); Dispatcher.UIThread.RunJobs();
+        Control<ListBox>(transformedGroupedLeafWindow, "Layers").SelectedItem =
+            transformedGroupedLeafWorkspace.Session.Layers.Single(layer => layer.Id == transformedGroupedLeafId);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(transformedGroupedLeafWindow, "LayerViaCopy").IsEffectivelyEnabled,
+            "A grouped raster under a transformed parent did not enable Layer via Copy.");
+        Click(transformedGroupedLeafWindow, "LayerViaCopy");
+        Guid transformedGroupedCopiedId = transformedGroupedLeafWorkspace.Session.ActiveLayerId!.Value;
+        FlatLayerInfo transformedGroupedCopied = transformedGroupedLeafWorkspace.Session.Layers
+            .Single(layer => layer.Id == transformedGroupedCopiedId);
+        int transformedGroupedCopiedIndex = transformedGroupedLeafWorkspace.Session.Layers.ToList()
+            .FindIndex(layer => layer.Id == transformedGroupedCopiedId);
+        Require(transformedGroupedLeafWorkspace.Session.Layers.Count == transformedGroupedCopyCount + 1 &&
+            transformedGroupedCopied.ParentId is null && transformedGroupedCopiedIndex == transformedGroupedIndex + 2,
+            "Transformed grouped Layer via Copy did not insert a root sibling after the group subtree.");
+        TileRaster transformedGroupedCopiedRaster = transformedGroupedLeafWorkspace.Session
+            .GetLayerRaster(transformedGroupedCopiedId);
+        for (int y = 0; y < transformedGroupedCopiedRaster.Height; y++)
+        for (int x = 0; x < transformedGroupedCopiedRaster.Width; x++)
+        {
+            byte[] actual = PixelAt(transformedGroupedCopiedRaster, x, y);
+            if (x < transformedGroupedCopiedRaster.Width / 2)
+                Require(actual.SequenceEqual(PixelAt(transformedGroupedExpected, x, y)),
+                    "Transformed grouped Layer via Copy changed pixels inside the selection.");
+            else Require(actual.All(channel => channel == 0),
+                "Transformed grouped Layer via Copy retained pixels outside the selection.");
+        }
+        transformedGroupedLeafWorkspace.Save();
+        var reopenedTransformedGrouped = ImageProjectWorkflow.OpenEditable(transformedGroupedLeafPath);
+        Require(reopenedTransformedGrouped.Layers.Single(layer => layer.Id == transformedGroupedCopiedId).ParentId is null &&
+            reopenedTransformedGrouped.Layers.Single(layer => layer.Id == transformedGroupedGroupId).MaskEnabled &&
+            CheckEqualNoThrow(transformedGroupedCopiedRaster,
+                reopenedTransformedGrouped.GetLayerRaster(transformedGroupedCopiedId)),
+            "Saved transformed grouped Layer via Copy did not preserve root placement, source mask or raster.");
+        transformedGroupedLeafWindow.Close(); Dispatcher.UIThread.RunJobs();
         var groupMergeWindow = new MainWindow(groupMergeWorkspace);
         groupMergeWindow.Show(); Dispatcher.UIThread.RunJobs();
         Control<ListBox>(groupMergeWindow, "Layers").SelectedItem =

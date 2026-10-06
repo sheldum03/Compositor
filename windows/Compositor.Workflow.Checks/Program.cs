@@ -170,6 +170,7 @@ CheckGroupStructureCreation(output, fixtures);
 CheckGroupedLayerViaCopy(output, fixtures);
 CheckGroupedLeafLayerViaCopy(output, fixtures);
 CheckGroupedClippingStackLayerViaCopy(output, fixtures);
+CheckTransformedGroupedLeafLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
@@ -598,6 +599,44 @@ static void CheckGroupedClippingStackLayerViaCopy(string output, string fixtures
         throw new Exception("Saved grouped clipping-stack copy lost its parent or group mask.");
     AssertRaster(expected, reopened.GetLayerRaster(copiedId));
     Console.WriteLine("PASS: grouped clipping-stack visible-result copy preserves stack boundary, parent mask and save/reopen");
+}
+
+static void CheckTransformedGroupedLeafLayerViaCopy(string output, string fixtures)
+{
+    string source = Path.Combine(output, "TransformedGroupedLeafCopySource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), source);
+    var session = ImageProjectWorkflow.OpenEditable(source);
+    Guid leafId = session.Layers.Single().Id;
+    Guid groupId = session.GroupLayer(leafId, "Transformed parent");
+    session.SetLayerOpacity(groupId, 0.82);
+    session.SetLayerBlendMode(groupId, "Multiply");
+    session.SetGroupTransform(groupId, 4, 3, session.Width - 8, session.Height - 6, 8);
+    session.EnsureLayerMask(groupId);
+    session.ReplaceLayerMask(groupId,
+        GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width / 2, session.Height));
+    session.SetLayerMaskEnabled(groupId, true);
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(session, leafId) ||
+        !ImageProjectWorkflow.GroupedLayerCopyRequiresRootInsertion(session, leafId))
+        throw new Exception("A raster layer inside a transformed group was not enabled for root visible-result copy.");
+    TileRaster expected = ImageProjectWorkflow.RenderLayerForCopy(session, leafId);
+    int groupIndex = session.Layers.ToList().FindIndex(layer => layer.Id == groupId);
+    int insertion = groupIndex + 1;
+    while (insertion < session.Layers.Count &&
+        session.Layers[insertion].ParentId is { } parentId && parentId == groupId)
+        insertion++;
+    Guid copiedId = session.AddRootRasterLayer("Layer via Copy", expected, insertion);
+    FlatLayerInfo copied = session.Layers.Single(layer => layer.Id == copiedId);
+    if (copied.ParentId is not null || session.Layers.ToList().FindIndex(layer => layer.Id == copiedId) != insertion)
+        throw new Exception("Transformed grouped leaf copy did not insert after the outer group subtree.");
+    AssertRaster(expected, session.GetLayerRaster(copiedId));
+    string saved = Path.Combine(output, "TransformedGroupedLeafCopySaved.comp");
+    ImageProjectWorkflow.Save(session, saved);
+    var reopened = ImageProjectWorkflow.OpenEditable(saved);
+    FlatLayerInfo reopenedCopy = reopened.Layers.Single(layer => layer.Id == copiedId);
+    if (reopenedCopy.ParentId is not null || !reopened.Layers.Single(layer => layer.Id == groupId).MaskEnabled)
+        throw new Exception("Saved transformed grouped leaf copy lost its root placement or source group mask.");
+    AssertRaster(expected, reopened.GetLayerRaster(copiedId));
+    Console.WriteLine("PASS: transformed grouped leaf visible-result copy bakes ancestor transform and preserves root insertion/save-reopen");
 }
 
 static void CheckEditableLayerTransform(string output, string fixtures)

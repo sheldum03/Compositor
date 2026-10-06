@@ -161,7 +161,11 @@ public static class ImageProjectWorkflow
             if (target.IsGroup)
                 return RenderCachedCore(session, useLoadedAssets: true,
                     renderRoots: new HashSet<Guid> { layerId });
-            IReadOnlyList<FlatLayerInfo> groupedStack = ValidateGroupedLeafCopy(session, target);
+            IReadOnlyList<FlatLayerInfo> groupedStack = ValidateGroupedLeafCopy(session, target,
+                allowTransformedAncestors: true);
+            if (HasTransformedGroupedAncestor(session, target))
+                return RenderCachedCore(session, useLoadedAssets: true,
+                    renderRoots: groupedStack.Select(layer => layer.Id).ToHashSet());
             if (groupedStack.Count > 1)
                 return RenderGroupedClippingStackForCopy(session, groupedStack);
         }
@@ -208,7 +212,7 @@ public static class ImageProjectWorkflow
         {
             if (session.HasGroups && target.IsGroup) return true;
             if (target.IsGroup) return false;
-            if (session.HasGroups) ValidateGroupedLeafCopy(session, target);
+            if (session.HasGroups) ValidateGroupedLeafCopy(session, target, allowTransformedAncestors: true);
             else if (target.HasMask && session.GetLayerMask(target.Id) is null) return false;
             return true;
         }
@@ -227,7 +231,18 @@ public static class ImageProjectWorkflow
         return session.Layers.ToList().FindIndex(layer => layer.Id == stack[^1].Id) + 1;
     }
 
-    private static IReadOnlyList<FlatLayerInfo> ValidateGroupedLeafCopy(ProjectSession session, FlatLayerInfo target)
+    public static bool GroupedLayerCopyRequiresRootInsertion(ProjectSession session, Guid layerId)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        FlatLayerInfo target = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        if (target.IsGroup) return false;
+        _ = ValidateGroupedLeafCopy(session, target, allowTransformedAncestors: true);
+        return HasTransformedGroupedAncestor(session, target);
+    }
+
+    private static IReadOnlyList<FlatLayerInfo> ValidateGroupedLeafCopy(ProjectSession session,
+        FlatLayerInfo target, bool allowTransformedAncestors = false)
     {
         if (target.ParentId is not { } parentId)
             throw new NotSupportedException("A grouped layer copy must stay inside its parent group.");
@@ -275,13 +290,26 @@ public static class ImageProjectWorkflow
                 ?? throw new InvalidDataException("Grouped layer parent is missing.");
             if (!group.IsGroup)
                 throw new InvalidDataException("Grouped layer parent is not a group.");
-            if (!session.IsGroupTransformIdentity(group.Id))
+            if (!allowTransformedAncestors && !session.IsGroupTransformIdentity(group.Id))
                 throw new NotSupportedException("A layer inside a transformed group must be copied with its group.");
             if (group.HasMask && group.MaskEnabled && session.GetLayerMask(group.Id) is null)
                 throw new InvalidDataException("Group mask asset is missing.");
             currentId = group.ParentId;
         }
         return stack;
+    }
+
+    private static bool HasTransformedGroupedAncestor(ProjectSession session, FlatLayerInfo target)
+    {
+        Guid? currentId = target.ParentId;
+        while (currentId is { } groupId)
+        {
+            FlatLayerInfo group = session.Layers.Single(layer => layer.Id == groupId);
+            if (!group.IsGroup) throw new InvalidDataException("Grouped layer parent is not a group.");
+            if (!session.IsGroupTransformIdentity(group.Id)) return true;
+            currentId = group.ParentId;
+        }
+        return false;
     }
 
     private static TileRaster RenderGroupedClippingStackForCopy(ProjectSession session,
