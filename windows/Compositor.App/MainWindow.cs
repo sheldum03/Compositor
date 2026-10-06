@@ -59,6 +59,8 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown levelsGamma = new() { Name = "LevelsGamma", Minimum = 0.1m, Maximum = 9.99m, Value = 1, Width = 62 };
     private readonly NumericUpDown levelsOutputBlack = new() { Name = "LevelsOutputBlack", Minimum = 0, Maximum = 255, Value = 0, Width = 62 };
     private readonly NumericUpDown levelsOutputWhite = new() { Name = "LevelsOutputWhite", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
+    private readonly ComboBox levelsChannel = new() { Name = "LevelsChannel", Width = 82,
+        ItemsSource = new[] { "RGB", "红", "绿", "蓝" }, SelectedIndex = 0 };
     private readonly StackPanel levelsAdjustmentEditor = new() { Name = "LevelsAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown adjustmentHue = new() { Name = "AdjustmentHue", Minimum = -360, Maximum = 360, Value = 0, Width = 70 };
     private readonly NumericUpDown adjustmentSaturation = new() { Name = "AdjustmentSaturation", Minimum = -100, Maximum = 100, Value = 0, Width = 70 };
@@ -100,6 +102,8 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown selectionLevelsGamma = new() { Name = "SelectionLevelsGamma", Minimum = 0.1m, Maximum = 9.99m, Value = 1, Width = 54 };
     private readonly NumericUpDown selectionLevelsOutputBlack = new() { Name = "SelectionLevelsOutputBlack", Minimum = 0, Maximum = 255, Value = 0, Width = 54 };
     private readonly NumericUpDown selectionLevelsOutputWhite = new() { Name = "SelectionLevelsOutputWhite", Minimum = 0, Maximum = 255, Value = 255, Width = 54 };
+    private readonly ComboBox selectionLevelsChannel = new() { Name = "SelectionLevelsChannel", Width = 82,
+        ItemsSource = new[] { "RGB", "红", "绿", "蓝" }, SelectedIndex = 0 };
     private readonly StackPanel selectionLevelsEditor = new() { Name = "SelectionLevelsEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown selectionHue = new() { Name = "SelectionHue", Minimum = -360, Maximum = 360, Value = 0, Width = 62 };
     private readonly NumericUpDown selectionSaturation = new() { Name = "SelectionSaturation", Minimum = -100, Maximum = 100, Value = 0, Width = 62 };
@@ -345,6 +349,7 @@ public sealed class MainWindow : Window
         levelsAdjustmentEditor.Children.Add(levelsOutputBlack);
         levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "输出白", VerticalAlignment = VerticalAlignment.Center });
         levelsAdjustmentEditor.Children.Add(levelsOutputWhite);
+        levelsAdjustmentEditor.Children.Add(levelsChannel);
         levelsAdjustmentEditor.Children.Add(Command("ApplyLevelsAdjustment", "应用色阶", ApplyLevelsAdjustmentAsync, layer: true));
         actions.Children.Add(levelsAdjustmentEditor);
         hueSaturationAdjustmentEditor.Children.Add(new TextBlock { Text = "色相", VerticalAlignment = VerticalAlignment.Center });
@@ -428,6 +433,7 @@ public sealed class MainWindow : Window
         selectionLevelsEditor.Children.Add(selectionLevelsOutputBlack);
         selectionLevelsEditor.Children.Add(new TextBlock { Text = "输出白", VerticalAlignment = VerticalAlignment.Center });
         selectionLevelsEditor.Children.Add(selectionLevelsOutputWhite);
+        selectionLevelsEditor.Children.Add(selectionLevelsChannel);
         selectionLevelsEditor.Children.Add(Command("PreviewSelectionLevels", "预览选区色阶", PreviewSelectionLevelsAsync, layer: true));
         selectionLevelsEditor.Children.Add(Command("CommitSelectionLevels", "提交选区色阶", CommitSelectionLevelsAsync, layer: true));
         selectionLevelsEditor.Children.Add(Command("CancelSelectionLevels", "取消滤镜预览", CancelSelectionLevelsAsync, layer: true));
@@ -1047,6 +1053,7 @@ public sealed class MainWindow : Window
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
             levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
+        levelsChannel.IsEnabled = showLevelsEditor;
         adjustmentHue.IsEnabled = adjustmentSaturation.IsEnabled = adjustmentLightness.IsEnabled =
             adjustmentColorize.IsEnabled = showHueSaturationEditor;
         curvesShadow.IsEnabled = curvesMid.IsEnabled = curvesHighlight.IsEnabled = showCurvesEditor;
@@ -1065,6 +1072,7 @@ public sealed class MainWindow : Window
         selectionLevelsInputBlack.IsEnabled = selectionLevelsInputWhite.IsEnabled = selectionLevelsGamma.IsEnabled =
             selectionLevelsOutputBlack.IsEnabled = selectionLevelsOutputWhite.IsEnabled =
             showSelectionLevelsEditor && !Workspace.HasFilterPreview;
+        selectionLevelsChannel.IsEnabled = showSelectionLevelsEditor && !Workspace.HasFilterPreview;
         selectionHue.IsEnabled = selectionSaturation.IsEnabled = selectionLightness.IsEnabled = selectionColorize.IsEnabled =
             showSelectionHueSaturationEditor && !Workspace.HasFilterPreview;
         selectionCurvesShadow.IsEnabled = selectionCurvesMid.IsEnabled = selectionCurvesHighlight.IsEnabled =
@@ -1396,7 +1404,15 @@ public sealed class MainWindow : Window
         var range = new LevelRange((double)(levelsInputBlack.Value ?? 0),
             (double)(levelsInputWhite.Value ?? 255), (double)(levelsGamma.Value ?? 1),
             (double)(levelsOutputBlack.Value ?? 0), (double)(levelsOutputWhite.Value ?? 255));
-        return Task.Run(() => Workspace.ApplyActiveLevelsAdjustment(new LevelsSettings(range, new(), new(), new())));
+        var current = selectedId is { } id ? Workspace.Session!.GetLevelsAdjustment(id) : new LevelsSettings();
+        var settings = levelsChannel.SelectedIndex switch
+        {
+            1 => current with { Red = range },
+            2 => current with { Green = range },
+            3 => current with { Blue = range },
+            _ => current with { Rgb = range }
+        };
+        return Task.Run(() => Workspace.ApplyActiveLevelsAdjustment(settings));
     }
     private Task ApplyHueSaturationAdjustmentAsync()
     {
@@ -1476,7 +1492,14 @@ public sealed class MainWindow : Window
         var range = new LevelRange((double)(selectionLevelsInputBlack.Value ?? 0),
             (double)(selectionLevelsInputWhite.Value ?? 255), (double)(selectionLevelsGamma.Value ?? 1),
             (double)(selectionLevelsOutputBlack.Value ?? 0), (double)(selectionLevelsOutputWhite.Value ?? 255));
-        return Task.Run(() => Workspace.PreviewLevelsFilter(new LevelsSettings(range, new(), new(), new())));
+        var settings = selectionLevelsChannel.SelectedIndex switch
+        {
+            1 => new LevelsSettings(new(), range, new(), new()),
+            2 => new LevelsSettings(new(), new(), range, new()),
+            3 => new LevelsSettings(new(), new(), new(), range),
+            _ => new LevelsSettings(range, new(), new(), new())
+        };
+        return Task.Run(() => Workspace.PreviewLevelsFilter(settings));
     }
     private Task CommitSelectionLevelsAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionLevelsAsync() => Task.Run(Workspace.CancelFilterPreview);
