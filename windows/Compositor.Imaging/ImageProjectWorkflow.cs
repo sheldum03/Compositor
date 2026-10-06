@@ -165,7 +165,8 @@ public static class ImageProjectWorkflow
             {
                 ValidateCrossParentGroupedLeafCopy(session, target);
                 return RenderCachedCore(session, useLoadedAssets: true,
-                    renderRoots: new HashSet<Guid> { layerId });
+                    renderRoots: new HashSet<Guid> { layerId },
+                    maskSourceOverrides: BuildCrossParentMaskSourceOverrides(session, target));
             }
             IReadOnlyList<FlatLayerInfo> groupedStack = ValidateGroupedLeafCopy(session, target,
                 allowTransformedAncestors: true);
@@ -305,6 +306,9 @@ public static class ImageProjectWorkflow
 
     private static void ValidateExternalSourceContext(ProjectSession session, FlatLayerInfo source)
     {
+        if (source.MaskSourceId is not null)
+            throw new NotSupportedException(
+                "Cross-parent clipping copy does not support a clipped external source yet.");
         Guid? parentId = source.ParentId;
         while (parentId is { } groupId)
         {
@@ -312,12 +316,26 @@ public static class ImageProjectWorkflow
                 ?? throw new InvalidDataException("Clipping source parent is missing.");
             if (!group.IsGroup)
                 throw new InvalidDataException("Clipping source parent is not a group.");
-            if (!session.IsGroupTransformIdentity(group.Id) ||
-                (group.HasMask && group.MaskEnabled) || group.Opacity != 1 || group.BlendMode != "Normal")
-                throw new NotSupportedException(
-                    "Cross-parent clipping copy requires an identity, unmasked, Normal source parent.");
+            if (group.HasMask && session.GetLayerMask(group.Id) is null)
+                throw new InvalidDataException("Cross-parent clipping source group mask asset is missing.");
             parentId = group.ParentId;
         }
+    }
+
+    private static IReadOnlyDictionary<Guid, TileRaster> BuildCrossParentMaskSourceOverrides(
+        ProjectSession session, FlatLayerInfo target)
+    {
+        var overrides = new Dictionary<Guid, TileRaster>();
+        FlatLayerInfo current = target;
+        while (current.MaskSourceId is { } sourceId)
+        {
+            FlatLayerInfo source = session.Layers.Single(layer => layer.Id == sourceId);
+            if (source.ParentId != target.ParentId)
+                overrides[source.Id] = RenderCachedCore(session, useLoadedAssets: true,
+                    renderRoots: new HashSet<Guid> { source.Id });
+            current = source;
+        }
+        return overrides;
     }
 
     private static IReadOnlyList<FlatLayerInfo> ValidateGroupedLeafCopy(ProjectSession session,
@@ -593,7 +611,8 @@ public static class ImageProjectWorkflow
 
     private static TileRaster RenderCachedCore(ProjectSession session, bool useLoadedAssets = false,
         Guid? overrideLayerId = null, TileRaster? overrideRaster = null, GrayTileRaster? overrideMask = null,
-        Guid? rootOnly = null, bool applyRootAppearance = false, IReadOnlySet<Guid>? renderRoots = null)
+        Guid? rootOnly = null, bool applyRootAppearance = false, IReadOnlySet<Guid>? renderRoots = null,
+        IReadOnlyDictionary<Guid, TileRaster>? maskSourceOverrides = null)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -707,8 +726,15 @@ public static class ImageProjectWorkflow
                 Guid sourceId = Guid.Parse(sourceNode.GetValue<string>());
                 if (!prepared.TryGetValue(sourceId, out var source) || source.Raster is null)
                     throw new InvalidDataException("Invalid cached mask source.");
-                raster = RasterCompositor.ApplyAlphaMask(raster, ResolveLeaf(sourceId),
-                    source.Manifest["opacity"]?.GetValue<double>() ?? 1);
+                TileRaster sourceRaster = maskSourceOverrides is not null &&
+                    maskSourceOverrides.TryGetValue(sourceId, out TileRaster? overrideSource)
+                    ? overrideSource
+                    : ResolveLeaf(sourceId);
+                double sourceOpacity = maskSourceOverrides is not null &&
+                    maskSourceOverrides.ContainsKey(sourceId)
+                    ? 1
+                    : source.Manifest["opacity"]?.GetValue<double>() ?? 1;
+                raster = RasterCompositor.ApplyAlphaMask(raster, sourceRaster, sourceOpacity);
             }
             resolving.Remove(layerId);
             resolved[layerId] = raster;

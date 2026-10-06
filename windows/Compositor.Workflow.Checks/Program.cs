@@ -740,7 +740,61 @@ static void CheckCrossParentGroupedLeafLayerViaCopy(string output, string fixtur
         reopened.Layers.Single(layer => layer.Id == sourceId).ParentId != sourceGroupId)
         throw new Exception("Saved cross-parent grouped clipping copy lost its relation or root placement.");
     AssertRaster(expected, reopened.GetLayerRaster(copiedId));
+
+    string complexSource = Path.Combine(output, "CrossParentGroupedAppearanceSource.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), complexSource);
+    var complexSession = ImageProjectWorkflow.OpenEditable(complexSource);
+    Guid complexSourceId = complexSession.Layers.Single().Id;
+    Guid complexTargetId = complexSession.AddBlankLayer("Complex cross-parent target", complexSession.Layers.Count);
+    Guid complexSourceGroupId = complexSession.GroupLayer(complexSourceId, "Complex external source parent");
+    Guid complexTargetGroupId = complexSession.GroupLayer(complexTargetId, "Complex target parent");
+    ConfigureExternalSourceGroup(complexSession, complexSourceGroupId);
+    ImageProjectWorkflow.Save(complexSession, complexSource);
+    string referencePath = Path.Combine(output, "CrossParentGroupedAppearanceReference.comp");
+    ImageProjectWorkflow.Import(Path.Combine(fixtures, "alpha-tiles.png"), referencePath);
+    var reference = ImageProjectWorkflow.OpenEditable(referencePath);
+    Guid referenceSourceId = reference.Layers.Single().Id;
+    Guid referenceGroupId = reference.GroupLayer(referenceSourceId, "Reference source parent");
+    ConfigureExternalSourceGroup(reference, referenceGroupId);
+    TileRaster externalVisible = ImageProjectWorkflow.RenderFlatNormal(reference);
+    TileRaster complexTargetRaster = complexSession.GetLayerRaster(complexTargetId);
+    var complexManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(complexSource, "manifest.json")))!.AsObject();
+    complexManifest["layers"]!.AsArray().Single(node =>
+        Guid.Parse(node!["id"]!.GetValue<string>()) == complexTargetId)!["maskSourceID"] =
+        complexSourceId.ToString("D");
+    File.WriteAllText(Path.Combine(complexSource, "manifest.json"), complexManifest.ToJsonString());
+    complexSession = ImageProjectWorkflow.OpenEditable(complexSource);
+    TileRaster expectedComplex = RasterCompositor.ApplyAlphaMask(complexTargetRaster, externalVisible, 1);
+    if (!ImageProjectWorkflow.CanRenderLayerForCopy(complexSession, complexTargetId) ||
+        !ImageProjectWorkflow.GroupedLayerCopyRequiresRootInsertion(complexSession, complexTargetId))
+        throw new Exception("A cross-parent clipping target with external group appearance was not enabled.");
+    TileRaster actualComplex = ImageProjectWorkflow.RenderLayerForCopy(complexSession, complexTargetId);
+    AssertRaster(expectedComplex, actualComplex);
+    int complexGroupIndex = complexSession.Layers.ToList().FindIndex(layer => layer.Id == complexTargetGroupId);
+    int complexInsertion = complexGroupIndex + 1;
+    while (complexInsertion < complexSession.Layers.Count &&
+        complexSession.Layers[complexInsertion].ParentId is { } parentId && parentId == complexTargetGroupId)
+        complexInsertion++;
+    Guid complexCopiedId = complexSession.AddRootRasterLayer("Layer via Copy", actualComplex, complexInsertion);
+    ImageProjectWorkflow.Save(complexSession, complexSource);
+    var reopenedComplex = ImageProjectWorkflow.OpenEditable(complexSource);
+    if (reopenedComplex.Layers.Single(layer => layer.Id == complexTargetId).MaskSourceId != complexSourceId ||
+        reopenedComplex.Layers.Single(layer => layer.Id == complexCopiedId).ParentId is not null)
+        throw new Exception("Saved complex cross-parent clipping copy lost its relationship or root placement.");
+    AssertRaster(expectedComplex, reopenedComplex.GetLayerRaster(complexCopiedId));
     Console.WriteLine("PASS: cross-parent grouped clipping visible-result copy preserves root insertion, relationship and save/reopen");
+    Console.WriteLine("PASS: cross-parent grouped clipping copy composes external group transform, mask and appearance");
+
+    static void ConfigureExternalSourceGroup(ProjectSession session, Guid groupId)
+    {
+        session.SetLayerOpacity(groupId, 0.58);
+        session.SetLayerBlendMode(groupId, "Multiply");
+        session.SetGroupTransform(groupId, 8, 4, session.Width - 16, session.Height - 8, 11);
+        session.EnsureLayerMask(groupId);
+        session.ReplaceLayerMask(groupId,
+            GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width * 3 / 4, session.Height));
+        session.SetLayerMaskEnabled(groupId, true);
+    }
 }
 
 static void CheckTransformedGroupedLeafLayerViaCopy(string output, string fixtures)
