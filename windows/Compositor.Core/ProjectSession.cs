@@ -1533,8 +1533,8 @@ public sealed class ProjectSession
                 {
                     if (groupedStack)
                     {
-                        if (destinationParentId is { } groupedLeafParent)
-                            layer["parentID"] = groupedLeafParent.ToString("D");
+                        if (destinationParentId is { } groupedStackParent)
+                            layer["parentID"] = groupedStackParent.ToString("D");
                         else
                             layer.Remove("parentID");
                     }
