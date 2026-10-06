@@ -16,6 +16,7 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 
 1. `extended/F12-missing-font.comp`: metadata is present, the missing font is reported, the rendered text raster is byte-identical to the cache, and rendering does not modify the source manifest.
 2. A generated full-canvas v8 text project using the first installed font family: the available-font path redraws visible pixels rather than returning the transparent cache, the normal preview uses that redraw, and save/reopen keeps the text metadata.
+3. `ea1b035` makes the formal `EditorWorkspace` read-only when any text layer font is unavailable; cached preview and export remain available, while Save/Save As are rejected. This closes the regression found by Windows App Checks on `e42ea0d`.
 
 Command on the development host:
 
@@ -24,6 +25,8 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 ```
 
 Exit code: `0`.
+
+The Windows production core matrix also passed on `ea1b035`: [run 37412445067](https://github.com/sheldum03/Compositor/actions/runs/37412445067) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes the missing-font read-only preview assertion.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 
