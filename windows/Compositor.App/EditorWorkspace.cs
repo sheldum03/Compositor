@@ -4,6 +4,12 @@ using Avalonia;
 
 namespace Compositor.App;
 
+internal enum ResizeFilter
+{
+    Bilinear,
+    Lanczos3
+}
+
 public sealed class EditorWorkspace
 {
     private SoftBrushStroke? brush;
@@ -906,9 +912,12 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
     }
 
-    public void ResizeCanvas(int width, int height) => ResizeDocument(width, height, scale: false);
+    public void ResizeCanvas(int width, int height) => ResizeDocument(width, height, scale: false, ResizeFilter.Bilinear);
 
-    public void ResizeImage(int width, int height) => ResizeDocument(width, height, scale: true);
+    public void ResizeImage(int width, int height) => ResizeDocument(width, height, scale: true, ResizeFilter.Bilinear);
+
+    // Internal verification entry point; the production window still uses the existing bilinear path.
+    internal void ResizeImage(int width, int height, ResizeFilter filter) => ResizeDocument(width, height, scale: true, filter);
 
     public void RotateDocument90(bool clockwise) {
         RequireIdle();
@@ -923,16 +932,16 @@ public sealed class EditorWorkspace
         ResetSelectionHistory();
     }
 
-    private void ResizeDocument(int width, int height, bool scale)
+    private void ResizeDocument(int width, int height, bool scale, ResizeFilter filter)
     {
         RequireIdle();
         var session = RequireSession();
         if (width == session.Width && height == session.Height)
             throw new ArgumentException("新尺寸必须与当前画布不同。");
         var rasters = session.Layers.ToDictionary(layer => layer.Id,
-            layer => ResizeRaster(session.GetLayerRaster(layer.Id), width, height, scale));
+            layer => ResizeRaster(session.GetLayerRaster(layer.Id), width, height, scale, filter));
         var masks = session.Layers.Where(layer => layer.HasMask).ToDictionary(layer => layer.Id,
-            layer => ResizeMask(session.GetLayerMask(layer.Id)!, width, height, scale));
+            layer => ResizeMask(session.GetLayerMask(layer.Id)!, width, height, scale, filter));
         Edit(current => current.ResizeDocument(width, height, rasters, masks.Count == 0 ? null : masks));
         ClearSelectionWithoutHistory();
         ResetSelectionHistory();
@@ -1295,9 +1304,11 @@ public sealed class EditorWorkspace
         return FromRgba(width, height, output);
     }
 
-    private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale)
+    private static TileRaster ResizeRaster(TileRaster source, int width, int height, bool scale, ResizeFilter filter)
     {
         byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        if (scale && width < source.Width && height < source.Height && filter == ResizeFilter.Lanczos3)
+            return ResizeRasterLanczos3(source, width, height);
         if (scale && width < source.Width && height < source.Height)
             return ResizeRasterArea(source, width, height);
         if (scale)
@@ -1334,6 +1345,107 @@ public sealed class EditorWorkspace
                 .CopyTo(output.AsSpan((y * width + x) * 4, 4));
         }
         return FromRgba(width, height, output);
+    }
+
+    private readonly record struct ResizeTap(int Index, double Weight);
+
+    private static ResizeTap[][] BuildLanczosTaps(int sourceLength, int destinationLength)
+    {
+        var result = new ResizeTap[destinationLength][];
+        for (int destination = 0; destination < destinationLength; destination++)
+        {
+            double center = (destination + 0.5) * sourceLength / destinationLength - 0.5;
+            int first = (int)Math.Ceiling(center - 3), last = (int)Math.Floor(center + 3);
+            var weights = new Dictionary<int, double>();
+            for (int source = first; source <= last; source++)
+            {
+                double weight = Lanczos3(center - source);
+                if (weight == 0) continue;
+                int index = Math.Clamp(source, 0, sourceLength - 1);
+                weights[index] = weights.GetValueOrDefault(index) + weight;
+            }
+            double total = weights.Values.Sum();
+            if (!double.IsFinite(total) || Math.Abs(total) < 1e-12)
+            {
+                result[destination] = [new ResizeTap(Math.Clamp((int)Math.Round(center), 0, sourceLength - 1), 1)];
+                continue;
+            }
+            result[destination] = weights.Select(pair => new ResizeTap(pair.Key, pair.Value / total)).ToArray();
+        }
+        return result;
+    }
+
+    private static double Lanczos3(double distance)
+    {
+        double absolute = Math.Abs(distance);
+        if (absolute >= 3) return 0;
+        if (absolute < 1e-12) return 1;
+        double piDistance = Math.PI * distance;
+        return Math.Sin(piDistance) / piDistance * Math.Sin(piDistance / 3) / (piDistance / 3);
+    }
+
+    private static TileRaster ResizeRasterLanczos3(TileRaster source, int width, int height)
+    {
+        byte[] input = ToRgba(source), horizontal = new byte[checked(width * source.Height * 4)], output = new byte[checked(width * height * 4)];
+        ResizeTap[][] horizontalTaps = BuildLanczosTaps(source.Width, width);
+        ResizeTap[][] verticalTaps = BuildLanczosTaps(source.Height, height);
+        for (int y = 0; y < source.Height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int destination = (y * width + x) * 4;
+            for (int channel = 0; channel < 4; channel++)
+            {
+                double sum = 0;
+                foreach (ResizeTap tap in horizontalTaps[x])
+                    sum += input[(y * source.Width + tap.Index) * 4 + channel] * tap.Weight;
+                horizontal[destination + channel] = (byte)Math.Clamp(
+                    Math.Round(sum, MidpointRounding.AwayFromZero), 0, 255);
+            }
+            for (int channel = 0; channel < 3; channel++)
+                horizontal[destination + channel] = Math.Min(horizontal[destination + channel], horizontal[destination + 3]);
+        }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int destination = (y * width + x) * 4;
+            for (int channel = 0; channel < 4; channel++)
+            {
+                double sum = 0;
+                foreach (ResizeTap tap in verticalTaps[y])
+                    sum += horizontal[(tap.Index * width + x) * 4 + channel] * tap.Weight;
+                output[destination + channel] = (byte)Math.Clamp(
+                    Math.Round(sum, MidpointRounding.AwayFromZero), 0, 255);
+            }
+            for (int channel = 0; channel < 3; channel++)
+                output[destination + channel] = Math.Min(output[destination + channel], output[destination + 3]);
+        }
+        return FromRgba(width, height, output);
+    }
+
+    private static GrayTileRaster ResizeMaskLanczos3(GrayTileRaster source, int width, int height)
+    {
+        byte[] input = ToCoverage(source), horizontal = new byte[checked(width * source.Height)], output = new byte[checked(width * height)];
+        ResizeTap[][] horizontalTaps = BuildLanczosTaps(source.Width, width);
+        ResizeTap[][] verticalTaps = BuildLanczosTaps(source.Height, height);
+        for (int y = 0; y < source.Height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            double sum = 0;
+            foreach (ResizeTap tap in horizontalTaps[x])
+                sum += input[y * source.Width + tap.Index] * tap.Weight;
+            horizontal[y * width + x] = (byte)Math.Clamp(
+                Math.Round(sum, MidpointRounding.AwayFromZero), 0, 255);
+        }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            double sum = 0;
+            foreach (ResizeTap tap in verticalTaps[y])
+                sum += horizontal[tap.Index * width + x] * tap.Weight;
+            output[y * width + x] = (byte)Math.Clamp(
+                Math.Round(sum, MidpointRounding.AwayFromZero), 0, 255);
+        }
+        return GrayTileRaster.FromCoverage(width, height, output);
     }
 
     private static TileRaster ResizeRasterArea(TileRaster source, int width, int height)
@@ -1398,9 +1510,11 @@ public sealed class EditorWorkspace
         return FromRgba(height, width, output);
     }
 
-    private static GrayTileRaster ResizeMask(GrayTileRaster source, int width, int height, bool scale)
+    private static GrayTileRaster ResizeMask(GrayTileRaster source, int width, int height, bool scale, ResizeFilter filter)
     {
         byte[] input = ToCoverage(source), output = new byte[checked(width * height)];
+        if (scale && width < source.Width && height < source.Height && filter == ResizeFilter.Lanczos3)
+            return ResizeMaskLanczos3(source, width, height);
         if (scale && width < source.Width && height < source.Height)
             return ResizeMaskArea(source, width, height);
         if (scale)

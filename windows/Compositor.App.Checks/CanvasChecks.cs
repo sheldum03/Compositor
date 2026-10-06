@@ -798,6 +798,42 @@ internal static class CanvasChecks
         Require(center[16] is >= 63 and <= 65 && center[17] is >= 63 and <= 65 &&
             center[18] is >= 63 and <= 65 && center[19] == 255,
             "Image resize did not bilinearly resample the center pixel.");
+        var lanczosWorkspace = new EditorWorkspace();
+        lanczosWorkspace.New(4, 4, 72);
+        Guid lanczosLayerId = lanczosWorkspace.Session!.ActiveLayerId!.Value;
+        lanczosWorkspace.SaveAs(Path.Combine(output, "Lanczos.comp"));
+        var lanczosInput = new TileRaster(4, 4).ReplaceTile(0, 0,
+        [
+            0, 0, 0, 0, 96, 0, 0, 96, 0, 200, 0, 255, 0, 0, 48, 64,
+            16, 24, 32, 64, 40, 50, 60, 128, 70, 80, 90, 192, 100, 110, 120, 255,
+            130, 0, 0, 255, 0, 70, 0, 128, 0, 0, 150, 192, 40, 45, 50, 64,
+            200, 210, 220, 255, 20, 30, 40, 64, 60, 70, 80, 128, 90, 100, 110, 192
+        ]);
+        var lanczosMask = GrayTileRaster.FromCoverage(4, 4,
+        [0, 64, 128, 255, 32, 96, 160, 224, 16, 80, 144, 208, 48, 112, 176, 240]);
+        lanczosWorkspace.Edit(session =>
+        {
+            session.ReplaceLayerRaster(lanczosLayerId, lanczosInput);
+            session.EnsureLayerMask(lanczosLayerId);
+            session.ReplaceLayerMask(lanczosLayerId, lanczosMask);
+        });
+        lanczosWorkspace.ResizeImage(2, 2, ResizeFilter.Lanczos3);
+        byte[][] expectedLanczosPixels =
+        [
+            [22, 18, 30, 47], [53, 121, 65, 213],
+            [91, 80, 57, 176], [44, 45, 109, 144]
+        ];
+        byte[] expectedLanczosMask = [46, 200, 55, 196];
+        for (int y = 0; y < 2; y++)
+        for (int x = 0; x < 2; x++)
+            Require(Pixel(lanczosWorkspace.Session.GetLayerRaster(lanczosLayerId), x, y)
+                .SequenceEqual(expectedLanczosPixels[y * 2 + x]),
+                "Lanczos RGBA resize changed the fixed premultiplied edge sample.");
+        GrayTileRaster resizedLanczosMask = lanczosWorkspace.Session.GetLayerMask(lanczosLayerId)!;
+        for (int y = 0; y < 2; y++)
+        for (int x = 0; x < 2; x++)
+            Require(MaskPixel(resizedLanczosMask, x, y) == expectedLanczosMask[y * 2 + x],
+                "Lanczos Gray8 resize changed the fixed coverage edge sample.");
         var rotateWorkspace = new EditorWorkspace();
         rotateWorkspace.Open(project);
         int rotateWidth = rotateWorkspace.Session!.Width, rotateHeight = rotateWorkspace.Session.Height;
