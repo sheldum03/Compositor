@@ -80,6 +80,10 @@ public sealed class MainWindow : Window
     private readonly StackPanel gradientMapAdjustmentEditor = new() { Name = "GradientMapAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
     private readonly NumericUpDown gaussianBlurRadius = new() { Name = "GaussianBlurRadius", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel gaussianBlurAdjustmentEditor = new() { Name = "GaussianBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown grainAmount = new() { Name = "GrainAmount", Minimum = 0, Maximum = 100, Value = 25, Width = 62 };
+    private readonly NumericUpDown grainSize = new() { Name = "GrainSize", Minimum = 0.5m, Maximum = 20, Value = 1.5m, Width = 62 };
+    private readonly NumericUpDown grainRoughness = new() { Name = "GrainRoughness", Minimum = 0, Maximum = 100, Value = 50, Width = 62 };
+    private readonly StackPanel grainAdjustmentEditor = new() { Name = "GrainAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -207,6 +211,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddCurvesAdjustment", "新增曲线调整", AddCurvesAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddGradientMapAdjustment", "新增渐变映射", AddGradientMapAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddGaussianBlurAdjustment", "新增高斯模糊", AddGaussianBlurAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddGrainAdjustment", "新增颗粒", AddGrainAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -320,6 +325,14 @@ public sealed class MainWindow : Window
         gaussianBlurAdjustmentEditor.Children.Add(gaussianBlurRadius);
         gaussianBlurAdjustmentEditor.Children.Add(Command("ApplyGaussianBlurAdjustment", "应用高斯模糊", ApplyGaussianBlurAdjustmentAsync, layer: true));
         actions.Children.Add(gaussianBlurAdjustmentEditor);
+        grainAdjustmentEditor.Children.Add(new TextBlock { Text = "强度", VerticalAlignment = VerticalAlignment.Center });
+        grainAdjustmentEditor.Children.Add(grainAmount);
+        grainAdjustmentEditor.Children.Add(new TextBlock { Text = "尺寸", VerticalAlignment = VerticalAlignment.Center });
+        grainAdjustmentEditor.Children.Add(grainSize);
+        grainAdjustmentEditor.Children.Add(new TextBlock { Text = "粗糙度", VerticalAlignment = VerticalAlignment.Center });
+        grainAdjustmentEditor.Children.Add(grainRoughness);
+        grainAdjustmentEditor.Children.Add(Command("ApplyGrainAdjustment", "应用颗粒", ApplyGrainAdjustmentAsync, layer: true));
+        actions.Children.Add(grainAdjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -719,6 +732,7 @@ public sealed class MainWindow : Window
         CurvesSettings? curves = null;
         GradientMapSettings? gradientMap = null;
         GaussianBlurSettings? gaussianBlur = null;
+        GrainSettings? grain = null;
         refreshing = true;
         try
         {
@@ -752,6 +766,8 @@ public sealed class MainWindow : Window
                 gradientMap = Workspace.Session!.GetGradientMapAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Gaussian Blur")
                 gaussianBlur = Workspace.Session!.GetGaussianBlurAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Grain")
+                grain = Workspace.Session!.GetGrainAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -776,6 +792,9 @@ public sealed class MainWindow : Window
             gradientHighlightGreen.Value = gradientMap is null ? 255 : gradientMap.Highlight.Green;
             gradientHighlightBlue.Value = gradientMap is null ? 255 : gradientMap.Highlight.Blue;
             gaussianBlurRadius.Value = gaussianBlur is null ? 1 : gaussianBlur.Radius;
+            grainAmount.Value = grain is null ? 25 : (decimal)grain.Amount;
+            grainSize.Value = grain is null ? 1.5m : (decimal)grain.Size;
+            grainRoughness.Value = grain is null ? 50 : (decimal)grain.Roughness;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -803,12 +822,15 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit;
         bool showGaussianBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Gaussian Blur" &&
             !multiple && Workspace.CanEdit;
+        bool showGrainEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Grain" &&
+            !multiple && Workspace.CanEdit;
         adjustmentEditor.IsVisible = showExposureEditor;
         levelsAdjustmentEditor.IsVisible = showLevelsEditor;
         hueSaturationAdjustmentEditor.IsVisible = showHueSaturationEditor;
         curvesAdjustmentEditor.IsVisible = showCurvesEditor;
         gradientMapAdjustmentEditor.IsVisible = showGradientMapEditor;
         gaussianBlurAdjustmentEditor.IsVisible = showGaussianBlurEditor;
+        grainAdjustmentEditor.IsVisible = showGrainEditor;
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
             levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
@@ -819,6 +841,7 @@ public sealed class MainWindow : Window
         gradientShadowRed.IsEnabled = gradientShadowGreen.IsEnabled = gradientShadowBlue.IsEnabled =
         gradientHighlightRed.IsEnabled = gradientHighlightGreen.IsEnabled = gradientHighlightBlue.IsEnabled = showGradientMapEditor;
         gaussianBlurRadius.IsEnabled = showGaussianBlurEditor;
+        grainAmount.IsEnabled = grainSize.IsEnabled = grainRoughness.IsEnabled = showGrainEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -870,6 +893,11 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyGaussianBlurAdjustment")
                 button.IsEnabled = showGaussianBlurEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddGrainAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyGrainAdjustment")
+                button.IsEnabled = showGrainEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -1061,6 +1089,7 @@ public sealed class MainWindow : Window
     private Task AddCurvesAdjustmentAsync() => Task.Run(() => Workspace.AddCurvesAdjustment());
     private Task AddGradientMapAdjustmentAsync() => Task.Run(() => Workspace.AddGradientMapAdjustment());
     private Task AddGaussianBlurAdjustmentAsync() => Task.Run(() => Workspace.AddGaussianBlurAdjustment());
+    private Task AddGrainAdjustmentAsync() => Task.Run(() => Workspace.AddGrainAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
@@ -1108,6 +1137,12 @@ public sealed class MainWindow : Window
     {
         var settings = new GaussianBlurSettings((int)(gaussianBlurRadius.Value ?? 1));
         return Task.Run(() => Workspace.ApplyActiveGaussianBlurAdjustment(settings));
+    }
+    private Task ApplyGrainAdjustmentAsync()
+    {
+        var settings = new GrainSettings((double)(grainAmount.Value ?? 25),
+            (double)(grainSize.Value ?? 1.5m), (double)(grainRoughness.Value ?? 50));
+        return Task.Run(() => Workspace.ApplyActiveGrainAdjustment(settings));
     }
     private Task DuplicateLayerAsync()
     {

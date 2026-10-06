@@ -198,6 +198,24 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the Gaussian Blur adjustment transaction.");
+        TileRaster grainBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddGrainAdjustment");
+        FlatLayerInfo grainLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == grainLayer.Id &&
+            Control<Button>(window, "ApplyGrainAdjustment").IsEffectivelyEnabled,
+            "Grain adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "GrainAmount").Value = 60;
+        Control<NumericUpDown>(window, "GrainSize").Value = 2;
+        Control<NumericUpDown>(window, "GrainRoughness").Value = 40;
+        Click(window, "ApplyGrainAdjustment");
+        GrainSettings appliedGrain = workspace.Session.GetGrainAdjustment(grainLayer.Id);
+        Require(appliedGrain == new GrainSettings(60, 2, 40),
+            "Grain adjustment controls did not commit amount, size and roughness.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyGrain(grainBase, appliedGrain));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Grain adjustment transaction.");
         Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");

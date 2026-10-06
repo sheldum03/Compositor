@@ -297,6 +297,71 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyGrain(TileRaster image, GrainSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        if (settings.Amount == 0) return image;
+        float strength = (float)(settings.Amount / 100d * 0.35d * 255d);
+        float roughness = (float)(settings.Roughness / 100d);
+        uint fineSeed = Mix32(settings.Seed ^ 0xA511E9B3U);
+        var result = new TileRaster(image.Width, image.Height);
+        for (int row = 0; row * TileRaster.TileSize < image.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < image.Width; column++)
+        {
+            byte[] pixels = image.ReadTileCopy(column, row);
+            var size = image.TileDimensions(column, row);
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                int pixel = (y * size.Width + x) * 4;
+                int alpha = pixels[pixel + 3];
+                if (alpha == 0) continue;
+                int documentX = column * TileRaster.TileSize + x;
+                int documentY = row * TileRaster.TileSize + y;
+                double cellY = Math.Floor((documentY + 0.5) / settings.Size);
+                float ty = SmoothStep((float)((documentY + 0.5) / settings.Size - cellY));
+                long iy = (long)cellY, fineY = documentY;
+                double cellX = Math.Floor((documentX + 0.5) / settings.Size);
+                float tx = SmoothStep((float)((documentX + 0.5) / settings.Size - cellX));
+                long ix = (long)cellX;
+                float n00 = Lattice(ix, iy, settings.Seed), n10 = Lattice(ix + 1, iy, settings.Seed);
+                float n01 = Lattice(ix, iy + 1, settings.Seed), n11 = Lattice(ix + 1, iy + 1, settings.Seed);
+                float top = n00 + (n10 - n00) * tx, bottom = n01 + (n11 - n01) * tx;
+                float smooth = (top + (bottom - top) * ty) * 1.6f;
+                float fine = Lattice(documentX, fineY, fineSeed);
+                float noise = smooth + (fine - smooth) * roughness;
+                double red = pixels[pixel] * 255d / alpha;
+                double green = pixels[pixel + 1] * 255d / alpha;
+                double blue = pixels[pixel + 2] * 255d / alpha;
+                float level = (float)Math.Clamp((0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255d, 0, 1);
+                float delta = noise * strength * (0.4f + 2.4f * level * (1 - level));
+                double coverage = alpha / 255d;
+                pixels[pixel] = (byte)Math.Clamp(Math.Round(Clamp255(red + delta) * coverage, MidpointRounding.AwayFromZero), 0, alpha);
+                pixels[pixel + 1] = (byte)Math.Clamp(Math.Round(Clamp255(green + delta) * coverage, MidpointRounding.AwayFromZero), 0, alpha);
+                pixels[pixel + 2] = (byte)Math.Clamp(Math.Round(Clamp255(blue + delta) * coverage, MidpointRounding.AwayFromZero), 0, alpha);
+            }
+            result = result.ReplaceTile(column, row, pixels);
+        }
+        return result;
+
+        static float SmoothStep(float value) => value * value * (3 - 2 * value);
+        static double Clamp255(double value) => Math.Clamp(value, 0, 255);
+        static uint Mix32(uint value)
+        {
+            value ^= value >> 16;
+            value = unchecked(value * 0x7feb352dU);
+            value ^= value >> 15;
+            value = unchecked(value * 0x846ca68bU);
+            return value ^ (value >> 16);
+        }
+        static float Lattice(long x, long y, uint seed)
+        {
+            uint h = Mix32(unchecked((uint)x * 0x9E3779B1U) ^
+                Mix32(unchecked((uint)y * 0x85EBCA77U) ^ seed));
+            return (h & 0xFFFFU) / 65535f + (h >> 16) / 65535f - 1f;
+        }
+    }
+
     public static TileRaster ApplyMask(TileRaster image, GrayTileRaster mask)
     {
         if (image.Width != mask.Width || image.Height != mask.Height)

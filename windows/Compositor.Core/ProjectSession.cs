@@ -937,6 +937,45 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public Guid AddGrainAdjustment(string name, GrainSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Grain",
+            ["grainSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
+    public GrainSettings GetGrainAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Grain" ||
+            !GrainSettings.TryRead(adjustment["grainSettings"], out var settings))
+            throw new NotSupportedException("Only Grain adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetGrainAdjustment(Guid layerId, GrainSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Grain")
+            throw new NotSupportedException("Only Grain adjustment layers are supported in this slice.");
+        if (GetGrainAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["grainSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
         Guid? destinationParentId = null)
     {

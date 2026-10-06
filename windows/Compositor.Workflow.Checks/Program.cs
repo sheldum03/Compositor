@@ -187,6 +187,7 @@ CheckHueSaturationAdjustment(output);
 CheckCurvesAdjustment(output);
 CheckGradientMapAdjustment(output);
 CheckGaussianBlurAdjustment(output);
+CheckGrainAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1685,6 +1686,46 @@ static void CheckGaussianBlurAdjustment(string output)
         throw new Exception("Gaussian Blur adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Gaussian Blur adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckGrainAdjustment(string output)
+{
+    string project = Path.Combine(output, "GrainAdjustment.comp");
+    var session = ProjectSession.CreateBlank(40, 40);
+    byte[] sourcePixels = new byte[40 * 40 * 4];
+    for (int pixel = 0; pixel < sourcePixels.Length; pixel += 4)
+        new byte[] { 128, 128, 128, 255 }.CopyTo(sourcePixels, pixel);
+    new byte[] { 0, 0, 0, 0 }.CopyTo(sourcePixels, sourcePixels.Length - 4);
+    TileRaster source = new TileRaster(40, 40).ReplaceTile(0, 0, sourcePixels);
+    session.ReplaceRaster(source);
+    var settings = new GrainSettings(60, 2, 40, 7);
+    Guid adjustmentId = session.AddGrainAdjustment("Grain", settings, 1);
+    if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
+        session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Grain" ||
+        session.GetGrainAdjustment(adjustmentId) != settings)
+        throw new Exception("Grain adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyGrain(source, settings);
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    byte[] firstPixel = Pixel(expected, 0, 0);
+    if ((firstPixel[0] == 128 && firstPixel[1] == 128 && firstPixel[2] == 128) ||
+        firstPixel[0] != firstPixel[1] || firstPixel[1] != firstPixel[2] || Pixel(expected, 39, 39)[3] != 0)
+        throw new Exception("Grain adjustment did not vary brightness while preserving neutral color and transparency.");
+    var changedSettings = new GrainSettings(60, 2, 40, 8);
+    session.SetGrainAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyGrain(source, changedSettings), changed);
+    if (SameRaster(expected, changed) || !session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Grain adjustment did not participate in deterministic seed or undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Grain" ||
+        reopened.GetGrainAdjustment(adjustmentId) != changedSettings)
+        throw new Exception("Grain adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Grain adjustment layer metadata, deterministic seed, premultiplied pixels, history and save/reopen");
 }
 
 static void CloneProject(string source, string destination)

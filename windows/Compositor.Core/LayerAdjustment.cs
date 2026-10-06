@@ -391,3 +391,40 @@ public sealed record GaussianBlurSettings(int Radius = 1)
 
     public JsonObject ToJson() => new() { ["radius"] = Radius };
 }
+
+public sealed record GrainSettings(double Amount = 25, double Size = 1.5, double Roughness = 50, uint Seed = 0)
+{
+    public bool IsValid => double.IsFinite(Amount) && Amount is >= 0 and <= 100 &&
+        double.IsFinite(Size) && Size is >= 0.5 and <= 20 &&
+        double.IsFinite(Roughness) && Roughness is >= 0 and <= 100;
+
+    public bool IsIdentity => Amount == 0;
+
+    public static bool TryRead(JsonNode? node, out GrainSettings settings)
+    {
+        settings = new GrainSettings();
+        if (node is null) return true;
+        try
+        {
+            var value = node.AsObject();
+            settings = new GrainSettings(
+                value["amount"]?.GetValue<double>() ?? 25,
+                value["size"]?.GetValue<double>() ?? 1.5,
+                value["roughness"]?.GetValue<double>() ?? 50,
+                value["seed"]?.GetValue<uint>() ?? 0);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new()
+    {
+        ["amount"] = Amount,
+        ["size"] = Size,
+        ["roughness"] = Roughness,
+        ["seed"] = Seed
+    };
+}
