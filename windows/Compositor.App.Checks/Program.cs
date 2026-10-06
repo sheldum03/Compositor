@@ -698,7 +698,10 @@ internal static class Program
         Require(crossGroupSource.CanCopyLayerTo(crossGroupTarget, crossGroupChildId),
             "A raster layer inside an identity group did not enable cross-project copy.");
         crossGroupSource.CopyLayerTo(crossGroupTarget, crossGroupChildId);
-        FlatLayerInfo copiedGroupedLeaf = crossGroupTarget.Session.Layers.Last();
+        FlatLayerInfo copiedGroupedLeaf = crossGroupTarget.Session.Layers.Single(layer =>
+            layer.ParentId == copiedGroup.Id && !layer.IsGroup &&
+            layer.Name == crossGroupSource.Session.Layers.Single(source => source.Id == crossGroupChildId).Name &&
+            layer.Id != copiedGroupChildren[0].Id && layer.Id != copiedGroupChildren[1].Id && layer.Id != copiedIntoGroup.Id);
         Require(copiedGroupedLeaf.ParentId == copiedGroup.Id && !copiedGroupedLeaf.IsGroup &&
             copiedGroupedLeaf.Name == crossGroupSource.Session.Layers.Single(layer => layer.Id == crossGroupChildId).Name &&
             crossGroupTarget.Session.GetLayerTransform(copiedGroupedLeaf.Id) ==
