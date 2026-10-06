@@ -823,6 +823,13 @@ internal static class CanvasChecks
             availableTextContent.SelectionStart == availableTextMetadata.Content.Length &&
             availableTextContent.SelectionEnd == availableTextMetadata.Content.Length,
             $"Canvas text hit did not place the sidebar caret at the end of the text: caret={availableTextContent.CaretIndex}, start={availableTextContent.SelectionStart}, end={availableTextContent.SelectionEnd}, length={availableTextMetadata.Content.Length}, document={textDocumentEnd}, view={textViewEnd}.");
+        Require(availableTextCanvas.TextCaretOverlayVisible && availableTextCanvas.TextSelectionOverlayCount == 0,
+            "Canvas text hit did not expose the shared caret overlay.");
+        availableTextContent.SelectionStart = 0;
+        availableTextContent.SelectionEnd = availableTextMetadata.Content.Length;
+        Dispatcher.UIThread.RunJobs();
+        Require(availableTextCanvas.TextCaretOverlayVisible && availableTextCanvas.TextSelectionOverlayCount == 1,
+            "Sidebar text selection did not expose the shared canvas selection overlay.");
         availableTextContent.Text = "Edited from the Windows text panel";
         Find<Button>(availableTextWindow, "ApplyText").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Dispatcher.UIThread.RunJobs();

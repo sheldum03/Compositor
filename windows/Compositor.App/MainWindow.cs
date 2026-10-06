@@ -228,6 +228,12 @@ public sealed class MainWindow : Window
         appearance.Children.Add(layerBlendMode);
         actions.Children.Add(appearance);
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
+        textContent.PropertyChanged += (_, change) =>
+        {
+            if (!refreshing && (change.Property == TextBox.TextProperty || change.Property == TextBox.CaretIndexProperty ||
+                change.Property == TextBox.SelectionStartProperty || change.Property == TextBox.SelectionEndProperty))
+                RefreshTextOverlay();
+        };
         var move = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         move.Children.Add(new TextBlock { Text = "X", VerticalAlignment = VerticalAlignment.Center });
         move.Children.Add(layerMoveX);
@@ -334,6 +340,7 @@ public sealed class MainWindow : Window
             else textContent.SelectionStart = textContent.SelectionEnd = characterIndex;
             textContent.CaretIndex = characterIndex;
             textContent.Focus();
+            RefreshTextOverlay();
             status.Text = "文字光标已定位。";
         };
         paint.IsCheckedChanged += (_, _) =>
@@ -714,6 +721,7 @@ public sealed class MainWindow : Window
                 (button.Name == "AddMask" || selected.HasMask);
         maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
         UpdateSelectionControls();
+        RefreshTextOverlay();
     }
 
     private void UpdateSelectionControls()
@@ -758,6 +766,50 @@ public sealed class MainWindow : Window
         Compositor.Imaging.TextHitTestResult hit = TextLayerWorkflow.HitTest(metadata, session.GetLayerTransform(id),
             raster.Width, raster.Height, session.Resolution, (float)document.X, (float)document.Y);
         return hit.IsInside ? hit.CharacterIndex : null;
+    }
+
+    private void RefreshTextOverlay()
+    {
+        if (!canvas.TextEditEnabled || selectedId is not { } id || Workspace.Session is not { } session)
+        {
+            canvas.SetTextOverlay(null, null, null);
+            return;
+        }
+        TextLayerMetadata? metadata = session.TextLayers.SingleOrDefault(text => text.Id == id);
+        if (metadata is null) { canvas.SetTextOverlay(null, null, null); return; }
+        TileRaster raster = session.GetLayerRaster(id);
+        TextLayoutSnapshot layout;
+        try
+        {
+            string content = textContent.Text ?? metadata.Content;
+            layout = TextLayerWorkflow.Layout(metadata with { Content = content }, session.Resolution, raster.Width);
+        }
+        catch (NotSupportedException)
+        {
+            canvas.SetTextOverlay(null, null, null);
+            return;
+        }
+        LayerTransformInfo transform = session.GetLayerTransform(id);
+        Point ToDocument(Point source)
+        {
+            double localX = source.X * transform.Width / raster.Width - transform.Width / 2;
+            double localY = source.Y * transform.Height / raster.Height - transform.Height / 2;
+            if (transform.FlipX) localX = -localX;
+            if (transform.FlipY) localY = -localY;
+            double radians = transform.Rotation * Math.PI / 180;
+            return new Point(transform.X + transform.Width / 2 + localX * Math.Cos(radians) - localY * Math.Sin(radians),
+                transform.Y + transform.Height / 2 + localX * Math.Sin(radians) + localY * Math.Cos(radians));
+        }
+        TextCaretPosition caret = layout.Caret(textContent.CaretIndex);
+        var polygons = layout.Selection(textContent.SelectionStart, textContent.SelectionEnd)
+            .Select(rectangle => (IReadOnlyList<Point>)[
+                ToDocument(new Point(rectangle.X, rectangle.Y)),
+                ToDocument(new Point(rectangle.X + rectangle.Width, rectangle.Y)),
+                ToDocument(new Point(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height)),
+                ToDocument(new Point(rectangle.X, rectangle.Y + rectangle.Height))])
+            .ToArray();
+        canvas.SetTextOverlay(polygons, ToDocument(new Point(caret.X, caret.Y)),
+            ToDocument(new Point(caret.X, caret.Y + caret.Height)));
     }
     private Task AddLayerAsync() => EditAsync(session =>
     {

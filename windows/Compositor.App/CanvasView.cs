@@ -18,6 +18,8 @@ public sealed class CanvasView : Control
     private Rect? selectionRect;
     private List<Point>? selectionPath;
     private SelectionOutline? selectionOutline;
+    private IReadOnlyList<IReadOnlyList<Point>> textSelectionPolygons = [];
+    private Point? textCaretStart, textCaretEnd;
     public CanvasViewport Viewport { get; } = new();
     public WriteableBitmap? Bitmap { get; private set; }
     public bool PaintEnabled { get; set; }
@@ -31,6 +33,8 @@ public sealed class CanvasView : Control
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
+    public int TextSelectionOverlayCount => textSelectionPolygons.Count;
+    public bool TextCaretOverlayVisible => textCaretStart is not null && textCaretEnd is not null;
     public event Action<BrushPoint>? StrokeStarted;
     public event Action<BrushPoint>? StrokeMoved;
     public event Action<BrushPoint>? StrokeFinished;
@@ -202,6 +206,14 @@ public sealed class CanvasView : Control
         InvalidateVisual();
     }
 
+    public void SetTextOverlay(IReadOnlyList<IReadOnlyList<Point>>? selectionPolygons, Point? caretStart, Point? caretEnd)
+    {
+        textSelectionPolygons = selectionPolygons ?? [];
+        textCaretStart = caretStart;
+        textCaretEnd = caretEnd;
+        InvalidateVisual();
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -226,6 +238,26 @@ public sealed class CanvasView : Control
                     new Rect(destination.Left + x * 12, destination.Top + y * 12, 12, 12));
         }
         context.DrawImage(bitmap, source, destination);
+        if (textSelectionPolygons.Count > 0)
+        {
+            var fill = new SolidColorBrush(Color.FromArgb(92, 35, 120, 220));
+            foreach (IReadOnlyList<Point> polygon in textSelectionPolygons)
+            {
+                if (polygon.Count < 3) continue;
+                var geometry = new StreamGeometry();
+                using (StreamGeometryContext geometryContext = geometry.Open())
+                {
+                    geometryContext.BeginFigure(Viewport.ToView(polygon[0]), true);
+                    for (int index = 1; index < polygon.Count; index++)
+                        geometryContext.LineTo(Viewport.ToView(polygon[index]));
+                    geometryContext.EndFigure(true);
+                }
+                context.DrawGeometry(fill, null, geometry);
+            }
+        }
+        if (textCaretStart is { } caretStart && textCaretEnd is { } caretEnd)
+            context.DrawLine(new Pen(new SolidColorBrush(Color.FromArgb(230, 30, 90, 220)), Math.Max(1, 1 / Viewport.Scale)),
+                Viewport.ToView(caretStart), Viewport.ToView(caretEnd));
         if (PixelGridEnabled && Viewport.Scale >= 4)
         {
             var pen = new Pen(new SolidColorBrush(Color.FromArgb(160, 80, 80, 80)), 1);

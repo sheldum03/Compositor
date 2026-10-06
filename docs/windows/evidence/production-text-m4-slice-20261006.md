@@ -17,7 +17,7 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 1. `extended/F12-missing-font.comp`: metadata is present, the missing font is reported, the rendered text raster is byte-identical to the cache, and rendering does not modify the source manifest.
 2. A generated full-canvas v8 text project using the first installed font family: the available-font path redraws visible pixels rather than returning the transparent cache, the normal preview uses that redraw, and save/reopen keeps the text metadata.
 3. `e80ede0` makes rendering, hit testing, caret stops, and selection rectangles consume one `TextLayoutSnapshot`; checks cover wrapped box text, CRLF offsets, combining marks, and end-of-content caret placement.
-4. The formal Avalonia window routes a left click on an editable text layer through the same transform-aware hit test and places the sidebar `TextBox` caret at the returned UTF-16 boundary. The App Headless check clicks the end of a rotated/flipped text layer and verifies `CaretIndex`, `SelectionStart`, and `SelectionEnd` against the text length.
+4. The formal Avalonia window routes a left click on an editable text layer through the same transform-aware hit test and places the sidebar `TextBox` caret at the returned UTF-16 boundary. The canvas then draws the caret from that same layout result; changing the sidebar selection produces transformed canvas selection polygons. The App Headless check clicks the end of a rotated/flipped text layer and verifies the sidebar caret plus both overlays.
 
 Command on the development host:
 
@@ -32,16 +32,16 @@ The Windows production core matrix passed on `e80ede0`: [run 37416345270](https:
 The local App Headless check was rerun after the canvas integration:
 
 ```text
-dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-text-pointer-20261006-3
+dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-text-overlay-20261006-2
 ```
 
-It passed the production soft-brush/pointer workflow, dialog/window workflow, and the text hit check. The Workflow Checks Release build and run also passed all existing checks.
+It passed the production soft-brush/pointer workflow, dialog/window workflow, and the text caret/selection overlay check. The Workflow Checks Release build and run also passed all existing checks.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 
 ## Deliberately not covered
 
-- No Windows GUI text editor, IME, canvas caret rendering/selection overlay, or candidate-window validation. The current window slice routes canvas clicks into the editable sidebar `TextBox`; the shared caret/selection contract is still an engine check, not a real Windows input result.
+- No Windows IME, candidate-window validation, or native Windows input result. The current window slice covers the Avalonia canvas caret/selection overlay and sidebar `TextBox` routing in Headless checks; it does not prove Windows text services, DPI behavior, or production-machine input.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
 - No font import, TTC face selection, damaged-font recovery, missing-font replacement UI, or user-selected font persistence.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
