@@ -177,6 +177,7 @@ CheckTransformedGroupedLeafLayerViaCopy(output, fixtures);
 CheckEditableLayerTransform(output, fixtures);
 CheckEditableGroupMask(output, fixtures);
 CheckClippingMask(output);
+CheckInvalidClippingRelationships(output);
 CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
 CheckLayerSelection(output);
@@ -1434,6 +1435,52 @@ static void CheckClippingMask(string output)
     persisted.DeleteLayer(sourceId);
     if (persisted.Layers.Count != 1 || persisted.Layers[0].MaskSourceId is not null)
         throw new Exception("Releasing a clipping relationship did not restore ordinary layer editing.");
+}
+
+static void CheckInvalidClippingRelationships(string output)
+{
+    string source = Path.Combine(output, "ClippingMaskSaved.comp");
+    var sourceManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(source, "manifest.json")))!.AsObject();
+    var sourceLayers = sourceManifest["layers"]!.AsArray();
+    Guid sourceId = Guid.Parse(sourceLayers[0]!["id"]!.GetValue<string>());
+    Guid targetId = Guid.Parse(sourceLayers[1]!["id"]!.GetValue<string>());
+
+    string missing = Path.Combine(output, "InvalidClippingMissing.comp");
+    CloneProject(source, missing);
+    var missingManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(missing, "manifest.json")))!.AsObject();
+    missingManifest["layers"]!.AsArray()[1]!["maskSourceID"] = Guid.NewGuid().ToString("D");
+    File.WriteAllText(Path.Combine(missing, "manifest.json"), missingManifest.ToJsonString());
+    ExpectInvalidData(() => ProjectStore.Open(missing), "A clipping relationship with a missing source");
+
+    string cycle = Path.Combine(output, "InvalidClippingCycle.comp");
+    CloneProject(source, cycle);
+    var cycleManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(cycle, "manifest.json")))!.AsObject();
+    var cycleLayers = cycleManifest["layers"]!.AsArray();
+    cycleLayers[0]!["maskSourceID"] = targetId.ToString("D");
+    cycleLayers[1]!["maskSourceID"] = sourceId.ToString("D");
+    File.WriteAllText(Path.Combine(cycle, "manifest.json"), cycleManifest.ToJsonString());
+    ExpectInvalidData(() => ProjectStore.Open(cycle), "A cyclic clipping relationship");
+    Console.WriteLine("PASS: cyclic and missing clipping relationships are rejected before rendering");
+}
+
+static void CloneProject(string source, string destination)
+{
+    foreach (string path in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+    {
+        string target = Path.Combine(destination, Path.GetRelativePath(source, path));
+        Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+        File.Copy(path, target);
+    }
+}
+
+static void ExpectInvalidData(Action action, string description)
+{
+    try
+    {
+        action();
+        throw new Exception($"{description} was accepted.");
+    }
+    catch (InvalidDataException) { }
 }
 
 static void SaveGrayMask(string path, int width, int height)
