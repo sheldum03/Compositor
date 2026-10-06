@@ -85,6 +85,10 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown selectionMotionBlurAngle = new() { Name = "SelectionMotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown selectionMotionBlurDistance = new() { Name = "SelectionMotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel selectionMotionBlurEditor = new() { Name = "SelectionMotionBlurEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown selectionNoiseAmount = new() { Name = "SelectionNoiseAmount", Minimum = 0.1m, Maximum = 400, Value = 10, Width = 62 };
+    private readonly CheckBox selectionNoiseGaussian = new() { Name = "SelectionNoiseGaussian", Content = "高斯" };
+    private readonly CheckBox selectionNoiseMonochromatic = new() { Name = "SelectionNoiseMonochromatic", Content = "单色" };
+    private readonly StackPanel selectionNoiseEditor = new() { Name = "SelectionNoiseEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown motionBlurAngle = new() { Name = "MotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown motionBlurDistance = new() { Name = "MotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel motionBlurAdjustmentEditor = new() { Name = "MotionBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
@@ -356,6 +360,14 @@ public sealed class MainWindow : Window
         selectionMotionBlurEditor.Children.Add(Command("CommitSelectionMotionBlur", "提交选区动感模糊", CommitSelectionMotionBlurAsync, layer: true));
         selectionMotionBlurEditor.Children.Add(Command("CancelSelectionMotionBlur", "取消滤镜预览", CancelSelectionMotionBlurAsync, layer: true));
         actions.Children.Add(selectionMotionBlurEditor);
+        selectionNoiseEditor.Children.Add(new TextBlock { Text = "选区杂色数量", VerticalAlignment = VerticalAlignment.Center });
+        selectionNoiseEditor.Children.Add(selectionNoiseAmount);
+        selectionNoiseEditor.Children.Add(selectionNoiseGaussian);
+        selectionNoiseEditor.Children.Add(selectionNoiseMonochromatic);
+        selectionNoiseEditor.Children.Add(Command("PreviewSelectionNoise", "预览选区杂色", PreviewSelectionNoiseAsync, layer: true));
+        selectionNoiseEditor.Children.Add(Command("CommitSelectionNoise", "提交选区杂色", CommitSelectionNoiseAsync, layer: true));
+        selectionNoiseEditor.Children.Add(Command("CancelSelectionNoise", "取消滤镜预览", CancelSelectionNoiseAsync, layer: true));
+        actions.Children.Add(selectionNoiseEditor);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         motionBlurAdjustmentEditor.Children.Add(motionBlurAngle);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
@@ -888,6 +900,7 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit && !Workspace.HasFloatingSelection &&
             (Workspace.HasSelection || Workspace.HasFilterPreview);
         bool showSelectionMotionBlurEditor = showSelectionGaussianBlurEditor;
+        bool showSelectionNoiseEditor = showSelectionGaussianBlurEditor;
         bool showMotionBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Motion Blur" &&
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
@@ -904,6 +917,7 @@ public sealed class MainWindow : Window
         gaussianBlurAdjustmentEditor.IsVisible = showGaussianBlurEditor;
         selectionGaussianBlurEditor.IsVisible = showSelectionGaussianBlurEditor;
         selectionMotionBlurEditor.IsVisible = showSelectionMotionBlurEditor;
+        selectionNoiseEditor.IsVisible = showSelectionNoiseEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
         lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
@@ -921,6 +935,8 @@ public sealed class MainWindow : Window
         selectionGaussianBlurRadius.IsEnabled = showSelectionGaussianBlurEditor && !Workspace.HasFilterPreview;
         selectionMotionBlurAngle.IsEnabled = selectionMotionBlurDistance.IsEnabled =
             showSelectionMotionBlurEditor && !Workspace.HasFilterPreview;
+        selectionNoiseAmount.IsEnabled = selectionNoiseGaussian.IsEnabled = selectionNoiseMonochromatic.IsEnabled =
+            showSelectionNoiseEditor && !Workspace.HasFilterPreview;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
         lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
@@ -983,6 +999,10 @@ public sealed class MainWindow : Window
             if (button.Name == "PreviewSelectionMotionBlur")
                 button.IsEnabled = showSelectionMotionBlurEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionMotionBlur" or "CancelSelectionMotionBlur")
+                button.IsEnabled = Workspace.HasFilterPreview;
+            if (button.Name == "PreviewSelectionNoise")
+                button.IsEnabled = showSelectionNoiseEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "CommitSelectionNoise" or "CancelSelectionNoise")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1262,6 +1282,14 @@ public sealed class MainWindow : Window
     }
     private Task CommitSelectionMotionBlurAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionMotionBlurAsync() => Task.Run(Workspace.CancelFilterPreview);
+    private Task PreviewSelectionNoiseAsync()
+    {
+        var settings = new NoiseSettings((double)(selectionNoiseAmount.Value ?? 10),
+            selectionNoiseGaussian.IsChecked == true, selectionNoiseMonochromatic.IsChecked == true);
+        return Task.Run(() => Workspace.PreviewNoiseFilter(settings));
+    }
+    private Task CommitSelectionNoiseAsync() => Task.Run(Workspace.CommitFilterPreview);
+    private Task CancelSelectionNoiseAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task ApplyMotionBlurAdjustmentAsync()
     {
         var settings = new MotionBlurSettings((double)(motionBlurAngle.Value ?? 0),

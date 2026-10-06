@@ -285,6 +285,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyMotionBlur(source, settings), "选区动感模糊");
     }
 
+    public void PreviewNoiseFilter(NoiseSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyNoise(source, settings), "选区添加杂色");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();

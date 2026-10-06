@@ -189,6 +189,7 @@ CheckGradientMapAdjustment(output);
 CheckGaussianBlurAdjustment(output);
 CheckSelectionGaussianBlurFilter(output);
 CheckSelectionMotionBlurFilter(output);
+CheckSelectionNoiseFilter(output);
 CheckMotionBlurAdjustment(output);
 CheckNoiseAdjustment(output);
 CheckLensCorrectionAdjustment(output);
@@ -1739,6 +1740,32 @@ static void CheckSelectionMotionBlurFilter(string output)
         if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
             throw new Exception("Selection Motion Blur changed pixels outside the selection.");
     Console.WriteLine("PASS: selection Motion Blur blends the filtered raster through coverage without changing outside pixels");
+}
+
+static void CheckSelectionNoiseFilter(string output)
+{
+    var sourcePixels = new byte[7 * 5 * 4];
+    for (int y = 0; y < 5; y++)
+    for (int x = 0; x < 7; x++)
+    {
+        int pixel = (y * 7 + x) * 4;
+        sourcePixels[pixel] = 120;
+        sourcePixels[pixel + 1] = 150;
+        sourcePixels[pixel + 2] = 180;
+        sourcePixels[pixel + 3] = 255;
+    }
+    TileRaster source = new TileRaster(7, 5).ReplaceTile(0, 0, sourcePixels);
+    GrayTileRaster selection = GrayTileRaster.Rectangle(7, 5, 0, 0, 3, 5);
+    NoiseSettings settings = new(80, Gaussian: true, Monochromatic: true, Seed: 17);
+    TileRaster filtered = RasterCompositor.ApplyNoise(source, settings);
+    TileRaster changed = RasterCompositor.BlendThroughMask(source, filtered, selection);
+    if (SameRaster(source, changed))
+        throw new Exception("Selection Add Noise did not change covered pixels.");
+    for (int y = 0; y < 5; y++)
+    for (int x = 3; x < 7; x++)
+        if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
+            throw new Exception("Selection Add Noise changed pixels outside the selection.");
+    Console.WriteLine("PASS: selection Add Noise blends the filtered raster through coverage without changing outside pixels");
 }
 
 static void CheckMotionBlurAdjustment(string output)
