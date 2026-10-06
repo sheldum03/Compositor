@@ -779,6 +779,38 @@ internal static class Program
             "Dragging a group onto another project tab did not copy its subtree.");
         crossGroupWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        var groupedTargetUi = new EditorWorkspace();
+        groupedTargetUi.Import(fixture, Path.Combine(output, "GroupedTargetUi.comp"));
+        Guid groupedTargetUiChildId = groupedTargetUi.Session!.Layers[0].Id;
+        Guid groupedTargetUiSecondChildId = groupedTargetUi.Session.AddBlankLayer("Target group second", 1);
+        Guid groupedTargetUiGroupId = groupedTargetUi.Session.GroupLayers(
+            [groupedTargetUiChildId, groupedTargetUiSecondChildId], "Target group");
+        groupedTargetUi.Session.SelectLayer(groupedTargetUiChildId);
+        var flatTargetUiSource = new EditorWorkspace();
+        flatTargetUiSource.Import(fixture, Path.Combine(output, "FlatTargetUiSource.comp"));
+        Guid flatTargetUiSourceId = flatTargetUiSource.Session!.Layers[0].Id;
+        var groupedTargetWindow = new MainWindow(flatTargetUiSource);
+        groupedTargetWindow.Show(); Dispatcher.UIThread.RunJobs();
+        groupedTargetWindow.AddProjectTab(groupedTargetUi);
+        groupedTargetWindow.ActivateProjectTab(0);
+        var flatTargetUiList = Control<ListBox>(groupedTargetWindow, "Layers");
+        flatTargetUiList.ScrollIntoView(0);
+        Dispatcher.UIThread.RunJobs();
+        var flatTargetUiItem = flatTargetUiList.GetVisualDescendants().OfType<ListBoxItem>()
+            .Single(item => (item.DataContext as FlatLayerInfo)?.Id == flatTargetUiSourceId);
+        Point flatTargetUiStart = flatTargetUiItem.TranslatePoint(new Point(20, flatTargetUiItem.Bounds.Height / 2), groupedTargetWindow)!.Value;
+        Button groupedTargetTab = Control<Button>(groupedTargetWindow, "ProjectTab1");
+        Point groupedTargetEnd = groupedTargetTab.TranslatePoint(new Point(groupedTargetTab.Bounds.Width / 2, groupedTargetTab.Bounds.Height / 2), groupedTargetWindow)!.Value;
+        groupedTargetWindow.MouseDown(flatTargetUiStart, MouseButton.Left);
+        groupedTargetWindow.MouseMove(groupedTargetEnd);
+        groupedTargetWindow.MouseUp(groupedTargetEnd, MouseButton.Left);
+        Pump(groupedTargetWindow);
+        Require(groupedTargetWindow.ActiveProjectIndex == 1 &&
+            groupedTargetUi.Session!.Layers.Count == 4 &&
+            groupedTargetUi.Session.Layers.Count(layer => layer.ParentId == groupedTargetUiGroupId) == 3,
+            "Dragging a flat layer into an existing project group did not preserve the target parent.");
+        groupedTargetWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string clipboardProjectPath = Path.Combine(output, "ClipboardImage.comp");
         var clipboardWorkspace = new EditorWorkspace();
         clipboardWorkspace.Import(fixture, clipboardProjectPath);
@@ -944,7 +976,7 @@ internal static class Program
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
                 "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "transformed flat-layer merge with transform normalization and undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "multi-child clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
-                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
+                "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform/clipping stack/group/target-group and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine("PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection");
