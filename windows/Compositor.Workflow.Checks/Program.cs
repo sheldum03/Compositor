@@ -189,6 +189,7 @@ CheckGradientMapAdjustment(output);
 CheckGaussianBlurAdjustment(output);
 CheckMotionBlurAdjustment(output);
 CheckNoiseAdjustment(output);
+CheckLensCorrectionAdjustment(output);
 CheckGrainAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1774,6 +1775,52 @@ static void CheckNoiseAdjustment(string output)
         throw new Exception("Add Noise adjustment project did not reopen as editable metadata.");
     AssertRaster(changedRaster, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Add Noise adjustment layer metadata, distributions, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckLensCorrectionAdjustment(string output)
+{
+    string project = Path.Combine(output, "LensCorrectionAdjustment.comp");
+    var session = ProjectSession.CreateBlank(5, 5);
+    byte[] sourcePixels = new byte[5 * 5 * 4];
+    for (int y = 0; y < 5; y++)
+    for (int x = 0; x < 5; x++)
+    {
+        int pixel = (y * 5 + x) * 4;
+        sourcePixels[pixel] = (byte)(x * 40 + y * 3);
+        sourcePixels[pixel + 1] = (byte)(y * 40 + x * 5);
+        sourcePixels[pixel + 2] = (byte)(x * 17 + y * 23);
+        sourcePixels[pixel + 3] = 255;
+    }
+    TileRaster source = new TileRaster(5, 5).ReplaceTile(0, 0, sourcePixels);
+    session.ReplaceRaster(source);
+    var settings = new LensCorrectionSettings(50);
+    Guid adjustmentId = session.AddLensCorrectionAdjustment("Lens Correction", settings, 1);
+    FlatLayerInfo adjustment = session.Layers.Single(layer => layer.Id == adjustmentId);
+    if (!adjustment.IsAdjustment || adjustment.AdjustmentKind != "Lens Correction" ||
+        session.GetLensCorrectionAdjustment(adjustmentId) != settings)
+        throw new Exception("Lens Correction adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyLensCorrection(source, settings);
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    if (SameRaster(source, expected) || Pixel(expected, 0, 0)[3] == 0)
+        throw new Exception("Lens Correction adjustment did not warp the full-canvas raster as expected.");
+
+    var changedSettings = new LensCorrectionSettings(-100);
+    session.SetLensCorrectionAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyLensCorrection(source, changedSettings), changed);
+    if (SameRaster(expected, changed) || Pixel(changed, 0, 0)[3] >= Pixel(source, 0, 0)[3] ||
+        !session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Lens Correction adjustment did not participate in distortion, transparent-edge or undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Lens Correction" ||
+        reopened.GetLensCorrectionAdjustment(adjustmentId) != changedSettings)
+        throw new Exception("Lens Correction adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Lens Correction adjustment layer metadata, radial warp, transparent edges, history and save/reopen");
 }
 
 static void CheckGrainAdjustment(string output)

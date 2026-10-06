@@ -233,6 +233,22 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
             "Undo did not remove the Add Noise adjustment transaction.");
+        TileRaster lensBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddLensCorrectionAdjustment");
+        FlatLayerInfo lensLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == lensLayer.Id &&
+            Control<Button>(window, "ApplyLensCorrectionAdjustment").IsEffectivelyEnabled,
+            "Lens Correction adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "LensCorrectionDistortion").Value = 50;
+        Click(window, "ApplyLensCorrectionAdjustment");
+        LensCorrectionSettings appliedLens = workspace.Session.GetLensCorrectionAdjustment(lensLayer.Id);
+        Require(appliedLens == new LensCorrectionSettings(50),
+            "Lens Correction controls did not commit distortion.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyLensCorrection(lensBase, appliedLens));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the Lens Correction adjustment transaction.");
         TileRaster grainBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
         Click(window, "AddGrainAdjustment");
         FlatLayerInfo grainLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);

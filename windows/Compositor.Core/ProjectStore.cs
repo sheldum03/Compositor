@@ -359,6 +359,7 @@ public static class ProjectStore
             "Gaussian Blur" => GaussianBlurSettings.TryRead(adjustment["gaussianBlurSettings"], out _),
             "Motion Blur" => MotionBlurSettings.TryRead(adjustment["motionBlurSettings"], out _),
             "Add Noise" => NoiseSettings.TryRead(adjustment["noiseSettings"], out _),
+            "Lens Correction" => LensCorrectionSettings.TryRead(adjustment["lensCorrectionSettings"], out _),
             "Grain" => GrainSettings.TryRead(adjustment["grainSettings"], out _),
             _ => false
         };

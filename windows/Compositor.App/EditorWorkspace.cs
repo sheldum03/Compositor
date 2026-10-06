@@ -247,6 +247,18 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
+    public void AddLensCorrectionAdjustment(LensCorrectionSettings? settings = null)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        RequireEditableSession();
+        int index = session.ActiveLayerId is { } active
+            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
+            : session.Layers.Count;
+        session.AddLensCorrectionAdjustment("Lens Correction", settings ?? new LensCorrectionSettings(), index);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
     public void AddGrainAdjustment(GrainSettings? settings = null)
     {
         RequireIdle();
@@ -329,6 +341,15 @@ public sealed class EditorWorkspace
         if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).IsAdjustment)
             throw new InvalidOperationException("当前图层不是调整层。");
         Edit(editSession => editSession.SetNoiseAdjustment(layerId, settings));
+    }
+
+    public void ApplyActiveLensCorrectionAdjustment(LensCorrectionSettings settings)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).IsAdjustment)
+            throw new InvalidOperationException("当前图层不是调整层。");
+        Edit(editSession => editSession.SetLensCorrectionAdjustment(layerId, settings));
     }
 
     public void ApplyActiveGrainAdjustment(GrainSettings settings)

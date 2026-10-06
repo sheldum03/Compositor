@@ -458,6 +458,30 @@ public sealed record NoiseSettings(double Amount = 10, bool Gaussian = false, bo
     };
 }
 
+public sealed record LensCorrectionSettings(double Distortion = 0)
+{
+    public bool IsValid => double.IsFinite(Distortion) && Distortion is >= -100 and <= 100;
+
+    public bool IsIdentity => Distortion == 0;
+
+    public static bool TryRead(JsonNode? node, out LensCorrectionSettings settings)
+    {
+        settings = new LensCorrectionSettings();
+        if (node is null) return true;
+        try
+        {
+            settings = new LensCorrectionSettings(node.AsObject()["distortion"]?.GetValue<double>() ?? 0);
+            return settings.IsValid;
+        }
+        catch (Exception exception) when (exception is FormatException or InvalidOperationException or JsonException)
+        {
+            return false;
+        }
+    }
+
+    public JsonObject ToJson() => new() { ["distortion"] = Distortion };
+}
+
 public sealed record GrainSettings(double Amount = 25, double Size = 1.5, double Roughness = 50, uint Seed = 0)
 {
     public bool IsValid => double.IsFinite(Amount) && Amount is >= 0 and <= 100 &&

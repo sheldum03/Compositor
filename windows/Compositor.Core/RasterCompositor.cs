@@ -406,6 +406,67 @@ public static class RasterCompositor
         }
     }
 
+    public static TileRaster ApplyLensCorrection(TileRaster image, LensCorrectionSettings settings)
+    {
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        if (settings.Distortion == 0) return image;
+        int width = image.Width, height = image.Height;
+        byte[] input = new byte[checked(width * height * 4)];
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = image.TileDimensions(column, row);
+            byte[] tile = image.ReadTileCopy(column, row);
+            for (int y = 0; y < size.Height; y++)
+                tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(
+                    input.AsSpan(((row * TileRaster.TileSize + y) * width + column * TileRaster.TileSize) * 4, size.Width * 4));
+        }
+        double centerX = width * 0.5, centerY = height * 0.5;
+        double halfDiagonalSquared = centerX * centerX + centerY * centerY;
+        double k = settings.Distortion / 100d * 0.35d;
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                int documentX = column * TileRaster.TileSize + x;
+                int documentY = row * TileRaster.TileSize + y;
+                double dx = documentX + 0.5 - centerX, dy = documentY + 0.5 - centerY;
+                double scale = 1 - k * (dx * dx + dy * dy) / halfDiagonalSquared;
+                double sourceX = centerX + dx * scale - 0.5, sourceY = centerY + dy * scale - 0.5;
+                double floorX = Math.Floor(sourceX), floorY = Math.Floor(sourceY);
+                double fractionX = sourceX - floorX, fractionY = sourceY - floorY;
+                long left = (long)floorX, top = (long)floorY;
+                double[] sums = new double[4];
+                for (int sampleY = 0; sampleY < 2; sampleY++)
+                {
+                    long sourceRow = top + sampleY;
+                    if (sourceRow < 0 || sourceRow >= height) continue;
+                    double weightY = sampleY == 1 ? fractionY : 1 - fractionY;
+                    for (int sampleX = 0; sampleX < 2; sampleX++)
+                    {
+                        long sourceColumn = left + sampleX;
+                        if (sourceColumn < 0 || sourceColumn >= width) continue;
+                        double weight = weightY * (sampleX == 1 ? fractionX : 1 - fractionX);
+                        int sourcePixel = checked(((int)sourceRow * width + (int)sourceColumn) * 4);
+                        for (int channel = 0; channel < 4; channel++)
+                            sums[channel] += weight * input[sourcePixel + channel];
+                    }
+                }
+                int destinationPixel = (y * size.Width + x) * 4;
+                for (int channel = 0; channel < 4; channel++)
+                    tile[destinationPixel + channel] = (byte)Math.Clamp(
+                        Math.Round(sums[channel], MidpointRounding.AwayFromZero), 0, 255);
+            }
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+    }
+
     public static TileRaster ApplyGrain(TileRaster image, GrainSettings settings)
     {
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));

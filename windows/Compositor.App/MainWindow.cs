@@ -87,6 +87,8 @@ public sealed class MainWindow : Window
     private readonly CheckBox noiseGaussian = new() { Name = "NoiseGaussian", Content = "高斯" };
     private readonly CheckBox noiseMonochromatic = new() { Name = "NoiseMonochromatic", Content = "单色" };
     private readonly StackPanel noiseAdjustmentEditor = new() { Name = "NoiseAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown lensCorrectionDistortion = new() { Name = "LensCorrectionDistortion", Minimum = -100, Maximum = 100, Value = 0, Width = 62 };
+    private readonly StackPanel lensCorrectionAdjustmentEditor = new() { Name = "LensCorrectionAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown grainAmount = new() { Name = "GrainAmount", Minimum = 0, Maximum = 100, Value = 25, Width = 62 };
     private readonly NumericUpDown grainSize = new() { Name = "GrainSize", Minimum = 0.5m, Maximum = 20, Value = 1.5m, Width = 62 };
     private readonly NumericUpDown grainRoughness = new() { Name = "GrainRoughness", Minimum = 0, Maximum = 100, Value = 50, Width = 62 };
@@ -220,6 +222,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddGaussianBlurAdjustment", "新增高斯模糊", AddGaussianBlurAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddMotionBlurAdjustment", "新增动感模糊", AddMotionBlurAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddNoiseAdjustment", "新增添加杂色", AddNoiseAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddLensCorrectionAdjustment", "新增镜头校正", AddLensCorrectionAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddGrainAdjustment", "新增颗粒", AddGrainAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
@@ -346,6 +349,10 @@ public sealed class MainWindow : Window
         noiseAdjustmentEditor.Children.Add(noiseMonochromatic);
         noiseAdjustmentEditor.Children.Add(Command("ApplyNoiseAdjustment", "应用添加杂色", ApplyNoiseAdjustmentAsync, layer: true));
         actions.Children.Add(noiseAdjustmentEditor);
+        lensCorrectionAdjustmentEditor.Children.Add(new TextBlock { Text = "畸变", VerticalAlignment = VerticalAlignment.Center });
+        lensCorrectionAdjustmentEditor.Children.Add(lensCorrectionDistortion);
+        lensCorrectionAdjustmentEditor.Children.Add(Command("ApplyLensCorrectionAdjustment", "应用镜头校正", ApplyLensCorrectionAdjustmentAsync, layer: true));
+        actions.Children.Add(lensCorrectionAdjustmentEditor);
         grainAdjustmentEditor.Children.Add(new TextBlock { Text = "强度", VerticalAlignment = VerticalAlignment.Center });
         grainAdjustmentEditor.Children.Add(grainAmount);
         grainAdjustmentEditor.Children.Add(new TextBlock { Text = "尺寸", VerticalAlignment = VerticalAlignment.Center });
@@ -755,6 +762,7 @@ public sealed class MainWindow : Window
         GaussianBlurSettings? gaussianBlur = null;
         MotionBlurSettings? motionBlur = null;
         NoiseSettings? noise = null;
+        LensCorrectionSettings? lensCorrection = null;
         GrainSettings? grain = null;
         refreshing = true;
         try
@@ -793,6 +801,8 @@ public sealed class MainWindow : Window
                 motionBlur = Workspace.Session!.GetMotionBlurAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise")
                 noise = Workspace.Session!.GetNoiseAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Lens Correction")
+                lensCorrection = Workspace.Session!.GetLensCorrectionAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Grain")
                 grain = Workspace.Session!.GetGrainAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
@@ -824,6 +834,7 @@ public sealed class MainWindow : Window
             noiseAmount.Value = noise is null ? 10 : (decimal)noise.Amount;
             noiseGaussian.IsChecked = noise?.Gaussian == true;
             noiseMonochromatic.IsChecked = noise?.Monochromatic == true;
+            lensCorrectionDistortion.Value = lensCorrection is null ? 0 : (decimal)lensCorrection.Distortion;
             grainAmount.Value = grain is null ? 25 : (decimal)grain.Amount;
             grainSize.Value = grain is null ? 1.5m : (decimal)grain.Size;
             grainRoughness.Value = grain is null ? 50 : (decimal)grain.Roughness;
@@ -858,6 +869,8 @@ public sealed class MainWindow : Window
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
             !multiple && Workspace.CanEdit;
+        bool showLensCorrectionEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Lens Correction" &&
+            !multiple && Workspace.CanEdit;
         bool showGrainEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Grain" &&
             !multiple && Workspace.CanEdit;
         adjustmentEditor.IsVisible = showExposureEditor;
@@ -868,6 +881,7 @@ public sealed class MainWindow : Window
         gaussianBlurAdjustmentEditor.IsVisible = showGaussianBlurEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
+        lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
         grainAdjustmentEditor.IsVisible = showGrainEditor;
         adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
         levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
@@ -881,6 +895,7 @@ public sealed class MainWindow : Window
         gaussianBlurRadius.IsEnabled = showGaussianBlurEditor;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
+        lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
         grainAmount.IsEnabled = grainSize.IsEnabled = grainRoughness.IsEnabled = showGrainEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
@@ -943,6 +958,11 @@ public sealed class MainWindow : Window
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyNoiseAdjustment")
                 button.IsEnabled = showNoiseEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddLensCorrectionAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyLensCorrectionAdjustment")
+                button.IsEnabled = showLensCorrectionEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddGrainAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
@@ -1141,6 +1161,7 @@ public sealed class MainWindow : Window
     private Task AddGaussianBlurAdjustmentAsync() => Task.Run(() => Workspace.AddGaussianBlurAdjustment());
     private Task AddMotionBlurAdjustmentAsync() => Task.Run(() => Workspace.AddMotionBlurAdjustment());
     private Task AddNoiseAdjustmentAsync() => Task.Run(() => Workspace.AddNoiseAdjustment());
+    private Task AddLensCorrectionAdjustmentAsync() => Task.Run(() => Workspace.AddLensCorrectionAdjustment());
     private Task AddGrainAdjustmentAsync() => Task.Run(() => Workspace.AddGrainAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
@@ -1201,6 +1222,11 @@ public sealed class MainWindow : Window
         var settings = new NoiseSettings((double)(noiseAmount.Value ?? 10),
             noiseGaussian.IsChecked == true, noiseMonochromatic.IsChecked == true);
         return Task.Run(() => Workspace.ApplyActiveNoiseAdjustment(settings));
+    }
+    private Task ApplyLensCorrectionAdjustmentAsync()
+    {
+        var settings = new LensCorrectionSettings((double)(lensCorrectionDistortion.Value ?? 0));
+        return Task.Run(() => Workspace.ApplyActiveLensCorrectionAdjustment(settings));
     }
     private Task ApplyGrainAdjustmentAsync()
     {

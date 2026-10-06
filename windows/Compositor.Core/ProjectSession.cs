@@ -1015,6 +1015,45 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public Guid AddLensCorrectionAdjustment(string name, LensCorrectionSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Lens Correction",
+            ["lensCorrectionSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
+    public LensCorrectionSettings GetLensCorrectionAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Lens Correction" ||
+            !LensCorrectionSettings.TryRead(adjustment["lensCorrectionSettings"], out var settings))
+            throw new NotSupportedException("Only Lens Correction adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetLensCorrectionAdjustment(Guid layerId, LensCorrectionSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Lens Correction")
+            throw new NotSupportedException("Only Lens Correction adjustment layers are supported in this slice.");
+        if (GetLensCorrectionAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["lensCorrectionSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     public Guid AddGrainAdjustment(string name, GrainSettings settings, int destinationIndex)
     {
         RequireLayerStructureEditing();
