@@ -110,6 +110,13 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown selectionCurvesMid = new() { Name = "SelectionCurvesMid", Minimum = 0, Maximum = 255, Value = 128, Width = 62 };
     private readonly NumericUpDown selectionCurvesHighlight = new() { Name = "SelectionCurvesHighlight", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
     private readonly StackPanel selectionCurvesEditor = new() { Name = "SelectionCurvesEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown selectionGradientShadowRed = new() { Name = "SelectionGradientShadowRed", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
+    private readonly NumericUpDown selectionGradientShadowGreen = new() { Name = "SelectionGradientShadowGreen", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
+    private readonly NumericUpDown selectionGradientShadowBlue = new() { Name = "SelectionGradientShadowBlue", Minimum = 0, Maximum = 255, Value = 0, Width = 48 };
+    private readonly NumericUpDown selectionGradientHighlightRed = new() { Name = "SelectionGradientHighlightRed", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
+    private readonly NumericUpDown selectionGradientHighlightGreen = new() { Name = "SelectionGradientHighlightGreen", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
+    private readonly NumericUpDown selectionGradientHighlightBlue = new() { Name = "SelectionGradientHighlightBlue", Minimum = 0, Maximum = 255, Value = 255, Width = 48 };
+    private readonly StackPanel selectionGradientMapEditor = new() { Name = "SelectionGradientMapEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
     private readonly NumericUpDown motionBlurAngle = new() { Name = "MotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown motionBlurDistance = new() { Name = "MotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel motionBlurAdjustmentEditor = new() { Name = "MotionBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
@@ -440,6 +447,18 @@ public sealed class MainWindow : Window
         selectionCurvesEditor.Children.Add(Command("CommitSelectionCurves", "提交选区曲线", CommitSelectionCurvesAsync, layer: true));
         selectionCurvesEditor.Children.Add(Command("CancelSelectionCurves", "取消滤镜预览", CancelSelectionCurvesAsync, layer: true));
         actions.Children.Add(selectionCurvesEditor);
+        selectionGradientMapEditor.Children.Add(new TextBlock { Text = "选区暗部 RGB", VerticalAlignment = VerticalAlignment.Center });
+        selectionGradientMapEditor.Children.Add(selectionGradientShadowRed);
+        selectionGradientMapEditor.Children.Add(selectionGradientShadowGreen);
+        selectionGradientMapEditor.Children.Add(selectionGradientShadowBlue);
+        selectionGradientMapEditor.Children.Add(new TextBlock { Text = "高光 RGB", VerticalAlignment = VerticalAlignment.Center });
+        selectionGradientMapEditor.Children.Add(selectionGradientHighlightRed);
+        selectionGradientMapEditor.Children.Add(selectionGradientHighlightGreen);
+        selectionGradientMapEditor.Children.Add(selectionGradientHighlightBlue);
+        selectionGradientMapEditor.Children.Add(Command("PreviewSelectionGradientMap", "预览选区渐变映射", PreviewSelectionGradientMapAsync, layer: true));
+        selectionGradientMapEditor.Children.Add(Command("CommitSelectionGradientMap", "提交选区渐变映射", CommitSelectionGradientMapAsync, layer: true));
+        selectionGradientMapEditor.Children.Add(Command("CancelSelectionGradientMap", "取消滤镜预览", CancelSelectionGradientMapAsync, layer: true));
+        actions.Children.Add(selectionGradientMapEditor);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         motionBlurAdjustmentEditor.Children.Add(motionBlurAngle);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
@@ -978,6 +997,7 @@ public sealed class MainWindow : Window
         bool showSelectionLevelsEditor = showSelectionGaussianBlurEditor;
         bool showSelectionHueSaturationEditor = showSelectionGaussianBlurEditor;
         bool showSelectionCurvesEditor = showSelectionGaussianBlurEditor;
+        bool showSelectionGradientMapEditor = showSelectionGaussianBlurEditor;
         bool showMotionBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Motion Blur" &&
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
@@ -1000,6 +1020,7 @@ public sealed class MainWindow : Window
         selectionLevelsEditor.IsVisible = showSelectionLevelsEditor;
         selectionHueSaturationEditor.IsVisible = showSelectionHueSaturationEditor;
         selectionCurvesEditor.IsVisible = showSelectionCurvesEditor;
+        selectionGradientMapEditor.IsVisible = showSelectionGradientMapEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
         lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
@@ -1029,6 +1050,9 @@ public sealed class MainWindow : Window
             showSelectionHueSaturationEditor && !Workspace.HasFilterPreview;
         selectionCurvesShadow.IsEnabled = selectionCurvesMid.IsEnabled = selectionCurvesHighlight.IsEnabled =
             showSelectionCurvesEditor && !Workspace.HasFilterPreview;
+        selectionGradientShadowRed.IsEnabled = selectionGradientShadowGreen.IsEnabled = selectionGradientShadowBlue.IsEnabled =
+            selectionGradientHighlightRed.IsEnabled = selectionGradientHighlightGreen.IsEnabled = selectionGradientHighlightBlue.IsEnabled =
+            showSelectionGradientMapEditor && !Workspace.HasFilterPreview;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
         lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
@@ -1115,6 +1139,10 @@ public sealed class MainWindow : Window
             if (button.Name == "PreviewSelectionCurves")
                 button.IsEnabled = showSelectionCurvesEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionCurves" or "CancelSelectionCurves")
+                button.IsEnabled = Workspace.HasFilterPreview;
+            if (button.Name == "PreviewSelectionGradientMap")
+                button.IsEnabled = showSelectionGradientMapEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "CommitSelectionGradientMap" or "CancelSelectionGradientMap")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1443,6 +1471,17 @@ public sealed class MainWindow : Window
     }
     private Task CommitSelectionCurvesAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionCurvesAsync() => Task.Run(Workspace.CancelFilterPreview);
+    private Task PreviewSelectionGradientMapAsync()
+    {
+        var settings = new GradientMapSettings(
+            new GradientMapStop((int)(selectionGradientShadowRed.Value ?? 0),
+                (int)(selectionGradientShadowGreen.Value ?? 0), (int)(selectionGradientShadowBlue.Value ?? 0)),
+            new GradientMapStop((int)(selectionGradientHighlightRed.Value ?? 255),
+                (int)(selectionGradientHighlightGreen.Value ?? 255), (int)(selectionGradientHighlightBlue.Value ?? 255)));
+        return Task.Run(() => Workspace.PreviewGradientMapFilter(settings));
+    }
+    private Task CommitSelectionGradientMapAsync() => Task.Run(Workspace.CommitFilterPreview);
+    private Task CancelSelectionGradientMapAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task ApplyMotionBlurAdjustmentAsync()
     {
         var settings = new MotionBlurSettings((double)(motionBlurAngle.Value ?? 0),

@@ -195,6 +195,7 @@ CheckSelectionExposureFilter(output);
 CheckSelectionLevelsFilter(output);
 CheckSelectionHueSaturationFilter(output);
 CheckSelectionCurvesFilter(output);
+CheckSelectionGradientMapFilter(output);
 CheckMotionBlurAdjustment(output);
 CheckNoiseAdjustment(output);
 CheckLensCorrectionAdjustment(output);
@@ -1900,6 +1901,32 @@ static void CheckSelectionCurvesFilter(string output)
         if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
             throw new Exception("Selection Curves changed pixels outside the selection.");
     Console.WriteLine("PASS: selection Curves blends the filtered raster through coverage without changing outside pixels");
+}
+
+static void CheckSelectionGradientMapFilter(string output)
+{
+    var sourcePixels = new byte[9 * 7 * 4];
+    for (int y = 0; y < 7; y++)
+    for (int x = 0; x < 9; x++)
+    {
+        int pixel = (y * 9 + x) * 4;
+        sourcePixels[pixel] = (byte)(20 + x * 20);
+        sourcePixels[pixel + 1] = (byte)(30 + y * 28);
+        sourcePixels[pixel + 2] = (byte)(40 + (x + y) * 12);
+        sourcePixels[pixel + 3] = 255;
+    }
+    TileRaster source = new TileRaster(9, 7).ReplaceTile(0, 0, sourcePixels);
+    GrayTileRaster selection = GrayTileRaster.Rectangle(9, 7, 0, 0, 4, 7);
+    GradientMapSettings settings = new(new GradientMapStop(10, 20, 30), new GradientMapStop(240, 220, 180));
+    TileRaster filtered = RasterCompositor.ApplyGradientMap(source, settings);
+    TileRaster changed = RasterCompositor.BlendThroughMask(source, filtered, selection);
+    if (SameRaster(source, changed))
+        throw new Exception("Selection Gradient Map did not change covered pixels.");
+    for (int y = 0; y < 7; y++)
+    for (int x = 4; x < 9; x++)
+        if (!Pixel(source, x, y).SequenceEqual(Pixel(changed, x, y)))
+            throw new Exception("Selection Gradient Map changed pixels outside the selection.");
+    Console.WriteLine("PASS: selection Gradient Map blends the filtered raster through coverage without changing outside pixels");
 }
 
 static void CheckMotionBlurAdjustment(string output)

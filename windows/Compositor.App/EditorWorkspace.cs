@@ -315,6 +315,11 @@ public sealed class EditorWorkspace
         PreviewSelectionFilter(source => RasterCompositor.ApplyCurves(source, settings), "选区曲线");
     }
 
+    public void PreviewGradientMapFilter(GradientMapSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyGradientMap(source, settings), "选区渐变映射");
+    }
+
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
     {
         RequireIdle();
