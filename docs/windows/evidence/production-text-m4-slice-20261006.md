@@ -26,12 +26,13 @@ dotnet run --project windows/Compositor.Workflow.Checks -c Release --no-build -p
 
 Exit code: `0`.
 
-The Windows production core matrix passed on `b88c8a4`: [run 37413653050](https://github.com/sheldum03/Compositor/actions/runs/37413653050) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes the missing-font read-only preview plus the available-font text editor and undo/redo regression; the Workflow case includes the persistent font library checks.
+The Windows production core matrix passed on `2c05bcd`: [run 37414278201](https://github.com/sheldum03/Compositor/actions/runs/37414278201) passed Smoke, Imaging, Workflow, SaveCrash, and App. The App case includes point-text creation, missing-font read-only preview, and the available-font text editor regressions; the Workflow case includes the persistent font library checks.
 
 ## Editor and font library slice
 
 - `819727d` adds a bounded editable-font transaction: content, font family, size, and alignment are validated, redrawn from v8 metadata, committed as one history step, and retained across undo/redo, save, and reopen. The formal Avalonia window exposes the controls only for editable text layers.
 - `b88c8a4` adds a persistent `FontLibrary` under the user's local application data. It records hash-addressed `.otf`/`.ttf`/`.ttc` bytes in `fonts.json`, deduplicates repeated imports, restores registered faces on process start, supports explicit TTC face indexes, and exposes a formal-window import entry.
+- `2c05bcd` adds a formal point-text creation path. It selects an available font, renders the initial full-canvas cache from v8 metadata, inserts a text layer with one history step, and exposes the layer in the existing editor panel. Headless checks cover creation, editing, save, reopen, and grouped-project button protection.
 - Local App/Workflow checks passed after these changes. The Windows production run above passed all five jobs, including the editor UI and font-library regressions.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
