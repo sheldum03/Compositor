@@ -54,6 +54,12 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown adjustmentOffset = new() { Name = "AdjustmentOffset", Minimum = -0.5m, Maximum = 0.5m, Value = 0, Width = 70 };
     private readonly NumericUpDown adjustmentGamma = new() { Name = "AdjustmentGamma", Minimum = 0.01m, Maximum = 9.99m, Value = 1, Width = 70 };
     private readonly StackPanel adjustmentEditor = new() { Name = "AdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown levelsInputBlack = new() { Name = "LevelsInputBlack", Minimum = 0, Maximum = 254, Value = 0, Width = 62 };
+    private readonly NumericUpDown levelsInputWhite = new() { Name = "LevelsInputWhite", Minimum = 1, Maximum = 255, Value = 255, Width = 62 };
+    private readonly NumericUpDown levelsGamma = new() { Name = "LevelsGamma", Minimum = 0.1m, Maximum = 9.99m, Value = 1, Width = 62 };
+    private readonly NumericUpDown levelsOutputBlack = new() { Name = "LevelsOutputBlack", Minimum = 0, Maximum = 255, Value = 0, Width = 62 };
+    private readonly NumericUpDown levelsOutputWhite = new() { Name = "LevelsOutputWhite", Minimum = 0, Maximum = 255, Value = 255, Width = 62 };
+    private readonly StackPanel levelsAdjustmentEditor = new() { Name = "LevelsAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly CheckBox pixelGrid = new() { Name = "PixelGrid", Content = "像素网格" };
     private readonly CheckBox rectangleSelect = new() { Name = "RectSelect", Content = "矩形选区" };
     private readonly CheckBox moveSelection = new() { Name = "MoveSelection", Content = "移动选区" };
@@ -176,6 +182,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddTextLayer", "新增文字", AddTextLayerAsync, document: true));
         structure.Children.Add(Command("AddBoxTextLayer", "新增框文字", AddBoxTextLayerAsync, document: true));
         structure.Children.Add(Command("AddExposureAdjustment", "新增曝光调整", AddExposureAdjustmentAsync, layer: true));
+        structure.Children.Add(Command("AddLevelsAdjustment", "新增色阶调整", AddLevelsAdjustmentAsync, layer: true));
         structure.Children.Add(Command("DuplicateLayer", "复制", DuplicateLayerAsync, layer: true));
         structure.Children.Add(Command("LayerViaCopy", "选区复制为图层", LayerViaCopyAsync, layer: true));
         structure.Children.Add(Command("DeleteLayer", "删除", DeleteLayerAsync, layer: true));
@@ -244,6 +251,18 @@ public sealed class MainWindow : Window
         adjustmentEditor.Children.Add(adjustmentGamma);
         adjustmentEditor.Children.Add(Command("ApplyExposureAdjustment", "应用调整", ApplyExposureAdjustmentAsync, layer: true));
         actions.Children.Add(adjustmentEditor);
+        levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "输入黑", VerticalAlignment = VerticalAlignment.Center });
+        levelsAdjustmentEditor.Children.Add(levelsInputBlack);
+        levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "输入白", VerticalAlignment = VerticalAlignment.Center });
+        levelsAdjustmentEditor.Children.Add(levelsInputWhite);
+        levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "伽马", VerticalAlignment = VerticalAlignment.Center });
+        levelsAdjustmentEditor.Children.Add(levelsGamma);
+        levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "输出黑", VerticalAlignment = VerticalAlignment.Center });
+        levelsAdjustmentEditor.Children.Add(levelsOutputBlack);
+        levelsAdjustmentEditor.Children.Add(new TextBlock { Text = "输出白", VerticalAlignment = VerticalAlignment.Center });
+        levelsAdjustmentEditor.Children.Add(levelsOutputWhite);
+        levelsAdjustmentEditor.Children.Add(Command("ApplyLevelsAdjustment", "应用色阶", ApplyLevelsAdjustmentAsync, layer: true));
+        actions.Children.Add(levelsAdjustmentEditor);
         _ = FontLibrary;
         textFont.ItemsSource = TextLayerWorkflow.AvailableFonts;
         textContent.PropertyChanged += (_, change) =>
@@ -638,6 +657,7 @@ public sealed class MainWindow : Window
         selectedId = selected?.Id;
         TextLayerMetadata? text = null;
         ExposureSettings? exposure = null;
+        LevelsSettings? levels = null;
         refreshing = true;
         try
         {
@@ -659,12 +679,19 @@ public sealed class MainWindow : Window
                 ? null
                 : textFont.Items.OfType<string>().FirstOrDefault(font =>
                     string.Equals(font, text.FontPostScriptName, StringComparison.OrdinalIgnoreCase));
-            exposure = selected?.IsAdjustment == true
-                ? Workspace.Session!.GetExposureAdjustment(selected.Id)
-                : null;
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Exposure")
+                exposure = Workspace.Session!.GetExposureAdjustment(selected.Id);
+            if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Levels")
+                levels = Workspace.Session!.GetLevelsAdjustment(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
+            LevelRange rgb = levels?.Rgb ?? new LevelRange();
+            levelsInputBlack.Value = (decimal)rgb.InputBlack;
+            levelsInputWhite.Value = (decimal)rgb.InputWhite;
+            levelsGamma.Value = (decimal)rgb.Gamma;
+            levelsOutputBlack.Value = (decimal)rgb.OutputBlack;
+            levelsOutputWhite.Value = (decimal)rgb.OutputWhite;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -680,9 +707,15 @@ public sealed class MainWindow : Window
         textTracking.IsEnabled = textContent.IsEnabled;
         textBoxWidth.IsEnabled = textContent.IsEnabled && selected?.IsText == true &&
             Workspace.Session!.TextLayers.Single(item => item.Id == selected.Id).Layout == "box";
-        bool showAdjustmentEditor = selected?.IsAdjustment == true && !multiple && Workspace.CanEdit;
-        adjustmentEditor.IsVisible = showAdjustmentEditor;
-        adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showAdjustmentEditor;
+        bool showExposureEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Exposure" &&
+            !multiple && Workspace.CanEdit;
+        bool showLevelsEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Levels" &&
+            !multiple && Workspace.CanEdit;
+        adjustmentEditor.IsVisible = showExposureEditor;
+        levelsAdjustmentEditor.IsVisible = showLevelsEditor;
+        adjustmentExposure.IsEnabled = adjustmentOffset.IsEnabled = adjustmentGamma.IsEnabled = showExposureEditor;
+        levelsInputBlack.IsEnabled = levelsInputWhite.IsEnabled = levelsGamma.IsEnabled =
+            levelsOutputBlack.IsEnabled = levelsOutputWhite.IsEnabled = showLevelsEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
         layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -708,7 +741,12 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyExposureAdjustment")
-                button.IsEnabled = showAdjustmentEditor && !Workspace.HasFloatingSelection;
+                button.IsEnabled = showExposureEditor && !Workspace.HasFloatingSelection;
+            if (button.Name == "AddLevelsAdjustment")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyLevelsAdjustment")
+                button.IsEnabled = showLevelsEditor && !Workspace.HasFloatingSelection;
             if (selected is not null && button.Name == "MoveUp")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, 1);
             if (selected is not null && button.Name == "MoveDown")
@@ -872,11 +910,19 @@ public sealed class MainWindow : Window
     private Task AddTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer());
     private Task AddBoxTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer("文字", box: true));
     private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
+    private Task AddLevelsAdjustmentAsync() => Task.Run(() => Workspace.AddLevelsAdjustment());
     private Task ApplyExposureAdjustmentAsync()
     {
         var settings = new ExposureSettings((double)(adjustmentExposure.Value ?? 0),
             (double)(adjustmentOffset.Value ?? 0), (double)(adjustmentGamma.Value ?? 1));
         return Task.Run(() => Workspace.ApplyActiveExposureAdjustment(settings));
+    }
+    private Task ApplyLevelsAdjustmentAsync()
+    {
+        var range = new LevelRange((double)(levelsInputBlack.Value ?? 0),
+            (double)(levelsInputWhite.Value ?? 255), (double)(levelsGamma.Value ?? 1),
+            (double)(levelsOutputBlack.Value ?? 0), (double)(levelsOutputWhite.Value ?? 255));
+        return Task.Run(() => Workspace.ApplyActiveLevelsAdjustment(new LevelsSettings(range, new(), new(), new())));
     }
     private Task DuplicateLayerAsync()
     {

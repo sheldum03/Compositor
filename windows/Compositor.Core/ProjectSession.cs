@@ -437,7 +437,7 @@ public sealed class ProjectSession
         if (!SupportedBlendModes.Contains(mode)) throw new ArgumentException("Unknown blend mode.", nameof(mode));
         int index = FindLayer(layerId);
         if (Layers[index].IsAdjustment && mode != "Normal")
-            throw new NotSupportedException("Exposure adjustments only support Normal blending.");
+            throw new NotSupportedException("Adjustment layers only support Normal blending.");
         if ((Current["layers"]![index]!["blendMode"]?.GetValue<string>() ?? "Normal") == mode) return;
         if (Current["version"]!.GetValue<int>() != 8) throw new NotSupportedException("Appearance edits require an editable v8 project.");
         var next = (JsonObject)Current.DeepClone();
@@ -716,6 +716,19 @@ public sealed class ProjectSession
         return InsertAdjustmentLayer(layer, destinationIndex);
     }
 
+    public Guid AddLevelsAdjustment(string name, LevelsSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["adjustment"] = new JsonObject
+        {
+            ["kind"] = "Levels",
+            ["levelsSettings"] = settings.ToJson()
+        };
+        return InsertAdjustmentLayer(layer, destinationIndex);
+    }
+
     public ExposureSettings GetExposureAdjustment(Guid layerId)
     {
         int index = FindLayer(layerId);
@@ -739,6 +752,32 @@ public sealed class ProjectSession
         if (GetExposureAdjustment(layerId) == settings) return;
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["adjustment"]!["exposureSettings"] = settings.ToJson();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    public LevelsSettings GetLevelsAdjustment(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var adjustment = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (adjustment["kind"]?.GetValue<string>() != "Levels" ||
+            !LevelsSettings.TryRead(adjustment["levelsSettings"], out var settings))
+            throw new NotSupportedException("Only Levels adjustment layers are supported in this slice.");
+        return settings;
+    }
+
+    public void SetLevelsAdjustment(Guid layerId, LevelsSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!["adjustment"]?.AsObject()
+            ?? throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (current["kind"]?.GetValue<string>() != "Levels")
+            throw new NotSupportedException("Only Levels adjustment layers are supported in this slice.");
+        if (GetLevelsAdjustment(layerId) == settings) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["adjustment"]!["levelsSettings"] = settings.ToJson();
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 

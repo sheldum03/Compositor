@@ -182,6 +182,7 @@ CheckLayerStructure(output, sourcePng);
 CheckNewCanvas(output);
 CheckLayerSelection(output);
 CheckExposureAdjustment(output);
+CheckLevelsAdjustment(output);
 BlendChecks.Run(output, Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")));
 TextChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
 FontLibraryChecks.Run(Path.GetFullPath(Path.Combine(fixtures, "..", "..", "..", "docs", "windows", "fixtures")), output);
@@ -1496,6 +1497,41 @@ static void CheckExposureAdjustment(string output)
         throw new Exception("Exposure adjustment project did not reopen as editable metadata.");
     AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
     Console.WriteLine("PASS: Exposure adjustment layer metadata, premultiplied pixels, history and save/reopen");
+}
+
+static void CheckLevelsAdjustment(string output)
+{
+    string project = Path.Combine(output, "LevelsAdjustment.comp");
+    var session = ProjectSession.CreateBlank(2, 1);
+    TileRaster source = new TileRaster(2, 1).ReplaceTile(0, 0,
+        [32, 16, 8, 128, 100, 40, 20, 255]);
+    session.ReplaceRaster(source);
+    var range = new LevelRange(16, 240, 1.2, 8, 250);
+    Guid adjustmentId = session.AddLevelsAdjustment("Levels", new LevelsSettings(range, new(), new(), new()), 1);
+    if (!session.Layers.Single(layer => layer.Id == adjustmentId).IsAdjustment ||
+        session.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Levels" ||
+        session.GetLevelsAdjustment(adjustmentId).Rgb != range)
+        throw new Exception("Levels adjustment metadata was not created.");
+    TileRaster expected = RasterCompositor.ApplyLevels(source, new LevelsSettings(range, new(), new(), new()));
+    AssertRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session));
+    if (Pixel(expected, 0, 0)[3] != Pixel(source, 0, 0)[3])
+        throw new Exception("Levels adjustment changed alpha.");
+
+    var changedSettings = new LevelsSettings(new LevelRange(0, 255, 1, 0, 255), new(), new(), new());
+    session.SetLevelsAdjustment(adjustmentId, changedSettings);
+    TileRaster changed = ImageProjectWorkflow.RenderFlatNormal(session);
+    AssertRaster(RasterCompositor.ApplyLevels(source, changedSettings), changed);
+    if (!session.Undo() || !SameRaster(expected, ImageProjectWorkflow.RenderFlatNormal(session)) ||
+        !session.Redo() || !SameRaster(changed, ImageProjectWorkflow.RenderFlatNormal(session)))
+        throw new Exception("Levels adjustment did not participate in undo/redo history.");
+
+    ImageProjectWorkflow.Save(session, project);
+    var reopened = ImageProjectWorkflow.OpenEditable(project);
+    if (!reopened.CanEdit || reopened.Layers.Count != 2 ||
+        reopened.Layers.Single(layer => layer.Id == adjustmentId).AdjustmentKind != "Levels")
+        throw new Exception("Levels adjustment project did not reopen as editable metadata.");
+    AssertRaster(changed, ImageProjectWorkflow.RenderFlatNormal(reopened));
+    Console.WriteLine("PASS: Levels adjustment layer metadata, premultiplied pixels, history and save/reopen");
 }
 
 static void CloneProject(string source, string destination)

@@ -104,6 +104,26 @@ internal static class Program
         Click(window, "Undo");
         Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment) && workspace.IsDirty == adjustmentBaselineDirty,
             "Undo did not remove the exposure adjustment transaction.");
+        TileRaster levelsBase = ImageProjectWorkflow.RenderFlatNormal(workspace.Session);
+        Click(window, "AddLevelsAdjustment");
+        FlatLayerInfo levelsLayer = workspace.Session.Layers.Single(layer => layer.IsAdjustment);
+        Require(workspace.Session.ActiveLayerId == levelsLayer.Id &&
+            Control<Button>(window, "ApplyLevelsAdjustment").IsEffectivelyEnabled,
+            "Levels adjustment button did not create an editable active adjustment layer.");
+        Control<NumericUpDown>(window, "LevelsInputBlack").Value = 16;
+        Control<NumericUpDown>(window, "LevelsInputWhite").Value = 240;
+        Control<NumericUpDown>(window, "LevelsGamma").Value = 1.2m;
+        Control<NumericUpDown>(window, "LevelsOutputBlack").Value = 8;
+        Control<NumericUpDown>(window, "LevelsOutputWhite").Value = 250;
+        Click(window, "ApplyLevelsAdjustment");
+        LevelsSettings appliedLevels = workspace.Session.GetLevelsAdjustment(levelsLayer.Id);
+        Require(appliedLevels.Rgb == new LevelRange(16, 240, 1.2, 8, 250),
+            "Levels adjustment controls did not commit the RGB range.");
+        CheckEqual(workspace.Preview!, RasterCompositor.ApplyLevels(levelsBase, appliedLevels));
+        Click(window, "Undo");
+        Click(window, "Undo");
+        Require(workspace.Session.Layers.All(layer => !layer.IsAdjustment),
+            "Undo did not remove the levels adjustment transaction.");
         Click(window, "InvertLayer");
         CheckEqual(workspace.Session.GetLayerRaster(Guid.Parse(id)), invertAfter);
         Click(window, "Undo");

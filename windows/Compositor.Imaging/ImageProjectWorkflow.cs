@@ -9,7 +9,7 @@ namespace Compositor.Imaging;
 public static class ImageProjectWorkflow
 {
     private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster? Raster,
-        ExposureSettings? Adjustment);
+        ExposureSettings? Exposure, LevelsSettings? Levels);
 
     public static ProjectSession Import(string imagePath, string projectDirectory)
     {
@@ -531,9 +531,12 @@ public static class ImageProjectWorkflow
             Guid id = Guid.Parse(layer["id"]!.GetValue<string>());
             if (layer["adjustment"] is { } adjustmentNode)
             {
-                if (!ExposureSettings.TryRead(adjustmentNode["exposureSettings"], out var settings))
-                    throw new NotSupportedException("Only valid Exposure adjustment layers are supported.");
-                prepared.Add(new FlatLayerRender(layer, id, null, settings));
+                string? kind = adjustmentNode["kind"]?.GetValue<string>();
+                if (kind == "Exposure" && ExposureSettings.TryRead(adjustmentNode["exposureSettings"], out var exposure))
+                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null));
+                else if (kind == "Levels" && LevelsSettings.TryRead(adjustmentNode["levelsSettings"], out var levels))
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, levels));
+                else throw new NotSupportedException("Only valid Exposure and Levels adjustment layers are supported.");
                 continue;
             }
             string imageName = layer["imageFile"]!.GetValue<string>();
@@ -575,7 +578,7 @@ public static class ImageProjectWorkflow
             var transform = layer["transform"]!.AsObject();
             if (!IsIdentityTransform(transform, width, height))
                 raster = TransformCachedRaster(raster, transform, width, height);
-            prepared.Add(new FlatLayerRender(layer, id, raster, null));
+            prepared.Add(new FlatLayerRender(layer, id, raster, null, null));
         }
         var byId = prepared.ToDictionary(layer => layer.Id);
         var resolved = new Dictionary<Guid, TileRaster>();
@@ -624,9 +627,9 @@ public static class ImageProjectWorkflow
             var layer = prepared[index];
             if ((renderOnly is null || renderOnly.Contains(layer.Id)) && layer.Manifest["isVisible"]!.GetValue<bool>())
             {
-                if (layer.Adjustment is { } adjustment)
+                if (layer.Exposure is not null || layer.Levels is not null)
                 {
-                    result = ApplyAdjustment(result, adjustment,
+                    result = ApplyAdjustment(result, layer.Exposure, layer.Levels,
                         layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
                     continue;
                 }
@@ -649,12 +652,16 @@ public static class ImageProjectWorkflow
         }
         return result;
 
-        static TileRaster ApplyAdjustment(TileRaster source, ExposureSettings settings, double opacity)
+        static TileRaster ApplyAdjustment(TileRaster source, ExposureSettings? exposure, LevelsSettings? levels, double opacity)
         {
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
                 throw new NotSupportedException("Adjustment layer opacity is not supported.");
             if (opacity == 0) return source;
-            TileRaster adjusted = RasterCompositor.ApplyExposure(source, settings);
+            TileRaster adjusted = exposure is { } exposureSettings
+                ? RasterCompositor.ApplyExposure(source, exposureSettings)
+                : levels is { } levelsSettings
+                ? RasterCompositor.ApplyLevels(source, levelsSettings)
+                : throw new InvalidDataException("Adjustment settings are missing.");
             if (opacity == 1) return adjusted;
             var result = new TileRaster(source.Width, source.Height);
             for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
@@ -1177,11 +1184,16 @@ public static class ImageProjectWorkflow
         if (layer["adjustment"] is { } adjustment)
         {
             var node = adjustment.AsObject();
-            if (node["kind"]?.GetValue<string>() != "Exposure" ||
-                layer["blendMode"]?.GetValue<string>() is { } adjustmentBlend && adjustmentBlend != "Normal" ||
+            string? kind = node["kind"]?.GetValue<string>();
+            bool settingsValid = kind switch
+            {
+                "Exposure" => ExposureSettings.TryRead(node["exposureSettings"], out _),
+                "Levels" => LevelsSettings.TryRead(node["levelsSettings"], out _),
+                _ => false
+            };
+            if (!settingsValid || layer["blendMode"]?.GetValue<string>() is { } adjustmentBlend && adjustmentBlend != "Normal" ||
                 layer["imageFile"] is not null || layer["text"] is not null ||
-                layer["maskFile"] is not null || layer["maskSourceID"] is not null ||
-                !ExposureSettings.TryRead(node["exposureSettings"], out _)) return false;
+                layer["maskFile"] is not null || layer["maskSourceID"] is not null) return false;
         }
         else if (layer["imageFile"] is null) return false;
         var transform = layer["transform"]?.AsObject();
