@@ -201,6 +201,53 @@ internal static class Program
         CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedAppearanceMerge), appearanceBefore);
         appearanceWindow.Close(); Dispatcher.UIThread.RunJobs();
 
+        string appearanceClippingProject = Path.Combine(output, "AppearanceClippingMerge.comp");
+        var appearanceClippingWorkspace = new EditorWorkspace();
+        appearanceClippingWorkspace.Import(fixture, appearanceClippingProject);
+        Guid appearanceClippingSourceId = appearanceClippingWorkspace.Session!.Layers[0].Id;
+        Guid appearanceClippingTargetId = appearanceClippingWorkspace.Session.AddBlankLayer("Appearance clipped", 1);
+        TileRaster appearanceClippingRaster = appearanceClippingWorkspace.Session.GetLayerRaster(appearanceClippingTargetId);
+        var appearanceClippingSize = appearanceClippingRaster.TileDimensions(0, 0);
+        byte[] appearanceClippingTile = appearanceClippingRaster.ReadTileCopy(0, 0);
+        int appearanceClippingOffset = (16 * appearanceClippingSize.Width + 16) * 4;
+        appearanceClippingTile[appearanceClippingOffset] = 130;
+        appearanceClippingTile[appearanceClippingOffset + 1] = 80;
+        appearanceClippingTile[appearanceClippingOffset + 2] = 40;
+        appearanceClippingTile[appearanceClippingOffset + 3] = 180;
+        appearanceClippingWorkspace.Edit(session =>
+        {
+            session.SetLayerOpacity(appearanceClippingSourceId, 0.72);
+            session.SetLayerBlendMode(appearanceClippingSourceId, "Multiply");
+            session.SetLayerOpacity(appearanceClippingTargetId, 0.58);
+            session.SetLayerBlendMode(appearanceClippingTargetId, "Screen");
+            session.ReplaceLayerRaster(appearanceClippingTargetId,
+                appearanceClippingRaster.ReplaceTile(0, 0, appearanceClippingTile));
+            session.SetLayerMaskSource(appearanceClippingTargetId, appearanceClippingSourceId);
+        });
+        appearanceClippingWorkspace.Save();
+        TileRaster appearanceClippingBefore = ImageProjectWorkflow.RenderFlatNormal(appearanceClippingWorkspace.Session);
+        var appearanceClippingWindow = new MainWindow(appearanceClippingWorkspace);
+        appearanceClippingWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var appearanceClippingList = Control<ListBox>(appearanceClippingWindow, "Layers");
+        appearanceClippingList.SelectedItems!.Clear();
+        foreach (FlatLayerInfo layerInfo in appearanceClippingList.ItemsView!.Cast<FlatLayerInfo>())
+            appearanceClippingList.SelectedItems.Add(layerInfo);
+        Dispatcher.UIThread.RunJobs();
+        Require(Control<Button>(appearanceClippingWindow, "MergeLayerDown").IsEffectivelyEnabled,
+            "Non-Normal clipping stack did not enable the restricted appearance merge command.");
+        Click(appearanceClippingWindow, "MergeLayerDown");
+        Require(appearanceClippingWorkspace.Session.Layers.Count == 1 && appearanceClippingWorkspace.IsDirty,
+            "Non-Normal clipping stack merge did not produce one layer.");
+        CheckEqual(appearanceClippingWorkspace.Preview!, appearanceClippingBefore);
+        appearanceClippingWorkspace.Save();
+        var reopenedAppearanceClipping = ImageProjectWorkflow.OpenEditable(appearanceClippingProject);
+        Require(reopenedAppearanceClipping.Layers.Count == 1 &&
+            reopenedAppearanceClipping.Layers[0].Opacity == 1 && reopenedAppearanceClipping.Layers[0].BlendMode == "Normal" &&
+            reopenedAppearanceClipping.Layers[0].MaskSourceId is null,
+            "Saved non-Normal clipping stack merge did not normalize metadata.");
+        CheckEqual(ImageProjectWorkflow.RenderFlatNormal(reopenedAppearanceClipping), appearanceClippingBefore);
+        appearanceClippingWindow.Close(); Dispatcher.UIThread.RunJobs();
+
         string multiMergeProject = Path.Combine(output, "MultiMerge.comp");
         var multiMergeWorkspace = new EditorWorkspace();
         multiMergeWorkspace.Import(fixture, multiMergeProject);
@@ -695,7 +742,7 @@ internal static class Program
             passed = true, platform = RuntimeInformation.OSDescription, headless = true,
             checks = new[] { "failed open preserves session", "tile preview byte parity", "actual rename/visibility/reorder/undo/redo buttons",
                 "set/release clipping relationship buttons",
-                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
+                "dirty title", "PNG/JPEG export", "save-as existing protection", "cancel/save/discard close dialogs", "failed close-save preserves document", "saved layer and pixel roundtrip", "restricted normal-layer merge-down with undo/redo/save/reopen", "restricted non-Normal appearance merge with undo/redo/save/reopen", "restricted non-Normal clipping-stack merge with undo/redo/save/reopen", "restricted contiguous multi-layer merge with undo/redo/save/reopen", "restricted clipping-stack merge with undo/redo/save/reopen", "external clipping relationship merge guard", "clipping stack movement with undo/redo/save/reopen", "project-tab undo history isolation",
                 "cross-project copy/paste with non-destructive floating selection", "cross-project layer drag copy with mask/appearance/transform and undo/redo/save/reopen", "system clipboard bitmap conversion and centered layer paste with undo/redo/save/reopen", "masked clipping visible-result Layer via Copy", "transformed and non-Normal layer-via-copy visible pixels", "layer-list drag reorder with undo/redo/save/reopen", "grouped-project structure button protection and group-mask availability", "root group/ungroup buttons", "transformed group bake-ungroup" },
             limits = "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
         }, new JsonSerializerOptions { WriteIndented = true }));
