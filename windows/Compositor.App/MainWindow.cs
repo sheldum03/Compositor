@@ -820,7 +820,10 @@ public sealed class MainWindow : Window
         if (bitmap is null)
             throw new InvalidOperationException("系统剪贴板没有可粘贴的图像。");
         TileRaster raster = RasterBitmap.ToRaster(bitmap);
-        await Task.Run(() => Workspace.PasteBitmapAsLayer(raster));
+        Point? position = canvas.LastDocumentPointer is { } pointer && Workspace.Session is { } session &&
+            pointer.X >= 0 && pointer.Y >= 0 && pointer.X < session.Width && pointer.Y < session.Height
+            ? pointer : null;
+        await Task.Run(() => Workspace.PasteBitmapAsLayer(raster, position));
     }
 
     private async Task PublishSystemClipboardAsync()

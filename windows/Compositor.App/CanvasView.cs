@@ -25,6 +25,7 @@ public sealed class CanvasView : Control
     public bool SelectionEnabled { get; set; }
     public bool LassoEnabled { get; set; }
     public bool SelectionMoveEnabled { get; set; }
+    public Point? LastDocumentPointer { get; private set; }
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
@@ -47,6 +48,7 @@ public sealed class CanvasView : Control
             var properties = e.GetCurrentPoint(this).Properties;
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
+            LastDocumentPointer = document;
             bool select = !pan && SelectionEnabled && properties.IsLeftButtonPressed;
             bool moveSelection = !pan && SelectionMoveEnabled && properties.IsLeftButtonPressed;
             if (!pan && !select && !moveSelection && (!PaintEnabled || !properties.IsLeftButtonPressed || document.X < 0 || document.Y < 0 ||
@@ -69,9 +71,10 @@ public sealed class CanvasView : Control
         };
         PointerMoved += (_, e) =>
         {
+            Point view = e.GetPosition(this);
+            LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
-            Point view = e.GetPosition(this);
             if (panning) { Viewport.Pan(view - previous); previous = view; autoFit = false; InvalidateVisual(); }
             else if (selecting || movingSelection)
             {
@@ -86,6 +89,7 @@ public sealed class CanvasView : Control
         PointerReleased += (_, e) =>
         {
             if (captured != e.Pointer) return;
+            LastDocumentPointer = Viewport.ToDocument(e.GetPosition(this));
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             bool paint = !panning && !movingSelection;
             bool select = selecting;

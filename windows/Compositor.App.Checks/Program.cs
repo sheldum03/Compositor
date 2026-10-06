@@ -419,6 +419,14 @@ internal static class Program
             clipboardX % TileRaster.TileSize) * 4;
         Require(clipboardTile[clipboardOffset] == 255 && clipboardTile[clipboardOffset + 3] == 255,
             "Pasted bitmap was not centered on the document.");
+        string positionedClipboardPath = Path.Combine(output, "PositionedClipboard.comp");
+        var positionedClipboard = new EditorWorkspace();
+        positionedClipboard.Import(fixture, positionedClipboardPath);
+        positionedClipboard.PasteBitmapAsLayer(clipboardSource, new Point(10, 12));
+        TileRaster positionedLayer = positionedClipboard.Session!.GetLayerRaster(positionedClipboard.Session.ActiveLayerId!.Value);
+        Require(PixelAt(positionedLayer, 9, 11).SequenceEqual(new byte[] { 255, 0, 0, 255 }) &&
+            PixelAt(positionedLayer, 8, 10).SequenceEqual(new byte[4]),
+            "Pasting a system bitmap at a document pointer did not preserve the requested position.");
         Require(clipboardWorkspace.Undo() && clipboardWorkspace.Session.Layers.Count == clipboardLayerCount,
             "Undo did not remove the system clipboard layer.");
         Require(clipboardWorkspace.Redo() && clipboardWorkspace.Session.Layers.Count == clipboardLayerCount + 1,
@@ -613,6 +621,13 @@ internal static class Program
         for (int x = 0; x * TileRaster.TileSize < a.Width; x++)
             if (!a.ReadTileCopy(x, y).SequenceEqual(b.ReadTileCopy(x, y))) return false;
         return true;
+    }
+    private static byte[] PixelAt(TileRaster raster, int x, int y)
+    {
+        int column = x / TileRaster.TileSize, row = y / TileRaster.TileSize;
+        var size = raster.TileDimensions(column, row);
+        byte[] tile = raster.ReadTileCopy(column, row);
+        return tile.AsSpan(((y % TileRaster.TileSize) * size.Width + x % TileRaster.TileSize) * 4, 4).ToArray();
     }
     private static void Require(bool condition, string message)
     { if (!condition) throw new Exception(message); }

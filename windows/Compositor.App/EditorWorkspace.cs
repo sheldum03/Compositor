@@ -500,13 +500,13 @@ public sealed class EditorWorkspace
         ResetSelectionHistory();
     }
 
-    public void PasteBitmapAsLayer(TileRaster bitmap)
+    public void PasteBitmapAsLayer(TileRaster bitmap, Point? center = null)
     {
         ArgumentNullException.ThrowIfNull(bitmap);
         RequireIdle();
         RequireEditableSession();
         var session = RequireSession();
-        TileRaster centered = CenterRaster(bitmap, session.Width, session.Height);
+        TileRaster centered = PositionRaster(bitmap, session.Width, session.Height, center);
         int destinationIndex = session.ActiveLayerId is { } layerId
             ? session.Layers.ToList().FindIndex(layer => layer.Id == layerId) + 1
             : session.Layers.Count;
@@ -1199,10 +1199,15 @@ public sealed class EditorWorkspace
         return result;
     }
 
-    private static TileRaster CenterRaster(TileRaster source, int width, int height)
+    private static TileRaster PositionRaster(TileRaster source, int width, int height, Point? center)
     {
         byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
-        int offsetX = (width - source.Width) / 2, offsetY = (height - source.Height) / 2;
+        int offsetX = center is { } point
+            ? (int)Math.Round(point.X - source.Width / 2d, MidpointRounding.AwayFromZero)
+            : (width - source.Width) / 2;
+        int offsetY = center is { } pointY
+            ? (int)Math.Round(pointY.Y - source.Height / 2d, MidpointRounding.AwayFromZero)
+            : (height - source.Height) / 2;
         for (int y = 0; y < source.Height; y++)
         for (int x = 0; x < source.Width; x++)
         {
