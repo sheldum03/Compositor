@@ -82,6 +82,9 @@ public sealed class MainWindow : Window
     private readonly StackPanel gaussianBlurAdjustmentEditor = new() { Name = "GaussianBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown selectionGaussianBlurRadius = new() { Name = "SelectionGaussianBlurRadius", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel selectionGaussianBlurEditor = new() { Name = "SelectionGaussianBlurEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
+    private readonly NumericUpDown selectionMotionBlurAngle = new() { Name = "SelectionMotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
+    private readonly NumericUpDown selectionMotionBlurDistance = new() { Name = "SelectionMotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
+    private readonly StackPanel selectionMotionBlurEditor = new() { Name = "SelectionMotionBlurEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
     private readonly NumericUpDown motionBlurAngle = new() { Name = "MotionBlurAngle", Minimum = -90, Maximum = 90, Value = 0, Width = 62 };
     private readonly NumericUpDown motionBlurDistance = new() { Name = "MotionBlurDistance", Minimum = 1, Maximum = 32, Value = 1, Width = 62 };
     private readonly StackPanel motionBlurAdjustmentEditor = new() { Name = "MotionBlurAdjustmentEditor", Orientation = Orientation.Horizontal, Spacing = 8, IsVisible = false };
@@ -345,6 +348,14 @@ public sealed class MainWindow : Window
         selectionGaussianBlurEditor.Children.Add(Command("CommitSelectionGaussianBlur", "提交选区模糊", CommitSelectionGaussianBlurAsync, layer: true));
         selectionGaussianBlurEditor.Children.Add(Command("CancelSelectionGaussianBlur", "取消滤镜预览", CancelSelectionGaussianBlurAsync, layer: true));
         actions.Children.Add(selectionGaussianBlurEditor);
+        selectionMotionBlurEditor.Children.Add(new TextBlock { Text = "选区动感角度", VerticalAlignment = VerticalAlignment.Center });
+        selectionMotionBlurEditor.Children.Add(selectionMotionBlurAngle);
+        selectionMotionBlurEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
+        selectionMotionBlurEditor.Children.Add(selectionMotionBlurDistance);
+        selectionMotionBlurEditor.Children.Add(Command("PreviewSelectionMotionBlur", "预览选区动感模糊", PreviewSelectionMotionBlurAsync, layer: true));
+        selectionMotionBlurEditor.Children.Add(Command("CommitSelectionMotionBlur", "提交选区动感模糊", CommitSelectionMotionBlurAsync, layer: true));
+        selectionMotionBlurEditor.Children.Add(Command("CancelSelectionMotionBlur", "取消滤镜预览", CancelSelectionMotionBlurAsync, layer: true));
+        actions.Children.Add(selectionMotionBlurEditor);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         motionBlurAdjustmentEditor.Children.Add(motionBlurAngle);
         motionBlurAdjustmentEditor.Children.Add(new TextBlock { Text = "距离", VerticalAlignment = VerticalAlignment.Center });
@@ -876,6 +887,7 @@ public sealed class MainWindow : Window
         bool showSelectionGaussianBlurEditor = selected is { IsGroup: false, IsText: false, IsAdjustment: false } &&
             !multiple && Workspace.CanEdit && !Workspace.HasFloatingSelection &&
             (Workspace.HasSelection || Workspace.HasFilterPreview);
+        bool showSelectionMotionBlurEditor = showSelectionGaussianBlurEditor;
         bool showMotionBlurEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Motion Blur" &&
             !multiple && Workspace.CanEdit;
         bool showNoiseEditor = selected?.IsAdjustment == true && selected.AdjustmentKind == "Add Noise" &&
@@ -891,6 +903,7 @@ public sealed class MainWindow : Window
         gradientMapAdjustmentEditor.IsVisible = showGradientMapEditor;
         gaussianBlurAdjustmentEditor.IsVisible = showGaussianBlurEditor;
         selectionGaussianBlurEditor.IsVisible = showSelectionGaussianBlurEditor;
+        selectionMotionBlurEditor.IsVisible = showSelectionMotionBlurEditor;
         motionBlurAdjustmentEditor.IsVisible = showMotionBlurEditor;
         noiseAdjustmentEditor.IsVisible = showNoiseEditor;
         lensCorrectionAdjustmentEditor.IsVisible = showLensCorrectionEditor;
@@ -906,6 +919,8 @@ public sealed class MainWindow : Window
         gradientHighlightRed.IsEnabled = gradientHighlightGreen.IsEnabled = gradientHighlightBlue.IsEnabled = showGradientMapEditor;
         gaussianBlurRadius.IsEnabled = showGaussianBlurEditor;
         selectionGaussianBlurRadius.IsEnabled = showSelectionGaussianBlurEditor && !Workspace.HasFilterPreview;
+        selectionMotionBlurAngle.IsEnabled = selectionMotionBlurDistance.IsEnabled =
+            showSelectionMotionBlurEditor && !Workspace.HasFilterPreview;
         motionBlurAngle.IsEnabled = motionBlurDistance.IsEnabled = showMotionBlurEditor;
         noiseAmount.IsEnabled = noiseGaussian.IsEnabled = noiseMonochromatic.IsEnabled = showNoiseEditor;
         lensCorrectionDistortion.IsEnabled = showLensCorrectionEditor;
@@ -964,6 +979,10 @@ public sealed class MainWindow : Window
             if (button.Name == "PreviewSelectionGaussianBlur")
                 button.IsEnabled = showSelectionGaussianBlurEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
             if (button.Name is "CommitSelectionGaussianBlur" or "CancelSelectionGaussianBlur")
+                button.IsEnabled = Workspace.HasFilterPreview;
+            if (button.Name == "PreviewSelectionMotionBlur")
+                button.IsEnabled = showSelectionMotionBlurEditor && Workspace.HasSelection && !Workspace.HasFilterPreview;
+            if (button.Name is "CommitSelectionMotionBlur" or "CancelSelectionMotionBlur")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1235,6 +1254,14 @@ public sealed class MainWindow : Window
     }
     private Task CommitSelectionGaussianBlurAsync() => Task.Run(Workspace.CommitFilterPreview);
     private Task CancelSelectionGaussianBlurAsync() => Task.Run(Workspace.CancelFilterPreview);
+    private Task PreviewSelectionMotionBlurAsync()
+    {
+        var settings = new MotionBlurSettings((double)(selectionMotionBlurAngle.Value ?? 0),
+            (int)(selectionMotionBlurDistance.Value ?? 1));
+        return Task.Run(() => Workspace.PreviewMotionBlurFilter(settings));
+    }
+    private Task CommitSelectionMotionBlurAsync() => Task.Run(Workspace.CommitFilterPreview);
+    private Task CancelSelectionMotionBlurAsync() => Task.Run(Workspace.CancelFilterPreview);
     private Task ApplyMotionBlurAdjustmentAsync()
     {
         var settings = new MotionBlurSettings((double)(motionBlurAngle.Value ?? 0),

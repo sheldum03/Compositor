@@ -277,17 +277,27 @@ public sealed class EditorWorkspace
 
     public void PreviewGaussianBlurFilter(GaussianBlurSettings settings)
     {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyGaussianBlur(source, settings), "选区高斯模糊");
+    }
+
+    public void PreviewMotionBlurFilter(MotionBlurSettings settings)
+    {
+        PreviewSelectionFilter(source => RasterCompositor.ApplyMotionBlur(source, settings), "选区动感模糊");
+    }
+
+    private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)
+    {
         RequireIdle();
         RequireEditableSession();
         ProjectSession session = RequireSession();
         if (session.HasGroups || Selection is null || session.ActiveLayerId is not { } layerId)
-            throw new NotSupportedException("选区高斯模糊目前只支持无组平面栅格图层。");
+            throw new NotSupportedException($"{filterName}目前只支持无组平面栅格图层。");
         FlatLayerInfo layer = session.Layers.Single(layer => layer.Id == layerId);
         if (layer.IsGroup || layer.IsAdjustment || layer.IsText || layer.HasMask ||
             !session.IsLayerTransformIdentity(layerId))
-            throw new NotSupportedException("选区高斯模糊目前只支持无蒙版、无变换的平面栅格图层。");
+            throw new NotSupportedException($"{filterName}目前只支持无蒙版、无变换的平面栅格图层。");
         TileRaster source = session.GetLayerRaster(layerId);
-        TileRaster filtered = RasterCompositor.ApplyGaussianBlur(source, settings);
+        TileRaster filtered = apply(source);
         TileRaster preview = RasterCompositor.BlendThroughMask(source, filtered,
             SelectionForLayer(session, layerId, Selection));
         filterPreviewLayerId = layerId;
