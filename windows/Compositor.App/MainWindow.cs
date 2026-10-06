@@ -34,6 +34,7 @@ public sealed class MainWindow : Window
     private readonly ListBox layers = new() { Name = "Layers", SelectionMode = SelectionMode.Multiple };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
     private readonly StackPanel textEditorPanel = new() { Spacing = 6, IsVisible = false };
+    private readonly Button resolveTextFont = null!;
     private readonly TextBox textContent = new() { Name = "TextContent", AcceptsReturn = true, TextWrapping = TextWrapping.Wrap,
         Height = 72, Watermark = "文字内容" };
     private readonly ComboBox textFont = new() { Name = "TextFont", Width = 220 };
@@ -221,6 +222,8 @@ public sealed class MainWindow : Window
         textLayoutOptions.Children.Add(textBoxWidth);
         textEditorPanel.Children.Add(textLayoutOptions);
         textEditorPanel.Children.Add(Command("ApplyText", "应用文字", ApplyTextAsync, layer: true));
+        resolveTextFont = Command("ResolveTextFont", "选择字体并解锁", ResolveTextFontAsync, layer: true);
+        textEditorPanel.Children.Add(resolveTextFont);
         actions.Children.Add(textEditorPanel);
         var appearance = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         appearance.Children.Add(new TextBlock { Text = "透明度 %", VerticalAlignment = VerticalAlignment.Center });
@@ -608,6 +611,7 @@ public sealed class MainWindow : Window
         var selected = selectedItems.FirstOrDefault();
         bool multiple = selectedItems.Length > 1;
         selectedId = selected?.Id;
+        TextLayerMetadata? text = null;
         refreshing = true;
         try
         {
@@ -615,7 +619,7 @@ public sealed class MainWindow : Window
             layerName.Text = selected?.Name ?? "";
             layerOpacity.Value = selected is null ? 100 : (decimal)(selected.Opacity * 100);
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
-            var text = selected?.IsText == true
+            text = selected?.IsText == true
                 ? Workspace.Session!.TextLayers.SingleOrDefault(item => item.Id == selected.Id)
                 : null;
             textContent.Text = text?.Content ?? "";
@@ -631,10 +635,12 @@ public sealed class MainWindow : Window
                     string.Equals(font, text.FontPostScriptName, StringComparison.OrdinalIgnoreCase));
         }
         finally { refreshing = false; }
+        bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
+        bool showTextEditor = selected?.IsText == true && !multiple && (Workspace.CanEdit || missingFont);
         layerName.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
-        textEditorPanel.IsVisible = Workspace.CanEdit && selected?.IsText == true && !multiple;
-        textContent.IsEnabled = textEditorPanel.IsVisible;
-        textFont.IsEnabled = textContent.IsEnabled;
+        textEditorPanel.IsVisible = showTextEditor;
+        textContent.IsEnabled = showTextEditor && Workspace.CanEdit;
+        textFont.IsEnabled = showTextEditor;
         textSize.IsEnabled = textContent.IsEnabled;
         textColor.IsEnabled = textContent.IsEnabled;
         textAlignment.IsEnabled = textContent.IsEnabled;
@@ -720,6 +726,7 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
         maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
+        resolveTextFont.IsEnabled = missingFont && !Workspace.HasFloatingSelection;
         UpdateSelectionControls();
         RefreshTextOverlay();
     }
@@ -919,6 +926,14 @@ public sealed class MainWindow : Window
                 : null
         };
         return Task.Run(() => Workspace.UpdateText(edited));
+    }
+
+    private Task ResolveTextFontAsync()
+    {
+        Guid id = selectedId!.Value;
+        string font = textFont.SelectedItem as string
+            ?? throw new InvalidOperationException("请先选择要使用的字体。");
+        return Task.Run(() => Workspace.ResolveTextFont(id, font));
     }
 
     private static (double Red, double Green, double Blue) TextColor(int index) => index switch

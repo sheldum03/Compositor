@@ -18,6 +18,7 @@ This evidence covers one bounded W-023 slice. It does not close M4 or the Window
 2. A generated full-canvas v8 text project using the first installed font family: the available-font path redraws visible pixels rather than returning the transparent cache, the normal preview uses that redraw, and save/reopen keeps the text metadata.
 3. `e80ede0` makes rendering, hit testing, caret stops, and selection rectangles consume one `TextLayoutSnapshot`; checks cover wrapped box text, CRLF offsets, combining marks, and end-of-content caret placement.
 4. The formal Avalonia window routes a left click on an editable text layer through the same transform-aware hit test and places the sidebar `TextBox` caret at the returned UTF-16 boundary. The canvas then draws the caret from that same layout result; changing the sidebar selection produces transformed canvas selection polygons. The App Headless check clicks the end of a rotated/flipped text layer and verifies the sidebar caret plus both overlays.
+5. A missing-font cache project exposes an explicit font choice and keeps the content editor disabled. Selecting an installed font reloads the editable layer assets, redraws the text, and unlocks the editor; no fallback font is selected silently.
 
 Command on the development host:
 
@@ -32,10 +33,10 @@ The Windows production core matrix passed on `e80ede0`: [run 37416345270](https:
 The local App Headless check was rerun after the canvas integration:
 
 ```text
-dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-text-overlay-20261006-2
+dotnet run --project windows/Compositor.App.Checks/Compositor.App.Checks.csproj -c Release --no-build -- windows/Compositor.Imaging.Checks/fixtures /tmp/compositor-app-font-resolver-20261006-1
 ```
 
-It passed the production soft-brush/pointer workflow, dialog/window workflow, and the text caret/selection overlay check. The Workflow Checks Release build and run also passed all existing checks.
+It passed the production soft-brush/pointer workflow, dialog/window workflow, text caret/selection overlay check, and explicit missing-font resolver check. The Workflow Checks Release build and run also passed all existing checks.
 
 The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executable was not run on this macOS host. Windows execution through the UU-connected Windows 11 machine remains a separate acceptance step.
 
@@ -43,6 +44,6 @@ The Release build also succeeded with `RuntimeIdentifier=win-x64`; the executabl
 
 - No Windows IME, candidate-window validation, or native Windows input result. The current window slice covers the Avalonia canvas caret/selection overlay and sidebar `TextBox` routing in Headless checks; it does not prove Windows text services, DPI behavior, or production-machine input.
 - No full TextKit-equivalent shaping; the slice uses Skia line layout with explicit tracking and simple box wrapping.
-- No font import, TTC face selection, damaged-font recovery, missing-font replacement UI, or user-selected font persistence.
+- No damaged-font recovery or user-selected font persistence beyond the explicit in-session replacement path.
 - No complete M4 text history/transform/rotation/mirror workflow or cross-platform pixel tolerance decision.
 - Text projects whose cache dimensions are local layer bounds remain on the cached/read-only project path; this slice does not widen general layer-raster editing.

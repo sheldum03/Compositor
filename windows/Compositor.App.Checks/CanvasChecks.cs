@@ -781,13 +781,34 @@ internal static class CanvasChecks
         cachedTextWorkspace.Export(cachedTextExport, jpeg: false);
         Require(ImageCodec.Load(cachedTextExport).Width == workspace.Session.Width,
             "Missing-font cached preview did not preserve document export dimensions.");
+        string resolverFont = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
+            ?? throw new Exception("No installed font was available for the missing-font resolver check.");
+        var cachedTextWindow = new MainWindow(cachedTextWorkspace);
+        cachedTextWindow.Show(); Dispatcher.UIThread.RunJobs();
+        var resolverCombo = Find<ComboBox>(cachedTextWindow, "TextFont");
+        var resolverButton = Find<Button>(cachedTextWindow, "ResolveTextFont");
+        Require(!cachedTextWorkspace.CanEdit && resolverCombo.IsEffectivelyEnabled && resolverButton.IsEffectivelyEnabled &&
+            !Find<TextBox>(cachedTextWindow, "TextContent").IsEffectivelyEnabled,
+            "Missing-font text did not expose only the explicit font resolver.");
+        resolverCombo.SelectedItem = resolverFont;
+        resolverButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var resolverTimer = Stopwatch.StartNew();
+        while (cachedTextWindow.IsBusy)
+        {
+            Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+            if (resolverTimer.Elapsed.TotalSeconds > 30) throw new TimeoutException("Missing-font resolution did not finish.");
+        }
+        Require(cachedTextWorkspace.CanEdit && cachedTextWorkspace.Session!.TextLayers.Single().FontPostScriptName == resolverFont &&
+            Find<TextBox>(cachedTextWindow, "TextContent").IsEffectivelyEnabled,
+            "Explicit missing-font resolution did not unlock the text layer.");
+        cachedTextWindow.Close(); Dispatcher.UIThread.RunJobs();
         string availableTextProject = Path.Combine(output, "AvailableText.comp");
         CopyDirectory(cachedTextProject, availableTextProject);
         string availableTextManifestPath = Path.Combine(availableTextProject, "manifest.json");
         var availableTextManifest = JsonNode.Parse(File.ReadAllText(availableTextManifestPath))!.AsObject();
         var availableTextLayer = availableTextManifest["layers"]!.AsArray()[^1]!.AsObject();
-        string availableTextFont = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
-            ?? throw new Exception("No installed font was available for the App text edit check.");
+        string availableTextFont = resolverFont;
         availableTextLayer["text"]!["fontPostScriptName"] = availableTextFont;
         File.WriteAllText(availableTextManifestPath, availableTextManifest.ToJsonString());
         var availableTextWorkspace = new EditorWorkspace();

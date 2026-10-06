@@ -31,6 +31,7 @@ public sealed class EditorWorkspace
     private SelectionMoveHistory? selectionMoveHistory;
     private bool selectionMoveUndone;
     private bool readOnlyTextCache;
+    private bool textAssetsLoaded;
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
@@ -56,6 +57,7 @@ public sealed class EditorWorkspace
         var next = ProjectSession.CreateBlank(width, height, resolution);
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         readOnlyTextCache = false;
+        textAssetsLoaded = false;
         Session = next;
         Preview = preview;
         ClearClipboard();
@@ -68,6 +70,7 @@ public sealed class EditorWorkspace
         RequireIdle();
         var next = ProjectStore.Open(directory);
         readOnlyTextCache = next.HasTextLayers && TextLayerWorkflow.Inspect(next).Any(status => !status.FontAvailable);
+        textAssetsLoaded = false;
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         if (next.CanEdit && !readOnlyTextCache) next = ImageProjectWorkflow.OpenEditable(directory);
         Session = next;
@@ -83,6 +86,7 @@ public sealed class EditorWorkspace
         var next = ImageProjectWorkflow.Import(image, directory);
         var preview = ImageProjectWorkflow.RenderFlatNormal(next);
         readOnlyTextCache = false;
+        textAssetsLoaded = false;
         Session = next;
         Preview = preview;
         ClearClipboard();
@@ -107,6 +111,26 @@ public sealed class EditorWorkspace
         RequireEditableSession();
         TextLayerWorkflow.Update(RequireSession(), metadata);
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
+    public void ResolveTextFont(Guid layerId, string font)
+    {
+        RequireIdle();
+        if (string.IsNullOrWhiteSpace(font) || !TextLayerWorkflow.AvailableFonts.Contains(font, StringComparer.OrdinalIgnoreCase))
+            throw new NotSupportedException("请选择一个已安装或已导入的字体。");
+        ProjectSession session;
+        if (!textAssetsLoaded)
+        {
+            session = ImageProjectWorkflow.OpenEditable(RequireSession().SourceDirectory);
+            Session = session;
+            textAssetsLoaded = true;
+        }
+        else session = RequireSession();
+        TextLayerMetadata current = session.TextLayers.SingleOrDefault(text => text.Id == layerId)
+            ?? throw new ArgumentException("所选图层不是文字图层。", nameof(layerId));
+        TextLayerWorkflow.Update(session, current with { FontPostScriptName = font });
+        readOnlyTextCache = TextLayerWorkflow.Inspect(session).Any(status => !status.FontAvailable);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
     public void AddTextLayer(string content = "文字", bool box = false)
