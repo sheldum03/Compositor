@@ -113,6 +113,16 @@ public static class ImageProjectWorkflow
             ? session.HasGroups ? RenderCachedCore(session, useLoadedAssets: true) : RenderFlatNormalCore(session, null, null, null)
             : RenderCachedCore(session);
 
+    public static TileRaster RenderFlatNormalLayers(ProjectSession session, IReadOnlySet<Guid> layerIds)
+    {
+        ArgumentNullException.ThrowIfNull(layerIds);
+        if (!session.CanEdit) throw new NotSupportedException("Layer subset rendering requires an editable project.");
+        if (session.HasGroups) throw new NotSupportedException("Layer subset rendering does not support groups.");
+        if (layerIds.Count == 0 || session.Layers.Any(layer => layerIds.Contains(layer.Id) && layer.IsGroup))
+            throw new ArgumentException("The selected layer set is invalid.", nameof(layerIds));
+        return RenderFlatNormalCore(session, null, null, null, layerIds);
+    }
+
     public static TileRaster RenderLayerForCopy(ProjectSession session, Guid layerId)
     {
         if (!session.CanEdit) throw new NotSupportedException("Layer copy requires an editable project.");
@@ -186,7 +196,7 @@ public static class ImageProjectWorkflow
     }
 
     private static TileRaster RenderFlatNormalCore(ProjectSession session, Guid? overrideLayerId, TileRaster? overrideRaster,
-        GrayTileRaster? overrideMask)
+        GrayTileRaster? overrideMask, IReadOnlySet<Guid>? renderOnly = null)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -260,12 +270,44 @@ public static class ImageProjectWorkflow
             return raster;
         }
 
-        var result = new TileRaster(width, height);
-        foreach (var layer in prepared)
+        TileRaster RenderClipStack(FlatLayerRender baseLayer, IReadOnlyList<FlatLayerRender> clipped)
         {
-            if (layer.Manifest["isVisible"]!.GetValue<bool>())
-                result = LayerCompositor.Composite(result, Resolve(layer.Id), layer.Manifest["opacity"]?.GetValue<double>() ?? 1,
-                    layer.Manifest["blendMode"]?.GetValue<string>() ?? "Normal");
+            double baseOpacity = baseLayer.Manifest["opacity"]?.GetValue<double>() ?? 1;
+            string baseMode = baseLayer.Manifest["blendMode"]?.GetValue<string>() ?? "Normal";
+            var stack = LayerCompositor.Composite(new TileRaster(width, height), baseLayer.Raster, baseOpacity, baseMode);
+            var alpha = stack;
+            stack = UnpremultiplyOpaque(stack);
+            foreach (FlatLayerRender child in clipped)
+            {
+                double opacity = child.Manifest["opacity"]?.GetValue<double>() ?? 1;
+                string mode = child.Manifest["blendMode"]?.GetValue<string>() ?? "Normal";
+                stack = LayerCompositor.Composite(stack, child.Raster, opacity, mode);
+            }
+            return RestoreAlpha(stack, alpha);
+        }
+
+        var result = new TileRaster(width, height);
+        for (int index = 0; index < prepared.Count; index++)
+        {
+            var layer = prepared[index];
+            if ((renderOnly is null || renderOnly.Contains(layer.Id)) && layer.Manifest["isVisible"]!.GetValue<bool>())
+            {
+                var clipped = new List<FlatLayerRender>();
+                int end = index + 1;
+                while (end < prepared.Count && (renderOnly is null || renderOnly.Contains(prepared[end].Id)) &&
+                    prepared[end].Manifest["isVisible"]!.GetValue<bool>() &&
+                    prepared[end].Manifest["maskSourceID"] is { } source &&
+                    Guid.Parse(source.GetValue<string>()) == layer.Id)
+                {
+                    clipped.Add(prepared[end]);
+                    end++;
+                }
+                TileRaster raster = clipped.Count == 0 ? Resolve(layer.Id) : RenderClipStack(layer, clipped);
+                result = LayerCompositor.Composite(result, raster,
+                    clipped.Count == 0 ? layer.Manifest["opacity"]?.GetValue<double>() ?? 1 : 1,
+                    clipped.Count == 0 ? layer.Manifest["blendMode"]?.GetValue<string>() ?? "Normal" : "Normal");
+                index = end - 1;
+            }
         }
         return result;
     }

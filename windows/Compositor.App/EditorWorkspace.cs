@@ -148,22 +148,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         var session = RequireSession();
         var selected = ValidateMergeSelection(session, layerIds);
-
-        TileRaster merged = new TileRaster(session.Width, session.Height);
-        var byId = selected.ToDictionary(item => item.Layer.Id, item => item.Layer);
-        var resolved = new Dictionary<Guid, TileRaster>();
-        TileRaster Resolve(FlatLayerInfo layer)
-        {
-            if (resolved.TryGetValue(layer.Id, out var cached)) return cached;
-            TileRaster raster = MergeSource(session, layer);
-            if (layer.MaskSourceId is { } sourceId)
-                raster = RasterCompositor.ApplyAlphaMask(raster, Resolve(byId[sourceId]), byId[sourceId].Opacity);
-            resolved[layer.Id] = raster;
-            return raster;
-        }
-        foreach (var item in selected)
-            if (item.Layer.IsVisible)
-                merged = LayerCompositor.Composite(merged, Resolve(item.Layer), item.Layer.Opacity, "Normal");
+        TileRaster merged = ImageProjectWorkflow.RenderFlatNormalLayers(session,
+            selected.Select(item => item.Layer.Id).ToHashSet());
         Edit(editSession => editSession.MergeLayers(selected.Select(item => item.Layer.Id).ToArray(), merged));
     }
 
@@ -1022,14 +1008,6 @@ public sealed class EditorWorkspace
             ? new TileRaster(session.Width, session.Height)
             : session.GetLayerRaster(maskBrushLayer);
         return ImageProjectWorkflow.RenderFlatNormal(session, maskBrushLayer, brushBounds, next);
-    }
-
-    private static TileRaster MergeSource(ProjectSession session, FlatLayerInfo layer)
-    {
-        TileRaster raster = session.GetLayerRaster(layer.Id);
-        if (layer.HasMask && layer.MaskEnabled)
-            raster = RasterCompositor.ApplyMask(raster, session.GetLayerMask(layer.Id)!);
-        return raster;
     }
 
     private void ClearClipboard()
