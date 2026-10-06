@@ -558,12 +558,13 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
-    public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex)
+    public bool CanCopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
+        Guid? destinationParentId = null)
     {
         ArgumentNullException.ThrowIfNull(source);
         try
         {
-            ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex);
+            ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex, destinationParentId);
             return true;
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or InvalidDataException or NotSupportedException)
@@ -572,12 +573,13 @@ public sealed class ProjectSession
         }
     }
 
-    public Guid CopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex)
+    public Guid CopyLayerFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
+        Guid? destinationParentId = null)
     {
         ArgumentNullException.ThrowIfNull(source);
-        RequireLayerStructureEditing();
-        int[] sourceIndexes = ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex);
-        return InsertLayerStack(source, sourceIndexes, sourceLayerId, destinationIndex);
+        RequireCrossProjectCopyEditing();
+        int[] sourceIndexes = ValidateLayerCopyFrom(source, sourceLayerId, destinationIndex, destinationParentId);
+        return InsertLayerStack(source, sourceIndexes, sourceLayerId, destinationIndex, destinationParentId);
     }
 
     public Guid GroupLayer(Guid layerId, string name) => GroupLayers([layerId], name);
@@ -1260,11 +1262,12 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));
     }
 
-    private int[] ValidateLayerCopyFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex)
+    private int[] ValidateLayerCopyFrom(ProjectSession source, Guid sourceLayerId, int destinationIndex,
+        Guid? destinationParentId)
     {
         if (ReferenceEquals(this, source)) throw new ArgumentException("Source and target projects must differ.", nameof(source));
-        if (!CanEdit || Current["version"]!.GetValue<int>() != 8 || HasGroups)
-            throw new NotSupportedException("Cross-project layer copy requires a flat editable v8 target project.");
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8)
+            throw new NotSupportedException("Cross-project layer copy requires an editable v8 target project.");
         if (!source.CanEdit || source.Current["version"]!.GetValue<int>() != 8)
             throw new NotSupportedException("Cross-project layer copy requires an editable v8 source project.");
         if (Width != source.Width || Height != source.Height)
@@ -1273,6 +1276,7 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Both projects must be opened through the editable workflow.");
         if (destinationIndex < 0 || destinationIndex > Current["layers"]!.AsArray().Count)
             throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        ValidateCopyDestination(destinationIndex, destinationParentId);
         int sourceIndex = source.FindLayer(sourceLayerId);
         FlatLayerInfo sourceLayer = source.Layers[sourceIndex];
         if (source.HasGroups)
@@ -1325,7 +1329,7 @@ public sealed class ProjectSession
         foreach (FlatLayerInfo layer in source.Layers)
         {
             bool included = stackIds.Contains(layer.Id);
-            if (included && layer.ParentId is { } parentId && !stackIds.Contains(parentId))
+            if (included && layer.ParentId is { } parentId && !stackIds.Contains(parentId) && layer.Id != groupId)
                 throw new NotSupportedException("A copied group cannot retain an external parent.");
             if (included && layer.MaskSourceId is { } sourceId && !stackIds.Contains(sourceId) ||
                 !included && layer.MaskSourceId is { } externalSourceId && stackIds.Contains(externalSourceId))
@@ -1342,7 +1346,7 @@ public sealed class ProjectSession
     }
 
     private Guid InsertLayerStack(ProjectSession source, IReadOnlyList<int> sourceIndexes, Guid sourceActiveLayerId,
-        int destinationIndex)
+        int destinationIndex, Guid? destinationParentId)
     {
         if (sourceIndexes.Count == 0) throw new ArgumentException("At least one source layer is required.", nameof(sourceIndexes));
         var sourceLayers = source.Current["layers"]!.AsArray();
@@ -1355,6 +1359,7 @@ public sealed class ProjectSession
         var masks = snapshots[cursor].LayerMasks is { } currentMasks
             ? new Dictionary<Guid, GrayTileRaster>(currentMasks)
             : null;
+        Guid sourceRootId = Guid.Parse((sourceLayers[sourceIndexes[0]]!.AsObject())["id"]!.GetValue<string>());
         for (int offset = 0; offset < sourceIndexes.Count; offset++)
         {
             int sourceIndex = sourceIndexes[offset];
@@ -1368,9 +1373,18 @@ public sealed class ProjectSession
             {
                 Guid sourceParentId = Guid.Parse(parentNode.GetValue<string>());
                 if (!idMap.TryGetValue(sourceParentId, out Guid targetParentId))
-                    throw new InvalidDataException("Copied group relationship points outside the copied subtree.");
-                layer["parentID"] = targetParentId.ToString("D");
+                {
+                    if (sourceId != sourceRootId)
+                        throw new InvalidDataException("Copied group relationship points outside the copied subtree.");
+                    if (destinationParentId is { } rootParentId)
+                        layer["parentID"] = rootParentId.ToString("D");
+                    else
+                        layer.Remove("parentID");
+                }
+                else layer["parentID"] = targetParentId.ToString("D");
             }
+            else if (sourceId == sourceRootId && destinationParentId is { } rootParent)
+                layer["parentID"] = rootParent.ToString("D");
             if (layer["maskSourceID"] is { } sourceNode)
             {
                 Guid sourceMaskId = Guid.Parse(sourceNode.GetValue<string>());
@@ -1393,6 +1407,37 @@ public sealed class ProjectSession
         next["activeLayerID"] = idMap[sourceActiveLayerId].ToString("D");
         Commit(new Snapshot(next, rasters, masks, ++nextRevision));
         return idMap[sourceActiveLayerId];
+    }
+
+    private void ValidateCopyDestination(int destinationIndex, Guid? destinationParentId)
+    {
+        if (destinationParentId is not { } parentId) return;
+        int parentIndex = FindLayer(parentId);
+        if (Layers[parentIndex].IsGroup is false)
+            throw new NotSupportedException("Cross-project copies can only target a group parent.");
+        if (destinationIndex <= parentIndex || destinationIndex > Current["layers"]!.AsArray().Count)
+            throw new NotSupportedException("Cross-project copy destination is outside the target group.");
+        int lastDescendant = parentIndex;
+        for (int index = parentIndex + 1; index < Layers.Count; index++)
+        {
+            if (!IsDescendantOf(Layers[index], parentId)) break;
+            lastDescendant = index;
+        }
+        if (destinationIndex > lastDescendant + 1)
+            throw new NotSupportedException("Cross-project copy destination is outside the target group.");
+    }
+
+    private bool IsDescendantOf(FlatLayerInfo layer, Guid ancestorId)
+    {
+        Guid? parentId = layer.ParentId;
+        var seen = new HashSet<Guid>();
+        while (parentId is { } current && seen.Add(current))
+        {
+            if (current == ancestorId) return true;
+            FlatLayerInfo? parent = Layers.FirstOrDefault(candidate => candidate.Id == current);
+            parentId = parent?.ParentId;
+        }
+        return false;
     }
 
     private Guid InsertLayer(JsonObject layer, TileRaster raster, int destinationIndex, GrayTileRaster? mask = null)
@@ -1438,6 +1483,14 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
         if (HasGroups)
             throw new NotSupportedException("Layer structure changes are not supported for grouped projects in this slice.");
+    }
+
+    private void RequireCrossProjectCopyEditing()
+    {
+        if (!CanEdit || Current["version"]!.GetValue<int>() != 8)
+            throw new NotSupportedException("Cross-project layer copy requires an editable v8 project.");
+        if (snapshots[cursor].LayerRasters is null)
+            throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
     }
 
     private void RequireGroupStructureEditing()

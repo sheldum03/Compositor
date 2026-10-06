@@ -680,6 +680,21 @@ internal static class Program
             reopenedCrossGroup.Layers.Count(layer => layer.ParentId == reopenedGroup.Id) == 2 &&
             reopenedGroup.HasMask && !reopenedGroup.MaskEnabled,
             "Saved cross-project group copy did not reopen with its subtree and mask.");
+        crossGroupTarget.Session.SelectLayer(copiedGroupChildren[0].Id);
+        int groupedTargetBeforeFlatCopy = crossGroupTarget.Session.Layers.Count;
+        Require(crossLayerSource.CanCopyLayerTo(crossGroupTarget, crossLayerSourceId),
+            "A grouped target did not enable a sibling layer copy.");
+        crossLayerSource.CopyLayerTo(crossGroupTarget, crossLayerSourceId);
+        FlatLayerInfo copiedIntoGroup = crossGroupTarget.Session.Layers.Single(layer =>
+            layer.ParentId == copiedGroup.Id && !copiedGroupChildren.Any(child => child.Id == layer.Id));
+        Require(crossGroupTarget.Session.Layers.Count == groupedTargetBeforeFlatCopy + 1 &&
+            copiedIntoGroup.Name == crossLayerSource.Session.Layers.Single(layer => layer.Id == crossLayerSourceId).Name,
+            "A grouped target did not insert a copied layer as a group sibling.");
+        crossGroupTarget.Save();
+        var reopenedGroupedTarget = ImageProjectWorkflow.OpenEditable(crossGroupTargetPath);
+        Require(reopenedGroupedTarget.Layers.Count == groupedTargetBeforeFlatCopy + 1 &&
+            reopenedGroupedTarget.Layers.Any(layer => layer.ParentId == reopenedGroup.Id && layer.Name == copiedIntoGroup.Name),
+            "Saved grouped-target layer copy did not reopen inside the target group.");
         var clippedCrossLayerSource = new EditorWorkspace();
         clippedCrossLayerSource.Import(fixture, Path.Combine(output, "ClippedCrossLayerSource.comp"));
         Guid clippedSourceId = clippedCrossLayerSource.Session!.Layers[0].Id;

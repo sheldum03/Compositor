@@ -150,10 +150,8 @@ public sealed class EditorWorkspace
             target.HasActiveStroke || target.HasFloatingSelection || Session is not { } sourceSession ||
             target.Session is not { } targetSession)
             return false;
-        int destinationIndex = targetSession.ActiveLayerId is { } activeId
-            ? targetSession.Layers.ToList().FindIndex(layer => layer.Id == activeId) + 1
-            : targetSession.Layers.Count;
-        return targetSession.CanCopyLayerFrom(sourceSession, layerId, destinationIndex);
+        (int destinationIndex, Guid? destinationParentId) = CopyDestination(targetSession);
+        return targetSession.CanCopyLayerFrom(sourceSession, layerId, destinationIndex, destinationParentId);
     }
 
     public void CopyLayerTo(EditorWorkspace target, Guid layerId)
@@ -165,10 +163,33 @@ public sealed class EditorWorkspace
         var targetSession = target.RequireSession();
         if (!CanCopyLayerTo(target, layerId))
             throw new NotSupportedException("跨工程图层拖放目前只支持相同画布尺寸的可编辑 v8 工程；组只能整体复制，复杂关系仍需先单独处理。");
-        int destinationIndex = targetSession.ActiveLayerId is { } activeId
-            ? targetSession.Layers.ToList().FindIndex(layer => layer.Id == activeId) + 1
-            : targetSession.Layers.Count;
-        target.Edit(current => current.CopyLayerFrom(sourceSession, layerId, destinationIndex));
+        (int destinationIndex, Guid? destinationParentId) = CopyDestination(targetSession);
+        target.Edit(current => current.CopyLayerFrom(sourceSession, layerId, destinationIndex, destinationParentId));
+    }
+
+    private static (int Index, Guid? ParentId) CopyDestination(ProjectSession target)
+    {
+        FlatLayerInfo[] layers = target.Layers.ToArray();
+        if (target.ActiveLayerId is not { } activeId) return (layers.Length, null);
+        int activeIndex = Array.FindIndex(layers, layer => layer.Id == activeId);
+        if (activeIndex < 0) return (layers.Length, null);
+        FlatLayerInfo active = layers[activeIndex];
+        int insertion = activeIndex + 1;
+        if (active.IsGroup)
+            while (insertion < layers.Length && IsDescendantOf(layers[insertion], active.Id, layers)) insertion++;
+        return (insertion, active.ParentId);
+    }
+
+    private static bool IsDescendantOf(FlatLayerInfo layer, Guid ancestorId, IReadOnlyList<FlatLayerInfo> layers)
+    {
+        Guid? parentId = layer.ParentId;
+        var seen = new HashSet<Guid>();
+        while (parentId is { } current && seen.Add(current))
+        {
+            if (current == ancestorId) return true;
+            parentId = layers.FirstOrDefault(candidate => candidate.Id == current)?.ParentId;
+        }
+        return false;
     }
 
     public void MergeSelectedLayers(IReadOnlyList<Guid> layerIds)
