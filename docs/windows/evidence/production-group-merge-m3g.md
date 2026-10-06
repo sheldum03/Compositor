@@ -48,4 +48,4 @@ Workflow、Imaging 全部场景及 SaveCrash 的 14 个真实保存中断场景�
 - `Compositor.App.exe` SHA-256：`f1a3a6c0c9b54ad6d29e4526d138e8837b40d72b3ad15f81c7c3b852cf3f8e8b`
 - 当前包不含 `compositor_native.dll`，也未在 Windows 上启动。
 
-该包只证明交叉发布命令可完成和包内容可追踪；Windows 实机验收仍需在腾讯云 Windows 服务器解锁后执行。
+该包只证明交叉发布命令可完成和包内容可追踪；Windows 实机验收仍需在腾讯云 Windows 服务器恢复已登录会话后执行。
