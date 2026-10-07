@@ -1,7 +1,7 @@
 # 当前环境可执行开发计划
 
-更新日期：2026-10-07  
-实施分支：`codex/windows-implementation`  
+更新日期：2026-10-07
+实施分支：`codex/windows-implementation`
 当前环境：macOS arm64；仓库没有可用的 `dotnet` 命令，因此本轮只做静态检查、源码级验证和可独立运行的脚本检查。
 
 ## 执行原则
