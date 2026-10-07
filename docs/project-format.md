@@ -6,6 +6,8 @@ The manifest identifies `com.compositor.project`, version `8` for new saves (ver
 
 Embedded PNGs preserve source pixels and transparency; transforms remain separate. Projects survive moving or deleting imported source photos. Saving uses a coordinated atomic package replacement. Unsupported versions, invalid metadata, missing assets, unsafe paths, and oversized data are rejected before replacing the live document.
 
+The Windows editor can edit an older package when every field used by its declared version is supported by the current implementation. It upgrades the in-memory manifest to version 8 and writes that upgrade only on an explicit save; an unopened or unsaved legacy package is never modified in place. A package that uses a newer field than its declared version, or a semantic that the editor cannot preserve, remains read-only instead of being silently rasterized.
+
 Limits: 30,000 pixels per canvas/image side, 100 million total source pixels, 10,000 layers, 4 MiB manifest, 512 MiB per encoded asset. See `ProjectStore.swift` for validation.
 
 Undo history and viewport are session-only. Opening fits the canvas, restores selection, and starts with clean history. Future editable features must extend the schema and round-trip tests. PNG export is a flattened derivative and does not mark project edits saved.
