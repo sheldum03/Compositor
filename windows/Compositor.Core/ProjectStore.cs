@@ -97,14 +97,10 @@ public static class ProjectStore
         }
         int imageLayerCount = layers.Count(layer => layer!["imageFile"] is not null);
         int maskCount = layers.Count(layer => layer!["maskFile"] is not null);
-        bool canEdit = version is 1 or 8 && (version == 8 || layers.Count == 1) &&
-            (version == 8 || layers.All(layer => layer!["isGroup"]?.GetValue<bool>() != true && layer["parentID"] is null)) &&
-            (version == 8 || layers.All(layer => layer!["maskFile"] is null)) &&
-            (version == 8 || layers.All(layer => (layer!["opacity"]?.GetValue<double>() ?? 1) == 1 &&
-                (layer["blendMode"]?.GetValue<string>() ?? "Normal") == "Normal")) &&
+        bool canEdit = layers.All(layer => IsVersionCompatible(layer!.AsObject(), version)) &&
             (long)imageLayerCount * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
-            layers.All(node => IsEditableLayer(node!.AsObject(), width, height, version == 8)) &&
+            layers.All(node => IsEditableLayer(node!.AsObject(), width, height, allowGroups: true)) &&
             allImageSizesMatch && allMaskSizesMatch &&
             Directory.GetFiles(images).Length == imageLayerCount + maskCount &&
             Directory.GetDirectories(images).Length == 0;
@@ -112,6 +108,10 @@ public static class ProjectStore
         ReadOnlyMemory<byte> imageHash = default;
         if (canEdit)
         {
+            // Editing an older compatible document upgrades only the in-memory
+            // manifest. The original package is left untouched until the user
+            // explicitly saves, at which point the v8 schema is written.
+            if (version != 8) manifest["version"] = 8;
             foreach (var layerNode in layers)
             {
                 if (layerNode!["imageFile"] is { } imageNode)
@@ -344,6 +344,27 @@ public static class ProjectStore
             size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
             transform["rotation"]?.GetValue<double>() == 0 &&
             transform["flipX"]?.GetValue<bool>() == false && transform["flipY"]?.GetValue<bool>() == false;
+    }
+
+    private static bool IsVersionCompatible(JsonObject layer, int version)
+    {
+        bool isGroup = layer["isGroup"]?.GetValue<bool>() == true;
+        double opacity = layer["opacity"]?.GetValue<double>() ?? 1;
+        string blendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal";
+
+        // Appearance arrived in v3, and groups remain pass-through in every
+        // version. Rejecting newer fields here prevents silently changing an
+        // older document's meaning while still allowing compatible v1-v7
+        // documents to be upgraded to v8 on save.
+        if (version < 2 && (layer["parentID"] is not null || isGroup)) return false;
+        if (version < 3 && (opacity != 1 || blendMode != "Normal")) return false;
+        if (isGroup && (opacity != 1 || blendMode != "Normal")) return false;
+        if (version < 4 && (layer["maskFile"] is not null || layer["maskEnabled"] is not null)) return false;
+        if (version < 5 && layer["maskSourceID"] is not null) return false;
+        if (version < 6 && isGroup && layer["maskFile"] is not null) return false;
+        if (version < 7 && layer["adjustment"] is not null) return false;
+        if (version < 8 && layer["text"] is not null) return false;
+        return true;
     }
 
     private static bool IsValidEditableAdjustment(JsonObject layer, JsonObject adjustment, int width, int height)
