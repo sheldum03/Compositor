@@ -44,6 +44,9 @@ public static class ProjectStore
             throw new InvalidDataException("Invalid canvas size.");
         if (!Guid.TryParse(manifest["documentID"]?.GetValue<string>(), out _))
             throw new InvalidDataException("Invalid document ID.");
+        if (manifest["resolution"] is { } resolution &&
+            (!double.IsFinite(resolution.GetValue<double>()) || resolution.GetValue<double>() is < 1 or > 9600))
+            throw new InvalidDataException("Invalid document resolution.");
         var layers = manifest["layers"]?.AsArray() ?? throw new InvalidDataException("Missing layers.");
         if (layers.Count > 10000) throw new InvalidDataException("Too many layers.");
         var ids = new HashSet<Guid>();
@@ -53,7 +56,8 @@ public static class ProjectStore
             if (!Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) || !ids.Add(id))
                 throw new InvalidDataException("Invalid layer ID.");
             string name = layer["name"]?.GetValue<string>() ?? throw new InvalidDataException("Missing layer name.");
-            if (string.IsNullOrWhiteSpace(name)) throw new InvalidDataException("Blank layer name.");
+            if (string.IsNullOrWhiteSpace(name) || name.Length > 16_384)
+                throw new InvalidDataException("Invalid layer name.");
             if (layer["text"] is { } textNode &&
                 (version < 8 || layer["isGroup"]?.GetValue<bool>() == true || layer["imageFile"] is null ||
                  textNode is not JsonObject text || !IsValidTextMetadata(text)))
@@ -77,7 +81,7 @@ public static class ProjectStore
             {
                 if (layer[key] is not { } fileNode) continue;
                 string name = fileNode.GetValue<string>();
-                if (Path.GetFileName(name) != name || !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+                if (!IsSafeAssetName(name) || !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Unsafe asset name.");
                 string expected = Guid.Parse(layer["id"]!.GetValue<string>()).ToString("D") +
                     (key == "maskFile" ? ".mask.png" : ".png");
@@ -442,4 +446,7 @@ public static class ProjectStore
         if ((attributes & FileAttributes.ReparsePoint) != 0)
             throw new InvalidDataException("Links are not allowed inside a project.");
     }
+
+    private static bool IsSafeAssetName(string name) =>
+        name.Length > 0 && name.IndexOfAny(['/', '\\']) < 0 && Path.GetFileName(name) == name;
 }
