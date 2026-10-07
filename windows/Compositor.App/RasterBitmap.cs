@@ -8,9 +8,10 @@ namespace Compositor.App;
 
 public static class RasterBitmap
 {
-    public static WriteableBitmap Create(TileRaster raster)
+    public static WriteableBitmap Create(TileRaster raster, double dpi = 96)
     {
-        var bitmap = new WriteableBitmap(new PixelSize(raster.Width, raster.Height), new Vector(96, 96),
+        if (!double.IsFinite(dpi) || dpi <= 0) throw new ArgumentOutOfRangeException(nameof(dpi));
+        var bitmap = new WriteableBitmap(new PixelSize(raster.Width, raster.Height), new Vector(dpi, dpi),
             PixelFormat.Rgba8888, AlphaFormat.Premul);
         try
         {

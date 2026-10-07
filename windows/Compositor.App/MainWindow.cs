@@ -774,7 +774,8 @@ public sealed class MainWindow : Window
 
     private void RefreshPreview()
     {
-        var next = Workspace.Preview is { } raster ? RasterBitmap.Create(raster) : null;
+        double dpi = Workspace.Session?.Resolution ?? 96;
+        var next = Workspace.Preview is { } raster ? RasterBitmap.Create(raster, dpi) : null;
         canvas.SetBitmap(next);
         preview?.Dispose(); preview = next;
     }
