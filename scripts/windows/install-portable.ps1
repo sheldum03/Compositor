@@ -44,6 +44,23 @@ if (-not [string]::Equals($actualHash, $ExpectedSha256, [StringComparison]::Ordi
     throw "Package SHA-256 does not match the expected value."
 }
 
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archive = [IO.Compression.ZipFile]::OpenRead($package)
+try {
+    $archivePaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($item in $archive.Entries) {
+        $archivePath = $item.FullName.TrimEnd('/', '\')
+        if ($archivePath.Length -eq 0) { continue }
+        $safeArchivePath = Get-SafeRelativePath $archivePath
+        if (-not $archivePaths.Add($safeArchivePath)) {
+            throw "Package contains a duplicate path: $safeArchivePath"
+        }
+    }
+}
+finally {
+    $archive.Dispose()
+}
+
 $processName = [IO.Path]::GetFileNameWithoutExtension($entry)
 if (Get-Process -Name $processName -ErrorAction SilentlyContinue) {
     throw "Close the running $processName process before installing."
