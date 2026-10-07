@@ -1732,12 +1732,14 @@ public sealed class ProjectSession
     {
         RequireLayerStructureEditing();
         int index = FindLayer(layerId);
-        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不能复制为栅格图层。");
-        if (Current["layers"]![index]!["maskFile"] is not null)
-            throw new NotSupportedException("Duplicating a masked layer is not supported in this slice.");
         var layer = (JsonObject)Current["layers"]![index]!.DeepClone();
         layer["name"] = name;
-        return InsertLayer(layer, GetLayerRaster(layerId), index + 1);
+        if (Layers[index].IsAdjustment)
+            return InsertAdjustmentLayer(layer, index + 1);
+        GrayTileRaster? mask = Current["layers"]![index]!["maskFile"] is not null
+            ? CloneMask(GetLayerMask(layerId) ?? throw new InvalidDataException("Layer mask asset is missing."))
+            : null;
+        return InsertLayer(layer, GetLayerRaster(layerId), index + 1, mask);
     }
 
     public void DeleteLayer(Guid layerId)
