@@ -43,7 +43,8 @@ public sealed class ProjectSession
     private IReadOnlyDictionary<Guid, GrayTileRaster>? sourceLayerMasks;
 
     internal ProjectSession(string? sourceDirectory, JsonObject manifest, string imageName, bool canEdit,
-        ReadOnlyMemory<byte> imageHash, IReadOnlyDictionary<string, byte[]>? assetHashes = null)
+        ReadOnlyMemory<byte> imageHash, IReadOnlyDictionary<string, byte[]>? assetHashes = null,
+        int sourceFormatVersion = 8)
     {
         SavedDirectory = sourceDirectory;
         var hashes = assetHashes is null
@@ -53,6 +54,7 @@ public sealed class ProjectSession
             hashes.Add(imageName, imageHash.ToArray());
         AssetHashes = hashes;
         CanEdit = canEdit;
+        SourceFormatVersion = sourceFormatVersion;
         snapshots = [new Snapshot(manifest, null, null, 0)];
     }
 
@@ -93,6 +95,8 @@ public sealed class ProjectSession
         ? Current["layers"]![0]?["imageFile"]?.GetValue<string>() ?? "" : "";
     internal IReadOnlyDictionary<string, byte[]> AssetHashes { get; private set; }
     public bool CanEdit { get; }
+    public int SourceFormatVersion { get; private set; }
+    public bool LegacyUpgradePending => CanEdit && SourceFormatVersion is >= 1 and < 8;
     public bool IsDirty => !HasBeenSaved || snapshots[cursor].Revision != savedRevision;
     public string LayerName => Current["layers"]!.AsArray().Count > 0
         ? Current["layers"]![0]!["name"]!.GetValue<string>()
@@ -2321,6 +2325,7 @@ public sealed class ProjectSession
     internal void MarkSaved(string directory, IReadOnlyDictionary<string, byte[]> assetHashes)
     {
         SavedDirectory = directory;
+        SourceFormatVersion = 8;
         AssetHashes = new Dictionary<string, byte[]>(assetHashes, StringComparer.OrdinalIgnoreCase);
         sourceLayerRasters = snapshots[cursor].LayerRasters;
         sourceLayerMasks = snapshots[cursor].LayerMasks;

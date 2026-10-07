@@ -755,7 +755,15 @@ public sealed class MainWindow : Window
         if (IsBusy || Workspace.HasActiveStroke) return;
         IsBusy = true; layout.IsEnabled = false; status.Text = "处理中…";
         string message;
-        try { await operation(); message = Workspace.CanEdit ? "操作完成。" : Workspace.ReadOnlyNotice; }
+        try
+        {
+            await operation();
+            message = Workspace.CanEdit
+                ? Workspace.Session?.LegacyUpgradePending == true
+                    ? "操作完成；保存时将把兼容工程升级为 v8。"
+                    : "操作完成。"
+                : Workspace.ReadOnlyNotice;
+        }
         catch (Exception error) { message = "操作未完成：" + error.Message; }
         finally { IsBusy = false; layout.IsEnabled = true; }
         if (allowClose) return;

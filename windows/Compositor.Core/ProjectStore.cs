@@ -134,7 +134,7 @@ public static class ProjectStore
             if (layers.Count == 1 && imageName.Length != 0) imageHash = assetHashes[imageName];
             else imageName = "";
         }
-        return new ProjectSession(source, manifest, imageName, canEdit, imageHash, assetHashes);
+        return new ProjectSession(source, manifest, imageName, canEdit, imageHash, assetHashes, version);
     }
 
     public static void Save(ProjectSession session, string directory) =>
