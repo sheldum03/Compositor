@@ -1,5 +1,7 @@
 # Windows 生产工程（初始切片）
 
+当前环境的代码收口范围、执行顺序和 Windows 外部阻塞项见[当前环境可执行开发计划](../docs/windows/current-environment-plan.md)。
+
 M1 选用 Avalonia/.NET；此目录是生产实现，`experiments/windows/` 继续保存原型证据。当前与 GUI 无关的工程核心只读取 v1–8 manifest 的基础字段、图像路径及 PNG 头部；其中结构简单、全画布、无变换的 v1 或 v8 单图层工程可编辑，固定 F02～F08 复杂样本仍只读。单图层切片已有改名、像素瓦片快照、共用撤销/重做历史、安全保存与重开。`Compositor.Imaging/ImageProjectWorkflow` 把真实 PNG/JPEG 解码、v8 新工程导入、像素保存及 PNG/JPEG 导出接入此受限链路。它尚不是完整 M2，更不是 Windows 编辑器。
 
 固定 SDK 10.0.401。可编辑范围包括源 PNG 与画布尺寸一致、未变换的单图层，以及同样全画布、Normal、透明度 1、无组/蒙版的 v8 平面多层工程；打开后若源 PNG 被外部改动，保存会拒绝覆盖，Core 的原始文件导出也会拒绝，工作流仍可从已经载入的内存像素快照导出。验证命令：
