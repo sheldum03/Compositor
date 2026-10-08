@@ -35,6 +35,7 @@ public sealed class FontLibrary
     private readonly string root;
     private readonly string catalogPath;
     private readonly List<ImportedFont> entries;
+    private readonly List<FontRecoveryIssue> catalogIssues = [];
 
     public FontLibrary(string rootDirectory)
     {
@@ -118,10 +119,14 @@ public sealed class FontLibrary
     private FontRecoveryReport Restore()
     {
         var restored = new List<ImportedFont>();
-        var issues = new List<FontRecoveryIssue>();
+        var issues = new List<FontRecoveryIssue>(catalogIssues);
         foreach (ImportedFont entry in entries)
         {
-            string path = Path.Combine(root, entry.FileName);
+            if (!TryResolveFontPath(entry.FileName, out string path, out string pathReason))
+            {
+                issues.Add(new FontRecoveryIssue(entry.FileName, pathReason));
+                continue;
+            }
             if (!File.Exists(path))
             {
                 issues.Add(new FontRecoveryIssue(entry.FileName, "文件缺失"));
@@ -177,12 +182,88 @@ public sealed class FontLibrary
         if (!File.Exists(catalogPath)) return [];
         try
         {
-            return JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(catalogPath)) ?? [];
+            List<ImportedFont?> loaded = JsonSerializer.Deserialize<List<ImportedFont?>>(File.ReadAllText(catalogPath)) ?? [];
+            var valid = new List<ImportedFont>(loaded.Count);
+            foreach (ImportedFont? entry in loaded)
+            {
+                string fileName = entry?.FileName ?? "<null>";
+                if (entry is null)
+                {
+                    catalogIssues.Add(new FontRecoveryIssue(fileName, "catalog 条目无效"));
+                    continue;
+                }
+                if (!TryResolveFontPath(entry.FileName, out _, out string reason))
+                {
+                    catalogIssues.Add(new FontRecoveryIssue(fileName, reason));
+                    continue;
+                }
+                valid.Add(entry);
+            }
+            return valid;
         }
         catch (JsonException exception)
         {
             throw new InvalidDataException("The font catalog is invalid.", exception);
         }
+    }
+
+    private bool TryResolveFontPath(string fileName, out string path, out string reason)
+    {
+        path = string.Empty;
+        reason = "字体文件路径不安全";
+        if (string.IsNullOrWhiteSpace(fileName) ||
+            fileName is "." or ".." ||
+            Path.IsPathRooted(fileName) ||
+            fileName.IndexOf(':') >= 0 ||
+            fileName.IndexOf('/') >= 0 ||
+            fileName.IndexOf('\\') >= 0)
+            return false;
+
+        try
+        {
+            string candidate = Path.GetFullPath(Path.Combine(root, fileName));
+            string canonicalRoot = CanonicalRootPath();
+            string canonicalCandidate = CanonicalFilePath(candidate);
+            if (!IsInside(canonicalRoot, canonicalCandidate))
+                return false;
+            path = candidate;
+            return true;
+        }
+        catch (IOException) { return false; }
+        catch (UnauthorizedAccessException) { return false; }
+        catch (ArgumentException) { return false; }
+        catch (NotSupportedException) { return false; }
+    }
+
+    private string CanonicalRootPath()
+    {
+        string fullRoot = Path.GetFullPath(root);
+        try
+        {
+            FileSystemInfo? target = new DirectoryInfo(fullRoot).ResolveLinkTarget(returnFinalTarget: true);
+            return Path.GetFullPath(target?.FullName ?? fullRoot);
+        }
+        catch (PlatformNotSupportedException) { return fullRoot; }
+    }
+
+    private static string CanonicalFilePath(string path)
+    {
+        if (!File.Exists(path))
+            return Path.GetFullPath(path);
+        try
+        {
+            FileSystemInfo? target = new FileInfo(path).ResolveLinkTarget(returnFinalTarget: true);
+            return Path.GetFullPath(target?.FullName ?? path);
+        }
+        catch (PlatformNotSupportedException) { return Path.GetFullPath(path); }
+    }
+
+    private static bool IsInside(string rootPath, string candidatePath)
+    {
+        string relative = Path.GetRelativePath(rootPath, candidatePath);
+        return relative != ".." &&
+            !relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+            !Path.IsPathRooted(relative);
     }
 
     private void SaveCatalog()

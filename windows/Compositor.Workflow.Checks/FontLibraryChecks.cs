@@ -114,6 +114,80 @@ internal static class FontLibraryChecks
             !recovered.RecoveryReport.Message.Contains("3 个失效条目", StringComparison.Ordinal) ||
             !recovered.RecoveryReport.Message.Contains("missing.ttf", StringComparison.Ordinal))
             throw new Exception("Font recovery did not clean invalid entries or expose file-specific diagnostics.");
+        CheckCatalogPathSafety(source, output);
         Console.WriteLine("PASS: font library persists, deduplicates, restores, and selects TTC faces while rejecting invalid inputs");
     }
+
+    private static void CheckCatalogPathSafety(string source, string output)
+    {
+        string safetyRoot = Path.Combine(output, "FontLibraryPathSafety");
+        Directory.CreateDirectory(safetyRoot);
+        string outside = Path.Combine(safetyRoot, "outside.ttf");
+        File.Copy(source, outside);
+        string outsideHash = Hash(outside);
+
+        foreach ((string name, string fileName) in new[]
+        {
+            ("Traversal", Path.Combine("..", "outside.ttf")),
+            ("Absolute", Path.GetFullPath(outside))
+        })
+        {
+            string root = Path.Combine(safetyRoot, name);
+            Directory.CreateDirectory(root);
+            File.WriteAllText(Path.Combine(root, "fonts.json"), JsonSerializer.Serialize(new[]
+            {
+                new ImportedFont(fileName, "Tampered", 0, outsideHash)
+            }));
+            var recovered = new FontLibrary(root);
+            if (recovered.Entries.Count != 0 ||
+                !recovered.RecoveryReport.Issues.Any(issue =>
+                    issue.FileName == fileName && issue.Reason == "字体文件路径不安全") ||
+                JsonSerializer.Deserialize<List<ImportedFont>>(File.ReadAllText(Path.Combine(root, "fonts.json")))?.Count != 0 ||
+                !File.ReadAllBytes(outside).SequenceEqual(File.ReadAllBytes(source)))
+                throw new Exception($"Font catalog path case was not rejected: {name}.");
+        }
+
+        string symlinkRoot = Path.Combine(safetyRoot, "Symlink");
+        Directory.CreateDirectory(symlinkRoot);
+        string symlink = Path.Combine(symlinkRoot, "escaped.ttf");
+        bool symlinkSupported;
+        try
+        {
+            File.CreateSymbolicLink(symlink, outside);
+            symlinkSupported = true;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or
+            PlatformNotSupportedException or NotSupportedException)
+        {
+            symlinkSupported = false;
+        }
+        if (symlinkSupported)
+        {
+            File.WriteAllText(Path.Combine(symlinkRoot, "fonts.json"), JsonSerializer.Serialize(new[]
+            {
+                new ImportedFont("escaped.ttf", "Tampered", 0, outsideHash)
+            }));
+            var recovered = new FontLibrary(symlinkRoot);
+            if (recovered.Entries.Count != 0 ||
+                !recovered.RecoveryReport.Issues.Any(issue =>
+                    issue.FileName == "escaped.ttf" && issue.Reason == "字体文件路径不安全"))
+                throw new Exception("Font catalog symlink escape was not rejected.");
+        }
+
+        string validRoot = Path.Combine(safetyRoot, "Valid");
+        Directory.CreateDirectory(validRoot);
+        string validFile = Path.Combine(validRoot, "valid.ttf");
+        File.Copy(source, validFile);
+        File.WriteAllText(Path.Combine(validRoot, "fonts.json"), JsonSerializer.Serialize(new[]
+        {
+            new ImportedFont("valid.ttf", "Valid", 0, Hash(validFile))
+        }));
+        var restored = new FontLibrary(validRoot);
+        if (restored.Entries.Count != 1 || restored.RecoveryReport.HasIssues ||
+            restored.Entries[0].FileName != "valid.ttf")
+            throw new Exception("A valid basename catalog entry did not restore.");
+    }
+
+    private static string Hash(string path) =>
+        Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
 }
