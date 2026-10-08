@@ -10,6 +10,8 @@ param(
 
     [string]$EntryPoint = "Compositor.App.exe",
 
+    [string]$ManifestFile = "Compositor.Portable.json",
+
     [string]$UserDataRoot
 )
 
@@ -20,7 +22,8 @@ function Get-SafeRelativePath([string]$Path) {
         throw "Path must be a non-empty relative path: $Path"
     }
     $normalized = $Path.Replace('\', '/')
-    if ($normalized.Split('/') | Where-Object { $_ -eq '' -or $_ -eq '.' -or $_ -eq '..' }) {
+    $segments = $normalized.Split('/')
+    if ($normalized.Contains(':') -or ($segments | Where-Object { $_ -eq '' -or $_ -eq '.' -or $_ -eq '..' })) {
         throw "Path contains an unsafe segment: $Path"
     }
     return $normalized
@@ -29,6 +32,7 @@ function Get-SafeRelativePath([string]$Path) {
 $package = [IO.Path]::GetFullPath($PackagePath)
 $root = [IO.Path]::GetFullPath($InstallRoot)
 $entry = Get-SafeRelativePath $EntryPoint
+$manifestName = Get-SafeRelativePath $ManifestFile
 if (-not (Test-Path -LiteralPath $package -PathType Leaf)) {
     throw "Package does not exist: $package"
 }
@@ -79,6 +83,76 @@ try {
     $entryPath = Join-Path $stage $entry
     if (-not (Test-Path -LiteralPath $entryPath -PathType Leaf)) {
         throw "Package does not contain the required entry point: $entry"
+    }
+
+    $manifestPath = Join-Path $stage $manifestName
+    if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+        throw "Package manifest is missing: $manifestName"
+    }
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+    if ($manifest.schema -ne "com.compositor.windows-portable" -or
+        $manifest.schemaVersion -ne 1 -or
+        [string]::IsNullOrWhiteSpace([string]$manifest.version) -or
+        $manifest.runtimeIdentifier -ne "win-x64" -or
+        $manifest.entryPoint -ne $entry) {
+        throw "Package manifest is invalid or does not match the requested Windows package."
+    }
+    $manifestFiles = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $manifestFiles.Add($manifestName) | Out-Null
+    $fileRecords = @{}
+    foreach ($record in @($manifest.files)) {
+        $safe = Get-SafeRelativePath ([string]$record.path)
+        if (-not $manifestFiles.Add($safe)) { throw "Package manifest contains a duplicate path: $safe" }
+        $path = Join-Path $stage $safe
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Manifest file is missing: $safe" }
+        $file = Get-Item -LiteralPath $path
+        $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+        if ([int64]$record.bytes -ne $file.Length -or
+            -not [string]::Equals($record.sha256, $hash, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Package manifest hash mismatch: $safe"
+        }
+        $fileRecords[$safe] = $record
+    }
+    if (-not $manifestFiles.Contains($entry)) {
+        throw "Package entry point is not in the manifest file list: $entry"
+    }
+    $entryRecord = $fileRecords[$entry]
+    if ($null -eq $entryRecord -or
+        -not [string]::Equals($manifest.entryPointSha256, [string]$entryRecord.sha256, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Package entry point hash is inconsistent with the manifest."
+    }
+    $nativeCount = 0
+    $nativeNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($native in @($manifest.nativeLibraries)) {
+        $safe = Get-SafeRelativePath ([string]$native.path)
+        if (-not $safe.EndsWith('.dll', [StringComparison]::OrdinalIgnoreCase) -or
+            -not $manifestFiles.Contains($safe) -or
+            $native.architecture -ne 'x64' -or
+            $native.required -ne $true) {
+            throw "Package native library is not in the manifest file list: $safe"
+        }
+        $record = $fileRecords[$safe]
+        if (-not $nativeNames.Add($safe) -or $null -eq $record -or
+            $native.bytes -ne $record.bytes -or
+            -not [string]::Equals($native.sha256, $record.sha256, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Package native library hash is inconsistent: $safe"
+        }
+        $nativeCount++
+    }
+    if ($nativeCount -eq 0) {
+        throw "Package manifest contains no native DLL."
+    }
+    $actualFiles = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($file in Get-ChildItem -LiteralPath $stage -Recurse -File) {
+        $safe = Get-SafeRelativePath ([IO.Path]::GetRelativePath($stage, $file.FullName))
+        $actualFiles.Add($safe) | Out-Null
+    }
+    $unexpectedFiles = @($actualFiles | Where-Object { -not $manifestFiles.Contains($_) })
+    if ($actualFiles.Count -ne $manifestFiles.Count -or $unexpectedFiles.Count -gt 0) {
+        throw "Package contains files outside its manifest."
+    }
+    if ([int]$manifest.fileCount -ne $manifestFiles.Count) {
+        throw "Package manifest file count is inconsistent."
     }
 
     if ($UserDataRoot) {

@@ -7,12 +7,14 @@ on:
       - windows/**
       - Compositor/Rendering/**
       - docs/windows/fixtures/**
+      - scripts/windows/**
   pull_request:
     paths:
       - .github/workflows/windows-production-core.yml
       - windows/**
       - Compositor/Rendering/**
       - docs/windows/fixtures/**
+      - scripts/windows/**
 
 permissions:
   contents: read
@@ -82,12 +84,30 @@ jobs:
           if (-not (Test-Path $packagedDll)) { throw 'Published compositor_native.dll is missing.' }
           $appHash = (Get-FileHash $app -Algorithm SHA256).Hash
           $dllHash = (Get-FileHash $packagedDll -Algorithm SHA256).Hash
-          $fileCount = (Get-ChildItem $package -File | Measure-Object).Count
+          $version = "0.0.0-ci.$env:GITHUB_RUN_NUMBER"
+          pwsh -NoProfile -File scripts/windows/write-portable-manifest.ps1 `
+            -PackageRoot $package -Version $version -Commit $env:GITHUB_SHA `
+            -NativeDll 'compositor_native.dll' | Tee-Object (Join-Path $env:EVIDENCE 'manifest-write.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $archive = Join-Path $env:EVIDENCE 'Compositor-win-x64.zip'
+          Compress-Archive -Path (Join-Path $package '*') -DestinationPath $archive -CompressionLevel Optimal
+          $archiveHash = (Get-FileHash $archive -Algorithm SHA256).Hash
+          pwsh -NoProfile -File scripts/windows/windows-install-smoke.ps1 `
+            -PackagePath $archive -ExpectedSha256 $archiveHash `
+            -EvidencePath (Join-Path $env:EVIDENCE 'install-smoke.json') | Tee-Object (Join-Path $env:EVIDENCE 'install-smoke.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $manifest = Get-Content (Join-Path $package 'Compositor.Portable.json') -Raw | ConvertFrom-Json
+          $fileCount = [int]$manifest.fileCount
           [ordered]@{
             app = $app
             appSha256 = $appHash
             nativeDll = $packagedDll
             nativeDllSha256 = $dllHash
+            version = $manifest.version
+            manifest = Join-Path $package 'Compositor.Portable.json'
+            archive = $archive
+            archiveSha256 = $archiveHash
+            nativeLibraries = @($manifest.nativeLibraries)
             fileCount = $fileCount
           } | ConvertTo-Json | Set-Content (Join-Path $env:EVIDENCE 'package.json')
       - name: Run production checks and retain outputs

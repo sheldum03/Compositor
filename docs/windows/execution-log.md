@@ -869,3 +869,11 @@ Qt归档5a6f4b57fb1377d7b32d52b5b0b0b120648a1816e08572139227aaa8e58d76a4已取�
 正式窗口会在兼容旧工程的编辑操作完成后提示“保存时将把兼容工程升级为 v8”，保存成功后提示自动消失。
 
 预览位图也开始沿用工程分辨率创建（新工程或未设置分辨率时为 96 DPI），系统剪贴板仍使用默认 96 DPI，避免窗口预览在高分辨率工程中丢失文档的显示密度信息。
+
+## 2026-10-08：便携包清单契约与调整层复制入口收口
+
+本轮继续在 `codex/windows-implementation` 分支完成当前环境可做的代码收口。核心层面确认 `ProjectSession.DuplicateLayer` 已能为普通栅格、栅格蒙版和调整层生成独立图层身份；窗口层原先误将调整层复制按钮禁用，现已开放，并在应用检查中覆盖复制后的调整参数保持和撤销回退。
+
+便携包新增 `scripts/windows/write-portable-manifest.ps1`，发布包生成 `Compositor.Portable.json`，记录版本、提交、运行时、目标框架、入口、原生 DLL 和每个文件的大小与 SHA-256。`install-portable.ps1` 现在按清单逐文件核对入口、原生库、文件数量和哈希后才替换安装目录；`verify-portable-package.py` 同步检查 zip 路径穿越、重复项、清单完整性和原生 DLL 元数据；`windows-install-smoke.ps1` 提供 Windows 首次安装、重复安装保留用户数据及错误哈希拒绝的实测入口。生产 CI 的 Smoke job 会生成清单、压缩包并执行安装复测，脚本变更也会触发该工作流。
+
+当前 macOS 主机没有 `dotnet`、`pwsh` 或 Windows 原生运行环境。本轮未把 .NET 编译、PowerShell 执行、Windows GUI、文件锁和原生 DLL 加载写成通过；只运行 Python 校验器的固定临时包正例/负例与源码差异检查。Windows CI 或实机仍需执行实际安装和启动验证。

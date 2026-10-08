@@ -1114,7 +1114,7 @@ public sealed class MainWindow : Window
             if (multiple && button.Name is not ("GroupLayer" or "MergeLayerDown")) button.IsEnabled = false;
             if (groupedProject && button.Name is "DuplicateLayer" or "DeleteLayer" or "SetClippingMask" or "ReleaseClippingMask" or "MoveUp" or "MoveDown")
                 button.IsEnabled = false;
-            if (selected?.IsAdjustment == true && button.Name is "DuplicateLayer" or "LayerViaCopy" or "GroupLayer" or "SetClippingMask" or "ReleaseClippingMask")
+            if (selected?.IsAdjustment == true && button.Name is "LayerViaCopy" or "GroupLayer" or "SetClippingMask" or "ReleaseClippingMask")
                 button.IsEnabled = false;
             if (button.Name == "LayerViaCopy")
                 button.IsEnabled = Workspace.CanLayerViaCopy;

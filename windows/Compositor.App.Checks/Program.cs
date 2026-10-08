@@ -353,6 +353,14 @@ internal static class Program
         Require(workspace.Session.ActiveLayerId == exposureLayer.Id &&
             Control<Button>(window, "ApplyExposureAdjustment").IsEffectivelyEnabled,
             "Exposure adjustment button did not create an editable active adjustment layer.");
+        Require(Control<Button>(window, "DuplicateLayer").IsEffectivelyEnabled,
+            "Adjustment layer duplication was not enabled for a supported editable adjustment layer.");
+        Click(window, "DuplicateLayer");
+        Guid exposureCopyId = workspace.Session.ActiveLayerId!.Value;
+        Require(workspace.Session.Layers.Count(layer => layer.IsAdjustment) == 2 &&
+            workspace.Session.GetExposureAdjustment(exposureCopyId) == workspace.Session.GetExposureAdjustment(exposureLayer.Id),
+            "Duplicating an adjustment layer did not preserve its settings.");
+        Click(window, "Undo");
         Control<NumericUpDown>(window, "AdjustmentExposure").Value = 1.5m;
         Control<NumericUpDown>(window, "AdjustmentOffset").Value = 0.05m;
         Control<NumericUpDown>(window, "AdjustmentGamma").Value = 1.2m;
