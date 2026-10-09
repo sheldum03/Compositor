@@ -580,6 +580,16 @@ public sealed class MainWindow : Window
         freeDistortEditor.Children.Add(distortBottom);
         freeDistortEditor.Children.Add(Command("ApplyFreeDistort", "应用自由扭曲", ApplyFreeDistortAsync, layer: true));
         actions.Children.Add(freeDistortEditor);
+        foreach (NumericUpDown field in new[]
+        {
+            distortTopLeftX, distortTopLeftY, distortTopRightX, distortTopRightY,
+            distortBottomRightX, distortBottomRightY, distortBottomLeftX, distortBottomLeftY
+        })
+            field.PropertyChanged += (_, change) =>
+            {
+                if (!refreshing && change.Property == NumericUpDown.ValueProperty)
+                    canvas.SetFreeDistortCorners(ReadFreeDistortCorners());
+            };
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("InvertLayer", "反相图层", InvertLayerAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
