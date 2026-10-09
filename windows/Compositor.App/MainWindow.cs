@@ -28,6 +28,19 @@ public sealed class MainWindow : Window
     private readonly CheckBox smudgePaint = new() { Content = "涂抹", Name = "SmudgePaint" };
     private readonly CheckBox liquifyPaint = new() { Content = "液化", Name = "LiquifyPaint" };
     private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
+    private readonly CheckBox gradientTool = new() { Content = "渐变", Name = "GradientTool" };
+    private readonly CheckBox gradientMaskTarget = new() { Content = "绘制蒙版", Name = "GradientMaskTarget" };
+    private readonly ComboBox gradientShape = new() { Name = "GradientShape", ItemsSource = new[] { "线性", "径向" }, SelectedIndex = 0, Width = 80 };
+    private readonly ComboBox gradientStyle = new() { Name = "GradientStyle", ItemsSource = new[] { "前景到透明", "前景到背景" }, SelectedIndex = 0, Width = 135 };
+    private readonly CheckBox gradientReversed = new() { Name = "GradientReversed", Content = "反向" };
+    private readonly NumericUpDown gradientOpacity = new() { Name = "GradientOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 80 };
+    private readonly Button applyGradient = new() { Name = "ApplyGradient", Content = "应用渐变" };
+    private readonly Button cancelGradient = new() { Name = "CancelGradient", Content = "取消渐变" };
+    private readonly StackPanel gradientOptions = new() { Name = "GradientOptions", Orientation = Orientation.Horizontal, Spacing = 8,
+        Margin = new Thickness(0, 0, 0, 12), IsVisible = false };
+    private readonly ScrollViewer gradientOptionsScroll = new() { IsVisible = false,
+        HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+        VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
     private readonly CheckBox maskPaint = new() { Content = "蒙版笔刷", Name = "MaskPaint" };
     private readonly ComboBox maskPaintMode = new() { Name = "MaskPaintMode", Width = 75,
         ItemsSource = new[] { "隐藏", "显示" }, SelectedIndex = 0 };
@@ -282,6 +295,7 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(smudgePaint);
         brushOptions.Children.Add(liquifyPaint);
         brushOptions.Children.Add(eyedropper);
+        brushOptions.Children.Add(gradientTool);
         brushOptions.Children.Add(maskPaint);
         brushOptions.Children.Add(maskPaintMode);
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
@@ -303,7 +317,42 @@ public sealed class MainWindow : Window
         };
         maskPaintMode.SelectionChanged += (_, _) => RefreshPalette();
         brushOptions.Children.Add(new TextBlock { Text = "滚轮缩放 · 空格/中键平移 · 仿制 Alt 点击设源 · Esc 取消笔划", VerticalAlignment = VerticalAlignment.Center });
-        DockPanel.SetDock(brushOptions, Dock.Top); layout.Children.Add(brushOptions);
+        var brushOptionsScroll = new ScrollViewer { Content = brushOptions,
+            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
+        DockPanel.SetDock(brushOptionsScroll, Dock.Top); layout.Children.Add(brushOptionsScroll);
+        gradientOptions.Children.Add(gradientShape);
+        gradientOptions.Children.Add(gradientStyle);
+        gradientOptions.Children.Add(gradientReversed);
+        gradientOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
+        gradientOptions.Children.Add(gradientOpacity);
+        gradientOptions.Children.Add(gradientMaskTarget);
+        gradientOptions.Children.Add(applyGradient);
+        gradientOptions.Children.Add(cancelGradient);
+        gradientOptions.Children.Add(new TextBlock { Text = "拖动起止点 · Shift 限定方向 · Enter 应用 · Esc 取消", VerticalAlignment = VerticalAlignment.Center });
+        gradientOptionsScroll.Content = gradientOptions;
+        DockPanel.SetDock(gradientOptionsScroll, Dock.Top); layout.Children.Add(gradientOptionsScroll);
+        applyGradient.Click += async (_, _) => await ExecuteAsync(() => Task.Run(Workspace.CommitGradient));
+        cancelGradient.Click += async (_, _) => await ExecuteAsync(() => Task.Run(Workspace.CancelGradient));
+        gradientShape.SelectionChanged += (_, _) => RefreshGradientPreview();
+        gradientStyle.SelectionChanged += (_, _) => RefreshGradientPreview();
+        gradientReversed.IsCheckedChanged += (_, _) => RefreshGradientPreview();
+        gradientOpacity.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == NumericUpDown.ValueProperty) RefreshGradientPreview();
+        };
+        gradientMaskTarget.IsCheckedChanged += (_, _) =>
+        {
+            if (refreshing) return;
+            try
+            {
+                bool pending = Workspace.HasGradientPreview;
+                Workspace.CommitGradient();
+                if (pending) Refresh(); else RefreshPreview();
+            }
+            catch (Exception error) { status.Text = "渐变未应用：" + error.Message; }
+            UpdatePaintMode();
+        };
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
         {
             status,
@@ -718,6 +767,15 @@ public sealed class MainWindow : Window
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
         layout.Children.Add(canvas);
+        canvas.GradientChanged += (start, end) => GradientStep(() =>
+        {
+            if (selectedId is not { } id) return;
+            if (!Workspace.HasActiveStroke) Workspace.BeginGradient(id, start, end, gradientMaskTarget.IsChecked == true);
+            Workspace.MoveGradient(start, end, SelectedGradientSettings());
+        });
+        canvas.GradientFinished += () => GradientStep(Workspace.EndGradientDrag);
+        canvas.GradientCanceled += () => GradientStep(Workspace.CancelGradient);
+        canvas.GradientApplied += () => _ = ExecuteAsync(() => Task.Run(Workspace.CommitGradient));
         canvas.StrokeStarted += point => PaintStep(() =>
         {
             if (selectedId is not { } id) return;
@@ -873,12 +931,35 @@ public sealed class MainWindow : Window
         foreach (CheckBox tool in canvasTools)
             tool.IsCheckedChanged += (_, _) =>
             {
-                if (tool.IsChecked == true) freeDistortHandles.IsChecked = false;
+                if (tool.IsChecked == true) { freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; }
             };
+        gradientTool.IsCheckedChanged += (_, _) =>
+        {
+            if (gradientTool.IsChecked == true)
+            {
+                foreach (CheckBox tool in canvasTools) tool.IsChecked = false;
+                freeDistortHandles.IsChecked = false;
+            }
+            else
+            {
+                try
+                {
+                    bool pending = Workspace.HasGradientPreview;
+                    Workspace.CommitGradient();
+                    if (pending) Refresh(); else RefreshPreview();
+                }
+                catch (Exception error) { status.Text = "渐变未应用：" + error.Message; }
+            }
+            UpdatePaintMode();
+            canvas.InvalidateVisual();
+        };
         freeDistortHandles.IsCheckedChanged += (_, _) =>
         {
             if (freeDistortHandles.IsChecked == true)
+            {
                 foreach (CheckBox tool in canvasTools) tool.IsChecked = false;
+                gradientTool.IsChecked = false;
+            }
             UpdatePaintMode();
             canvas.InvalidateVisual();
         };
@@ -947,6 +1028,8 @@ public sealed class MainWindow : Window
             if (allowClose) return;
             if (IsBusy) { e.Cancel = true; return; }
             if (Workspace.HasActiveStroke) { canvas.Cancel(); Workspace.CancelStroke(); }
+            try { Workspace.CommitGradient(); }
+            catch (Exception error) { e.Cancel = true; status.Text = "渐变未应用：" + error.Message; return; }
             if (!projects.Any(project => project.IsDirty)) return;
             e.Cancel = true;
             _ = ExecuteAsync(async () =>
@@ -1023,7 +1106,7 @@ public sealed class MainWindow : Window
                 : Workspace.ReadOnlyNotice;
         }
         catch (Exception error) { message = "操作未完成：" + error.Message; }
-        finally { IsBusy = false; layout.IsEnabled = true; }
+        finally { IsBusy = false; layout.IsEnabled = true; if (!refresh) UpdateGradientControls(); }
         if (allowClose) return;
         // Palette and color-picker drafts must survive until the user applies their editor.
         try { if (refresh) Refresh(); }
@@ -1036,6 +1119,7 @@ public sealed class MainWindow : Window
         double dpi = Workspace.Session?.Resolution ?? 96;
         var next = Workspace.Preview is { } raster ? RasterBitmap.Create(raster, dpi) : null;
         canvas.SetBitmap(next);
+        canvas.SetGradientLine(Workspace.GradientLine);
         preview?.Dispose(); preview = next;
     }
 
@@ -1076,6 +1160,7 @@ public sealed class MainWindow : Window
     {
         ArgumentNullException.ThrowIfNull(workspace);
         if (IsBusy || Workspace.HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        Workspace.CommitGradient();
         projects.Add(workspace);
         activeProjectIndex = projects.Count - 1;
         selectedId = null; displayedSession = null;
@@ -1087,6 +1172,7 @@ public sealed class MainWindow : Window
         if (index < 0 || index >= projects.Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == activeProjectIndex) return;
         if (IsBusy || Workspace.HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
+        Workspace.CommitGradient();
         activeProjectIndex = index;
         selectedId = null; displayedSession = null;
         Refresh();
@@ -1127,6 +1213,45 @@ public sealed class MainWindow : Window
             status.Text = "绘制未完成：" + error.Message;
         }
         toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = !Workspace.HasActiveStroke;
+    }
+
+    private void GradientStep(Action step)
+    {
+        try
+        {
+            step();
+            RefreshPreview();
+            status.Text = Workspace.HasGradientPreview ? "渐变预览：可拖动端点、修改颜色和参数，Enter 应用、Esc 取消。" : "渐变已取消。";
+        }
+        catch (Exception error)
+        {
+            canvas.Cancel(); Workspace.CancelGradient(); RefreshPreview();
+            status.Text = "渐变未完成：" + error.Message;
+        }
+        toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = gradientOptions.IsEnabled = projectTabs.IsEnabled = !Workspace.HasActiveStroke;
+        UpdateGradientControls();
+    }
+
+    private GradientFillSettings SelectedGradientSettings()
+    {
+        bool mask = gradientMaskTarget.IsChecked == true;
+        var foreground = (mask ? maskPaintMode.SelectedIndex == 1 ? PaletteColor.White : PaletteColor.Black : Workspace.ForegroundColor).Rgb;
+        var background = (mask ? maskPaintMode.SelectedIndex == 1 ? PaletteColor.Black : PaletteColor.White : Workspace.BackgroundColor).Rgb;
+        return new([foreground.Red, foreground.Green, foreground.Blue], [background.Red, background.Green, background.Blue],
+            gradientShape.SelectedIndex == 1, gradientStyle.SelectedIndex == 0, gradientReversed.IsChecked == true,
+            (double)(gradientOpacity.Value ?? 100) / 100);
+    }
+
+    private void RefreshGradientPreview()
+    {
+        if (refreshing || !Workspace.HasGradientPreview || Workspace.HasActiveStroke) return;
+        GradientStep(() => Workspace.RefreshGradient(SelectedGradientSettings()));
+    }
+
+    private void UpdateGradientControls()
+    {
+        gradientOptionsScroll.IsVisible = gradientOptions.IsVisible = gradientTool.IsChecked == true;
+        applyGradient.IsEnabled = cancelGradient.IsEnabled = Workspace.HasGradientPreview && !Workspace.HasActiveStroke && !IsBusy;
     }
 
     private void Refresh()
@@ -1185,6 +1310,12 @@ public sealed class MainWindow : Window
         bool groupedProject = Workspace.Session?.HasGroups == true;
         bool multipleTransform = multiple && !groupedProject &&
             selectedItems.All(item => !item.IsGroup && !item.IsAdjustment && item.ParentId is null);
+        if (Workspace.HasGradientPreview && (selected?.Id != selectedId || multiple))
+        {
+            Workspace.CommitGradient();
+            RefreshPreview(); RefreshProjectTabs();
+            if (Workspace.IsDirty && !(Title ?? "").StartsWith("● ", StringComparison.Ordinal)) Title = "● " + Title;
+        }
         selectedId = selected?.Id;
         TextLayerMetadata? text = null;
         ExposureSettings? exposure = null;
@@ -1655,11 +1786,12 @@ public sealed class MainWindow : Window
         bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
+        if (!hasMask && gradientMaskTarget.IsChecked == true) gradientMaskTarget.IsChecked = false;
         bool textMode = editable && !selectedGroup && Workspace.Session!.TextLayers.SingleOrDefault(text => text.Id == selectedId) is { } text &&
             TextLayerWorkflow.Inspect(Workspace.Session).Single(status => status.Metadata.Id == text.Id).FontAvailable &&
-            !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true;
+            !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true && gradientTool.IsChecked != true;
         maskPaint.IsEnabled = hasMask;
-        maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
+        maskPaintMode.IsEnabled = hasMask && (maskPaint.IsChecked == true || gradientTool.IsChecked == true && gradientMaskTarget.IsChecked == true);
         bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
         bool selectedText = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsText;
         paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
@@ -1671,7 +1803,10 @@ public sealed class MainWindow : Window
         canvas.TextEditEnabled = textMode && eyedropper.IsChecked != true;
         canvas.EyedropperEnabled = Workspace.Session is not null && eyedropper.IsChecked == true && !Workspace.HasFloatingSelection;
         canvas.CloneEnabled = clonePaint.IsEnabled && clonePaint.IsChecked == true && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection;
-        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection &&
+        gradientTool.IsEnabled = editable && (Workspace.CanGradient(false) || Workspace.CanGradient(true));
+        gradientMaskTarget.IsEnabled = hasMask && gradientTool.IsChecked == true;
+        canvas.GradientEnabled = gradientTool.IsChecked == true && Workspace.CanGradient(gradientMaskTarget.IsChecked == true);
+        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              (blurPaint.IsEnabled && blurPaint.IsChecked == true) ||
              (healingPaint.IsEnabled && healingPaint.IsChecked == true) ||
@@ -1685,6 +1820,7 @@ public sealed class MainWindow : Window
         canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
         RefreshPalette();
+        UpdateGradientControls();
     }
 
     private int? TextCaretAt(Point document)
@@ -2158,14 +2294,18 @@ public sealed class MainWindow : Window
 
     private void RefreshPalette()
     {
-        bool mask = maskPaint.IsChecked == true;
+        bool mask = IsMaskPalette;
         PaletteColor foreground = mask ? maskPaintMode.SelectedIndex == 1 ? PaletteColor.White : PaletteColor.Black
             : Workspace.ForegroundColor;
         PaletteColor background = mask ? maskPaintMode.SelectedIndex == 1 ? PaletteColor.Black : PaletteColor.White
             : Workspace.BackgroundColor;
         SetPaletteSwatch(foregroundSwatch, "前", foreground);
         SetPaletteSwatch(backgroundSwatch, "后", background);
+        color.IsEnabled = !mask;
+        RefreshGradientPreview();
     }
+
+    private bool IsMaskPalette => maskPaint.IsChecked == true || gradientTool.IsChecked == true && gradientMaskTarget.IsChecked == true;
 
     private static void SetPaletteSwatch(Button button, string label, PaletteColor value)
     {
@@ -2177,7 +2317,7 @@ public sealed class MainWindow : Window
 
     private async Task PickPaletteAsync(bool background)
     {
-        if (maskPaint.IsChecked == true)
+        if (IsMaskPalette)
         {
             string? choice = await ChoiceAsync("蒙版颜色", "蒙版使用黑色隐藏、白色显示。",
                 ("黑色", "black"), ("白色", "white"), ("取消", "cancel"));
@@ -2197,7 +2337,7 @@ public sealed class MainWindow : Window
 
     private Task SwapPaletteAsync()
     {
-        if (maskPaint.IsChecked == true) maskPaintMode.SelectedIndex = maskPaintMode.SelectedIndex == 1 ? 0 : 1;
+        if (IsMaskPalette) maskPaintMode.SelectedIndex = maskPaintMode.SelectedIndex == 1 ? 0 : 1;
         else
         {
             (Workspace.ForegroundColor, Workspace.BackgroundColor) = (Workspace.BackgroundColor, Workspace.ForegroundColor);
@@ -2209,7 +2349,7 @@ public sealed class MainWindow : Window
 
     private Task ResetPaletteAsync()
     {
-        if (maskPaint.IsChecked == true) maskPaintMode.SelectedIndex = 0;
+        if (IsMaskPalette) maskPaintMode.SelectedIndex = 0;
         else
         {
             Workspace.ForegroundColor = PaletteColor.Black;
@@ -2426,6 +2566,7 @@ public sealed class MainWindow : Window
 
     private async Task<bool> ConfirmDiscardAsync()
     {
+        Workspace.CommitGradient();
         if (!Workspace.IsDirty) return true;
         string? decision = await ChoiceAsync("未保存的修改", "是否保存当前工程的修改？",
             ("保存", "save"), ("不保存", "discard"), ("取消", "cancel"));

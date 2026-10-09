@@ -502,7 +502,10 @@ public sealed class ProjectSession
             ?? throw new InvalidOperationException("Layer rasters have not been loaded.");
         if (ReferenceEquals(current[layerId], raster)) return;
         var next = new Dictionary<Guid, TileRaster>(current) { [layerId] = raster };
-        Commit(new Snapshot(Current, next, snapshots[cursor].LayerMasks, ++nextRevision));
+        var manifest = (JsonObject)Current.DeepClone();
+        manifest["layers"]![index]!.AsObject().Remove("shape");
+        manifest["layers"]![index]!.AsObject().Remove("gradient");
+        Commit(new Snapshot(manifest, next, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
     public void ReplaceLayerRasterAndMask(Guid layerId, TileRaster raster, GrayTileRaster mask)
@@ -523,7 +526,13 @@ public sealed class ProjectSession
         if (ReferenceEquals(currentRasters[layerId], raster) && ReferenceEquals(currentMasks[layerId], mask)) return;
         var nextRasters = new Dictionary<Guid, TileRaster>(currentRasters) { [layerId] = raster };
         var nextMasks = new Dictionary<Guid, GrayTileRaster>(currentMasks) { [layerId] = mask };
-        Commit(new Snapshot(Current, nextRasters, nextMasks, ++nextRevision));
+        var manifest = (JsonObject)Current.DeepClone();
+        if (!ReferenceEquals(currentRasters[layerId], raster))
+        {
+            manifest["layers"]![index]!.AsObject().Remove("shape");
+            manifest["layers"]![index]!.AsObject().Remove("gradient");
+        }
+        Commit(new Snapshot(manifest, nextRasters, nextMasks, ++nextRevision));
     }
 
     public void ReplaceRaster(TileRaster raster)

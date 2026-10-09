@@ -27,6 +27,12 @@ public sealed class EditorWorkspace
     private Guid healingBrushLayer;
     private WarpBrushStroke? warpBrush;
     private Guid warpBrushLayer;
+    private sealed record GradientEdit(Guid LayerId, TileRaster Source, GrayTileRaster? Mask,
+        GrayTileRaster? Selection, Point Start, Point End);
+    private GradientEdit? gradientEdit;
+    private TileRaster? gradientRaster;
+    private GrayTileRaster? gradientMask;
+    private bool gradientDragging;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private Guid? clipboardLayerId;
@@ -48,7 +54,9 @@ public sealed class EditorWorkspace
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null ||
-        healingBrush is not null || warpBrush is not null;
+        healingBrush is not null || warpBrush is not null || gradientDragging;
+    public bool HasGradientPreview => gradientEdit is not null;
+    public (Point Start, Point End)? GradientLine => gradientEdit is { } edit ? (edit.Start, edit.End) : null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public bool HasFilterPreview => filterPreviewRaster is not null;
     public bool CanContentFill => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
@@ -751,6 +759,7 @@ public sealed class EditorWorkspace
 
     public bool Undo()
     {
+        if (HasGradientPreview && !gradientDragging) { CancelGradient(); return true; }
         RequireIdle();
         CancelFilterPreview();
         var session = RequireSession();
@@ -827,6 +836,84 @@ public sealed class EditorWorkspace
         brush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings,
             Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
         AppendStroke(point);
+    }
+
+    public bool CanGradient(bool mask) => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection && !session.HasGroups &&
+        session.ActiveLayerId is { } id && session.Layers.SingleOrDefault(layer => layer.Id == id) is { IsVisible: true } layer &&
+        (mask ? layer.HasMask && session.IsLayerMaskEnabled(id) : !layer.IsGroup && !layer.IsAdjustment && !layer.IsText);
+
+    public void BeginGradient(Guid layerId, Point start, Point end, bool mask)
+    {
+        if (gradientEdit is not { } previous || previous.LayerId != layerId || (previous.Mask is not null) != mask)
+        {
+            RequireIdle();
+            CancelFilterPreview();
+            if (!CanGradient(mask)) throw new InvalidOperationException("当前图层或蒙版不能绘制渐变。");
+            var session = RequireSession();
+            if (session.ActiveLayerId != layerId) throw new InvalidOperationException("请先选择渐变的目标图层。");
+            TileRaster source = session.GetLayerRaster(layerId);
+            GrayTileRaster? sourceMask = mask ? session.GetLayerMask(layerId) : null;
+            GrayTileRaster? selection = Selection is not { } currentSelection ? null : sourceMask is { } currentMask
+                ? SelectionForMask(session, layerId, currentSelection, currentMask.Width, currentMask.Height)
+                : SelectionForLayer(session, layerId, currentSelection);
+            gradientEdit = new(layerId, source, sourceMask, selection, start, end);
+        }
+        else gradientEdit = previous with { Start = start, End = end };
+        gradientDragging = true;
+    }
+
+    public void MoveGradient(Point start, Point end, GradientFillSettings settings)
+    {
+        if (gradientEdit is not { } edit) throw new InvalidOperationException("当前没有待应用的渐变。");
+        gradientEdit = edit with { Start = start, End = end };
+        RefreshGradient(settings);
+    }
+
+    public void RefreshGradient(GradientFillSettings settings)
+    {
+        if (gradientEdit is not { } edit) return;
+        var session = RequireSession();
+        var start = new BrushPoint(edit.Start.X, edit.Start.Y);
+        var end = new BrushPoint(edit.End.X, edit.End.Y);
+        if (edit.Mask is { } mask)
+        {
+            gradientMask = GradientFill.ApplyMask(mask, edit.Selection, start, end, settings,
+                session.GetLayerMaskTransform(edit.LayerId), session.Width, session.Height);
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session, edit.LayerId, edit.Source, gradientMask);
+        }
+        else
+        {
+            gradientRaster = GradientFill.Apply(edit.Source, edit.Selection, start, end, settings,
+                session.GetLayerTransform(edit.LayerId), session.Width, session.Height);
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session, edit.LayerId, gradientRaster);
+        }
+    }
+
+    public void EndGradientDrag()
+    {
+        gradientDragging = false;
+        if (gradientEdit is { } edit && (edit.End - edit.Start).Length < 0.5) CancelGradient();
+    }
+
+    public void CommitGradient()
+    {
+        if (gradientDragging) throw new InvalidOperationException("请先结束渐变拖动。");
+        if (gradientEdit is not { } edit) return;
+        TileRaster? pixels = gradientRaster;
+        GrayTileRaster? mask = gradientMask;
+        gradientEdit = null; gradientRaster = null; gradientMask = null;
+        if (edit.Mask is { } sourceMask && mask is not null && !SameCoverage(sourceMask, mask))
+            Edit(session => session.ReplaceLayerMask(edit.LayerId, mask));
+        else if (edit.Mask is null && pixels is not null && !SamePixels(edit.Source, pixels))
+            Edit(session => session.ReplaceLayerRaster(edit.LayerId, pixels));
+        else Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
+    public void CancelGradient()
+    {
+        if (gradientEdit is null) return;
+        gradientEdit = null; gradientRaster = null; gradientMask = null; gradientDragging = false;
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 
     public void AppendStroke(BrushPoint point)
@@ -1041,6 +1128,7 @@ public sealed class EditorWorkspace
         {
             currentHealingBrush.Cancel(); healingBrush = null;
         }
+        else if (gradientDragging) { CancelGradient(); return; }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
@@ -1053,6 +1141,7 @@ public sealed class EditorWorkspace
 
     public void SelectLasso(IReadOnlyList<Point> points, GraySelectionOperation operation = GraySelectionOperation.Replace)
     {
+        RequireIdle();
         CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
@@ -1071,6 +1160,7 @@ public sealed class EditorWorkspace
 
     public void SelectAll()
     {
+        RequireIdle();
         CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
@@ -1139,6 +1229,7 @@ public sealed class EditorWorkspace
 
     private void SelectShape(Rect rectangle, GraySelectionOperation operation, bool ellipse)
     {
+        RequireIdle();
         CancelFilterPreview();
         selectionMoveHistory = null;
         var session = RequireSession();
@@ -1165,6 +1256,7 @@ public sealed class EditorWorkspace
 
     public void ClearSelection()
     {
+        RequireIdle(allowFloating: true);
         CancelFilterPreview();
         selectionMoveHistory = null;
         Selection = null;
@@ -1858,6 +1950,7 @@ public sealed class EditorWorkspace
     {
         if (HasActiveStroke) throw new InvalidOperationException("请先结束或取消当前笔划。");
         if (!allowFloating && HasFloatingSelection) throw new InvalidOperationException("请先提交或取消浮动选区。");
+        CommitGradient();
     }
 
     private ProjectSession RequireSession() => Session ?? throw new InvalidOperationException("请先打开或导入工程。");

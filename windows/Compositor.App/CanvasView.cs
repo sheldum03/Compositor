@@ -13,6 +13,9 @@ public sealed class CanvasView : Control
     private IPointer? captured;
     private bool panning, selecting, movingSelection, spaceHeld, shiftHeld, autoFit = true;
     private bool freeDistorting;
+    private bool gradientDragging;
+    private int gradientHandle = -1;
+    private Point? gradientStart, gradientEnd;
     private int freeDistortHandle = -1;
     private Point previous;
     private Point strokeStart;
@@ -35,9 +38,10 @@ public sealed class CanvasView : Control
     public bool EyedropperEnabled { get; set; }
     public bool CloneEnabled { get; set; }
     public bool FreeDistortEnabled { get; set; }
+    public bool GradientEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting;
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public int TextSelectionOverlayCount => textSelectionPolygons.Count;
@@ -54,6 +58,10 @@ public sealed class CanvasView : Control
     public event Action<Point>? ColorSampled;
     public event Action<Point>? CloneSourceSelected;
     public event Action<IReadOnlyList<Point>>? FreeDistortChanged;
+    public event Action<Point, Point>? GradientChanged;
+    public event Action? GradientFinished;
+    public event Action? GradientCanceled;
+    public event Action? GradientApplied;
 
     public CanvasView()
     {
@@ -66,6 +74,23 @@ public sealed class CanvasView : Control
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             LastDocumentPointer = document;
+            if (!pan && GradientEnabled && properties.IsLeftButtonPressed)
+            {
+                gradientHandle = FindGradientHandle(view);
+                if (gradientHandle < 0)
+                {
+                    if (document.X < 0 || document.Y < 0 || document.X >= Bitmap.PixelSize.Width || document.Y >= Bitmap.PixelSize.Height) return;
+                    gradientStart = gradientEnd = document;
+                    gradientHandle = 1;
+                }
+                Focus();
+                gradientDragging = true;
+                captured = e.Pointer;
+                captured.Capture(this);
+                MoveGradientLine(document, e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                e.Handled = true;
+                return;
+            }
             if (!pan && FreeDistortEnabled && properties.IsLeftButtonPressed)
             {
                 freeDistortHandle = FindFreeDistortHandle(view);
@@ -124,6 +149,12 @@ public sealed class CanvasView : Control
             Point view = e.GetPosition(this);
             LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
+            if (gradientDragging)
+            {
+                MoveGradientLine(Viewport.ToDocument(view), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                e.Handled = true;
+                return;
+            }
             if (freeDistorting)
             {
                 MoveFreeDistortHandle(Viewport.ToDocument(view), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
@@ -147,6 +178,17 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             LastDocumentPointer = Viewport.ToDocument(e.GetPosition(this));
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
+            if (gradientDragging)
+            {
+                MoveGradientLine(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                gradientDragging = false;
+                gradientHandle = -1;
+                captured = null;
+                e.Pointer.Capture(null);
+                GradientFinished?.Invoke();
+                e.Handled = true;
+                return;
+            }
             if (freeDistorting)
             {
                 MoveFreeDistortHandle(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
@@ -185,7 +227,14 @@ public sealed class CanvasView : Control
         {
             if (e.Key == Key.Space) { spaceHeld = true; e.Handled = true; }
             if (e.Key is Key.LeftShift or Key.RightShift) { shiftHeld = true; e.Handled = true; }
-            if (e.Key == Key.Escape) { Cancel(); e.Handled = true; }
+            if (e.Key == Key.Escape)
+            {
+                if (captured is null && GradientEnabled && gradientStart is not null) GradientCanceled?.Invoke();
+                else Cancel();
+                e.Handled = true;
+            }
+            if (e.Key == Key.Enter && captured is null && GradientEnabled && gradientStart is not null)
+            { GradientApplied?.Invoke(); e.Handled = true; }
         };
         KeyUp += (_, e) =>
         {
@@ -200,6 +249,13 @@ public sealed class CanvasView : Control
         bool changedSize = Bitmap?.PixelSize != bitmap?.PixelSize;
         Bitmap = bitmap;
         if (changedSize) Fit();
+        InvalidateVisual();
+    }
+
+    public void SetGradientLine((Point Start, Point End)? line)
+    {
+        gradientStart = line?.Start;
+        gradientEnd = line?.End;
         InvalidateVisual();
     }
 
@@ -221,6 +277,16 @@ public sealed class CanvasView : Control
     public void Cancel()
     {
         if (captured is null) return;
+        if (gradientDragging)
+        {
+            var gradientPointer = captured;
+            captured = null;
+            gradientDragging = false;
+            gradientHandle = -1;
+            gradientPointer.Capture(null);
+            GradientCanceled?.Invoke();
+            return;
+        }
         if (freeDistorting)
         {
             var distortPointer = captured;
@@ -374,6 +440,14 @@ public sealed class CanvasView : Control
             var pen = new Pen(Brushes.Black, 1);
             for (int i = 1; i < path.Count; i++) context.DrawLine(pen, Viewport.ToView(path[i - 1]), Viewport.ToView(path[i]));
         }
+        if (GradientEnabled && gradientStart is { } startPoint && gradientEnd is { } endPoint)
+        {
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(230, 28, 104, 190)), 2);
+            Point start = Viewport.ToView(startPoint), end = Viewport.ToView(endPoint);
+            context.DrawLine(pen, start, end);
+            context.DrawEllipse(Brushes.White, pen, start, 6, 6);
+            context.DrawEllipse(Brushes.White, pen, end, 6, 6);
+        }
         if (FreeDistortEnabled && freeDistortCorners.Length == 4)
         {
             var pen = new Pen(new SolidColorBrush(Color.FromArgb(230, 28, 104, 190)), Math.Max(1, 1 / Viewport.Scale));
@@ -385,6 +459,29 @@ public sealed class CanvasView : Control
                 context.DrawEllipse(Brushes.White, pen, handle, 6, 6);
             }
         }
+    }
+
+    private int FindGradientHandle(Point view)
+    {
+        if (gradientStart is { } start && (Viewport.ToView(start) - view).Length <= 10) return 0;
+        if (gradientEnd is { } end && (Viewport.ToView(end) - view).Length <= 10) return 1;
+        return -1;
+    }
+
+    private void MoveGradientLine(Point document, bool constrain)
+    {
+        Point anchor = gradientHandle == 0 ? gradientEnd!.Value : gradientStart!.Value;
+        if (constrain)
+        {
+            Vector delta = document - anchor;
+            document = Math.Abs(delta.X) >= Math.Abs(delta.Y)
+                ? new Point(document.X, anchor.Y) : new Point(anchor.X, document.Y);
+        }
+        document = new Point(Math.Clamp(document.X, -30000, 30000), Math.Clamp(document.Y, -30000, 30000));
+        if (gradientHandle == 0) gradientStart = document;
+        else gradientEnd = document;
+        GradientChanged?.Invoke(gradientStart!.Value, gradientEnd!.Value);
+        InvalidateVisual();
     }
 
     private int FindFreeDistortHandle(Point view)
