@@ -24,6 +24,7 @@ public sealed class MainWindow : Window
     private readonly CheckBox paint = new() { Content = "软笔", Name = "Paint", IsChecked = true };
     private readonly CheckBox clonePaint = new() { Content = "仿制", Name = "ClonePaint" };
     private readonly CheckBox blurPaint = new() { Content = "模糊笔", Name = "BlurPaint" };
+    private readonly CheckBox healingPaint = new() { Content = "修复", Name = "HealingPaint" };
     private readonly CheckBox smudgePaint = new() { Content = "涂抹", Name = "SmudgePaint" };
     private readonly CheckBox liquifyPaint = new() { Content = "液化", Name = "LiquifyPaint" };
     private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
@@ -254,19 +255,20 @@ public sealed class MainWindow : Window
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
-            if (canvas.SelectionEnabled) { paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
+            if (canvas.SelectionEnabled) { paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             UpdatePaintMode();
         };
         moveSelection.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionMoveEnabled = moveSelection.IsChecked == true;
-            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
+            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             UpdatePaintMode();
         };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
         brushOptions.Children.Add(clonePaint);
         brushOptions.Children.Add(blurPaint);
+        brushOptions.Children.Add(healingPaint);
         brushOptions.Children.Add(smudgePaint);
         brushOptions.Children.Add(liquifyPaint);
         brushOptions.Children.Add(eyedropper);
@@ -680,6 +682,8 @@ public sealed class MainWindow : Window
                 Workspace.BeginMaskStroke(id, settings, point, maskPaintMode.SelectedIndex == 1);
             else if (blurPaint.IsChecked == true)
                 Workspace.BeginBlurStroke(id, settings, point);
+            else if (healingPaint.IsChecked == true)
+                Workspace.BeginHealingStroke(id, settings, point);
             else if (smudgePaint.IsChecked == true)
                 Workspace.BeginWarpStroke(id, settings, point, WarpBrushMode.Smudge);
             else if (liquifyPaint.IsChecked == true)
@@ -696,6 +700,7 @@ public sealed class MainWindow : Window
         {
             if (maskPaint.IsChecked == true) Workspace.AppendMaskStroke(point);
             else if (blurPaint.IsChecked == true) Workspace.AppendBlurStroke(point);
+            else if (healingPaint.IsChecked == true) Workspace.AppendHealingStroke(point);
             else if (smudgePaint.IsChecked == true || liquifyPaint.IsChecked == true) Workspace.AppendWarpStroke(point);
             else if (clonePaint.IsChecked == true) Workspace.AppendCloneStroke(point);
             else Workspace.AppendStroke(point);
@@ -704,6 +709,7 @@ public sealed class MainWindow : Window
         {
             if (maskPaint.IsChecked == true) Workspace.CommitMaskStroke(point);
             else if (blurPaint.IsChecked == true) Workspace.CommitBlurStroke(point);
+            else if (healingPaint.IsChecked == true) Workspace.CommitHealingStroke(point);
             else if (smudgePaint.IsChecked == true || liquifyPaint.IsChecked == true) Workspace.CommitWarpStroke(point);
             else if (clonePaint.IsChecked == true) Workspace.CommitCloneStroke(point);
             else Workspace.CommitStroke(point);
@@ -742,13 +748,13 @@ public sealed class MainWindow : Window
         };
         paint.IsCheckedChanged += (_, _) =>
         {
-            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
+            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             if (paint.IsChecked == true) moveSelection.IsChecked = false;
             UpdatePaintMode();
         };
         maskPaint.IsCheckedChanged += (_, _) =>
         {
-            if (maskPaint.IsChecked == true) { paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false; }
+            if (maskPaint.IsChecked == true) { paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false; }
             maskPaintMode.IsEnabled = maskPaint.IsChecked == true;
             UpdatePaintMode();
         };
@@ -756,8 +762,17 @@ public sealed class MainWindow : Window
         {
             if (blurPaint.IsChecked == true)
             {
-                paint.IsChecked = false; clonePaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false;
+                paint.IsChecked = false; clonePaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false;
                 rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false;
+            }
+            UpdatePaintMode();
+        };
+        healingPaint.IsCheckedChanged += (_, _) =>
+        {
+            if (healingPaint.IsChecked == true)
+            {
+                paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false;
+                maskPaint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false;
             }
             UpdatePaintMode();
         };
@@ -765,7 +780,7 @@ public sealed class MainWindow : Window
         {
             if (clonePaint.IsChecked == true)
             {
-                paint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; rectangleSelect.IsChecked = false;
+                paint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; rectangleSelect.IsChecked = false;
                 moveSelection.IsChecked = false; eyedropper.IsChecked = false;
             }
             UpdatePaintMode();
@@ -775,7 +790,7 @@ public sealed class MainWindow : Window
             if (smudgePaint.IsChecked == true)
             {
                 liquifyPaint.IsChecked = false;
-                paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; maskPaint.IsChecked = false;
+                paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; maskPaint.IsChecked = false;
                 rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false;
             }
             UpdatePaintMode();
@@ -784,7 +799,7 @@ public sealed class MainWindow : Window
         {
             if (liquifyPaint.IsChecked == true)
             {
-                paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; smudgePaint.IsChecked = false;
+                paint.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false;
                 maskPaint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false;
             }
             UpdatePaintMode();
@@ -796,6 +811,7 @@ public sealed class MainWindow : Window
                 paint.IsChecked = false;
                 clonePaint.IsChecked = false;
                 blurPaint.IsChecked = false;
+                healingPaint.IsChecked = false;
                 smudgePaint.IsChecked = false;
                 liquifyPaint.IsChecked = false;
                 maskPaint.IsChecked = false;
@@ -1541,6 +1557,7 @@ public sealed class MainWindow : Window
         paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
         clonePaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
         blurPaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
+        healingPaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
         smudgePaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
         liquifyPaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
         canvas.TextEditEnabled = textMode && eyedropper.IsChecked != true;
@@ -1549,6 +1566,7 @@ public sealed class MainWindow : Window
         canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              (blurPaint.IsEnabled && blurPaint.IsChecked == true) ||
+             (healingPaint.IsEnabled && healingPaint.IsChecked == true) ||
              (smudgePaint.IsEnabled && smudgePaint.IsChecked == true) ||
              (liquifyPaint.IsEnabled && liquifyPaint.IsChecked == true) ||
              canvas.CloneEnabled ||

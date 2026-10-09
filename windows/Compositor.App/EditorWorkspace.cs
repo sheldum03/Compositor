@@ -21,6 +21,8 @@ public sealed class EditorWorkspace
     private Guid cloneBrushLayer;
     private BlurBrushStroke? blurBrush;
     private Guid blurBrushLayer;
+    private SpotHealingBrushStroke? healingBrush;
+    private Guid healingBrushLayer;
     private WarpBrushStroke? warpBrush;
     private Guid warpBrushLayer;
     private TileRaster? clipboardRaster;
@@ -43,7 +45,8 @@ public sealed class EditorWorkspace
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
-    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null || warpBrush is not null;
+    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null ||
+        healingBrush is not null || warpBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public bool HasFilterPreview => filterPreviewRaster is not null;
     public bool CanContentFill => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
@@ -881,6 +884,36 @@ public sealed class EditorWorkspace
             Edit(current => current.ReplaceLayerRaster(blurBrushLayer, pixels));
     }
 
+    public void BeginHealingStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        healingBrushLayer = layerId;
+        healingBrush = new SpotHealingBrushStroke(session.GetLayerRaster(layerId), settings,
+            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
+        AppendHealingStroke(point);
+    }
+
+    public void AppendHealingStroke(BrushPoint point)
+    {
+        var active = healingBrush ?? throw new InvalidOperationException("No active healing stroke.");
+        active.Append(DocumentToLayerPoint(RequireSession(), healingBrushLayer, point));
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), healingBrushLayer, active.Snapshot());
+    }
+
+    public void CommitHealingStroke(BrushPoint point)
+    {
+        AppendHealingStroke(point);
+        var active = healingBrush!;
+        TileRaster pixels = active.Commit();
+        healingBrush = null;
+        var session = RequireSession();
+        if (SamePixels(session.GetLayerRaster(healingBrushLayer), pixels))
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        else
+            Edit(current => current.ReplaceLayerRaster(healingBrushLayer, pixels));
+    }
+
     public void BeginWarpStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, WarpBrushMode mode)
     {
         RequireIdle();
@@ -989,6 +1022,10 @@ public sealed class EditorWorkspace
         else if (warpBrush is { } currentWarpBrush)
         {
             currentWarpBrush.Cancel(); warpBrush = null;
+        }
+        else if (healingBrush is { } currentHealingBrush)
+        {
+            currentHealingBrush.Cancel(); healingBrush = null;
         }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
