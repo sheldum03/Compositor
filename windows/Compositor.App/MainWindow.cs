@@ -216,6 +216,8 @@ public sealed class MainWindow : Window
     private FlatLayerInfo? draggingLayer;
     private Point layerDragStart;
     private bool draggingLayers;
+    private int marqueeShapeIndex;
+    private (EditorWorkspace Workspace, int Digit, long Time)? pendingOpacityDigit;
     private (double Red, double Green, double Blue) customTextColor;
     private (double Red, double Green, double Blue) customGradientStart;
     private (double Red, double Green, double Blue) customGradientEnd = (1, 1, 1);
@@ -278,6 +280,7 @@ public sealed class MainWindow : Window
         pixelGrid.IsCheckedChanged += (_, _) => { canvas.PixelGridEnabled = pixelGrid.IsChecked == true; canvas.InvalidateVisual(); };
         selectionShape.SelectionChanged += (_, _) =>
         {
+            if (selectionShape.SelectedIndex is 0 or 1) marqueeShapeIndex = selectionShape.SelectedIndex;
             canvas.LassoEnabled = selectionShape.SelectedIndex == 3;
             bool magic = selectionShape.SelectedIndex == 2;
             wandRadius.IsEnabled = magic; wandTolerance.IsEnabled = magic; wandContiguous.IsEnabled = magic;
@@ -1083,9 +1086,13 @@ public sealed class MainWindow : Window
         Closed += (_, _) => { canvas.Cancel(); canvas.SetBitmap(null); preview?.Dispose(); preview = null; };
         KeyDown += (_, e) =>
         {
-            if (IsBusy || Workspace.HasActiveStroke) return;
+            if (IsBusy) return;
             // Text fields retain their own editing shortcuts and IME behavior.
-            if (e.Source is TextBox || layerName.IsKeyboardFocusWithin) return;
+            if (e.Source is Visual source && source.GetSelfAndVisualAncestors().Any(visual => visual is TextBox or NumericUpDown) || layerName.IsKeyboardFocusWithin) return;
+            if ((!Workspace.HasActiveStroke || Workspace.ShapePreview is not null) && HandleToolKey(e.Key, e.KeyModifiers))
+            { e.Handled = true; return; }
+            if (Workspace.HasActiveStroke) return;
+            if (e.KeyModifiers == KeyModifiers.None && HandleOpacityKey(e.Key)) { e.Handled = true; return; }
             Func<Task>? command = e.KeyModifiers switch
             {
                 KeyModifiers.Control => e.Key switch
@@ -1108,7 +1115,7 @@ public sealed class MainWindow : Window
                     Key.I when Workspace.HasSelection => InvertSelectionAsync,
                     _ => null
                 },
-                KeyModifiers.None => e.Key switch
+                KeyModifiers.None or KeyModifiers.Shift => e.Key switch
                 {
                     Key.X => SwapPaletteAsync,
                     Key.D => ResetPaletteAsync,
@@ -1116,7 +1123,7 @@ public sealed class MainWindow : Window
                 },
                 _ => null
             };
-            if (command is not null) { e.Handled = true; _ = ExecuteAsync(command, refresh: e.KeyModifiers != KeyModifiers.None); }
+            if (command is not null) { e.Handled = true; _ = ExecuteAsync(command, refresh: e.KeyModifiers.HasFlag(KeyModifiers.Control)); }
         };
         Refresh();
         status.Text = Workspace.Session is null ? "新建画布、打开 .comp 工程文件夹，或导入 PNG / JPEG 图片开始。" : "工程已打开。";
@@ -1132,6 +1139,68 @@ public sealed class MainWindow : Window
         if (layer) layerButtons.Add(button);
         if (mask) maskButtons.Add(button);
         return button;
+    }
+
+    private bool HandleToolKey(Key key, KeyModifiers modifiers)
+    {
+        if (modifiers is not (KeyModifiers.None or KeyModifiers.Shift)) return false;
+        CheckBox? tool = key switch
+        {
+            Key.B => maskPaint.IsChecked == true ? maskPaint : paint,
+            Key.J => healingPaint,
+            Key.S => clonePaint,
+            Key.R => blurPaint,
+            Key.I => eyedropper,
+            Key.G => gradientTool,
+            Key.U => shapeTool,
+            Key.M or Key.L or Key.W => rectangleSelect,
+            _ => null
+        };
+        if (tool is null) return false;
+        bool switches = tool.IsChecked != true ||
+            key == Key.M && selectionShape.SelectedIndex is not (0 or 1) ||
+            key == Key.L && selectionShape.SelectedIndex != 3 || key == Key.W && selectionShape.SelectedIndex != 2 ||
+            key == Key.U && modifiers == KeyModifiers.Shift && shapeTool.IsChecked == true;
+        if (switches) { canvas.Cancel(); Workspace.CancelShape(); }
+        if (!tool.IsEnabled) return true;
+        if (key == Key.U && modifiers == KeyModifiers.Shift && shapeTool.IsChecked == true)
+            shapeKind.SelectedIndex = shapeKind.SelectedIndex == 0 ? 1 : 0;
+        else
+        {
+            if (key == Key.M) selectionShape.SelectedIndex = marqueeShapeIndex;
+            if (key == Key.L) selectionShape.SelectedIndex = 3;
+            if (key == Key.W) selectionShape.SelectedIndex = 2;
+            tool.IsChecked = true;
+        }
+        canvas.Focus();
+        status.Text = $"已选择{tool.Content}工具。";
+        return true;
+    }
+
+    private bool HandleOpacityKey(Key key)
+    {
+        int digit = key switch
+        {
+            Key.D0 or Key.NumPad0 => 0, Key.D1 or Key.NumPad1 => 1, Key.D2 or Key.NumPad2 => 2,
+            Key.D3 or Key.NumPad3 => 3, Key.D4 or Key.NumPad4 => 4, Key.D5 or Key.NumPad5 => 5,
+            Key.D6 or Key.NumPad6 => 6, Key.D7 or Key.NumPad7 => 7, Key.D8 or Key.NumPad8 => 8,
+            Key.D9 or Key.NumPad9 => 9, _ => -1
+        };
+        bool gradient = gradientTool.IsChecked == true;
+        bool brush = paint.IsChecked == true || maskPaint.IsChecked == true || clonePaint.IsChecked == true || blurPaint.IsChecked == true ||
+            healingPaint.IsChecked == true || smudgePaint.IsChecked == true || liquifyPaint.IsChecked == true;
+        if (digit < 0 || !gradient && !brush || canvas.TextEditEnabled || !Workspace.CanEdit) return false;
+        long time = Environment.TickCount64;
+        int percent = digit == 0 ? 100 : digit * 10;
+        if (pendingOpacityDigit is { } pending && ReferenceEquals(pending.Workspace, Workspace) && time - pending.Time < 600)
+        {
+            percent = Math.Max(1, pending.Digit * 10 + digit);
+            pendingOpacityDigit = null;
+        }
+        else pendingOpacityDigit = (Workspace, digit, time);
+        (gradient ? gradientOpacity : opacity).Value = percent;
+        status.Text = $"{(gradient ? "渐变" : "笔刷")}不透明度 {percent}%。";
+        return true;
     }
 
     private async Task ExecuteAsync(Func<Task> operation, bool refresh = true)
