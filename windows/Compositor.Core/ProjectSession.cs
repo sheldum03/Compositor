@@ -1404,7 +1404,7 @@ public sealed class ProjectSession
         double scale, double rotation)
     {
         RequireLayerStructureEditing();
-        if (layerIds.Count == 0 || layerIds.Count > 1000)
+        if (layerIds.Count == 0)
             throw new ArgumentException("At least one layer is required.", nameof(layerIds));
         if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY) ||
             !double.IsFinite(scale) || scale <= 0 || scale > 100 || !double.IsFinite(rotation))
@@ -1417,12 +1417,23 @@ public sealed class ProjectSession
             FlatLayerInfo layer = Layers[index];
             if (layer.IsGroup || layer.IsAdjustment || layer.ParentId is not null)
                 throw new NotSupportedException("多层变换目前只支持无组根图层。");
-            return (Id: id, Index: index, Transform: GetLayerTransform(id));
+            return (Index: index, Transform: GetLayerTransform(id));
         }).ToArray();
-        double left = transforms.Min(item => item.Transform.X);
-        double top = transforms.Min(item => item.Transform.Y);
-        double right = transforms.Max(item => item.Transform.X + item.Transform.Width);
-        double bottom = transforms.Max(item => item.Transform.Y + item.Transform.Height);
+        if (offsetX == 0 && offsetY == 0 && scale == 1 && rotation == 0) return;
+        var bounds = transforms.Select(item =>
+        {
+            LayerTransformInfo transform = item.Transform;
+            double angle = transform.Rotation * Math.PI / 180;
+            double halfWidth = (Math.Abs(Math.Cos(angle)) * transform.Width + Math.Abs(Math.Sin(angle)) * transform.Height) / 2;
+            double halfHeight = (Math.Abs(Math.Sin(angle)) * transform.Width + Math.Abs(Math.Cos(angle)) * transform.Height) / 2;
+            double centerX = transform.X + transform.Width / 2, centerY = transform.Y + transform.Height / 2;
+            return (Left: centerX - halfWidth, Top: centerY - halfHeight,
+                Right: centerX + halfWidth, Bottom: centerY + halfHeight);
+        }).ToArray();
+        double left = bounds.Min(item => item.Left);
+        double top = bounds.Min(item => item.Top);
+        double right = bounds.Max(item => item.Right);
+        double bottom = bounds.Max(item => item.Bottom);
         double pivotX = (left + right) / 2;
         double pivotY = (top + bottom) / 2;
         double radians = rotation * Math.PI / 180;
@@ -1442,6 +1453,10 @@ public sealed class ProjectSession
             double nextHeight = current.Height * scale;
             double nextX = nextCenterX - nextWidth / 2;
             double nextY = nextCenterY - nextHeight / 2;
+            double nextRotation = current.Rotation + rotation;
+            if (!double.IsFinite(nextX) || !double.IsFinite(nextY) || !double.IsFinite(nextWidth) ||
+                !double.IsFinite(nextHeight) || nextWidth <= 0 || nextHeight <= 0 || !double.IsFinite(nextRotation))
+                throw new ArgumentOutOfRangeException(nameof(scale));
             if (nextX == current.X && nextY == current.Y && nextWidth == current.Width &&
                 nextHeight == current.Height && rotation == 0)
                 continue;
@@ -1449,7 +1464,7 @@ public sealed class ProjectSession
                 ?? throw new InvalidDataException("Layer transform data is missing.");
             transform["origin"] = new JsonArray(nextX, nextY);
             transform["size"] = new JsonArray(nextWidth, nextHeight);
-            transform["rotation"] = current.Rotation + rotation;
+            transform["rotation"] = nextRotation;
             changed = true;
         }
         if (changed)

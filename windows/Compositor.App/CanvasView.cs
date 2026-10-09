@@ -29,6 +29,7 @@ public sealed class CanvasView : Control
     public bool SelectionMoveEnabled { get; set; }
     public bool TextEditEnabled { get; set; }
     public bool EyedropperEnabled { get; set; }
+    public bool CloneEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
@@ -46,6 +47,7 @@ public sealed class CanvasView : Control
     public event Action? SelectionCanceled;
     public event Action<int, bool>? TextCaretPressed;
     public event Action<Point>? ColorSampled;
+    public event Action<Point>? CloneSourceSelected;
 
     public CanvasView()
     {
@@ -68,6 +70,12 @@ public sealed class CanvasView : Control
             if (!pan && EyedropperEnabled && properties.IsLeftButtonPressed)
             {
                 ColorSampled?.Invoke(document);
+                e.Handled = true;
+                return;
+            }
+            if (!pan && CloneEnabled && properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+            {
+                CloneSourceSelected?.Invoke(document);
                 e.Handled = true;
                 return;
             }

@@ -17,6 +17,8 @@ public sealed class EditorWorkspace
     private SoftBrushStroke? maskBrush;
     private Guid maskBrushLayer;
     private bool maskBrushReveal;
+    private CloneBrushStroke? cloneBrush;
+    private Guid cloneBrushLayer;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private Guid? clipboardLayerId;
@@ -37,7 +39,7 @@ public sealed class EditorWorkspace
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
-    public bool HasActiveStroke => brush is not null || maskBrush is not null;
+    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public bool HasFilterPreview => filterPreviewRaster is not null;
     public ProjectSession? Session { get; private set; }
@@ -781,6 +783,38 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), brushLayer, active.Snapshot());
     }
 
+    public void BeginCloneStroke(Guid layerId, SoftBrushSettings settings, BrushPoint sourcePoint, BrushPoint targetPoint)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        BrushPoint source = DocumentToLayerPoint(session, layerId, sourcePoint);
+        BrushPoint target = DocumentToLayerPoint(session, layerId, targetPoint);
+        cloneBrushLayer = layerId;
+        cloneBrush = new CloneBrushStroke(session.GetLayerRaster(layerId), settings, source, target,
+            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
+        AppendCloneStroke(targetPoint);
+    }
+
+    public void AppendCloneStroke(BrushPoint point)
+    {
+        var active = cloneBrush ?? throw new InvalidOperationException("No active clone stroke.");
+        active.Append(DocumentToLayerPoint(RequireSession(), cloneBrushLayer, point));
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), cloneBrushLayer, active.Snapshot());
+    }
+
+    public void CommitCloneStroke(BrushPoint point)
+    {
+        AppendCloneStroke(point);
+        var active = cloneBrush!;
+        TileRaster pixels = active.Commit();
+        cloneBrush = null;
+        var session = RequireSession();
+        if (SamePixels(session.GetLayerRaster(cloneBrushLayer), pixels))
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        else
+            Edit(current => current.ReplaceLayerRaster(cloneBrushLayer, pixels));
+    }
+
     public void BeginMaskStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, bool reveal)
     {
         RequireIdle();
@@ -844,6 +878,10 @@ public sealed class EditorWorkspace
         else if (maskBrush is { } currentMaskBrush)
         {
             currentMaskBrush.Cancel(); maskBrush = null;
+        }
+        else if (cloneBrush is { } currentCloneBrush)
+        {
+            currentCloneBrush.Cancel(); cloneBrush = null;
         }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());

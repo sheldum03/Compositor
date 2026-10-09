@@ -22,6 +22,7 @@ public sealed class MainWindow : Window
     private readonly StackPanel toolbar = new() { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
     private readonly DockPanel sidebar = new() { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
     private readonly CheckBox paint = new() { Content = "软笔", Name = "Paint", IsChecked = true };
+    private readonly CheckBox clonePaint = new() { Content = "仿制", Name = "ClonePaint" };
     private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
     private readonly CheckBox maskPaint = new() { Content = "蒙版笔刷", Name = "MaskPaint" };
     private readonly ComboBox maskPaintMode = new() { Name = "MaskPaintMode", Width = 75,
@@ -167,6 +168,7 @@ public sealed class MainWindow : Window
     private Point layerDragStart;
     private bool draggingLayers;
     private (double Red, double Green, double Blue) sampledColor;
+    private (EditorWorkspace Workspace, Guid LayerId, BrushPoint Point)? cloneSource;
     public EditorWorkspace Workspace => projects[activeProjectIndex];
     public int ProjectCount => projects.Count;
     public int ActiveProjectIndex => activeProjectIndex;
@@ -232,17 +234,18 @@ public sealed class MainWindow : Window
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
-            if (canvas.SelectionEnabled) { paint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
+            if (canvas.SelectionEnabled) { paint.IsChecked = false; clonePaint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             UpdatePaintMode();
         };
         moveSelection.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionMoveEnabled = moveSelection.IsChecked == true;
-            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
+            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; clonePaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             UpdatePaintMode();
         };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
+        brushOptions.Children.Add(clonePaint);
         brushOptions.Children.Add(eyedropper);
         brushOptions.Children.Add(maskPaint);
         brushOptions.Children.Add(maskPaintMode);
@@ -250,7 +253,7 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(diameter);
         brushOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
         brushOptions.Children.Add(opacity); brushOptions.Children.Add(brushType); brushOptions.Children.Add(color);
-        brushOptions.Children.Add(new TextBlock { Text = "滚轮缩放 · 空格/中键平移 · Esc 取消笔划", VerticalAlignment = VerticalAlignment.Center });
+        brushOptions.Children.Add(new TextBlock { Text = "滚轮缩放 · 空格/中键平移 · 仿制 Alt 点击设源 · Esc 取消笔划", VerticalAlignment = VerticalAlignment.Center });
         DockPanel.SetDock(brushOptions, Dock.Top); layout.Children.Add(brushOptions);
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
         {
@@ -614,19 +617,35 @@ public sealed class MainWindow : Window
                 (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0);
             if (maskPaint.IsChecked == true)
                 Workspace.BeginMaskStroke(id, settings, point, maskPaintMode.SelectedIndex == 1);
+            else if (clonePaint.IsChecked == true)
+            {
+                if (cloneSource is not { } source || !ReferenceEquals(source.Workspace, Workspace) || source.LayerId != id)
+                    throw new InvalidOperationException("请先按住 Alt 点击当前图层的仿制源点。");
+                Workspace.BeginCloneStroke(id, settings, source.Point, point);
+            }
             else Workspace.BeginStroke(id, settings, point);
         });
         canvas.StrokeMoved += point => PaintStep(() =>
         {
             if (maskPaint.IsChecked == true) Workspace.AppendMaskStroke(point);
+            else if (clonePaint.IsChecked == true) Workspace.AppendCloneStroke(point);
             else Workspace.AppendStroke(point);
         });
         canvas.StrokeFinished += point => PaintStep(() =>
         {
             if (maskPaint.IsChecked == true) Workspace.CommitMaskStroke(point);
+            else if (clonePaint.IsChecked == true) Workspace.CommitCloneStroke(point);
             else Workspace.CommitStroke(point);
         });
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
+        canvas.CloneSourceSelected += point =>
+        {
+            if (selectedId is not { } id || Workspace.Preview is not { } raster ||
+                point.X < 0 || point.Y < 0 || point.X >= raster.Width || point.Y >= raster.Height)
+                return;
+            cloneSource = (Workspace, id, new BrushPoint(point.X, point.Y));
+            status.Text = $"仿制源点已设为 ({(int)Math.Round(point.X)}, {(int)Math.Round(point.Y)})。";
+        };
         canvas.ColorSampled += point =>
         {
             var sampled = Workspace.SamplePreviewColor(point.X, point.Y);
@@ -652,14 +671,23 @@ public sealed class MainWindow : Window
         };
         paint.IsCheckedChanged += (_, _) =>
         {
-            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
+            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; clonePaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             if (paint.IsChecked == true) moveSelection.IsChecked = false;
             UpdatePaintMode();
         };
         maskPaint.IsCheckedChanged += (_, _) =>
         {
-            if (maskPaint.IsChecked == true) { paint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false; }
+            if (maskPaint.IsChecked == true) { paint.IsChecked = false; clonePaint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false; }
             maskPaintMode.IsEnabled = maskPaint.IsChecked == true;
+            UpdatePaintMode();
+        };
+        clonePaint.IsCheckedChanged += (_, _) =>
+        {
+            if (clonePaint.IsChecked == true)
+            {
+                paint.IsChecked = false; maskPaint.IsChecked = false; rectangleSelect.IsChecked = false;
+                moveSelection.IsChecked = false; eyedropper.IsChecked = false;
+            }
             UpdatePaintMode();
         };
         eyedropper.IsCheckedChanged += (_, _) =>
@@ -667,6 +695,7 @@ public sealed class MainWindow : Window
             if (eyedropper.IsChecked == true)
             {
                 paint.IsChecked = false;
+                clonePaint.IsChecked = false;
                 maskPaint.IsChecked = false;
                 rectangleSelect.IsChecked = false;
                 moveSelection.IsChecked = false;
@@ -943,6 +972,7 @@ public sealed class MainWindow : Window
         var selectedItems = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).ToArray();
         var selected = selectedItems.FirstOrDefault();
         bool multiple = selectedItems.Length > 1;
+        bool groupedProject = Workspace.Session?.HasGroups == true;
         bool multipleTransform = multiple && !groupedProject &&
             selectedItems.All(item => !item.IsGroup && !item.IsAdjustment && item.ParentId is null);
         selectedId = selected?.Id;
@@ -1141,9 +1171,8 @@ public sealed class MainWindow : Window
         grainAmount.IsEnabled = grainSize.IsEnabled = grainRoughness.IsEnabled = showGrainEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
-        layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
+        layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && (!multiple || multipleTransform);
         UpdatePaintMode();
-        bool groupedProject = Workspace.Session?.HasGroups == true;
         ProjectSession? currentSession = Workspace.Session;
         foreach (var button in layerButtons)
         {
@@ -1378,11 +1407,15 @@ public sealed class MainWindow : Window
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
         bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
+        bool selectedText = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsText;
         paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
+        clonePaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
         canvas.TextEditEnabled = textMode && eyedropper.IsChecked != true;
         canvas.EyedropperEnabled = Workspace.Session is not null && eyedropper.IsChecked == true && !Workspace.HasFloatingSelection;
+        canvas.CloneEnabled = clonePaint.IsEnabled && clonePaint.IsChecked == true && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection;
         canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
+             canvas.CloneEnabled ||
              maskPaint.IsChecked == true);
         canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
         canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled &&

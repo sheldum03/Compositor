@@ -28,6 +28,8 @@ public sealed class SoftBrushStroke
     private double distanceToNext;
     private bool finished;
     public int TouchedTiles => pixels.Count;
+    internal IEnumerable<(int Column, int Row, ReadOnlyMemory<byte> Coverage)> CoverageTiles =>
+        coverage.Select(pair => (pair.Key % Columns, pair.Key / Columns, new ReadOnlyMemory<byte>(pair.Value)));
 
     public SoftBrushStroke(TileRaster source, SoftBrushSettings settings, GrayTileRaster? selection = null)
     {
