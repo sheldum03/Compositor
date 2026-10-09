@@ -80,8 +80,6 @@ public static class ImageProjectWorkflow
                     string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
                     ProjectStore.CheckAssetHash(session, maskName, maskPath);
                     GrayTileRaster loadedMask = ImageCodec.LoadGrayMask(maskPath);
-                    if (loadedMask.Width != session.Width || loadedMask.Height != session.Height)
-                        throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
                     ProjectStore.CheckAssetHash(session, maskName, maskPath);
                     masks.Add(id, loadedMask);
                 }
@@ -101,8 +99,6 @@ public static class ImageProjectWorkflow
             string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
             ProjectStore.CheckAssetHash(session, maskName, maskPath);
             mask = ImageCodec.LoadGrayMask(maskPath);
-            if (mask.Width != session.Width || mask.Height != session.Height)
-                throw new InvalidDataException("Layer mask dimensions do not match the canvas.");
         }
         session.AttachRaster(raster, mask);
         return session;
@@ -204,7 +200,9 @@ public static class ImageProjectWorkflow
             {
                 GrayTileRaster mask = session.GetLayerMask(id)
                     ?? throw new InvalidDataException("Layer mask asset is missing.");
-                raster = RasterCompositor.ApplyMask(raster, mask);
+                var manifest = session.Current["layers"]!.AsArray().Single(node =>
+                    Guid.Parse(node!["id"]!.GetValue<string>()) == id)!.AsObject();
+                raster = RasterCompositor.ApplyMask(raster, ResolveLayerMask(mask, manifest, raster.Width, raster.Height));
             }
             if (layer.MaskSourceId is { } sourceId)
             {
@@ -464,8 +462,12 @@ public static class ImageProjectWorkflow
             FlatLayerInfo layer = session.Layers.Single(item => item.Id == id);
             TileRaster raster = session.GetLayerRaster(id);
             if (layer.HasMask && layer.MaskEnabled)
-                raster = RasterCompositor.ApplyMask(raster,
-                    session.GetLayerMask(id) ?? throw new InvalidDataException("Layer mask asset is missing."));
+            {
+                var manifest = session.Current["layers"]!.AsArray().Single(node =>
+                    Guid.Parse(node!["id"]!.GetValue<string>()) == id)!.AsObject();
+                GrayTileRaster mask = session.GetLayerMask(id) ?? throw new InvalidDataException("Layer mask asset is missing.");
+                raster = RasterCompositor.ApplyMask(raster, ResolveLayerMask(mask, manifest, raster.Width, raster.Height));
+            }
             resolving.Remove(id);
             return raster;
         }
@@ -599,10 +601,8 @@ public static class ImageProjectWorkflow
                     ? loadedMask : ImageCodec.LoadGrayMask(maskPath);
                 if (session.CanEdit && session.AssetHashes.ContainsKey(maskFile.GetValue<string>()))
                     ProjectStore.CheckAssetHash(session, maskFile.GetValue<string>(), maskPath);
-                if (mask.Width != width || mask.Height != height)
-                    throw new NotSupportedException("Only full-canvas masks at the default placement are supported.");
                 if (layer["maskEnabled"]?.GetValue<bool>() ?? true)
-                    raster = RasterCompositor.ApplyMask(raster, mask);
+                    raster = RasterCompositor.ApplyMask(raster, ResolveLayerMask(mask, layer, raster.Width, raster.Height));
             }
             var transform = layer["transform"]!.AsObject();
             if (!IsIdentityTransform(transform, width, height))
@@ -759,8 +759,6 @@ public static class ImageProjectWorkflow
                     : useLoadedAssets && session.TryGetLoadedLayerMask(layerId, out var loadedMask)
                     ? loadedMask
                     : ImageCodec.LoadGrayMask(Path.Combine(session.SourceDirectory, "images", maskName));
-                if (mask.Width != width || mask.Height != height)
-                    throw new NotSupportedException("Only full-canvas masks are supported in cached previews.");
             }
             if (isGroup)
             {
@@ -768,6 +766,7 @@ public static class ImageProjectWorkflow
                     throw new NotSupportedException("Cached group metadata is not supported.");
                 var groupTransform = layer["transform"]?.AsObject()
                     ?? throw new NotSupportedException("Cached group transform data is missing.");
+                if (mask is not null) mask = ResolveLayerMask(mask, layer, width, height);
                 prepared.Add(id, new CachedLayer(layer, id, null, mask));
                 continue;
             }
@@ -786,7 +785,7 @@ public static class ImageProjectWorkflow
                 if (status.FontAvailable) raster = TextLayerWorkflow.RenderRaster(text, raster, session.Resolution);
             }
             if (mask is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true))
-                raster = RasterCompositor.ApplyMask(raster, mask);
+                raster = RasterCompositor.ApplyMask(raster, ResolveLayerMask(mask, layer, raster.Width, raster.Height));
             var layerTransform = layer["transform"]?.AsObject()
                 ?? throw new NotSupportedException("Cached layer transform data is missing.");
             raster = TransformCachedRaster(raster, layerTransform, width, height);
@@ -1062,7 +1061,7 @@ public static class ImageProjectWorkflow
 
     private static GrayTileRaster TransformCachedMask(GrayTileRaster source, JsonObject transform, int width, int height)
     {
-        TileRaster maskRaster = new(width, height);
+        TileRaster maskRaster = new(source.Width, source.Height);
         for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
         for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
         {
@@ -1090,6 +1089,72 @@ public static class ImageProjectWorkflow
             result = result.ReplaceTile(column, row, coverage);
         }
         return result;
+    }
+
+    private static GrayTileRaster ResolveLayerMask(GrayTileRaster source, JsonObject layer, int width, int height)
+    {
+        var placement = layer["maskPlacement"] as JsonObject;
+        if (placement is null && source.Width == width && source.Height == height) return source;
+        LayerTransformInfo layerTransform = LayerTransformInfo.Read(layer["transform"]!.AsObject());
+        LayerTransformInfo maskTransform = placement is null ? layerTransform : LayerTransformInfo.Read(placement);
+        (double X, double Y) Map(double x, double y)
+        {
+            var document = maskTransform.ToDocument(x, y);
+            var unit = layerTransform.FromDocument(document.X, document.Y);
+            return (unit.X * width, unit.Y * height);
+        }
+        var start = Map(0, 0);
+        var horizontal = Map(1, 0);
+        var vertical = Map(0, 1);
+        using var sourceBitmap = new SKBitmap(source.Width, source.Height, SKColorType.Rgba8888, SKAlphaType.Opaque);
+        using var targetBitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Opaque);
+        long edgeTotal = 0, edgeCount = 0;
+        for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+        for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+        {
+            var size = source.TileDimensions(column, row);
+            byte[] coverage = source.ReadTileCopy(column, row);
+            byte[] pixels = new byte[size.Width * 4];
+            for (int y = 0; y < size.Height; y++)
+            {
+                for (int x = 0; x < size.Width; x++)
+                {
+                    byte value = coverage[y * size.Width + x];
+                    pixels[x * 4] = pixels[x * 4 + 1] = pixels[x * 4 + 2] = value;
+                    pixels[x * 4 + 3] = 255;
+                    int sourceX = column * TileRaster.TileSize + x, sourceY = row * TileRaster.TileSize + y;
+                    if (sourceX == 0 || sourceX == source.Width - 1 || sourceY == 0 || sourceY == source.Height - 1)
+                    {
+                        edgeTotal += value;
+                        edgeCount++;
+                    }
+                }
+                Marshal.Copy(pixels, 0, sourceBitmap.GetPixels() +
+                    (row * TileRaster.TileSize + y) * sourceBitmap.RowBytes + column * TileRaster.TileSize * 4, pixels.Length);
+            }
+        }
+        using (var canvas = new SKCanvas(targetBitmap))
+        using (var paint = new SKPaint { FilterQuality = SKFilterQuality.High, IsAntialias = true })
+        {
+            canvas.Clear(edgeTotal * 2 >= edgeCount * 255 ? SKColors.White : SKColors.Black);
+            canvas.SetMatrix(new SKMatrix
+            {
+                ScaleX = (float)((horizontal.X - start.X) / source.Width),
+                SkewY = (float)((horizontal.Y - start.Y) / source.Width),
+                SkewX = (float)((vertical.X - start.X) / source.Height),
+                ScaleY = (float)((vertical.Y - start.Y) / source.Height),
+                TransX = (float)start.X, TransY = (float)start.Y, Persp2 = 1
+            });
+            canvas.DrawBitmap(sourceBitmap, 0, 0, paint);
+        }
+        byte[] result = new byte[width * height];
+        byte[] targetRow = new byte[width * 4];
+        for (int y = 0; y < height; y++)
+        {
+            Marshal.Copy(targetBitmap.GetPixels() + y * targetBitmap.RowBytes, targetRow, 0, targetRow.Length);
+            for (int x = 0; x < width; x++) result[y * width + x] = targetRow[x * 4];
+        }
+        return GrayTileRaster.FromCoverage(width, height, result);
     }
 
     private static TileRaster RestoreMaskedRaster(TileRaster target, GrayTileRaster mask)
@@ -1191,13 +1256,15 @@ public static class ImageProjectWorkflow
         if (layer.IsGroup) throw new ArgumentException("Group layers must use bake-ungroup.", nameof(layerId));
         if (session.IsLayerTransformIdentity(layerId))
             throw new InvalidOperationException("Identity layers do not need baking.");
-        var transform = session.Current["layers"]!.AsArray()
-            .Single(node => Guid.Parse(node!["id"]!.GetValue<string>()) == layerId)!["transform"]!.AsObject();
+        var manifest = session.Current["layers"]!.AsArray()
+            .Single(node => Guid.Parse(node!["id"]!.GetValue<string>()) == layerId)!.AsObject();
+        var transform = manifest["transform"]!.AsObject();
         TileRaster source = session.GetLayerRaster(layerId);
         TileRaster baked;
         GrayTileRaster? bakedMask = null;
         if (session.GetLayerMask(layerId) is { } mask)
         {
+            mask = ResolveLayerMask(mask, manifest, source.Width, source.Height);
             bakedMask = TransformCachedMask(mask, transform, session.Width, session.Height);
             TileRaster visible = layer.MaskEnabled ? RasterCompositor.ApplyMask(source, mask) : source;
             TileRaster transformedVisible = TransformCachedRaster(visible, transform, session.Width, session.Height);
@@ -1223,9 +1290,11 @@ public static class ImageProjectWorkflow
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "shape", "text", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskLinked", "maskPlacement", "maskSourceID", "name", "opacity", "shape", "text", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
+            layer["maskLinked"] is not null && layer["maskFile"] is null ||
+            layer["maskPlacement"] is not null && layer["maskFile"] is null ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
             layer["isGroup"] is { } group && group.GetValue<bool>() ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||

@@ -318,11 +318,15 @@ public static class ProjectStore
 
     private static bool IsEditableLayer(JsonObject layer, int width, int height, bool allowGroups)
     {
-        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "parentID", "shape", "text", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskLinked", "maskPlacement", "maskSourceID", "name", "opacity", "parentID", "shape", "text", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             !allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null) ||
             layer["isGroup"]?.GetValue<bool>() == true && layer["maskSourceID"] is not null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
+            layer["maskLinked"] is not null && layer["maskFile"] is null ||
+            layer["maskLinked"] is { } linked && (linked is not JsonValue linkedValue || !linkedValue.TryGetValue<bool>(out _)) ||
+            layer["maskPlacement"] is not null && layer["maskFile"] is null ||
+            layer["maskPlacement"] is { } placement && (placement is not JsonObject maskPlacement || !IsValidMaskPlacement(maskPlacement)) ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
             layer["maskFile"] is { } mask && !string.Equals(mask.GetValue<string>(), id.ToString("D") + ".mask.png", StringComparison.OrdinalIgnoreCase) ||
             layer["opacity"] is { } opacity && (!double.IsFinite(opacity.GetValue<double>()) || opacity.GetValue<double>() is < 0 or > 1) ||
@@ -372,6 +376,22 @@ public static class ProjectStore
         if (version < 7 && layer["adjustment"] is not null) return false;
         if (version < 8 && (layer["text"] is not null || layer["shape"] is not null)) return false;
         return true;
+    }
+
+    private static bool IsValidMaskPlacement(JsonObject placement)
+    {
+        if (!placement.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key)))
+            return false;
+        var origin = placement["origin"] as JsonArray;
+        var size = placement["size"] as JsonArray;
+        return origin?.Count == 2 && size?.Count == 2 &&
+            origin.All(value => value is JsonValue number && number.TryGetValue<double>(out double n) && double.IsFinite(n) && Math.Abs(n) <= 1000000) &&
+            size.All(value => value is JsonValue number && number.TryGetValue<double>(out double n) && double.IsFinite(n) && n is >= 1 and <= 300000) &&
+            placement["rotation"] is JsonValue rotation && rotation.TryGetValue<double>(out double angle) && double.IsFinite(angle) &&
+            (placement["flipX"] is null || placement["flipX"] is JsonValue flipX && flipX.TryGetValue<bool>(out _)) &&
+            (placement["flipY"] is null || placement["flipY"] is JsonValue flipY && flipY.TryGetValue<bool>(out _)) &&
+            (placement["sampling"] is null || placement["sampling"] is JsonValue sampling &&
+                sampling.TryGetValue<string>(out string? mode) && mode is "Nearest" or "Smooth" or "High quality");
     }
 
     private static bool IsValidEditableAdjustment(JsonObject layer, JsonObject adjustment, int width, int height)

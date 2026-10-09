@@ -34,6 +34,12 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown shapeCornerRadius = new() { Name = "ShapeCornerRadius", Minimum = 0, Maximum = 30000, Value = 0, Width = 70 };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
     private readonly NumericUpDown maskRadius = new() { Name = "MaskRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
+    private readonly CheckBox maskLinked = new() { Name = "MaskLinked", Content = "蒙版随图层" };
+    private readonly NumericUpDown maskPlacementX = new() { Name = "MaskPlacementX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 62 };
+    private readonly NumericUpDown maskPlacementY = new() { Name = "MaskPlacementY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 62 };
+    private readonly NumericUpDown maskPlacementWidth = new() { Name = "MaskPlacementWidth", Minimum = 1, Maximum = 30000, Value = 1, Width = 62 };
+    private readonly NumericUpDown maskPlacementHeight = new() { Name = "MaskPlacementHeight", Minimum = 1, Maximum = 30000, Value = 1, Width = 62 };
+    private readonly NumericUpDown maskPlacementRotation = new() { Name = "MaskPlacementRotation", Minimum = -3600, Maximum = 3600, Value = 0, Width = 62 };
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
     private readonly ListBox layers = new() { Name = "Layers", SelectionMode = SelectionMode.Multiple };
     private readonly TextBox layerName = new() { Name = "LayerName", Watermark = "图层名称" };
@@ -544,6 +550,24 @@ public sealed class MainWindow : Window
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("InvertLayer", "反相图层", InvertLayerAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
+        var maskPlacement = new StackPanel { Spacing = 4 };
+        var maskPlacementPosition = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+        maskPlacementPosition.Children.Add(maskLinked);
+        maskPlacementPosition.Children.Add(new TextBlock { Text = "X", VerticalAlignment = VerticalAlignment.Center });
+        maskPlacementPosition.Children.Add(maskPlacementX);
+        maskPlacementPosition.Children.Add(new TextBlock { Text = "Y", VerticalAlignment = VerticalAlignment.Center });
+        maskPlacementPosition.Children.Add(maskPlacementY);
+        maskPlacement.Children.Add(maskPlacementPosition);
+        var maskPlacementSize = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+        maskPlacementSize.Children.Add(new TextBlock { Text = "宽", VerticalAlignment = VerticalAlignment.Center });
+        maskPlacementSize.Children.Add(maskPlacementWidth);
+        maskPlacementSize.Children.Add(new TextBlock { Text = "高", VerticalAlignment = VerticalAlignment.Center });
+        maskPlacementSize.Children.Add(maskPlacementHeight);
+        maskPlacementSize.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
+        maskPlacementSize.Children.Add(maskPlacementRotation);
+        maskPlacementSize.Children.Add(Command("ApplyMaskPlacement", "应用蒙版位置", ApplyMaskPlacementAsync, layer: true, mask: true));
+        maskPlacement.Children.Add(maskPlacementSize);
+        actions.Children.Add(maskPlacement);
         var maskEdit = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         maskEdit.Children.Add(Command("RevealMaskSelection", "选区显示", () => ApplyMaskSelectionAsync(true), layer: true, mask: true));
         maskEdit.Children.Add(Command("HideMaskSelection", "选区隐藏", () => ApplyMaskSelectionAsync(false), layer: true, mask: true));
@@ -561,6 +585,10 @@ public sealed class MainWindow : Window
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
+        maskLinked.IsCheckedChanged += async (_, _) =>
+        {
+            if (!refreshing && maskLinked.IsEnabled) await ExecuteAsync(() => Task.Run(Workspace.ToggleActiveLayerMaskLink));
+        };
         layers.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
         {
             draggingLayer = LayerFromVisual(e.Source as Visual);
@@ -1047,6 +1075,15 @@ public sealed class MainWindow : Window
                 grain = Workspace.Session!.GetGrainAdjustment(selected.Id);
             if (selected?.IsShape == true)
                 shape = Workspace.Session!.GetShape(selected.Id);
+            LayerTransformInfo maskTransform = selected?.HasMask == true && !multiple
+                ? Workspace.ActiveLayerMaskTransform()
+                : new LayerTransformInfo(0, 0, Workspace.Session?.Width ?? 1, Workspace.Session?.Height ?? 1, 0, false, false);
+            maskLinked.IsChecked = selected?.HasMask == true && !multiple && selected.MaskLinked;
+            maskPlacementX.Value = (decimal)maskTransform.X;
+            maskPlacementY.Value = (decimal)maskTransform.Y;
+            maskPlacementWidth.Value = (decimal)maskTransform.Width;
+            maskPlacementHeight.Value = (decimal)maskTransform.Height;
+            maskPlacementRotation.Value = (decimal)maskTransform.Rotation;
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -1373,6 +1410,13 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null && selected.IsAdjustment == false &&
                 (button.Name == "AddMask" || selected.HasMask);
         maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
+        bool maskPlacementEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
+        maskLinked.IsEnabled = maskPlacementEnabled;
+        maskPlacementX.IsEnabled = maskPlacementEnabled;
+        maskPlacementY.IsEnabled = maskPlacementEnabled;
+        maskPlacementWidth.IsEnabled = maskPlacementEnabled;
+        maskPlacementHeight.IsEnabled = maskPlacementEnabled;
+        maskPlacementRotation.IsEnabled = maskPlacementEnabled;
         resolveTextFont.IsEnabled = missingFont && !Workspace.HasFloatingSelection;
         UpdateSelectionControls();
         RefreshTextOverlay();
@@ -1896,6 +1940,10 @@ public sealed class MainWindow : Window
     }
     private Task AddMaskAsync() => Task.Run(Workspace.AddActiveLayerMask);
     private Task ToggleMaskAsync() => Task.Run(Workspace.ToggleActiveLayerMask);
+    private Task ApplyMaskPlacementAsync() => Task.Run(() => Workspace.SetActiveLayerMaskTransform(
+        (double)(maskPlacementX.Value ?? 0), (double)(maskPlacementY.Value ?? 0),
+        (double)(maskPlacementWidth.Value ?? 1), (double)(maskPlacementHeight.Value ?? 1),
+        (double)(maskPlacementRotation.Value ?? 0)));
     private Task InvertMaskAsync() => Task.Run(Workspace.InvertActiveLayerMask);
     private Task FillMaskAsync(bool reveal) => Task.Run(() => Workspace.FillActiveLayerMask(reveal));
     private Task BlurMaskAsync() => Task.Run(() => Workspace.BlurActiveLayerMask((int)(maskRadius.Value ?? 3)));

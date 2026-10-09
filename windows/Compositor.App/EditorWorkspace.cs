@@ -857,18 +857,21 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("请先启用当前图层蒙版。");
         maskBrushLayer = layerId;
         maskBrushReveal = reveal;
-        TileRaster brushBounds = session.Layers.Single(layer => layer.Id == layerId).IsGroup
-            ? new TileRaster(session.Width, session.Height)
-            : session.GetLayerRaster(layerId);
+        GrayTileRaster currentMask = session.GetLayerMask(layerId)
+            ?? throw new InvalidOperationException("当前图层没有蒙版。");
+        TileRaster brushBounds = new(currentMask.Width, currentMask.Height);
         maskBrush = new SoftBrushStroke(brushBounds, settings with { Color = [1, 1, 1] },
-            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
+            Selection is { } selection ? SelectionForMask(session, layerId, selection, currentMask.Width, currentMask.Height) : null);
         AppendMaskStroke(point);
     }
 
     public void AppendMaskStroke(BrushPoint point)
     {
         var active = maskBrush ?? throw new InvalidOperationException("No active mask stroke.");
-        active.Append(DocumentToLayerPoint(RequireSession(), maskBrushLayer, point));
+        var session = RequireSession();
+        GrayTileRaster mask = session.GetLayerMask(maskBrushLayer)
+            ?? throw new InvalidOperationException("当前图层没有蒙版。");
+        active.Append(DocumentToMaskPoint(session, maskBrushLayer, point, mask.Width, mask.Height));
         Preview = RenderMaskStrokePreview(active.CoverageSnapshot());
     }
 
@@ -1422,6 +1425,38 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.SetLayerMaskEnabled(layerId, !enabled));
     }
 
+    public bool IsActiveLayerMaskLinked()
+    {
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId) throw new InvalidOperationException("当前工程没有活动图层。");
+        return session.IsLayerMaskLinked(layerId);
+    }
+
+    public LayerTransformInfo ActiveLayerMaskTransform()
+    {
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId) throw new InvalidOperationException("当前工程没有活动图层。");
+        return session.GetLayerMaskTransform(layerId);
+    }
+
+    public void ToggleActiveLayerMaskLink()
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).HasMask)
+            throw new InvalidOperationException("当前图层没有蒙版。");
+        Edit(editSession => editSession.SetLayerMaskLinked(layerId, !session.IsLayerMaskLinked(layerId)));
+    }
+
+    public void SetActiveLayerMaskTransform(double x, double y, double width, double height, double rotation)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        if (session.ActiveLayerId is not { } layerId || !session.Layers.Single(layer => layer.Id == layerId).HasMask)
+            throw new InvalidOperationException("当前图层没有蒙版。");
+        Edit(editSession => editSession.SetLayerMaskTransform(layerId, x, y, width, height, rotation));
+    }
+
     public void InvertActiveLayerMask()
     {
         RequireIdle();
@@ -1437,9 +1472,10 @@ public sealed class EditorWorkspace
         var session = RequireSession();
         if (session.ActiveLayerId is not { } layerId || session.GetLayerMask(layerId) is null)
             throw new InvalidOperationException("当前图层没有蒙版。");
+        GrayTileRaster current = session.GetLayerMask(layerId)!;
         GrayTileRaster next = reveal
-            ? GrayTileRaster.Rectangle(session.Width, session.Height, 0, 0, session.Width, session.Height)
-            : new GrayTileRaster(session.Width, session.Height);
+            ? GrayTileRaster.Rectangle(current.Width, current.Height, 0, 0, current.Width, current.Height)
+            : new GrayTileRaster(current.Width, current.Height);
         Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
     }
 
@@ -1491,8 +1527,8 @@ public sealed class EditorWorkspace
             throw new InvalidOperationException("请先建立选区并选择图层。");
         if (session.GetLayerMask(layerId) is not { } current)
             throw new InvalidOperationException("当前图层没有蒙版，请先添加蒙版。");
-        var layerSelection = SelectionForLayer(session, layerId, selection);
-        var next = current.Combine(layerSelection, reveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
+        var maskSelection = SelectionForMask(session, layerId, selection, current.Width, current.Height);
+        var next = current.Combine(maskSelection, reveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
         Edit(editSession => editSession.ReplaceLayerMask(layerId, next));
     }
 
@@ -1567,6 +1603,20 @@ public sealed class EditorWorkspace
             (y + transform.Height / 2) * session.Height / transform.Height);
     }
 
+    private static BrushPoint DocumentToMaskPoint(ProjectSession session, Guid layerId, BrushPoint document,
+        int maskWidth, int maskHeight)
+    {
+        LayerTransformInfo transform = session.GetLayerMaskTransform(layerId);
+        double dx = document.X - (transform.X + transform.Width / 2), dy = document.Y - (transform.Y + transform.Height / 2);
+        double radians = transform.Rotation * Math.PI / 180;
+        double x = dx * Math.Cos(radians) + dy * Math.Sin(radians);
+        double y = -dx * Math.Sin(radians) + dy * Math.Cos(radians);
+        if (transform.FlipX) x = -x;
+        if (transform.FlipY) y = -y;
+        return new BrushPoint((x + transform.Width / 2) * maskWidth / transform.Width,
+            (y + transform.Height / 2) * maskHeight / transform.Height, document.Pressure);
+    }
+
     private static BrushPoint DocumentToLayerPoint(ProjectSession session, Guid layerId, BrushPoint document)
     {
         Point mapped = DocumentToLayerPoint(session, layerId, new Point(document.X, document.Y));
@@ -1612,6 +1662,35 @@ public sealed class EditorWorkspace
             layerCoverage[y * session.Width + x] = SampleCoverage(documentCoverage, session.Width, session.Height, document);
         }
         return GrayTileRaster.FromCoverage(session.Width, session.Height, layerCoverage);
+    }
+
+    private static GrayTileRaster SelectionForMask(ProjectSession session, Guid layerId, GrayTileRaster selection,
+        int maskWidth, int maskHeight)
+    {
+        LayerTransformInfo transform = session.GetLayerMaskTransform(layerId);
+        if (transform.X == 0 && transform.Y == 0 && transform.Width == session.Width &&
+            transform.Height == session.Height && transform.Rotation == 0 && !transform.FlipX && !transform.FlipY &&
+            maskWidth == selection.Width && maskHeight == selection.Height)
+            return selection;
+        byte[] documentCoverage = ToCoverage(selection), maskCoverage = new byte[maskWidth * maskHeight];
+        for (int y = 0; y < maskHeight; y++)
+        for (int x = 0; x < maskWidth; x++)
+        {
+            Point document = TransformToDocumentPoint(transform, maskWidth, maskHeight, new Point(x + 0.5, y + 0.5));
+            maskCoverage[y * maskWidth + x] = SampleCoverage(documentCoverage, session.Width, session.Height, document);
+        }
+        return GrayTileRaster.FromCoverage(maskWidth, maskHeight, maskCoverage);
+    }
+
+    private static Point TransformToDocumentPoint(LayerTransformInfo transform, int sourceWidth, int sourceHeight, Point point)
+    {
+        double x = point.X * transform.Width / sourceWidth - transform.Width / 2;
+        double y = point.Y * transform.Height / sourceHeight - transform.Height / 2;
+        if (transform.FlipX) x = -x;
+        if (transform.FlipY) y = -y;
+        double radians = transform.Rotation * Math.PI / 180;
+        return new Point(transform.X + transform.Width / 2 + x * Math.Cos(radians) - y * Math.Sin(radians),
+            transform.Y + transform.Height / 2 + x * Math.Sin(radians) + y * Math.Cos(radians));
     }
 
     private static GrayTileRaster LayerToDocumentCoverage(ProjectSession session, Guid layerId, GrayTileRaster layerCoverage)

@@ -15,11 +15,67 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
     public string BlendMode { get; init; } = "Normal";
     public bool HasMask { get; init; }
     public bool MaskEnabled { get; init; }
+    public bool MaskLinked { get; init; } = true;
     public Guid? MaskSourceId { get; init; }
 }
 
 public sealed record LayerTransformInfo(double X, double Y, double Width, double Height,
-    double Rotation, bool FlipX, bool FlipY);
+    double Rotation, bool FlipX, bool FlipY)
+{
+    public static LayerTransformInfo Read(JsonObject transform)
+    {
+        var origin = transform["origin"]!.AsArray();
+        var size = transform["size"]!.AsArray();
+        return new(origin[0]!.GetValue<double>(), origin[1]!.GetValue<double>(),
+            size[0]!.GetValue<double>(), size[1]!.GetValue<double>(),
+            transform["rotation"]?.GetValue<double>() ?? 0,
+            transform["flipX"]?.GetValue<bool>() ?? false,
+            transform["flipY"]?.GetValue<bool>() ?? false);
+    }
+
+    public (double X, double Y) ToDocument(double unitX, double unitY)
+    {
+        double x = (unitX - 0.5) * Width * (FlipX ? -1 : 1);
+        double y = (unitY - 0.5) * Height * (FlipY ? -1 : 1);
+        double angle = Rotation % 360 * Math.PI / 180;
+        return (X + Width / 2 + x * Math.Cos(angle) - y * Math.Sin(angle),
+            Y + Height / 2 + x * Math.Sin(angle) + y * Math.Cos(angle));
+    }
+
+    public (double X, double Y) FromDocument(double documentX, double documentY)
+    {
+        double x = documentX - X - Width / 2, y = documentY - Y - Height / 2;
+        double angle = Rotation % 360 * Math.PI / 180;
+        return ((x * Math.Cos(angle) + y * Math.Sin(angle)) * (FlipX ? -1 : 1) / Width + 0.5,
+            (-x * Math.Sin(angle) + y * Math.Cos(angle)) * (FlipY ? -1 : 1) / Height + 0.5);
+    }
+
+    public LayerTransformInfo Following(LayerTransformInfo oldLayer, LayerTransformInfo newLayer)
+    {
+        if (oldLayer.Width == newLayer.Width && oldLayer.Height == newLayer.Height &&
+            oldLayer.Rotation == newLayer.Rotation && oldLayer.FlipX == newLayer.FlipX && oldLayer.FlipY == newLayer.FlipY)
+            return this with { X = X + newLayer.X - oldLayer.X, Y = Y + newLayer.Y - oldLayer.Y };
+        (double X, double Y) Map(double x, double y)
+        {
+            var document = ToDocument(x, y);
+            var unit = oldLayer.FromDocument(document.X, document.Y);
+            return newLayer.ToDocument(unit.X, unit.Y);
+        }
+        var start = Map(0, 0);
+        var horizontal = Map(1, 0);
+        var vertical = Map(0, 1);
+        var center = Map(0.5, 0.5);
+        double a = horizontal.X - start.X, b = horizontal.Y - start.Y;
+        double c = vertical.X - start.X, d = vertical.Y - start.Y;
+        double angle = Math.Atan2(b * (FlipX ? -1 : 1), a * (FlipX ? -1 : 1));
+        double along = -c * Math.Sin(angle) + d * Math.Cos(angle);
+        double width = Math.Sqrt(a * a + b * b), height = Math.Abs(along);
+        double degrees = angle * 180 / Math.PI;
+        return this with { X = center.X - width / 2, Y = center.Y - height / 2, Width = width, Height = height,
+            Rotation = degrees + Math.Round((Rotation - degrees) / 360, MidpointRounding.AwayFromZero) * 360,
+            FlipY = along < 0 };
+    }
+}
 
 public sealed record TextLayerMetadata(Guid Id, string ImageFile, string Content,
     string FontPostScriptName, double FontSizePoints, double Red, double Green, double Blue,
@@ -119,6 +175,7 @@ public sealed class ProjectSession
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
             HasMask = layer["maskFile"] is not null,
             MaskEnabled = layer["maskFile"] is not null && (layer["maskEnabled"]?.GetValue<bool>() ?? true),
+            MaskLinked = layer["maskLinked"]?.GetValue<bool>() ?? true,
             MaskSourceId = layer["maskSourceID"] is { } source ? Guid.Parse(source.GetValue<string>()) : null
         }).ToArray();
     public Guid? PreviousSiblingId(Guid layerId)
@@ -219,7 +276,6 @@ public sealed class ProjectSession
         {
             [Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>())] = raster
         };
-        if (mask is not null) CheckMaskSize(mask);
         var masks = mask is null ? null : new Dictionary<Guid, GrayTileRaster>
         {
             [Guid.Parse(Current["layers"]![0]!["id"]!.GetValue<string>())] = mask
@@ -241,7 +297,6 @@ public sealed class ProjectSession
         {
             if (Layers.Any(layer => layer.HasMask != masks.ContainsKey(layer.Id)))
                 throw new InvalidOperationException("Loaded layer masks do not match the project manifest.");
-            foreach (GrayTileRaster mask in masks.Values) CheckMaskSize(mask);
         }
         var attached = new Dictionary<Guid, TileRaster>(rasters);
         var attachedMasks = masks is null ? null : new Dictionary<Guid, GrayTileRaster>(masks);
@@ -337,9 +392,10 @@ public sealed class ProjectSession
         if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不支持图层蒙版。");
         if (Current["layers"]![index]!["maskFile"] is null)
             throw new InvalidOperationException("Layer does not have a raster mask.");
-        CheckMaskSize(mask);
         var current = snapshots[cursor].LayerMasks
             ?? throw new InvalidOperationException("Layer masks have not been loaded.");
+        if (mask.Width != current[layerId].Width || mask.Height != current[layerId].Height)
+            throw new ArgumentException("Mask dimensions do not match the existing mask.", nameof(mask));
         if (ReferenceEquals(current[layerId], mask)) return;
         var next = new Dictionary<Guid, GrayTileRaster>(current) { [layerId] = mask };
         Commit(new Snapshot(Current, snapshots[cursor].LayerRasters, next, ++nextRevision));
@@ -361,6 +417,66 @@ public sealed class ProjectSession
         if ((layer["maskEnabled"]?.GetValue<bool>() ?? true) == enabled) return;
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["maskEnabled"] = enabled;
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    public bool IsLayerMaskLinked(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        if (Current["layers"]![index]!["maskFile"] is null)
+            throw new InvalidOperationException("Layer does not have a raster mask.");
+        return Current["layers"]![index]!["maskLinked"]?.GetValue<bool>() ?? true;
+    }
+
+    public LayerTransformInfo GetLayerMaskTransform(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        var layer = Current["layers"]![index]!.AsObject();
+        if (layer["maskFile"] is null) throw new InvalidOperationException("Layer does not have a raster mask.");
+        return layer["maskPlacement"] is JsonObject placement
+            ? LayerTransformInfo.Read(placement) : GetLayerTransform(layerId);
+    }
+
+    public void SetLayerMaskLinked(Guid layerId, bool linked)
+    {
+        RequireMaskEditing();
+        int index = FindLayer(layerId);
+        var layer = Current["layers"]![index]!.AsObject();
+        if (layer["maskFile"] is null) throw new InvalidOperationException("Layer does not have a raster mask.");
+        bool current = layer["maskLinked"]?.GetValue<bool>() ?? true;
+        if (current == linked) return;
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["maskLinked"] = linked;
+        if (!linked && next["layers"]![index]!["maskPlacement"] is null)
+            next["layers"]![index]!["maskPlacement"] = layer["transform"]!.DeepClone();
+        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    public void SetLayerMaskTransform(Guid layerId, double x, double y, double width, double height, double rotation)
+    {
+        RequireMaskEditing();
+        if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(width) || !double.IsFinite(height) ||
+            !double.IsFinite(rotation) || width is < 1 or > 300000 || height is < 1 or > 300000 ||
+            Math.Abs(x) > 1000000 || Math.Abs(y) > 1000000)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        int index = FindLayer(layerId);
+        var current = Current["layers"]![index]!.AsObject();
+        if (current["maskFile"] is null) throw new InvalidOperationException("Layer does not have a raster mask.");
+        var currentPlacement = current["maskPlacement"]?.AsObject();
+        if (currentPlacement is not null &&
+            currentPlacement["origin"]?.AsArray() is { Count: 2 } origin &&
+            currentPlacement["size"]?.AsArray() is { Count: 2 } size &&
+            origin[0]!.GetValue<double>() == x && origin[1]!.GetValue<double>() == y &&
+            size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
+            (currentPlacement["rotation"]?.GetValue<double>() ?? 0) == rotation) return;
+        var next = (JsonObject)Current.DeepClone();
+        var layer = next["layers"]![index]!.AsObject();
+        var placement = currentPlacement is null
+            ? (JsonObject)current["transform"]!.DeepClone() : (JsonObject)currentPlacement.DeepClone();
+        placement["origin"] = new JsonArray(x, y);
+        placement["size"] = new JsonArray(width, height);
+        placement["rotation"] = rotation;
+        layer["maskPlacement"] = placement;
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
@@ -388,11 +504,12 @@ public sealed class ProjectSession
         if (Current["layers"]![index]!["maskFile"] is null)
             throw new InvalidOperationException("Layer does not have a raster mask.");
         CheckRasterSize(raster);
-        CheckMaskSize(mask);
         var currentRasters = snapshots[cursor].LayerRasters
             ?? throw new InvalidOperationException("Layer rasters have not been loaded.");
         var currentMasks = snapshots[cursor].LayerMasks
             ?? throw new InvalidOperationException("Layer masks have not been loaded.");
+        if (mask.Width != currentMasks[layerId].Width || mask.Height != currentMasks[layerId].Height)
+            throw new ArgumentException("Mask dimensions do not match the existing mask.", nameof(mask));
         if (ReferenceEquals(currentRasters[layerId], raster) && ReferenceEquals(currentMasks[layerId], mask)) return;
         var nextRasters = new Dictionary<Guid, TileRaster>(currentRasters) { [layerId] = raster };
         var nextMasks = new Dictionary<Guid, GrayTileRaster>(currentMasks) { [layerId] = mask };
@@ -1173,6 +1290,7 @@ public sealed class ProjectSession
             ?? throw new InvalidDataException("Group transform data is missing.");
         string field = horizontal ? "flipX" : "flipY";
         transform[field] = !(transform[field]?.GetValue<bool>() ?? false);
+        UpdateMaskPlacement(next["layers"]![index]!.AsObject(), current["transform"]!.AsObject(), transform);
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
@@ -1238,6 +1356,7 @@ public sealed class ProjectSession
             ?? throw new InvalidDataException("Layer transform data is missing.");
         string field = horizontal ? "flipX" : "flipY";
         transform[field] = !(transform[field]?.GetValue<bool>() ?? false);
+        UpdateMaskPlacement(next["layers"]![index]!.AsObject(), current["transform"]!.AsObject(), transform);
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
@@ -1397,6 +1516,7 @@ public sealed class ProjectSession
         transform["origin"] = new JsonArray(x, y);
         transform["size"] = new JsonArray(width, height);
         transform["rotation"] = rotation;
+        UpdateMaskPlacement(next["layers"]![index]!.AsObject(), currentTransform, transform);
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
@@ -1465,6 +1585,8 @@ public sealed class ProjectSession
             transform["origin"] = new JsonArray(nextX, nextY);
             transform["size"] = new JsonArray(nextWidth, nextHeight);
             transform["rotation"] = nextRotation;
+            UpdateMaskPlacement(next["layers"]![item.Index]!.AsObject(),
+                Current["layers"]![item.Index]!["transform"]!.AsObject(), transform);
             changed = true;
         }
         if (changed)
@@ -1596,6 +1718,7 @@ public sealed class ProjectSession
         transform["origin"] = new JsonArray(x, y);
         transform["size"] = new JsonArray(width, height);
         transform["rotation"] = rotation;
+        UpdateMaskPlacement(next["layers"]![index]!.AsObject(), currentTransform, transform);
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
@@ -2285,7 +2408,6 @@ public sealed class ProjectSession
         layer["imageFile"] = id.ToString("D").ToUpperInvariant() + ".png";
         if (mask is not null)
         {
-            CheckMaskSize(mask);
             layer["maskFile"] = id.ToString("D").ToUpperInvariant() + ".mask.png";
             layer["maskEnabled"] = layer["maskEnabled"]?.GetValue<bool>() ?? true;
         }
@@ -2357,6 +2479,31 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
         if (snapshots[cursor].LayerRasters is null)
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
+    }
+
+    private static void UpdateMaskPlacement(JsonObject layer, JsonObject oldTransform, JsonObject newTransform)
+    {
+        if (layer["maskFile"] is null) return;
+        bool linked = layer["maskLinked"]?.GetValue<bool>() ?? true;
+        var placement = layer["maskPlacement"] as JsonObject;
+        if (placement is null)
+        {
+            if (!linked) layer["maskPlacement"] = oldTransform.DeepClone();
+            return;
+        }
+        if (!linked) return;
+        LayerTransformInfo next = LayerTransformInfo.Read(placement).Following(
+            LayerTransformInfo.Read(oldTransform), LayerTransformInfo.Read(newTransform));
+        if (next == LayerTransformInfo.Read(newTransform))
+        {
+            layer.Remove("maskPlacement");
+            return;
+        }
+        placement["origin"] = new JsonArray(next.X, next.Y);
+        placement["size"] = new JsonArray(next.Width, next.Height);
+        placement["rotation"] = next.Rotation;
+        placement["flipX"] = next.FlipX;
+        placement["flipY"] = next.FlipY;
     }
 
     private int FindLayer(Guid layerId)
