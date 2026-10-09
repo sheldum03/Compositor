@@ -30,6 +30,13 @@ public sealed class MainWindow : Window
     private readonly CheckBox liquifyPaint = new() { Content = "液化", Name = "LiquifyPaint" };
     private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
     private readonly CheckBox textTool = new() { Content = "文字 T", Name = "TextTool" };
+    private readonly CheckBox handTool = new() { Content = "平移 H", Name = "HandTool" };
+    private readonly CheckBox zoomTool = new() { Content = "缩放 Z", Name = "ZoomTool" };
+    private readonly NumericUpDown zoomPercent = new() { Name = "ZoomPercent", Minimum = 0.1m, Maximum = 3200, Value = 100, Increment = 1, Width = 100 };
+    private readonly Button applyZoom = new() { Name = "ApplyZoom", Content = "应用缩放" };
+    private readonly TextBlock zoomUnit = new() { Text = "%", VerticalAlignment = VerticalAlignment.Center };
+    private readonly StackPanel navigationOptions = new() { Name = "NavigationOptions", Orientation = Orientation.Horizontal,
+        Spacing = 8, Margin = new Thickness(0, 0, 0, 12), IsVisible = false };
     private readonly CheckBox gradientTool = new() { Content = "渐变", Name = "GradientTool" };
     private readonly CheckBox shapeTool = new() { Content = "形状", Name = "ShapeTool" };
     private readonly ComboBox shapeKind = new() { Name = "ShapeKind", ItemsSource = new[] { "矩形", "椭圆" }, SelectedIndex = 0, Width = 85 };
@@ -317,6 +324,8 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(liquifyPaint);
         brushOptions.Children.Add(eyedropper);
         brushOptions.Children.Add(textTool);
+        brushOptions.Children.Add(handTool);
+        brushOptions.Children.Add(zoomTool);
         brushOptions.Children.Add(gradientTool);
         brushOptions.Children.Add(shapeTool);
         brushOptions.Children.Add(maskPaint);
@@ -363,6 +372,20 @@ public sealed class MainWindow : Window
             HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
             VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
         DockPanel.SetDock(brushOptionsScroll, Dock.Top); layout.Children.Add(brushOptionsScroll);
+        navigationOptions.Children.Add(zoomPercent);
+        navigationOptions.Children.Add(zoomUnit);
+        navigationOptions.Children.Add(applyZoom);
+        navigationOptions.Children.Add(new TextBlock { Text = "H 左键平移 · Z 点击放大 / Alt 点击缩小 · 水平拖动连续缩放", VerticalAlignment = VerticalAlignment.Center });
+        DockPanel.SetDock(navigationOptions, Dock.Top); layout.Children.Add(navigationOptions);
+        void ApplyZoom()
+        {
+            if (IsBusy || Workspace.HasActiveStroke || Workspace.Session is null) return;
+            canvas.ZoomTo((double)(zoomPercent.Value ?? 100) / 100);
+            canvas.Focus();
+        }
+        applyZoom.Click += (_, _) => ApplyZoom();
+        zoomPercent.KeyDown += (_, e) => { if (e.Key == Key.Enter) { ApplyZoom(); e.Handled = true; } };
+        canvas.ZoomChanged += scale => zoomPercent.Value = (decimal)(scale * 100);
         gradientOptions.Children.Add(gradientShape);
         gradientOptions.Children.Add(gradientStyle);
         gradientOptions.Children.Add(gradientReversed);
@@ -991,18 +1014,20 @@ public sealed class MainWindow : Window
             UpdatePaintMode();
         };
         textTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
+        handTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
+        zoomTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
         CheckBox[] canvasTools = [paint, maskPaint, clonePaint, blurPaint, healingPaint,
-            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection, textTool];
+            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection, textTool, handTool, zoomTool];
         foreach (CheckBox tool in canvasTools)
             tool.IsCheckedChanged += (_, _) =>
             {
                 if (tool.IsChecked == true)
                 {
-                    if (tool == textTool)
+                    if (tool == textTool || tool == handTool || tool == zoomTool)
                     {
-                        foreach (CheckBox other in canvasTools.Where(other => other != textTool)) other.IsChecked = false;
+                        foreach (CheckBox other in canvasTools.Where(other => other != tool)) other.IsChecked = false;
                     }
-                    else textTool.IsChecked = false;
+                    else { textTool.IsChecked = false; handTool.IsChecked = false; zoomTool.IsChecked = false; }
                     freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; shapeTool.IsChecked = false;
                 }
             };
@@ -1193,6 +1218,8 @@ public sealed class MainWindow : Window
             Key.R => blurPaint,
             Key.I => eyedropper,
             Key.T => textTool,
+            Key.H => handTool,
+            Key.Z => zoomTool,
             Key.G => gradientTool,
             Key.U => shapeTool,
             Key.M or Key.L or Key.W => rectangleSelect,
@@ -2012,6 +2039,12 @@ public sealed class MainWindow : Window
             RefreshBrushTip();
         }
         bool multiple = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).Take(2).Count() > 1;
+        handTool.IsEnabled = zoomTool.IsEnabled = Workspace.Session is not null;
+        canvas.HandEnabled = handTool.IsEnabled && handTool.IsChecked == true;
+        canvas.ZoomEnabled = zoomTool.IsEnabled && zoomTool.IsChecked == true;
+        navigationOptions.IsVisible = canvas.HandEnabled || canvas.ZoomEnabled;
+        zoomPercent.IsVisible = applyZoom.IsVisible = zoomUnit.IsVisible = canvas.ZoomEnabled;
+        navigationOptions.IsEnabled = !Workspace.HasActiveStroke;
         bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
@@ -2042,7 +2075,7 @@ public sealed class MainWindow : Window
         canvas.ShapeEnabled = shapeTool.IsChecked == true && Workspace.CanCreateShape;
         shapeOptionsScroll.IsVisible = shapeOptions.IsVisible = shapeTool.IsChecked == true;
         shapeToolRadius.IsEnabled = shapeKind.SelectedIndex == 0;
-        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !canvas.ShapeEnabled && !Workspace.HasFloatingSelection &&
+        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !canvas.ShapeEnabled && !canvas.HandEnabled && !canvas.ZoomEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              (blurPaint.IsEnabled && blurPaint.IsChecked == true) ||
              (healingPaint.IsEnabled && healingPaint.IsChecked == true) ||

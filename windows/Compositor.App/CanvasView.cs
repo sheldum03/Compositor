@@ -15,6 +15,7 @@ public sealed class CanvasView : Control
     private bool freeDistorting;
     private bool gradientDragging;
     private bool shaping;
+    private (Point Start, double Scale, bool Moved)? zoomDrag;
     private ShapeDraft? shapeDraft;
     private int gradientHandle = -1;
     private Point? gradientStart, gradientEnd;
@@ -42,9 +43,11 @@ public sealed class CanvasView : Control
     public bool FreeDistortEnabled { get; set; }
     public bool GradientEnabled { get; set; }
     public bool ShapeEnabled { get; set; }
+    public bool HandEnabled { get; set; }
+    public bool ZoomEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping;
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping && zoomDrag is null;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public int TextSelectionOverlayCount => textSelectionPolygons.Count;
@@ -69,6 +72,7 @@ public sealed class CanvasView : Control
     public event Action<Point, bool, bool>? ShapeMoved;
     public event Action? ShapeFinished;
     public event Action? ShapeCanceled;
+    public event Action<double>? ZoomChanged;
 
     public CanvasView()
     {
@@ -78,9 +82,18 @@ public sealed class CanvasView : Control
             if (Bitmap is null || captured is not null) return;
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             var properties = e.GetCurrentPoint(this).Properties;
-            bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
+            bool pan = properties.IsMiddleButtonPressed || (spaceHeld || HandEnabled) && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             LastDocumentPointer = document;
+            if (!pan && ZoomEnabled && properties.IsLeftButtonPressed)
+            {
+                Focus();
+                zoomDrag = (view, Viewport.Scale, false);
+                captured = e.Pointer;
+                captured.Capture(this);
+                e.Handled = true;
+                return;
+            }
             if (!pan && ShapeEnabled && properties.IsLeftButtonPressed)
             {
                 Focus();
@@ -166,6 +179,12 @@ public sealed class CanvasView : Control
             Point view = e.GetPosition(this);
             LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
+            if (zoomDrag is not null)
+            {
+                MoveZoom(e.GetPosition(this));
+                e.Handled = true;
+                return;
+            }
             if (shaping)
             {
                 ShapeMoved?.Invoke(Viewport.ToDocument(view), e.KeyModifiers.HasFlag(KeyModifiers.Shift), e.KeyModifiers.HasFlag(KeyModifiers.Alt));
@@ -199,6 +218,17 @@ public sealed class CanvasView : Control
         PointerReleased += (_, e) =>
         {
             if (captured != e.Pointer) return;
+            if (zoomDrag is not null)
+            {
+                MoveZoom(e.GetPosition(this));
+                if (zoomDrag is { Moved: false } drag)
+                    ZoomTo(drag.Scale * (e.KeyModifiers.HasFlag(KeyModifiers.Alt) ? 0.5 : 2), drag.Start);
+                zoomDrag = null;
+                captured = null;
+                e.Pointer.Capture(null);
+                e.Handled = true;
+                return;
+            }
             LastDocumentPointer = Viewport.ToDocument(e.GetPosition(this));
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             if (shaping)
@@ -254,6 +284,7 @@ public sealed class CanvasView : Control
         {
             if (Bitmap is null || captured is not null) return;
             Viewport.Zoom(e.GetPosition(this), Math.Pow(1.15, e.Delta.Y));
+            ZoomChanged?.Invoke(Viewport.Scale);
             autoFit = false; InvalidateVisual(); e.Handled = true;
         };
         KeyDown += (_, e) =>
@@ -303,6 +334,7 @@ public sealed class CanvasView : Control
         autoFit = true;
         if (Bitmap is { } bitmap)
             Viewport.Fit(new Size(bitmap.PixelSize.Width, bitmap.PixelSize.Height), Bounds.Size);
+        ZoomChanged?.Invoke(Viewport.Scale);
         InvalidateVisual();
     }
 
@@ -310,12 +342,39 @@ public sealed class CanvasView : Control
     {
         if (Bitmap is { } bitmap) Viewport.ActualSize(new Size(bitmap.PixelSize.Width, bitmap.PixelSize.Height), Bounds.Size);
         autoFit = false;
+        ZoomChanged?.Invoke(Viewport.Scale);
         InvalidateVisual();
+    }
+
+    public void ZoomTo(double scale, Point? anchor = null)
+    {
+        if (Bitmap is null) return;
+        Viewport.Zoom(anchor ?? new Point(Bounds.Width / 2, Bounds.Height / 2), scale / Viewport.Scale);
+        autoFit = false;
+        ZoomChanged?.Invoke(Viewport.Scale);
+        InvalidateVisual();
+    }
+
+    private void MoveZoom(Point point)
+    {
+        if (zoomDrag is not { } drag) return;
+        double dx = point.X - drag.Start.X;
+        if (Math.Abs(dx) >= 3) drag.Moved = true;
+        zoomDrag = drag;
+        if (drag.Moved) ZoomTo(Math.Clamp(drag.Scale * Math.Pow(2, dx / 100), 0.001, 32), drag.Start);
     }
 
     public void Cancel()
     {
         if (captured is null) return;
+        if (zoomDrag is not null)
+        {
+            zoomDrag = null;
+            var zoomPointer = captured;
+            captured = null;
+            zoomPointer.Capture(null);
+            return;
+        }
         if (shaping)
         {
             var shapePointer = captured;
