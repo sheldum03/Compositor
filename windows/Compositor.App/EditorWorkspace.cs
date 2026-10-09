@@ -46,6 +46,8 @@ public sealed class EditorWorkspace
     private TileRaster? gradientRaster;
     private GrayTileRaster? gradientMask;
     private bool gradientDragging;
+    private sealed record LayerMoveEdit(Guid[] LayerIds, Vector Offset, bool Snap);
+    private LayerMoveEdit? layerMoveEdit;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private Guid? clipboardLayerId;
@@ -67,7 +69,7 @@ public sealed class EditorWorkspace
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null ||
-        healingBrush is not null || warpBrush is not null || gradientDragging || ShapePreview is not null;
+        healingBrush is not null || warpBrush is not null || gradientDragging || ShapePreview is not null || layerMoveEdit is not null;
     public ShapeDraft? ShapePreview { get; private set; }
     public bool CanCreateShape => Session is { HasGroups: false } && CanEdit && !HasActiveStroke && !HasFloatingSelection;
     public bool HasGradientPreview => gradientEdit is not null;
@@ -1195,6 +1197,7 @@ public sealed class EditorWorkspace
         }
         else if (gradientDragging) { CancelGradient(); return; }
         else if (ShapePreview is not null) { CancelShape(); return; }
+        else if (layerMoveEdit is not null) { CancelLayerMove(); return; }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
@@ -1597,6 +1600,38 @@ public sealed class EditorWorkspace
         UpdateSelectionOutline();
     }
 
+    public void BeginLayerMove(IReadOnlyList<Guid> layerIds)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        if (!RequireSession().CanTransformLayers(layerIds)) throw new InvalidOperationException("没有可移动的可见像素图层。");
+        CancelFilterPreview();
+        layerMoveEdit = new(layerIds.ToArray(), new Vector(0, 0), false);
+    }
+
+    public void PreviewLayerMove(Vector offset, bool snap)
+    {
+        var edit = layerMoveEdit ?? throw new InvalidOperationException("当前没有图层移动草稿。");
+        if (offset.X == 0 && offset.Y == 0) snap = false;
+        var previewSession = RequireSession().CreateLayerMovePreview(edit.LayerIds, offset.X, offset.Y, snap);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(previewSession);
+        layerMoveEdit = edit with { Offset = offset, Snap = snap };
+    }
+
+    public void FinishLayerMove()
+    {
+        if (layerMoveEdit is not { } edit) return;
+        layerMoveEdit = null;
+        Edit(session => session.TransformLayers(edit.LayerIds, edit.Offset.X, edit.Offset.Y, 1, 0, edit.Snap));
+    }
+
+    public void CancelLayerMove()
+    {
+        if (layerMoveEdit is null) return;
+        layerMoveEdit = null;
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
     public void FlipActiveLayer(bool horizontal)
     {
         RequireIdle();
@@ -1609,6 +1644,13 @@ public sealed class EditorWorkspace
             return;
         }
         Edit(editSession => editSession.FlipLayerTransform(layerId, horizontal));
+    }
+
+    public void FlipSelectedLayers(IReadOnlyList<Guid> layerIds, bool horizontal)
+    {
+        RequireIdle();
+        if (layerIds.Count < 2) throw new ArgumentException("请选择至少两个图层。", nameof(layerIds));
+        Edit(editSession => editSession.FlipLayers(layerIds, horizontal));
     }
 
     public void MoveActiveLayer(int offsetX, int offsetY, bool snap = false)

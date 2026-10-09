@@ -32,6 +32,7 @@ public sealed class MainWindow : Window
     private readonly CheckBox textTool = new() { Content = "文字 T", Name = "TextTool" };
     private readonly CheckBox handTool = new() { Content = "平移 H", Name = "HandTool" };
     private readonly CheckBox zoomTool = new() { Content = "缩放 Z", Name = "ZoomTool" };
+    private readonly CheckBox layerMoveTool = new() { Content = "移动 V", Name = "LayerMoveTool" };
     private readonly NumericUpDown zoomPercent = new() { Name = "ZoomPercent", Minimum = 0.1m, Maximum = 3200, Value = 100, Increment = 1, Width = 100 };
     private readonly Button applyZoom = new() { Name = "ApplyZoom", Content = "应用缩放" };
     private readonly TextBlock zoomUnit = new() { Text = "%", VerticalAlignment = VerticalAlignment.Center };
@@ -326,6 +327,7 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(textTool);
         brushOptions.Children.Add(handTool);
         brushOptions.Children.Add(zoomTool);
+        brushOptions.Children.Add(layerMoveTool);
         brushOptions.Children.Add(gradientTool);
         brushOptions.Children.Add(shapeTool);
         brushOptions.Children.Add(maskPaint);
@@ -843,6 +845,10 @@ public sealed class MainWindow : Window
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
         layout.Children.Add(canvas);
+        canvas.LayerMoveStarted += () => LayerMoveStep(() => Workspace.BeginLayerMove(SelectedLayerIds()));
+        canvas.LayerMoveChanged += (offset, snap) => LayerMoveStep(() => Workspace.PreviewLayerMove(offset, snap && snapMove.IsChecked == true));
+        canvas.LayerMoveFinished += () => LayerMoveStep(Workspace.FinishLayerMove, finished: true);
+        canvas.LayerMoveCanceled += () => LayerMoveStep(Workspace.CancelLayerMove, finished: true);
         canvas.ShapeStarted += point => ShapeStep(() =>
         {
             var rgb = Workspace.ForegroundColor.Rgb;
@@ -1016,18 +1022,19 @@ public sealed class MainWindow : Window
         textTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
         handTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
         zoomTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
+        layerMoveTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
         CheckBox[] canvasTools = [paint, maskPaint, clonePaint, blurPaint, healingPaint,
-            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection, textTool, handTool, zoomTool];
+            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection, textTool, handTool, zoomTool, layerMoveTool];
         foreach (CheckBox tool in canvasTools)
             tool.IsCheckedChanged += (_, _) =>
             {
                 if (tool.IsChecked == true)
                 {
-                    if (tool == textTool || tool == handTool || tool == zoomTool)
+                    if (tool == textTool || tool == handTool || tool == zoomTool || tool == layerMoveTool)
                     {
                         foreach (CheckBox other in canvasTools.Where(other => other != tool)) other.IsChecked = false;
                     }
-                    else { textTool.IsChecked = false; handTool.IsChecked = false; zoomTool.IsChecked = false; }
+                    else { textTool.IsChecked = false; handTool.IsChecked = false; zoomTool.IsChecked = false; layerMoveTool.IsChecked = false; }
                     freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; shapeTool.IsChecked = false;
                 }
             };
@@ -1157,6 +1164,17 @@ public sealed class MainWindow : Window
             if ((!Workspace.HasActiveStroke || Workspace.ShapePreview is not null) && HandleToolKey(e.Key, e.KeyModifiers))
             { e.Handled = true; return; }
             if (Workspace.HasActiveStroke) return;
+            if (layerMoveTool.IsChecked == true && layerMoveTool.IsEnabled &&
+                (e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift) && (e.Key is Key.Left or Key.Right or Key.Up or Key.Down))
+            {
+                int step = e.KeyModifiers == KeyModifiers.Shift ? 10 : 1;
+                int dx = e.Key == Key.Left ? -step : e.Key == Key.Right ? step : 0;
+                int dy = e.Key == Key.Up ? -step : e.Key == Key.Down ? step : 0;
+                Guid[] ids = SelectedLayerIds();
+                e.Handled = true;
+                _ = ExecuteAsync(() => Task.Run(() => Workspace.Edit(session => session.TransformLayers(ids, dx, dy, 1, 0))));
+                return;
+            }
             if (HandleBrushTipKey(e.Key, e.KeyModifiers)) { e.Handled = true; return; }
             if (e.KeyModifiers == KeyModifiers.None && HandleOpacityKey(e.Key)) { e.Handled = true; return; }
             Func<Task>? command = e.KeyModifiers switch
@@ -1220,6 +1238,7 @@ public sealed class MainWindow : Window
             Key.T => textTool,
             Key.H => handTool,
             Key.Z => zoomTool,
+            Key.V => layerMoveTool,
             Key.G => gradientTool,
             Key.U => shapeTool,
             Key.M or Key.L or Key.W => rectangleSelect,
@@ -1446,6 +1465,22 @@ public sealed class MainWindow : Window
         UpdateGradientControls();
     }
 
+    private void LayerMoveStep(Action step, bool finished = false)
+    {
+        try
+        {
+            step();
+            if (finished) Refresh(); else RefreshPreview();
+            status.Text = finished ? "图层移动已结束。" : "移动图层中… Shift 限制方向，Ctrl 暂停吸附，Esc 取消。";
+        }
+        catch (Exception error)
+        {
+            canvas.Cancel(); Workspace.CancelLayerMove(); Refresh();
+            status.Text = "图层未移动：" + error.Message;
+        }
+        toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = shapeOptions.IsEnabled = gradientOptions.IsEnabled = projectTabs.IsEnabled = !Workspace.HasActiveStroke;
+    }
+
     private void ShapeStep(Action step, string message = "形状操作已结束。")
     {
         try
@@ -1544,8 +1579,8 @@ public sealed class MainWindow : Window
         var selected = selectedItems.FirstOrDefault();
         bool multiple = selectedItems.Length > 1;
         bool groupedProject = Workspace.Session?.HasGroups == true;
-        bool multipleTransform = multiple && !groupedProject &&
-            selectedItems.All(item => !item.IsGroup && !item.IsAdjustment && item.ParentId is null);
+        bool canTransform = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
+            Workspace.Session?.CanTransformLayers(selectedItems.Select(item => item.Id).ToArray()) == true;
         if (Workspace.HasGradientPreview && (selected?.Id != selectedId || multiple))
         {
             Workspace.CommitGradient();
@@ -1776,7 +1811,7 @@ public sealed class MainWindow : Window
         grainAmount.IsEnabled = grainSize.IsEnabled = grainRoughness.IsEnabled = showGrainEditor;
         layerOpacity.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
         layerBlendMode.IsEnabled = Workspace.CanEdit && selected is not null && !multiple && selected.IsAdjustment == false;
-        layerRotation.IsEnabled = Workspace.CanEdit && selected is not null && (!multiple || multipleTransform);
+        layerRotation.IsEnabled = canTransform;
         UpdatePaintMode();
         ProjectSession? currentSession = Workspace.Session;
         foreach (var button in layerButtons)
@@ -1908,19 +1943,12 @@ public sealed class MainWindow : Window
             if (selected is not null && button.Name == "MoveDown")
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, -1);
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
-                "RotateLayerCounterClockwise" or "RotateLayerClockwise")
-                button.IsEnabled = Workspace.CanEdit && selected is not null &&
-                    (multiple ? multipleTransform : !selected.IsAdjustment && (selected.IsGroup || !groupedProject)) &&
-                    !Workspace.HasFloatingSelection;
+                "RotateLayerCounterClockwise" or "RotateLayerClockwise" or "FlipLayerHorizontal" or "FlipLayerVertical")
+                button.IsEnabled = canTransform;
             if (button.Name == "RotateLayerCustom")
-                button.IsEnabled = Workspace.CanEdit && selected is not null &&
-                    (multiple ? multipleTransform : !selected.IsAdjustment && (selected.IsGroup || !groupedProject)) &&
-                    !Workspace.HasFloatingSelection &&
-                    layerRotation.Value is not null;
+                button.IsEnabled = canTransform && layerRotation.Value is not null;
             if (button.Name == "MoveLayer")
-                button.IsEnabled = Workspace.CanEdit && selected is not null &&
-                    (multiple ? multipleTransform : !selected.IsAdjustment && (selected.IsGroup || !groupedProject)) &&
-                    !Workspace.HasFloatingSelection;
+                button.IsEnabled = canTransform;
             if (button.Name == "GroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && selectedItems.All(item => !item.IsAdjustment) && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
@@ -2042,6 +2070,9 @@ public sealed class MainWindow : Window
         handTool.IsEnabled = zoomTool.IsEnabled = Workspace.Session is not null;
         canvas.HandEnabled = handTool.IsEnabled && handTool.IsChecked == true;
         canvas.ZoomEnabled = zoomTool.IsEnabled && zoomTool.IsChecked == true;
+        layerMoveTool.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
+            Workspace.Session?.CanTransformLayers(SelectedLayerIds()) == true;
+        canvas.LayerMoveEnabled = layerMoveTool.IsChecked == true && layerMoveTool.IsEnabled;
         navigationOptions.IsVisible = canvas.HandEnabled || canvas.ZoomEnabled;
         zoomPercent.IsVisible = applyZoom.IsVisible = zoomUnit.IsVisible = canvas.ZoomEnabled;
         navigationOptions.IsEnabled = !Workspace.HasActiveStroke;
@@ -2078,7 +2109,7 @@ public sealed class MainWindow : Window
         canvas.ShapeEnabled = shapeTool.IsChecked == true && Workspace.CanCreateShape;
         shapeOptionsScroll.IsVisible = shapeOptions.IsVisible = shapeTool.IsChecked == true;
         shapeToolRadius.IsEnabled = shapeKind.SelectedIndex == 0;
-        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !canvas.ShapeEnabled && !canvas.HandEnabled && !canvas.ZoomEnabled && !Workspace.HasFloatingSelection &&
+        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !canvas.ShapeEnabled && !canvas.HandEnabled && !canvas.ZoomEnabled && !canvas.LayerMoveEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              (blurPaint.IsEnabled && blurPaint.IsChecked == true) ||
              (healingPaint.IsEnabled && healingPaint.IsChecked == true) ||
@@ -2461,7 +2492,13 @@ public sealed class MainWindow : Window
     private Task BakeUngroupLayerAsync() => Task.Run(() => Workspace.BakeGroupTransform(selectedId!.Value));
     private Task BakeLayerTransformAsync() => Task.Run(() => Workspace.BakeLayerTransform(selectedId!.Value));
 
-    private Task FlipLayerAsync(bool horizontal) => Task.Run(() => Workspace.FlipActiveLayer(horizontal));
+    private Task FlipLayerAsync(bool horizontal)
+    {
+        Guid[] ids = SelectedLayerIds();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.FlipSelectedLayers(ids, horizontal))
+            : Task.Run(() => Workspace.FlipActiveLayer(horizontal));
+    }
 
     private Task ScaleGroupAsync(bool enlarge)
     {

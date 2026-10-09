@@ -15,6 +15,7 @@ public sealed class CanvasView : Control
     private bool freeDistorting;
     private bool gradientDragging;
     private bool shaping;
+    private Point? layerMoveStart;
     private (Point Start, double Scale, bool Moved)? zoomDrag;
     private ShapeDraft? shapeDraft;
     private int gradientHandle = -1;
@@ -45,9 +46,10 @@ public sealed class CanvasView : Control
     public bool ShapeEnabled { get; set; }
     public bool HandEnabled { get; set; }
     public bool ZoomEnabled { get; set; }
+    public bool LayerMoveEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping && zoomDrag is null;
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping && zoomDrag is null && layerMoveStart is null;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public int TextSelectionOverlayCount => textSelectionPolygons.Count;
@@ -73,6 +75,10 @@ public sealed class CanvasView : Control
     public event Action? ShapeFinished;
     public event Action? ShapeCanceled;
     public event Action<double>? ZoomChanged;
+    public event Action? LayerMoveStarted;
+    public event Action<Vector, bool>? LayerMoveChanged;
+    public event Action? LayerMoveFinished;
+    public event Action? LayerMoveCanceled;
 
     public CanvasView()
     {
@@ -85,6 +91,16 @@ public sealed class CanvasView : Control
             bool pan = properties.IsMiddleButtonPressed || (spaceHeld || HandEnabled) && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             LastDocumentPointer = document;
+            if (!pan && LayerMoveEnabled && properties.IsLeftButtonPressed)
+            {
+                Focus();
+                layerMoveStart = document;
+                captured = e.Pointer;
+                captured.Capture(this);
+                LayerMoveStarted?.Invoke();
+                e.Handled = true;
+                return;
+            }
             if (!pan && ZoomEnabled && properties.IsLeftButtonPressed)
             {
                 Focus();
@@ -179,6 +195,12 @@ public sealed class CanvasView : Control
             Point view = e.GetPosition(this);
             LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
+            if (layerMoveStart is not null)
+            {
+                MoveLayers(Viewport.ToDocument(view), e.KeyModifiers);
+                e.Handled = true;
+                return;
+            }
             if (zoomDrag is not null)
             {
                 MoveZoom(e.GetPosition(this));
@@ -218,6 +240,16 @@ public sealed class CanvasView : Control
         PointerReleased += (_, e) =>
         {
             if (captured != e.Pointer) return;
+            if (layerMoveStart is not null)
+            {
+                MoveLayers(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers);
+                layerMoveStart = null;
+                captured = null;
+                e.Pointer.Capture(null);
+                LayerMoveFinished?.Invoke();
+                e.Handled = true;
+                return;
+            }
             if (zoomDrag is not null)
             {
                 MoveZoom(e.GetPosition(this));
@@ -364,9 +396,28 @@ public sealed class CanvasView : Control
         if (drag.Moved) ZoomTo(Math.Clamp(drag.Scale * Math.Pow(2, dx / 100), 0.001, 32), drag.Start);
     }
 
+    private void MoveLayers(Point document, KeyModifiers modifiers)
+    {
+        if (layerMoveStart is not { } start) return;
+        Vector offset = document - start;
+        if (modifiers.HasFlag(KeyModifiers.Shift))
+            offset = Math.Abs(offset.X) >= Math.Abs(offset.Y) ? new Vector(offset.X, 0) : new Vector(0, offset.Y);
+        offset = new Vector(Math.Round(offset.X, MidpointRounding.AwayFromZero), Math.Round(offset.Y, MidpointRounding.AwayFromZero));
+        LayerMoveChanged?.Invoke(offset, !modifiers.HasFlag(KeyModifiers.Control));
+    }
+
     public void Cancel()
     {
         if (captured is null) return;
+        if (layerMoveStart is not null)
+        {
+            layerMoveStart = null;
+            var movePointer = captured;
+            captured = null;
+            movePointer.Capture(null);
+            LayerMoveCanceled?.Invoke();
+            return;
+        }
         if (zoomDrag is not null)
         {
             zoomDrag = null;
