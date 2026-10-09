@@ -2045,7 +2045,7 @@ public sealed class MainWindow : Window
         navigationOptions.IsVisible = canvas.HandEnabled || canvas.ZoomEnabled;
         zoomPercent.IsVisible = applyZoom.IsVisible = zoomUnit.IsVisible = canvas.ZoomEnabled;
         navigationOptions.IsEnabled = !Workspace.HasActiveStroke;
-        bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
+        bool editable = Workspace.CanEdit && selectedId is { } activeId && !multiple && Workspace.Session!.EffectiveVisibleLayerIds.Contains(activeId);
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
         if (!hasMask && gradientMaskTarget.IsChecked == true) gradientMaskTarget.IsChecked = false;
@@ -2068,8 +2068,11 @@ public sealed class MainWindow : Window
         canvas.TextEditEnabled = textMode && eyedropper.IsChecked != true;
         canvas.EyedropperEnabled = Workspace.Session is not null && eyedropper.IsChecked == true && !Workspace.HasFloatingSelection;
         canvas.CloneEnabled = clonePaint.IsEnabled && clonePaint.IsChecked == true && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection;
-        gradientTool.IsEnabled = editable && (Workspace.CanGradient(false) || Workspace.CanGradient(true));
-        gradientMaskTarget.IsEnabled = hasMask && gradientTool.IsChecked == true;
+        bool gradientPixels = Workspace.CanGradient(false), gradientMask = Workspace.CanGradient(true);
+        gradientTool.IsEnabled = editable && (gradientPixels || gradientMask);
+        if (gradientTool.IsChecked == true && !gradientPixels && gradientMask && gradientMaskTarget.IsChecked != true)
+            gradientMaskTarget.IsChecked = true;
+        gradientMaskTarget.IsEnabled = hasMask && gradientTool.IsChecked == true && gradientPixels;
         canvas.GradientEnabled = gradientTool.IsChecked == true && Workspace.CanGradient(gradientMaskTarget.IsChecked == true);
         shapeTool.IsEnabled = Workspace.CanCreateShape;
         canvas.ShapeEnabled = shapeTool.IsChecked == true && Workspace.CanCreateShape;

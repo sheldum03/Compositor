@@ -897,8 +897,9 @@ public sealed class EditorWorkspace
         return rendered.Raster;
     }
 
-    public bool CanGradient(bool mask) => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection && !session.HasGroups &&
+    public bool CanGradient(bool mask) => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
         session.ActiveLayerId is { } id && session.Layers.SingleOrDefault(layer => layer.Id == id) is { IsVisible: true } layer &&
+        session.EffectiveVisibleLayerIds.Contains(id) &&
         (mask ? layer.HasMask && session.IsLayerMaskEnabled(id) : !layer.IsGroup && !layer.IsAdjustment);
 
     public void BeginGradient(Guid layerId, Point start, Point end, bool mask)
@@ -910,7 +911,8 @@ public sealed class EditorWorkspace
             if (!CanGradient(mask)) throw new InvalidOperationException("当前图层或蒙版不能绘制渐变。");
             var session = RequireSession();
             if (session.ActiveLayerId != layerId) throw new InvalidOperationException("请先选择渐变的目标图层。");
-            TileRaster source = EditablePixelSource(session, layerId);
+            TileRaster source = session.Layers.Single(layer => layer.Id == layerId).IsGroup
+                ? new TileRaster(session.Width, session.Height) : EditablePixelSource(session, layerId);
             GrayTileRaster? sourceMask = mask ? session.GetLayerMask(layerId) : null;
             GrayTileRaster? selection = Selection is not { } currentSelection ? null : sourceMask is { } currentMask
                 ? SelectionForMask(session, layerId, currentSelection, currentMask.Width, currentMask.Height)
@@ -1107,7 +1109,10 @@ public sealed class EditorWorkspace
     public void BeginMaskStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, bool reveal)
     {
         RequireIdle();
+        RequireEditableSession();
         var session = RequireSession();
+        if (!session.EffectiveVisibleLayerIds.Contains(layerId))
+            throw new InvalidOperationException("当前图层或其父组不可见。");
         if (session.ActiveLayerId != layerId || !session.Layers.Single(layer => layer.Id == layerId).HasMask)
             throw new InvalidOperationException("当前活动图层没有蒙版。");
         if (!session.IsLayerMaskEnabled(layerId))
