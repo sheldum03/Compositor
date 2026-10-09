@@ -76,6 +76,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown distortBottomLeftX = new() { Name = "DistortBottomLeftX", Minimum = -30000, Maximum = 30000, Width = 62 };
     private readonly NumericUpDown distortBottomLeftY = new() { Name = "DistortBottomLeftY", Minimum = -30000, Maximum = 30000, Width = 62 };
     private readonly StackPanel freeDistortEditor = new() { Name = "FreeDistortEditor", Spacing = 4, IsVisible = false };
+    private readonly CheckBox freeDistortHandles = new() { Name = "FreeDistortHandles", Content = "拖动角点（Shift 限定方向）" };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly NumericUpDown adjustmentExposure = new() { Name = "AdjustmentExposure", Minimum = -20, Maximum = 20, Value = 0, Width = 70 };
     private readonly NumericUpDown adjustmentOffset = new() { Name = "AdjustmentOffset", Minimum = -0.5m, Maximum = 0.5m, Value = 0, Width = 70 };
@@ -579,6 +580,7 @@ public sealed class MainWindow : Window
         move.Children.Add(Command("MoveLayer", "移动图层/组", MoveLayerAsync, layer: true));
         actions.Children.Add(move);
         freeDistortEditor.Children.Add(new TextBlock { Text = "自由扭曲角点（左上 / 右上 / 右下 / 左下）" });
+        freeDistortEditor.Children.Add(freeDistortHandles);
         var distortTop = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
         distortTop.Children.Add(new TextBlock { Text = "左上", VerticalAlignment = VerticalAlignment.Center });
         distortTop.Children.Add(distortTopLeftX); distortTop.Children.Add(distortTopLeftY);
@@ -842,6 +844,20 @@ public sealed class MainWindow : Window
                 moveSelection.IsChecked = false;
             }
             UpdatePaintMode();
+        };
+        CheckBox[] canvasTools = [paint, maskPaint, clonePaint, blurPaint, healingPaint,
+            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection];
+        foreach (CheckBox tool in canvasTools)
+            tool.IsCheckedChanged += (_, _) =>
+            {
+                if (tool.IsChecked == true) freeDistortHandles.IsChecked = false;
+            };
+        freeDistortHandles.IsCheckedChanged += (_, _) =>
+        {
+            if (freeDistortHandles.IsChecked == true)
+                foreach (CheckBox tool in canvasTools) tool.IsChecked = false;
+            UpdatePaintMode();
+            canvas.InvalidateVisual();
         };
         canvas.SelectionFinished += rectangle =>
         {
@@ -1367,7 +1383,7 @@ public sealed class MainWindow : Window
             if (button.Name == "ApplyText")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsText == true && !multiple && !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyFreeDistort")
-                button.IsEnabled = Workspace.CanFreeDistort;
+                button.IsEnabled = Workspace.CanFreeDistort && !multiple;
             if (button.Name == "InvertLayer")
                 button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false, IsText: false, IsAdjustment: false } &&
                     !multiple && !Workspace.HasFloatingSelection;
@@ -1617,7 +1633,8 @@ public sealed class MainWindow : Window
              (liquifyPaint.IsEnabled && liquifyPaint.IsChecked == true) ||
              canvas.CloneEnabled ||
              maskPaint.IsChecked == true);
-        canvas.FreeDistortEnabled = Workspace.CanFreeDistort;
+        freeDistortHandles.IsEnabled = Workspace.CanFreeDistort && !multiple;
+        canvas.FreeDistortEnabled = freeDistortHandles.IsEnabled && freeDistortHandles.IsChecked == true;
         canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
         canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;

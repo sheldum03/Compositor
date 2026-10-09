@@ -37,7 +37,7 @@ public sealed class CanvasView : Control
     public bool FreeDistortEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public int TextSelectionOverlayCount => textSelectionPolygons.Count;
@@ -126,11 +126,7 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             if (freeDistorting)
             {
-                Point document = Viewport.ToDocument(view);
-                freeDistortCorners[freeDistortHandle] = new Point(
-                    Math.Clamp(document.X, -30000, 30000), Math.Clamp(document.Y, -30000, 30000));
-                FreeDistortChanged?.Invoke((Point[])freeDistortCorners.Clone());
-                InvalidateVisual();
+                MoveFreeDistortHandle(Viewport.ToDocument(view), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
                 e.Handled = true;
                 return;
             }
@@ -153,6 +149,7 @@ public sealed class CanvasView : Control
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             if (freeDistorting)
             {
+                MoveFreeDistortHandle(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
                 freeDistorting = false;
                 freeDistortHandle = -1;
                 captured = null;
@@ -226,11 +223,11 @@ public sealed class CanvasView : Control
         if (captured is null) return;
         if (freeDistorting)
         {
-            var pointer = captured;
+            var distortPointer = captured;
             captured = null;
-            pointer.Capture(null);
             freeDistorting = false;
             freeDistortHandle = -1;
+            distortPointer.Capture(null);
             freeDistortCorners = (Point[])freeDistortBefore.Clone();
             FreeDistortChanged?.Invoke((Point[])freeDistortCorners.Clone());
             InvalidateVisual();
@@ -407,6 +404,21 @@ public sealed class CanvasView : Control
             }
         }
         return nearest;
+    }
+
+    private void MoveFreeDistortHandle(Point document, bool constrain)
+    {
+        if (constrain)
+        {
+            Point start = freeDistortBefore[freeDistortHandle];
+            Vector delta = document - start;
+            document = Math.Abs(delta.X) >= Math.Abs(delta.Y)
+                ? new Point(document.X, start.Y) : new Point(start.X, document.Y);
+        }
+        freeDistortCorners[freeDistortHandle] = new Point(
+            Math.Clamp(document.X, -30000, 30000), Math.Clamp(document.Y, -30000, 30000));
+        FreeDistortChanged?.Invoke((Point[])freeDistortCorners.Clone());
+        InvalidateVisual();
     }
 
     private static Rect Normalize(Point start, Point end) => new(

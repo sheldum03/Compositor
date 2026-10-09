@@ -2572,11 +2572,16 @@ public sealed class ProjectSession
         static double Nearest(double[] guides, double[] targets)
         {
             double best = 0;
+            double distance = double.PositiveInfinity;
             foreach (double guide in guides)
             foreach (double target in targets)
             {
                 double shift = target - guide;
-                if (Math.Abs(shift) <= 10 && Math.Abs(shift) < Math.Abs(best)) best = shift;
+                if (Math.Abs(shift) <= 10 && Math.Abs(shift) < distance)
+                {
+                    best = shift;
+                    distance = Math.Abs(shift);
+                }
             }
             return best;
         }

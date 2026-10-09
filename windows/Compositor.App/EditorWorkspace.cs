@@ -54,7 +54,7 @@ public sealed class EditorWorkspace
         session.Layers.SingleOrDefault(layer => layer.Id == layerId) is
         { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false } &&
         session.IsLayerTransformIdentity(layerId);
-    public bool CanFreeDistort => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
+    public bool CanFreeDistort => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection && !HasFilterPreview &&
         !session.HasGroups && session.ActiveLayerId is { } layerId &&
         session.Layers.SingleOrDefault(layer => layer.Id == layerId) is
         { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false };
