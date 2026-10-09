@@ -8,7 +8,7 @@ Mac arm64 本地 Release 构建：**0 警告、0 错误**。固定样本冒烟�
 PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, backup recovery, v1-v8 recognition and write protection, tile snapshots, native C pixels
 ```
 
-测试使用 F01 v1 的单一可见、全画布、未变换 PNG 图层：改名后撤销/重做、安全另存、重开；导出 PNG 的 SHA-256 与原图精确相同。预置同名 `.backup` 后再次保存被拒绝，原 manifest 不变，未保存的会话仍为脏；将目标目录临时移为 `.backup` 后，打开时恢复。F02～F08 均实际解析为只读，F04 不能另存，未来版本拒绝打开。新增瓦片快照检查了边缘瓦片尺寸、输入数组拷贝和未修改瓦片共享；原生测试对两像素调用真实 C `rgba_clamp_premultiplied`/`layer_extract_alpha` 并逐字节比较。测试均在新建输出目录进行，不修改固定样本。当前 PNG 只核验文件头和尺寸，尚未做完整解码/像素合成；这些反例不等同故障注入矩阵，也未验证断电或磁盘写入中断。
+测试使用 F01 v1 的单一可见、全画布、未变换 PNG 图层：改名后撤销/重做、安全另存、重开；导出 PNG 的 SHA-256 与原图精确相同。预置同名 `.backup` 后再次保存被拒绝，原 manifest 不变，未保存的会话仍为脏；将目标目录临时移为 `.backup` 后，打开时恢复。这段结果记录迁移提交 4efbada 之前的旧冒烟行为；当前代码已改为兼容 F02～F06 先在内存升级到 v8、显式保存才写回，F07 组内剪贴调整层和 F08 缓存文字工程仍保持只读，未来版本继续拒绝打开。新增瓦片快照检查了边缘瓦片尺寸、输入数组拷贝和未修改瓦片共享；原生测试对两像素调用真实 C `rgba_clamp_premultiplied`/`layer_extract_alpha` 并逐字节比较。测试均在新建输出目录进行，不修改固定样本。当前 PNG 只核验文件头和尺寸，尚未做完整解码/像素合成；这些反例不等同故障注入矩阵，也未验证断电或磁盘写入中断。
 
 同日后续补了两项安全反例：源 PNG 尺寸与画布不一致的 v1 工程保持只读；工程打开后外部改动源 PNG，则另存和导出都拒绝生成正式文件。第二项在修复前确实复现了“已变图像被保存”（冒烟退出 134），修复后 macOS arm64 Release 构建 0 警告、0 错误，含原生 C 像素边界的完整冒烟退出 0。此后续修改不在下述 Windows r2 包内，仍需新的 Windows 实机复核。
 

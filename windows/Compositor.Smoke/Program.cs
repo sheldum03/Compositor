@@ -11,6 +11,34 @@ if (Directory.Exists(output)) throw new IOException("Output directory already ex
 Directory.CreateDirectory(output);
 var session = ProjectStore.Open(fixture);
 if (!session.CanEdit || session.IsDirty) throw new Exception("Fixture must be editable and clean.");
+
+string legacyUpgrade = Path.Combine(output, "LegacyUpgrade.comp");
+Directory.CreateDirectory(Path.Combine(legacyUpgrade, "images"));
+File.Copy(Path.Combine(fixture, "manifest.json"), Path.Combine(legacyUpgrade, "manifest.json"));
+foreach (string asset in Directory.GetFiles(Path.Combine(fixture, "images")))
+    File.Copy(asset, Path.Combine(legacyUpgrade, "images", Path.GetFileName(asset)));
+byte[] legacyManifestBeforeOpen = File.ReadAllBytes(Path.Combine(legacyUpgrade, "manifest.json"));
+byte[] legacyImageBeforeSave = File.ReadAllBytes(Path.Combine(legacyUpgrade, "images", session.ImageName));
+var legacyUpgradeSession = ProjectStore.Open(legacyUpgrade);
+string legacyLayerName = legacyUpgradeSession.LayerName;
+Guid legacyLayerId = legacyUpgradeSession.Layers.Single().Id;
+if (!legacyUpgradeSession.CanEdit || legacyUpgradeSession.SourceFormatVersion != 1 ||
+    !legacyUpgradeSession.LegacyUpgradePending || legacyUpgradeSession.IsDirty ||
+    !File.ReadAllBytes(Path.Combine(legacyUpgrade, "manifest.json")).SequenceEqual(legacyManifestBeforeOpen))
+    throw new Exception("Opening a compatible v1 project changed the package or upgrade state.");
+ProjectStore.Save(legacyUpgradeSession, legacyUpgrade);
+var reopenedLegacyUpgrade = ProjectStore.Open(legacyUpgrade);
+var reopenedLegacyManifest = JsonNode.Parse(
+    File.ReadAllText(Path.Combine(legacyUpgrade, "manifest.json")))!.AsObject();
+if (!reopenedLegacyUpgrade.CanEdit || reopenedLegacyUpgrade.SourceFormatVersion != 8 ||
+    reopenedLegacyUpgrade.LegacyUpgradePending || reopenedLegacyUpgrade.IsDirty ||
+    reopenedLegacyUpgrade.LayerName != legacyLayerName ||
+    reopenedLegacyUpgrade.Layers.Single().Id != legacyLayerId ||
+    reopenedLegacyManifest["version"]?.GetValue<int>() != 8 ||
+    !File.ReadAllBytes(Path.Combine(legacyUpgrade, "images", session.ImageName))
+        .SequenceEqual(legacyImageBeforeSave))
+    throw new Exception("Explicitly saved legacy project did not reopen as consistent v8.");
+
 string scaled = Path.Combine(output, "ScaledSource.comp");
 Directory.CreateDirectory(Path.Combine(scaled, "images"));
 File.Copy(Path.Combine(fixture, "images", session.ImageName), Path.Combine(scaled, "images", session.ImageName));
@@ -159,17 +187,28 @@ if (!freshInjected || !freshSession.IsDirty || Directory.Exists(freshTarget) ||
     Directory.GetDirectories(output, "FreshFault.comp.tmp-*").Length != 0 ||
     freshFailed.Length != 1 || ProjectStore.Open(freshFailed[0]).LayerName != "Uncommitted new project")
     throw new Exception("Failed first save left an unverified project at the formal destination.");
-for (int version = 2; version <= 8; version++)
-    if (ProjectStore.Open(Path.Combine(fixtures, $"F{version:00}.comp")).CanEdit)
-        throw new Exception($"Version {version} was made editable without its full semantics.");
-var complex = ProjectStore.Open(Path.Combine(fixtures, "F04.comp"));
-try
+for (int version = 2; version <= 6; version++)
 {
-    ProjectStore.Save(complex, Path.Combine(output, "Complex.comp"));
-    throw new Exception("Unsupported project was saved.");
+    var legacyVersion = ProjectStore.Open(Path.Combine(fixtures, $"F{version:00}.comp"));
+    if (!legacyVersion.CanEdit || legacyVersion.SourceFormatVersion != version ||
+        !legacyVersion.LegacyUpgradePending || legacyVersion.IsDirty)
+        throw new Exception($"Compatible version {version} did not enter the in-memory v8 edit path.");
 }
-catch (NotSupportedException) { }
-if (Directory.Exists(Path.Combine(output, "Complex.comp"))) throw new Exception("Rejected complex save created output.");
+foreach (int version in new[] { 7, 8 })
+{
+    var unsupported = ProjectStore.Open(Path.Combine(fixtures, $"F{version:00}.comp"));
+    if (unsupported.CanEdit)
+        throw new Exception($"Unsupported F{version:00} project became editable.");
+    string rejectedPath = Path.Combine(output, $"UnsupportedF{version:00}.comp");
+    try
+    {
+        ProjectStore.Save(unsupported, rejectedPath);
+        throw new Exception($"Unsupported F{version:00} project was saved.");
+    }
+    catch (NotSupportedException) { }
+    if (Directory.Exists(rejectedPath))
+        throw new Exception($"Rejected F{version:00} save created output.");
+}
 string hierarchyFixture = Path.Combine(fixtures, "F08.comp");
 CheckInvalidProject(hierarchyFixture, output, "MissingParent", manifest =>
     manifest["layers"]![1]!["parentID"] = Guid.NewGuid().ToString("D"));

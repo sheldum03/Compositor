@@ -4,7 +4,7 @@
 
 本轮在 `codex/windows-implementation` 工作树提交 `0be6f8c`，把只读缓存预览从“仅平面 v1/v8”扩展为按 `parentID` 递归处理 v1–v8 的受限组层合成。支持范围是：pass-through 组、父组显隐继承、全画布 Gray8 组蒙版、子层栅格蒙版、同组连续剪贴栈的 base Alpha 恢复，以及嵌套组的蒙版叠加。剪贴子层先在 base Alpha 恢复前合成，组蒙版在剪贴栈完成后应用，避免重复乘 Alpha。
 
-这是缓存预览切片，不能解读为组工程已经可编辑。组工程仍拒绝进入 `CanEdit`，组变换、调整层、任意位置蒙版、文本/形状编辑以及组结构修改仍由保护边界拒绝或保持后续范围。F04 的非组变换参考仍保留既有平台舍入差异，未放宽逐像素阈值；macOS 固定 exact 回归采用 F02、F05、F06。Windows 的 F05 高质量变换采样存在稳定 RGB 舍入差异，已单独记录 Windows 基线和来源 run，详见[Windows F05 Skia 平台基线](production-windows-f05-skia-m3g.md)。
+这是迁移提交 4efbada 之前的缓存预览切片，不能用本文历史结果推断当前所有组工程仍不可编辑。当前兼容的 v2–v6 组/蒙版/剪贴夹具按逐级语义校验进入内存 v8 编辑路径；F07 组内剪贴调整层、F08 缓存文字、组变换边界及本文未覆盖的复杂关系仍由保护边界拒绝或保持后续范围。F04 的非组变换参考仍保留既有平台舍入差异，未放宽逐像素阈值；macOS 固定 exact 回归采用 F02、F05、F06。Windows 的 F05 高质量变换采样存在稳定 RGB 舍入差异，已单独记录 Windows 基线和来源 run，详见[Windows F05 Skia 平台基线](production-windows-f05-skia-m3g.md)。
 
 ## 验证结果
 

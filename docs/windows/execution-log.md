@@ -877,3 +877,11 @@ Qt归档5a6f4b57fb1377d7b32d52b5b0b0b120648a1816e08572139227aaa8e58d76a4已取�
 便携包新增 `scripts/windows/write-portable-manifest.ps1`，发布包生成 `Compositor.Portable.json`，记录版本、提交、运行时、目标框架、入口、原生 DLL 和每个文件的大小与 SHA-256。`install-portable.ps1` 现在按清单逐文件核对入口、原生库、文件数量和哈希后才替换安装目录；`verify-portable-package.py` 同步检查 zip 路径穿越、重复项、清单完整性和原生 DLL 元数据；`windows-install-smoke.ps1` 提供 Windows 首次安装、重复安装保留用户数据及错误哈希拒绝的实测入口。生产 CI 的 Smoke job 会生成清单、压缩包并执行安装复测，脚本变更也会触发该工作流。
 
 当前 macOS 主机没有 `dotnet`、`pwsh` 或 Windows 原生运行环境。本轮未把 .NET 编译、PowerShell 执行、Windows GUI、文件锁和原生 DLL 加载写成通过；只运行 Python 校验器的固定临时包正例/负例与源码差异检查。Windows CI 或实机仍需执行实际安装和启动验证。
+
+## 2026-10-09：兼容旧工程保存边界与字体路径防护收口
+
+本轮把现有代码中的兼容旧工程路径继续收口：冒烟与工作流入口现在覆盖 v1–v6 工程打开时保持原 manifest/资产不变，进入内存 v8 编辑路径，显式保存后写回 v8，并保留图层身份与原始像素。F07 组内剪贴调整层和 F08 缓存文字语义继续保持只读边界。
+
+字体 catalog 恢复路径同时保留词法路径检查、根目录/文件符号链接解析和链接文件拒绝，避免通过符号链接把外部文件引入字体库；有效 basename 仍走原有哈希与字体面恢复路径。
+
+本轮按用户要求跳过编译、测试和验收，只整理代码与文档；Windows 实机、SDK 和设备边界继续由后续验证阶段处理。

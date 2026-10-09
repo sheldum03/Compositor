@@ -688,7 +688,7 @@ public static class ImageProjectWorkflow
             GaussianBlurSettings? gaussianBlur, MotionBlurSettings? motionBlur, NoiseSettings? noise, LensCorrectionSettings? lensCorrection, GrainSettings? grain, double opacity)
         {
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
-                throw new NotSupportedException("Adjustment layer opacity is not supported.");
+                throw new InvalidDataException("Adjustment layer opacity is invalid.");
             if (opacity == 0) return source;
             TileRaster adjusted = exposure is { } exposureSettings
                 ? RasterCompositor.ApplyExposure(source, exposureSettings)

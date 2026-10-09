@@ -226,6 +226,11 @@ public sealed class FontLibrary
             string canonicalCandidate = CanonicalFilePath(candidate);
             if (!IsInside(canonicalRoot, canonicalCandidate))
                 return false;
+            // Imported files are stored directly in the root. Reject links rather
+            // than following a target whose parent directories may also be links.
+            if (File.Exists(candidate) &&
+                (File.GetAttributes(candidate) & FileAttributes.ReparsePoint) != 0)
+                return false;
             path = candidate;
             return true;
         }

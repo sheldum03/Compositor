@@ -29,9 +29,31 @@ File.Copy(Path.Combine(project, "images", importedManifest["layers"]![0]!["image
 var legacyManifest = (JsonObject)importedManifest.DeepClone();
 legacyManifest["version"] = 1;
 File.WriteAllText(Path.Combine(legacy, "manifest.json"), legacyManifest.ToJsonString());
+byte[] legacyManifestBeforeOpen = File.ReadAllBytes(Path.Combine(legacy, "manifest.json"));
+byte[] legacyImageBeforeSave = File.ReadAllBytes(Path.Combine(legacy, "images",
+    importedManifest["layers"]![0]!["imageFile"]!.GetValue<string>()));
 var legacySession = ImageProjectWorkflow.OpenEditable(legacy);
+if (!legacySession.CanEdit || legacySession.SourceFormatVersion != 1 ||
+    !legacySession.LegacyUpgradePending || legacySession.IsDirty ||
+    !File.ReadAllBytes(Path.Combine(legacy, "manifest.json")).SequenceEqual(legacyManifestBeforeOpen))
+    throw new Exception("Opening a compatible v1 project changed the package or upgrade state.");
+string legacyLayerName = legacySession.LayerName;
+Guid legacyLayerId = legacySession.Layers.Single().Id;
+ImageProjectWorkflow.Save(legacySession, legacy);
+var reopenedLegacy = ImageProjectWorkflow.OpenEditable(legacy);
+var reopenedLegacyManifest = JsonNode.Parse(
+    File.ReadAllText(Path.Combine(legacy, "manifest.json")))!.AsObject();
+if (!reopenedLegacy.CanEdit || reopenedLegacy.SourceFormatVersion != 8 ||
+    reopenedLegacy.LegacyUpgradePending || reopenedLegacy.IsDirty ||
+    reopenedLegacy.LayerName != legacyLayerName ||
+    reopenedLegacy.Layers.Single().Id != legacyLayerId ||
+    reopenedLegacyManifest["version"]?.GetValue<int>() != 8 ||
+    !File.ReadAllBytes(Path.Combine(legacy, "images",
+        importedManifest["layers"]![0]!["imageFile"]!.GetValue<string>()))
+        .SequenceEqual(legacyImageBeforeSave))
+    throw new Exception("Explicitly saved legacy project did not reopen as consistent v8.");
 string legacyExport = Path.Combine(output, "legacy-export.png");
-ImageProjectWorkflow.ExportPng(legacySession, legacyExport);
+ImageProjectWorkflow.ExportPng(reopenedLegacy, legacyExport);
 AssertRaster(session.Raster, ImageCodec.Load(legacyExport));
 try
 {
@@ -235,7 +257,10 @@ static void CheckCachedGroupRendering(string output, string fixtures)
         string project = Path.Combine(referenceRoot, name + ".comp");
         string reference = CachedReferencePath(referenceRoot, name);
         var session = ProjectStore.Open(project);
-        if (session.CanEdit) throw new Exception($"Cached group fixture {name} became editable.");
+        int sourceVersion = int.Parse(name[1..]);
+        if (!session.CanEdit || session.SourceFormatVersion != sourceVersion ||
+            !session.LegacyUpgradePending || session.IsDirty)
+            throw new Exception($"Compatible group fixture {name} did not enter the in-memory v8 edit path.");
         TileRaster actual = ImageProjectWorkflow.RenderFlatNormal(session);
         ImageCodec.SavePng(actual, Path.Combine(output, name + "-actual.png"));
         try { AssertRaster(ImageCodec.Load(reference), actual); }
@@ -2429,10 +2454,21 @@ static void CheckLayerStructure(string output, string sourcePng)
     var unloaded = ProjectStore.Open(source);
     try { unloaded.AddBlankLayer("Unloaded", 1); throw new Exception("Unloaded layer edit was accepted."); }
     catch (InvalidOperationException) { }
-    string legacy = Path.Combine(output, "Legacy.comp");
+    string legacy = Path.Combine(output, "LegacyStructure.comp");
+    Directory.CreateDirectory(Path.Combine(legacy, "images"));
+    foreach (string asset in Directory.GetFiles(Path.Combine(source, "images")))
+        File.Copy(asset, Path.Combine(legacy, "images", Path.GetFileName(asset)));
+    var legacyManifest = JsonNode.Parse(File.ReadAllText(Path.Combine(source, "manifest.json")))!.AsObject();
+    legacyManifest["version"] = 1;
+    File.WriteAllText(Path.Combine(legacy, "manifest.json"), legacyManifest.ToJsonString());
+    byte[] beforeLegacyEdit = File.ReadAllBytes(Path.Combine(legacy, "manifest.json"));
     var legacySession = ImageProjectWorkflow.OpenEditable(legacy);
-    try { legacySession.DeleteLayer(legacySession.Layers[0].Id); throw new Exception("Legacy structure was silently changed."); }
-    catch (NotSupportedException) { }
+    Guid legacyLayerId = legacySession.Layers.Single().Id;
+    legacySession.DeleteLayer(legacyLayerId);
+    if (legacySession.Layers.Count != 0 || !legacySession.IsDirty || !legacySession.LegacyUpgradePending ||
+        !File.ReadAllBytes(Path.Combine(legacy, "manifest.json")).SequenceEqual(beforeLegacyEdit) ||
+        !legacySession.Undo() || legacySession.IsDirty || legacySession.Layers.Single().Id != legacyLayerId)
+        throw new Exception("Compatible legacy structure editing lost history or changed the package before save.");
 }
 
 static void CheckNewCanvas(string output)
