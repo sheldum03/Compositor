@@ -14,6 +14,8 @@ public sealed class CanvasView : Control
     private bool panning, selecting, movingSelection, spaceHeld, shiftHeld, autoFit = true;
     private bool freeDistorting;
     private bool gradientDragging;
+    private bool shaping;
+    private ShapeDraft? shapeDraft;
     private int gradientHandle = -1;
     private Point? gradientStart, gradientEnd;
     private int freeDistortHandle = -1;
@@ -39,9 +41,10 @@ public sealed class CanvasView : Control
     public bool CloneEnabled { get; set; }
     public bool FreeDistortEnabled { get; set; }
     public bool GradientEnabled { get; set; }
+    public bool ShapeEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging;
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public int TextSelectionOverlayCount => textSelectionPolygons.Count;
@@ -62,6 +65,10 @@ public sealed class CanvasView : Control
     public event Action? GradientFinished;
     public event Action? GradientCanceled;
     public event Action? GradientApplied;
+    public event Action<Point>? ShapeStarted;
+    public event Action<Point, bool, bool>? ShapeMoved;
+    public event Action? ShapeFinished;
+    public event Action? ShapeCanceled;
 
     public CanvasView()
     {
@@ -74,6 +81,16 @@ public sealed class CanvasView : Control
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             LastDocumentPointer = document;
+            if (!pan && ShapeEnabled && properties.IsLeftButtonPressed)
+            {
+                Focus();
+                shaping = true;
+                captured = e.Pointer;
+                captured.Capture(this);
+                ShapeStarted?.Invoke(document);
+                e.Handled = true;
+                return;
+            }
             if (!pan && GradientEnabled && properties.IsLeftButtonPressed)
             {
                 gradientHandle = FindGradientHandle(view);
@@ -149,6 +166,12 @@ public sealed class CanvasView : Control
             Point view = e.GetPosition(this);
             LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
+            if (shaping)
+            {
+                ShapeMoved?.Invoke(Viewport.ToDocument(view), e.KeyModifiers.HasFlag(KeyModifiers.Shift), e.KeyModifiers.HasFlag(KeyModifiers.Alt));
+                e.Handled = true;
+                return;
+            }
             if (gradientDragging)
             {
                 MoveGradientLine(Viewport.ToDocument(view), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
@@ -178,6 +201,16 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             LastDocumentPointer = Viewport.ToDocument(e.GetPosition(this));
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
+            if (shaping)
+            {
+                ShapeMoved?.Invoke(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers.HasFlag(KeyModifiers.Shift), e.KeyModifiers.HasFlag(KeyModifiers.Alt));
+                shaping = false;
+                captured = null;
+                e.Pointer.Capture(null);
+                ShapeFinished?.Invoke();
+                e.Handled = true;
+                return;
+            }
             if (gradientDragging)
             {
                 MoveGradientLine(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
@@ -259,6 +292,12 @@ public sealed class CanvasView : Control
         InvalidateVisual();
     }
 
+    public void SetShapeDraft(ShapeDraft? draft)
+    {
+        shapeDraft = draft;
+        InvalidateVisual();
+    }
+
     public void Fit()
     {
         autoFit = true;
@@ -277,6 +316,15 @@ public sealed class CanvasView : Control
     public void Cancel()
     {
         if (captured is null) return;
+        if (shaping)
+        {
+            var shapePointer = captured;
+            captured = null;
+            shaping = false;
+            shapePointer.Capture(null);
+            ShapeCanceled?.Invoke();
+            return;
+        }
         if (gradientDragging)
         {
             var gradientPointer = captured;
@@ -439,6 +487,20 @@ public sealed class CanvasView : Control
         {
             var pen = new Pen(Brushes.Black, 1);
             for (int i = 1; i < path.Count; i++) context.DrawLine(pen, Viewport.ToView(path[i - 1]), Viewport.ToView(path[i]));
+        }
+        if (shapeDraft is { } draft && draft.Bounds.Width >= 1 && draft.Bounds.Height >= 1)
+        {
+            Rect bounds = new(Viewport.ToView(draft.Bounds.TopLeft), Viewport.ToView(draft.Bounds.BottomRight));
+            var rgb = draft.Settings;
+            var fill = new SolidColorBrush(Color.FromRgb((byte)Math.Round(rgb.Red * 255),
+                (byte)Math.Round(rgb.Green * 255), (byte)Math.Round(rgb.Blue * 255)));
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(153, 0, 0, 0)), 1);
+            if (draft.Settings.Kind == "Ellipse") context.DrawEllipse(fill, pen, bounds.Center, bounds.Width / 2, bounds.Height / 2);
+            else
+            {
+                double radius = Math.Min(draft.Settings.CornerRadius, Math.Min(draft.Bounds.Width, draft.Bounds.Height) / 2) * Viewport.Scale;
+                context.DrawRectangle(fill, pen, bounds, radius, radius);
+            }
         }
         if (GradientEnabled && gradientStart is { } startPoint && gradientEnd is { } endPoint)
         {

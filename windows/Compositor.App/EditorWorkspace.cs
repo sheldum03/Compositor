@@ -54,7 +54,9 @@ public sealed class EditorWorkspace
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null ||
-        healingBrush is not null || warpBrush is not null || gradientDragging;
+        healingBrush is not null || warpBrush is not null || gradientDragging || ShapePreview is not null;
+    public ShapeDraft? ShapePreview { get; private set; }
+    public bool CanCreateShape => Session is { HasGroups: false } && CanEdit && !HasActiveStroke && !HasFloatingSelection;
     public bool HasGradientPreview => gradientEdit is not null;
     public (Point Start, Point End)? GradientLine => gradientEdit is { } edit ? (edit.Start, edit.End) : null;
     public bool HasFloatingSelection => floatingRaster is not null;
@@ -193,7 +195,7 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
-    public void AddShapeLayer(ShapeSettings settings)
+    public void AddShapeLayer(ShapeSettings settings, Rect? bounds = null)
     {
         RequireIdle();
         ProjectSession session = RequireSession();
@@ -201,9 +203,42 @@ public sealed class EditorWorkspace
         int index = session.ActiveLayerId is { } active
             ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
             : session.Layers.Count;
-        session.AddShapeLayer(settings.Kind == "Ellipse" ? "椭圆形状" : "矩形形状", settings, index);
+        string baseName = settings.Kind == "Ellipse" ? "椭圆" : "矩形";
+        int number = 1;
+        var names = session.Layers.Select(layer => layer.Name).ToHashSet(StringComparer.Ordinal);
+        while (names.Contains($"{baseName} {number}")) number++;
+        LayerTransformInfo? placement = bounds is { } rect
+            ? new(rect.X, rect.Y, rect.Width, rect.Height, 0, false, false) : null;
+        session.AddShapeLayer($"{baseName} {number}", settings, index, placement);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
+
+    public void BeginShape(Point point, ShapeSettings settings)
+    {
+        RequireIdle();
+        if (!CanCreateShape) throw new InvalidOperationException("当前工程不能新建形状。");
+        if (!double.IsFinite(point.X) || !double.IsFinite(point.Y) || !settings.IsValid)
+            throw new ArgumentException("Invalid shape draft.");
+        CancelFilterPreview();
+        Point anchor = new(Math.Round(point.X, MidpointRounding.AwayFromZero), Math.Round(point.Y, MidpointRounding.AwayFromZero));
+        ShapePreview = new(settings, anchor, new Rect(anchor, new Size(0, 0)));
+    }
+
+    public void MoveShape(Point point, bool square, bool fromCenter)
+    {
+        ShapePreview = (ShapePreview ?? throw new InvalidOperationException("当前没有形状草稿。"))
+            .DragTo(point, square, fromCenter);
+    }
+
+    public void FinishShape()
+    {
+        if (ShapePreview is not { } draft) return;
+        ShapePreview = null;
+        if (draft.Bounds.Width < 1 || draft.Bounds.Height < 1) return;
+        AddShapeLayer(draft.Settings, draft.Bounds);
+    }
+
+    public void CancelShape() => ShapePreview = null;
 
     public void AddGradientLayer(GradientSettings settings)
     {
@@ -1129,6 +1164,7 @@ public sealed class EditorWorkspace
             currentHealingBrush.Cancel(); healingBrush = null;
         }
         else if (gradientDragging) { CancelGradient(); return; }
+        else if (ShapePreview is not null) { CancelShape(); return; }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }

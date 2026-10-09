@@ -806,13 +806,25 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
-    public Guid AddShapeLayer(string name, ShapeSettings settings, int destinationIndex)
+    public Guid AddShapeLayer(string name, ShapeSettings settings, int destinationIndex, LayerTransformInfo? placement = null)
     {
         RequireLayerStructureEditing();
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        placement ??= new LayerTransformInfo(0, 0, Width, Height, 0, false, false);
+        if (!double.IsFinite(placement.X) || !double.IsFinite(placement.Y) || !double.IsFinite(placement.Width) ||
+            !double.IsFinite(placement.Height) || !double.IsFinite(placement.Rotation) || placement.Width < 1 ||
+            placement.Height < 1 || placement.Width * placement.Height > 100_000_000)
+            throw new ArgumentOutOfRangeException(nameof(placement));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["shape"] = settings.ToJson();
-        return InsertLayer(layer, RasterCompositor.CreateShape(Width, Height, settings), destinationIndex);
+        var transform = layer["transform"]!.AsObject();
+        transform["origin"] = new JsonArray(placement.X, placement.Y);
+        transform["size"] = new JsonArray(placement.Width, placement.Height);
+        transform["rotation"] = placement.Rotation;
+        transform["flipX"] = placement.FlipX;
+        transform["flipY"] = placement.FlipY;
+        return InsertLayer(layer, RasterCompositor.CreateShape(Width, Height, settings,
+            placement.Width, placement.Height), destinationIndex);
     }
 
     public void SetShape(Guid layerId, ShapeSettings settings)
@@ -1700,6 +1712,8 @@ public sealed class ProjectSession
         transform["flipX"] = false;
         transform["flipY"] = false;
         next["layers"]![index]!.AsObject().Remove("maskPlacement");
+        next["layers"]![index]!.AsObject().Remove("shape");
+        next["layers"]![index]!.AsObject().Remove("gradient");
         Commit(new Snapshot(next, nextRasters, nextMasks is { Count: > 0 } ? nextMasks : null, ++nextRevision));
     }
 

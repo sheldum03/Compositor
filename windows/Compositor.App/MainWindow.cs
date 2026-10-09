@@ -29,6 +29,14 @@ public sealed class MainWindow : Window
     private readonly CheckBox liquifyPaint = new() { Content = "液化", Name = "LiquifyPaint" };
     private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
     private readonly CheckBox gradientTool = new() { Content = "渐变", Name = "GradientTool" };
+    private readonly CheckBox shapeTool = new() { Content = "形状", Name = "ShapeTool" };
+    private readonly ComboBox shapeKind = new() { Name = "ShapeKind", ItemsSource = new[] { "矩形", "椭圆" }, SelectedIndex = 0, Width = 85 };
+    private readonly NumericUpDown shapeToolRadius = new() { Name = "ShapeToolRadius", Minimum = 0, Maximum = 5000, Value = 0, Width = 80 };
+    private readonly StackPanel shapeOptions = new() { Name = "ShapeOptions", Orientation = Orientation.Horizontal, Spacing = 8,
+        Margin = new Thickness(0, 0, 0, 12), IsVisible = false };
+    private readonly ScrollViewer shapeOptionsScroll = new() { IsVisible = false,
+        HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+        VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
     private readonly CheckBox gradientMaskTarget = new() { Content = "绘制蒙版", Name = "GradientMaskTarget" };
     private readonly ComboBox gradientShape = new() { Name = "GradientShape", ItemsSource = new[] { "线性", "径向" }, SelectedIndex = 0, Width = 80 };
     private readonly ComboBox gradientStyle = new() { Name = "GradientStyle", ItemsSource = new[] { "前景到透明", "前景到背景" }, SelectedIndex = 0, Width = 135 };
@@ -296,6 +304,7 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(liquifyPaint);
         brushOptions.Children.Add(eyedropper);
         brushOptions.Children.Add(gradientTool);
+        brushOptions.Children.Add(shapeTool);
         brushOptions.Children.Add(maskPaint);
         brushOptions.Children.Add(maskPaintMode);
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
@@ -352,6 +361,17 @@ public sealed class MainWindow : Window
             }
             catch (Exception error) { status.Text = "渐变未应用：" + error.Message; }
             UpdatePaintMode();
+        };
+        shapeOptions.Children.Add(shapeKind);
+        shapeOptions.Children.Add(new TextBlock { Text = "圆角 px", VerticalAlignment = VerticalAlignment.Center });
+        shapeOptions.Children.Add(shapeToolRadius);
+        shapeOptions.Children.Add(new TextBlock { Text = "前景色填充 · Shift 等比 · Alt 从中心拖动 · Esc 取消", VerticalAlignment = VerticalAlignment.Center });
+        shapeOptionsScroll.Content = shapeOptions;
+        DockPanel.SetDock(shapeOptionsScroll, Dock.Top); layout.Children.Add(shapeOptionsScroll);
+        shapeKind.SelectionChanged += (_, _) =>
+        {
+            canvas.Cancel(); Workspace.CancelShape(); canvas.SetShapeDraft(null);
+            shapeToolRadius.IsEnabled = shapeKind.SelectedIndex == 0;
         };
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
         {
@@ -767,6 +787,16 @@ public sealed class MainWindow : Window
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
         layout.Children.Add(canvas);
+        canvas.ShapeStarted += point => ShapeStep(() =>
+        {
+            var rgb = Workspace.ForegroundColor.Rgb;
+            Workspace.BeginShape(point, new ShapeSettings(shapeKind.SelectedIndex == 1 ? "Ellipse" : "Rectangle",
+                rgb.Red, rgb.Green, rgb.Blue, shapeKind.SelectedIndex == 1 ? 0 : (double)(shapeToolRadius.Value ?? 0)));
+            RefreshPreview();
+        });
+        canvas.ShapeMoved += (point, square, fromCenter) => ShapeStep(() => Workspace.MoveShape(point, square, fromCenter));
+        canvas.ShapeFinished += () => ShapeStep(Workspace.FinishShape);
+        canvas.ShapeCanceled += () => ShapeStep(Workspace.CancelShape, "形状草稿已取消。");
         canvas.GradientChanged += (start, end) => GradientStep(() =>
         {
             if (selectedId is not { } id) return;
@@ -931,7 +961,7 @@ public sealed class MainWindow : Window
         foreach (CheckBox tool in canvasTools)
             tool.IsCheckedChanged += (_, _) =>
             {
-                if (tool.IsChecked == true) { freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; }
+                if (tool.IsChecked == true) { freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; shapeTool.IsChecked = false; }
             };
         gradientTool.IsCheckedChanged += (_, _) =>
         {
@@ -939,6 +969,7 @@ public sealed class MainWindow : Window
             {
                 foreach (CheckBox tool in canvasTools) tool.IsChecked = false;
                 freeDistortHandles.IsChecked = false;
+                shapeTool.IsChecked = false;
             }
             else
             {
@@ -953,12 +984,24 @@ public sealed class MainWindow : Window
             UpdatePaintMode();
             canvas.InvalidateVisual();
         };
+        shapeTool.IsCheckedChanged += (_, _) =>
+        {
+            if (shapeTool.IsChecked == true)
+            {
+                foreach (CheckBox tool in canvasTools) tool.IsChecked = false;
+                gradientTool.IsChecked = false;
+                freeDistortHandles.IsChecked = false;
+            }
+            else { canvas.Cancel(); Workspace.CancelShape(); canvas.SetShapeDraft(null); }
+            UpdatePaintMode();
+        };
         freeDistortHandles.IsCheckedChanged += (_, _) =>
         {
             if (freeDistortHandles.IsChecked == true)
             {
                 foreach (CheckBox tool in canvasTools) tool.IsChecked = false;
                 gradientTool.IsChecked = false;
+                shapeTool.IsChecked = false;
             }
             UpdatePaintMode();
             canvas.InvalidateVisual();
@@ -1120,6 +1163,7 @@ public sealed class MainWindow : Window
         var next = Workspace.Preview is { } raster ? RasterBitmap.Create(raster, dpi) : null;
         canvas.SetBitmap(next);
         canvas.SetGradientLine(Workspace.GradientLine);
+        canvas.SetShapeDraft(Workspace.ShapePreview);
         preview?.Dispose(); preview = next;
     }
 
@@ -1230,6 +1274,23 @@ public sealed class MainWindow : Window
         }
         toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = gradientOptions.IsEnabled = projectTabs.IsEnabled = !Workspace.HasActiveStroke;
         UpdateGradientControls();
+    }
+
+    private void ShapeStep(Action step, string message = "形状操作已结束。")
+    {
+        try
+        {
+            step();
+            canvas.SetShapeDraft(Workspace.ShapePreview);
+            if (Workspace.ShapePreview is not null) status.Text = "拖建形状中… Shift 等比、Alt 从中心，Esc 取消。";
+            else { Refresh(); status.Text = message; }
+        }
+        catch (Exception error)
+        {
+            canvas.Cancel(); Workspace.CancelShape(); Refresh();
+            status.Text = "形状未创建：" + error.Message;
+        }
+        toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = shapeOptions.IsEnabled = gradientOptions.IsEnabled = projectTabs.IsEnabled = !Workspace.HasActiveStroke;
     }
 
     private GradientFillSettings SelectedGradientSettings()
@@ -1789,7 +1850,7 @@ public sealed class MainWindow : Window
         if (!hasMask && gradientMaskTarget.IsChecked == true) gradientMaskTarget.IsChecked = false;
         bool textMode = editable && !selectedGroup && Workspace.Session!.TextLayers.SingleOrDefault(text => text.Id == selectedId) is { } text &&
             TextLayerWorkflow.Inspect(Workspace.Session).Single(status => status.Metadata.Id == text.Id).FontAvailable &&
-            !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true && gradientTool.IsChecked != true;
+            !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true && gradientTool.IsChecked != true && shapeTool.IsChecked != true;
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && (maskPaint.IsChecked == true || gradientTool.IsChecked == true && gradientMaskTarget.IsChecked == true);
         bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
@@ -1806,7 +1867,11 @@ public sealed class MainWindow : Window
         gradientTool.IsEnabled = editable && (Workspace.CanGradient(false) || Workspace.CanGradient(true));
         gradientMaskTarget.IsEnabled = hasMask && gradientTool.IsChecked == true;
         canvas.GradientEnabled = gradientTool.IsChecked == true && Workspace.CanGradient(gradientMaskTarget.IsChecked == true);
-        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !Workspace.HasFloatingSelection &&
+        shapeTool.IsEnabled = Workspace.CanCreateShape;
+        canvas.ShapeEnabled = shapeTool.IsChecked == true && Workspace.CanCreateShape;
+        shapeOptionsScroll.IsVisible = shapeOptions.IsVisible = shapeTool.IsChecked == true;
+        shapeToolRadius.IsEnabled = shapeKind.SelectedIndex == 0;
+        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !canvas.GradientEnabled && !canvas.ShapeEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              (blurPaint.IsEnabled && blurPaint.IsChecked == true) ||
              (healingPaint.IsEnabled && healingPaint.IsChecked == true) ||
