@@ -33,10 +33,12 @@ public sealed class MainWindow : Window
         ItemsSource = new[] { "隐藏", "显示" }, SelectedIndex = 0 };
     private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
-    private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 0, Width = 90 };
+    private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "前景色" }, SelectedIndex = 0, Width = 90 };
+    private readonly Button foregroundSwatch = new() { Name = "ForegroundColor", Content = "前景色" };
+    private readonly Button backgroundSwatch = new() { Name = "BackgroundColor", Content = "背景色" };
     private readonly NumericUpDown shapeCornerRadius = new() { Name = "ShapeCornerRadius", Minimum = 0, Maximum = 30000, Value = 0, Width = 70 };
-    private readonly ComboBox gradientStartColor = new() { Name = "GradientStartColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 0, Width = 78 };
-    private readonly ComboBox gradientEndColor = new() { Name = "GradientEndColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 1, Width = 78 };
+    private readonly ComboBox gradientStartColor = new() { Name = "GradientStartColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "自定义" }, SelectedIndex = 0, Width = 78 };
+    private readonly ComboBox gradientEndColor = new() { Name = "GradientEndColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "自定义" }, SelectedIndex = 1, Width = 78 };
     private readonly NumericUpDown gradientAngle = new() { Name = "GradientAngle", Minimum = -3600, Maximum = 3600, Value = 0, Width = 70 };
     private readonly StackPanel gradientLayerEditor = new() { Name = "GradientLayerEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
@@ -56,7 +58,7 @@ public sealed class MainWindow : Window
         Height = 72, Watermark = "文字内容" };
     private readonly ComboBox textFont = new() { Name = "TextFont", Width = 220 };
     private readonly NumericUpDown textSize = new() { Name = "TextSize", Minimum = 1, Maximum = 2000, Value = 18, Width = 80 };
-    private readonly ComboBox textColor = new() { Name = "TextColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 80 };
+    private readonly ComboBox textColor = new() { Name = "TextColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "自定义" }, SelectedIndex = 0, Width = 80 };
     private readonly ComboBox textAlignment = new() { Name = "TextAlignment", Width = 90,
         ItemsSource = new[] { "left", "center", "right" }, SelectedIndex = 0 };
     private readonly NumericUpDown textLineSpacing = new() { Name = "TextLineSpacing", Minimum = -2000, Maximum = 2000, Value = 0, Width = 80 };
@@ -184,6 +186,7 @@ public sealed class MainWindow : Window
     private readonly List<EditorWorkspace> projects = [];
     private WriteableBitmap? preview;
     private ProjectSession? displayedSession;
+    private EditorWorkspace? displayedPaletteWorkspace;
     private Guid? selectedId;
     private int activeProjectIndex;
     private bool refreshing, allowClose;
@@ -192,7 +195,9 @@ public sealed class MainWindow : Window
     private FlatLayerInfo? draggingLayer;
     private Point layerDragStart;
     private bool draggingLayers;
-    private (double Red, double Green, double Blue) sampledColor;
+    private (double Red, double Green, double Blue) customTextColor;
+    private (double Red, double Green, double Blue) customGradientStart;
+    private (double Red, double Green, double Blue) customGradientEnd = (1, 1, 1);
     private (EditorWorkspace Workspace, Guid LayerId, BrushPoint Point)? cloneSource;
     public EditorWorkspace Workspace => projects[activeProjectIndex];
     public int ProjectCount => projects.Count;
@@ -283,6 +288,20 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(diameter);
         brushOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
         brushOptions.Children.Add(opacity); brushOptions.Children.Add(brushType); brushOptions.Children.Add(color);
+        brushOptions.Children.Add(foregroundSwatch);
+        brushOptions.Children.Add(backgroundSwatch);
+        brushOptions.Children.Add(Command("SwapPalette", "交换 X", SwapPaletteAsync, refresh: false));
+        brushOptions.Children.Add(Command("ResetPalette", "默认 D", ResetPaletteAsync, refresh: false));
+        foregroundSwatch.Click += async (_, _) => await ExecuteAsync(() => PickPaletteAsync(false), refresh: false);
+        backgroundSwatch.Click += async (_, _) => await ExecuteAsync(() => PickPaletteAsync(true), refresh: false);
+        color.SelectionChanged += (_, _) =>
+        {
+            if (refreshing || color.SelectedIndex is < 0 or >= 4) return;
+            var rgb = TextColor(color.SelectedIndex);
+            Workspace.ForegroundColor = PaletteColor.FromRgb(rgb.Red, rgb.Green, rgb.Blue);
+            RefreshPalette();
+        };
+        maskPaintMode.SelectionChanged += (_, _) => RefreshPalette();
         brushOptions.Children.Add(new TextBlock { Text = "滚轮缩放 · 空格/中键平移 · 仿制 Alt 点击设源 · Esc 取消笔划", VerticalAlignment = VerticalAlignment.Center });
         DockPanel.SetDock(brushOptions, Dock.Top); layout.Children.Add(brushOptions);
         var footer = new StackPanel { Spacing = 5, Margin = new Thickness(0, 10, 0, 0), Children =
@@ -355,6 +374,7 @@ public sealed class MainWindow : Window
         textOptions.Children.Add(textSize);
         textOptions.Children.Add(new TextBlock { Text = "颜色", VerticalAlignment = VerticalAlignment.Center });
         textOptions.Children.Add(textColor);
+        textOptions.Children.Add(Command("PickTextColor", "选择颜色", PickTextColorAsync, layer: true, refresh: false));
         textOptions.Children.Add(textAlignment);
         textEditorPanel.Children.Add(textOptions);
         var textLayoutOptions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
@@ -371,8 +391,10 @@ public sealed class MainWindow : Window
         actions.Children.Add(textEditorPanel);
         gradientLayerEditor.Children.Add(new TextBlock { Text = "起点", VerticalAlignment = VerticalAlignment.Center });
         gradientLayerEditor.Children.Add(gradientStartColor);
+        gradientLayerEditor.Children.Add(Command("PickGradientStart", "选择起点色", () => PickGradientColorAsync(false), layer: true, refresh: false));
         gradientLayerEditor.Children.Add(new TextBlock { Text = "终点", VerticalAlignment = VerticalAlignment.Center });
         gradientLayerEditor.Children.Add(gradientEndColor);
+        gradientLayerEditor.Children.Add(Command("PickGradientEnd", "选择终点色", () => PickGradientColorAsync(true), layer: true, refresh: false));
         gradientLayerEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
         gradientLayerEditor.Children.Add(gradientAngle);
         gradientLayerEditor.Children.Add(Command("ApplyGradientLayer", "应用渐变", ApplyGradientLayerAsync, layer: true));
@@ -756,8 +778,9 @@ public sealed class MainWindow : Window
                 status.Text = "吸管位置超出画布。";
                 return;
             }
-            sampledColor = value;
+            Workspace.ForegroundColor = PaletteColor.FromRgb(value.Red, value.Green, value.Blue);
             color.SelectedIndex = 4;
+            RefreshPalette();
             status.Text = $"已取样 RGB({(int)Math.Round(value.Red * 255)}, {(int)Math.Round(value.Green * 255)}, {(int)Math.Round(value.Blue * 255)})。";
         };
         canvas.TextHitTest = TextCaretAt;
@@ -959,26 +982,33 @@ public sealed class MainWindow : Window
                     Key.I when Workspace.HasSelection => InvertSelectionAsync,
                     _ => null
                 },
+                KeyModifiers.None => e.Key switch
+                {
+                    Key.X => SwapPaletteAsync,
+                    Key.D => ResetPaletteAsync,
+                    _ => null
+                },
                 _ => null
             };
-            if (command is not null) { e.Handled = true; _ = ExecuteAsync(command); }
+            if (command is not null) { e.Handled = true; _ = ExecuteAsync(command, refresh: e.KeyModifiers != KeyModifiers.None); }
         };
         Refresh();
         status.Text = Workspace.Session is null ? "新建画布、打开 .comp 工程文件夹，或导入 PNG / JPEG 图片开始。" : "工程已打开。";
         if (FontLibrary.RecoveryReport.HasIssues) status.Text = FontLibrary.RecoveryReport.Message;
     }
 
-    private Button Command(string name, string title, Func<Task> action, bool document = false, bool layer = false, bool mask = false)
+    private Button Command(string name, string title, Func<Task> action, bool document = false, bool layer = false, bool mask = false,
+        bool refresh = true)
     {
         var button = new Button { Name = name, Content = title };
-        button.Click += async (_, _) => await ExecuteAsync(action);
+        button.Click += async (_, _) => await ExecuteAsync(action, refresh);
         if (document) documentButtons.Add(button);
         if (layer) layerButtons.Add(button);
         if (mask) maskButtons.Add(button);
         return button;
     }
 
-    private async Task ExecuteAsync(Func<Task> operation)
+    private async Task ExecuteAsync(Func<Task> operation, bool refresh = true)
     {
         if (IsBusy || Workspace.HasActiveStroke) return;
         IsBusy = true; layout.IsEnabled = false; status.Text = "处理中…";
@@ -986,7 +1016,7 @@ public sealed class MainWindow : Window
         try
         {
             await operation();
-            message = Workspace.CanEdit
+            message = !refresh ? "颜色已更新。" : Workspace.CanEdit
                 ? Workspace.Session?.LegacyUpgradePending == true
                     ? "操作完成；保存时将把兼容工程升级为 v8。"
                     : "操作完成。"
@@ -995,7 +1025,8 @@ public sealed class MainWindow : Window
         catch (Exception error) { message = "操作未完成：" + error.Message; }
         finally { IsBusy = false; layout.IsEnabled = true; }
         if (allowClose) return;
-        try { Refresh(); }
+        // Palette and color-picker drafts must survive until the user applies their editor.
+        try { if (refresh) Refresh(); }
         catch (Exception error) { message = "预览未完成：" + error.Message; }
         status.Text = message;
     }
@@ -1101,6 +1132,14 @@ public sealed class MainWindow : Window
     private void Refresh()
     {
         RefreshProjectTabs();
+        if (!ReferenceEquals(displayedPaletteWorkspace, Workspace))
+        {
+            refreshing = true;
+            color.SelectedIndex = 4;
+            refreshing = false;
+            displayedPaletteWorkspace = Workspace;
+        }
+        RefreshPalette();
         Title = (Workspace.IsDirty ? "● " : "") +
             (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : Workspace.Session is not null ? "未命名 — " : "") + "Compositor";
         RefreshPreview();
@@ -1181,6 +1220,7 @@ public sealed class MainWindow : Window
             textContent.Text = text?.Content ?? "";
             textSize.Value = text is null ? 18 : (decimal)text.FontSizePoints;
             textColor.SelectedIndex = text is null ? 0 : TextColorIndex(text);
+            customTextColor = text is null ? (0, 0, 0) : (text.Red, text.Green, text.Blue);
             textAlignment.SelectedItem = text?.Alignment ?? "left";
             textLineSpacing.Value = text is null ? 0 : (decimal)text.LineSpacingPoints;
             textTracking.Value = text is null ? 0 : (decimal)text.TrackingPoints;
@@ -1259,6 +1299,8 @@ public sealed class MainWindow : Window
             gradientStartColor.SelectedIndex = gradient is null ? 0 : GradientColorIndex(gradient.StartRed, gradient.StartGreen, gradient.StartBlue);
             gradientEndColor.SelectedIndex = gradient is null ? 1 : GradientColorIndex(gradient.EndRed, gradient.EndGreen, gradient.EndBlue);
             gradientAngle.Value = gradient is null ? 0 : (decimal)gradient.Angle;
+            customGradientStart = gradient is null ? (0, 0, 0) : (gradient.StartRed, gradient.StartGreen, gradient.StartBlue);
+            customGradientEnd = gradient is null ? (1, 1, 1) : (gradient.EndRed, gradient.EndGreen, gradient.EndBlue);
         }
         finally { refreshing = false; }
         freeDistortEditor.IsVisible = Workspace.CanFreeDistort;
@@ -1382,6 +1424,10 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanLayerViaCopy;
             if (button.Name == "ApplyText")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsText == true && !multiple && !Workspace.HasFloatingSelection;
+            if (button.Name == "PickTextColor")
+                button.IsEnabled = textContent.IsEnabled && !multiple && !Workspace.HasFloatingSelection;
+            if (button.Name is "PickGradientStart" or "PickGradientEnd")
+                button.IsEnabled = gradientLayerEditor.IsVisible && !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyFreeDistort")
                 button.IsEnabled = Workspace.CanFreeDistort && !multiple;
             if (button.Name == "InvertLayer")
@@ -1638,6 +1684,7 @@ public sealed class MainWindow : Window
         canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
         canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
+        RefreshPalette();
     }
 
     private int? TextCaretAt(Point document)
@@ -1718,11 +1765,12 @@ public sealed class MainWindow : Window
     }
     private Task AddGradientLayerAsync()
     {
-        var start = GradientColor(gradientStartColor.SelectedIndex);
-        var end = GradientColor(gradientEndColor.SelectedIndex);
+        var start = GradientColor(false);
+        var end = GradientColor(true);
+        double angle = (double)(gradientAngle.Value ?? 0);
         return Task.Run(() => Workspace.AddGradientLayer(new GradientSettings(
             start.Red, start.Green, start.Blue, end.Red, end.Green, end.Blue,
-            (double)(gradientAngle.Value ?? 0))));
+            angle)));
     }
     private Task ApplyShapeAsync()
     {
@@ -1744,8 +1792,9 @@ public sealed class MainWindow : Window
         if (selectedId is not { } id || Workspace.Session is not { } session)
             throw new InvalidOperationException("当前工程没有活动渐变图层。");
         GradientSettings current = session.GetGradient(id);
-        var start = GradientColor(gradientStartColor.SelectedIndex);
-        var end = GradientColor(gradientEndColor.SelectedIndex);
+        var start = GradientColor(false);
+        var end = GradientColor(true);
+        double angle = (double)(gradientAngle.Value ?? (decimal)current.Angle);
         return Task.Run(() => Workspace.Edit(editSession => editSession.SetGradient(id, current with
         {
             StartRed = start.Red,
@@ -1754,7 +1803,7 @@ public sealed class MainWindow : Window
             EndRed = end.Red,
             EndGreen = end.Green,
             EndBlue = end.Blue,
-            Angle = (double)(gradientAngle.Value ?? (decimal)current.Angle)
+            Angle = angle
         })));
     }
     private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
@@ -2069,7 +2118,7 @@ public sealed class MainWindow : Window
         ProjectSession session = Workspace.Session!;
         TextLayerMetadata current = session.TextLayers.Single(item => item.Id == id);
         string font = textFont.SelectedItem as string ?? current.FontPostScriptName;
-        (double red, double green, double blue) = TextColor(textColor.SelectedIndex);
+        (double red, double green, double blue) = textColor.SelectedIndex == 4 ? customTextColor : TextColor(textColor.SelectedIndex);
         TextLayerMetadata edited = current with
         {
             Content = textContent.Text ?? "",
@@ -2105,29 +2154,121 @@ public sealed class MainWindow : Window
     };
 
     private (double Red, double Green, double Blue) SelectedBrushColor() =>
-        color.SelectedIndex == 4 ? sampledColor : TextColor(color.SelectedIndex);
+        color.SelectedIndex == 4 ? Workspace.ForegroundColor.Rgb : TextColor(color.SelectedIndex);
+
+    private void RefreshPalette()
+    {
+        bool mask = maskPaint.IsChecked == true;
+        PaletteColor foreground = mask ? maskPaintMode.SelectedIndex == 1 ? PaletteColor.White : PaletteColor.Black
+            : Workspace.ForegroundColor;
+        PaletteColor background = mask ? maskPaintMode.SelectedIndex == 1 ? PaletteColor.Black : PaletteColor.White
+            : Workspace.BackgroundColor;
+        SetPaletteSwatch(foregroundSwatch, "前", foreground);
+        SetPaletteSwatch(backgroundSwatch, "后", background);
+    }
+
+    private static void SetPaletteSwatch(Button button, string label, PaletteColor value)
+    {
+        button.Background = new SolidColorBrush(Color.FromRgb(value.Red, value.Green, value.Blue));
+        button.Foreground = value.Red * 0.299 + value.Green * 0.587 + value.Blue * 0.114 > 128
+            ? Brushes.Black : Brushes.White;
+        button.Content = $"{label} #{value.Hex}";
+    }
+
+    private async Task PickPaletteAsync(bool background)
+    {
+        if (maskPaint.IsChecked == true)
+        {
+            string? choice = await ChoiceAsync("蒙版颜色", "蒙版使用黑色隐藏、白色显示。",
+                ("黑色", "black"), ("白色", "white"), ("取消", "cancel"));
+            if (choice is not "black" and not "white") return;
+            bool white = choice == "white";
+            maskPaintMode.SelectedIndex = (background ? !white : white) ? 1 : 0;
+        }
+        else
+        {
+            PaletteColor original = background ? Workspace.BackgroundColor : Workspace.ForegroundColor;
+            if (await ChooseColorAsync(background ? "背景色" : "前景色", original) is not { } chosen) return;
+            if (background) Workspace.BackgroundColor = chosen;
+            else { Workspace.ForegroundColor = chosen; color.SelectedIndex = 4; }
+        }
+        RefreshPalette();
+    }
+
+    private Task SwapPaletteAsync()
+    {
+        if (maskPaint.IsChecked == true) maskPaintMode.SelectedIndex = maskPaintMode.SelectedIndex == 1 ? 0 : 1;
+        else
+        {
+            (Workspace.ForegroundColor, Workspace.BackgroundColor) = (Workspace.BackgroundColor, Workspace.ForegroundColor);
+            color.SelectedIndex = 4;
+        }
+        RefreshPalette();
+        return Task.CompletedTask;
+    }
+
+    private Task ResetPaletteAsync()
+    {
+        if (maskPaint.IsChecked == true) maskPaintMode.SelectedIndex = 0;
+        else
+        {
+            Workspace.ForegroundColor = PaletteColor.Black;
+            Workspace.BackgroundColor = PaletteColor.White;
+            color.SelectedIndex = 4;
+        }
+        RefreshPalette();
+        return Task.CompletedTask;
+    }
+
+    private async Task<PaletteColor?> ChooseColorAsync(string title, PaletteColor original)
+    {
+        var dialog = new ColorPickerDialog(title, original) { FontFamily = FontFamily, FontSize = FontSize };
+        return await dialog.ShowDialog<PaletteColor?>(this);
+    }
+
+    private async Task PickTextColorAsync()
+    {
+        var current = textColor.SelectedIndex == 4 ? customTextColor : TextColor(textColor.SelectedIndex);
+        if (await ChooseColorAsync("文字颜色", PaletteColor.FromRgb(current.Red, current.Green, current.Blue)) is not { } chosen) return;
+        customTextColor = chosen.Rgb;
+        textColor.SelectedIndex = 4;
+    }
+
+    private async Task PickGradientColorAsync(bool end)
+    {
+        var current = GradientColor(end);
+        if (await ChooseColorAsync(end ? "渐变终点色" : "渐变起点色",
+            PaletteColor.FromRgb(current.Red, current.Green, current.Blue)) is not { } chosen) return;
+        if (end) { customGradientEnd = chosen.Rgb; gradientEndColor.SelectedIndex = 4; }
+        else { customGradientStart = chosen.Rgb; gradientStartColor.SelectedIndex = 4; }
+    }
 
     private (double Red, double Green, double Blue) ShapeColor(int index) =>
-        index == 4 ? sampledColor : TextColor(index);
+        index == 4 ? Workspace.ForegroundColor.Rgb : TextColor(index);
 
-    private (double Red, double Green, double Blue) GradientColor(int index) =>
-        index == 4 ? sampledColor : TextColor(index);
+    private (double Red, double Green, double Blue) GradientColor(bool end)
+    {
+        int index = end ? gradientEndColor.SelectedIndex : gradientStartColor.SelectedIndex;
+        return index == 4 ? (end ? customGradientEnd : customGradientStart) : TextColor(index);
+    }
 
     private static int GradientColorIndex(double red, double green, double blue)
     {
+        if (red == 0 && green == 0 && blue == 0) return 0;
         if (red == 1 && green == 1 && blue == 1) return 1;
         if (red == 0.1 && green == 0.3 && blue == 0.9) return 2;
         if (red == 1 && green == 0.3 && blue == 0.1) return 3;
-        return 0;
+        return 4;
     }
 
     private static int TextColorIndex(TextLayerMetadata metadata)
     {
         (double red, double green, double blue) = (metadata.Red, metadata.Green, metadata.Blue);
+        if (red == 0 && green == 0 && blue == 0) return 0;
         if (red == 1 && green == 1 && blue == 1) return 1;
         if (red == 0.1 && green == 0.3 && blue == 0.9) return 2;
         if (red == 1 && green == 0.3 && blue == 0.1) return 3;
-        return 0;
+        return 4;
     }
     private Task AppearanceAsync()
     {

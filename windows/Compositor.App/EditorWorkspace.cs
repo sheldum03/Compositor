@@ -12,6 +12,8 @@ internal enum ResizeFilter
 
 public sealed class EditorWorkspace
 {
+    public PaletteColor ForegroundColor { get; set; } = PaletteColor.Black;
+    public PaletteColor BackgroundColor { get; set; } = PaletteColor.White;
     private SoftBrushStroke? brush;
     private Guid brushLayer;
     private SoftBrushStroke? maskBrush;
@@ -172,8 +174,9 @@ public sealed class EditorWorkspace
         string font = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
             ?? throw new NotSupportedException("No usable font is installed.");
         double? boxWidth = box ? Math.Min(360, session.Width) : null;
+        var color = ForegroundColor.Rgb;
         var metadata = new TextLayerMetadata(Guid.Empty, "", content, font, 18,
-            0, 0, 0, 1, "left", 0, 0, box ? "box" : "point", boxWidth);
+            color.Red, color.Green, color.Blue, 1, "left", 0, 0, box ? "box" : "point", boxWidth);
         TileRaster raster = TextLayerWorkflow.RenderText(metadata, session.Width, session.Height, session.Resolution);
         int index = session.ActiveLayerId is { } active
             ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
