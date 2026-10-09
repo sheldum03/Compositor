@@ -1320,7 +1320,7 @@ public sealed class ProjectSession
             nextWidth, nextHeight, transform["rotation"]?.GetValue<double>() ?? 0);
     }
 
-    public void MoveGroup(Guid groupId, double offsetX, double offsetY)
+    public void MoveGroup(Guid groupId, double offsetX, double offsetY, bool snap = false)
     {
         RequireGroupStructureEditing();
         if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY))
@@ -1335,6 +1335,7 @@ public sealed class ProjectSession
         var size = transform["size"]?.AsArray();
         if (origin?.Count != 2 || size?.Count != 2)
             throw new InvalidDataException("Group transform data is invalid.");
+        if (snap) (offsetX, offsetY) = SnapMoveOffset([groupId], offsetX, offsetY);
         SetGroupTransform(groupId,
             origin[0]!.GetValue<double>() + offsetX,
             origin[1]!.GetValue<double>() + offsetY,
@@ -1386,7 +1387,7 @@ public sealed class ProjectSession
             nextWidth, nextHeight, transform["rotation"]?.GetValue<double>() ?? 0);
     }
 
-    public void MoveLayerTransform(Guid layerId, double offsetX, double offsetY)
+    public void MoveLayerTransform(Guid layerId, double offsetX, double offsetY, bool snap = false)
     {
         RequireLayerStructureEditing();
         if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY))
@@ -1401,6 +1402,7 @@ public sealed class ProjectSession
         var size = transform["size"]?.AsArray();
         if (origin?.Count != 2 || size?.Count != 2)
             throw new InvalidDataException("Layer transform data is invalid.");
+        if (snap) (offsetX, offsetY) = SnapMoveOffset([layerId], offsetX, offsetY);
         SetLayerTransform(layerId,
             origin[0]!.GetValue<double>() + offsetX,
             origin[1]!.GetValue<double>() + offsetY,
@@ -1521,7 +1523,7 @@ public sealed class ProjectSession
     }
 
     public void TransformLayers(IReadOnlyList<Guid> layerIds, double offsetX, double offsetY,
-        double scale, double rotation)
+        double scale, double rotation, bool snap = false)
     {
         RequireLayerStructureEditing();
         if (layerIds.Count == 0)
@@ -1531,6 +1533,8 @@ public sealed class ProjectSession
             throw new ArgumentOutOfRangeException(nameof(scale));
 
         Guid[] ids = layerIds.Distinct().ToArray();
+        if (snap && scale == 1 && rotation == 0)
+            (offsetX, offsetY) = SnapMoveOffset(ids, offsetX, offsetY);
         var transforms = ids.Select(id =>
         {
             int index = FindLayer(id);
@@ -2486,6 +2490,58 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
         if (snapshots[cursor].LayerRasters is null)
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
+    }
+
+    private (double X, double Y) SnapMoveOffset(IEnumerable<Guid> movingIds, double offsetX, double offsetY)
+    {
+        HashSet<Guid> moving = movingIds.ToHashSet();
+        bool added;
+        do
+        {
+            added = false;
+            foreach (FlatLayerInfo layer in Layers)
+                if (layer.ParentId is { } parent && moving.Contains(parent) && moving.Add(layer.Id)) added = true;
+        } while (added);
+
+        var movingBounds = Layers
+            .Where(layer => moving.Contains(layer.Id) && (layer.ParentId is not { } parent || !moving.Contains(parent)))
+            .Select(layer => Bounds(GetLayerTransform(layer.Id)))
+            .ToArray();
+        if (movingBounds.Length == 0) return (offsetX, offsetY);
+        double left = movingBounds.Min(item => item.Left) + offsetX;
+        double top = movingBounds.Min(item => item.Top) + offsetY;
+        double right = movingBounds.Max(item => item.Right) + offsetX;
+        double bottom = movingBounds.Max(item => item.Bottom) + offsetY;
+        double[] xs = [0, Width / 2d, Width], ys = [0, Height / 2d, Height];
+        foreach (FlatLayerInfo layer in Layers.Where(layer => layer.IsVisible && !moving.Contains(layer.Id)))
+        {
+            var bounds = Bounds(GetLayerTransform(layer.Id));
+            xs = [.. xs, bounds.Left, (bounds.Left + bounds.Right) / 2, bounds.Right];
+            ys = [.. ys, bounds.Top, (bounds.Top + bounds.Bottom) / 2, bounds.Bottom];
+        }
+        return (offsetX + Nearest([left, (left + right) / 2, right], xs),
+            offsetY + Nearest([top, (top + bottom) / 2, bottom], ys));
+
+        static (double Left, double Top, double Right, double Bottom) Bounds(LayerTransformInfo transform)
+        {
+            double radians = transform.Rotation * Math.PI / 180;
+            double halfWidth = (Math.Abs(Math.Cos(radians)) * transform.Width + Math.Abs(Math.Sin(radians)) * transform.Height) / 2;
+            double halfHeight = (Math.Abs(Math.Sin(radians)) * transform.Width + Math.Abs(Math.Cos(radians)) * transform.Height) / 2;
+            double centerX = transform.X + transform.Width / 2, centerY = transform.Y + transform.Height / 2;
+            return (centerX - halfWidth, centerY - halfHeight, centerX + halfWidth, centerY + halfHeight);
+        }
+
+        static double Nearest(double[] guides, double[] targets)
+        {
+            double best = 0;
+            foreach (double guide in guides)
+            foreach (double target in targets)
+            {
+                double shift = target - guide;
+                if (Math.Abs(shift) <= 10 && Math.Abs(shift) < Math.Abs(best)) best = shift;
+            }
+            return best;
+        }
     }
 
     private static void UpdateMaskPlacement(JsonObject layer, JsonObject oldTransform, JsonObject newTransform)

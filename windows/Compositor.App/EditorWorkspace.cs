@@ -1387,7 +1387,7 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.FlipLayerTransform(layerId, horizontal));
     }
 
-    public void MoveActiveLayer(int offsetX, int offsetY)
+    public void MoveActiveLayer(int offsetX, int offsetY, bool snap = false)
     {
         RequireIdle();
         var session = RequireSession();
@@ -1396,17 +1396,17 @@ public sealed class EditorWorkspace
         if (offsetX == 0 && offsetY == 0) return;
         if (session.Layers.Single(layer => layer.Id == layerId).IsGroup)
         {
-            Edit(editSession => editSession.MoveGroup(layerId, offsetX, offsetY));
+            Edit(editSession => editSession.MoveGroup(layerId, offsetX, offsetY, snap));
             return;
         }
-        Edit(editSession => editSession.MoveLayerTransform(layerId, offsetX, offsetY));
+        Edit(editSession => editSession.MoveLayerTransform(layerId, offsetX, offsetY, snap));
     }
 
-    public void MoveSelectedLayers(IReadOnlyList<Guid> layerIds, int offsetX, int offsetY)
+    public void MoveSelectedLayers(IReadOnlyList<Guid> layerIds, int offsetX, int offsetY, bool snap = false)
     {
         RequireIdle();
         if (layerIds.Count < 2) throw new ArgumentException("请选择至少两个图层。", nameof(layerIds));
-        Edit(editSession => editSession.TransformLayers(layerIds, offsetX, offsetY, 1, 0));
+        Edit(editSession => editSession.TransformLayers(layerIds, offsetX, offsetY, 1, 0, snap));
     }
 
     public void ScaleActiveLayer(bool enlarge)

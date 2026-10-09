@@ -60,6 +60,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown layerOpacity = new() { Name = "LayerOpacity", Minimum = 0, Maximum = 100, Value = 100, Width = 90 };
     private readonly NumericUpDown layerMoveX = new() { Name = "LayerMoveX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
+    private readonly CheckBox snapMove = new() { Name = "SnapMove", Content = "吸附", IsChecked = true };
     private readonly NumericUpDown layerRotation = new() { Name = "LayerRotation", Minimum = -3600, Maximum = 3600, Value = 15, Width = 70 };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly NumericUpDown adjustmentExposure = new() { Name = "AdjustmentExposure", Minimum = -20, Maximum = 20, Value = 0, Width = 70 };
@@ -550,6 +551,7 @@ public sealed class MainWindow : Window
         move.Children.Add(layerMoveX);
         move.Children.Add(new TextBlock { Text = "Y", VerticalAlignment = VerticalAlignment.Center });
         move.Children.Add(layerMoveY);
+        move.Children.Add(snapMove);
         move.Children.Add(Command("MoveLayer", "移动图层/组", MoveLayerAsync, layer: true));
         actions.Children.Add(move);
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
@@ -1890,10 +1892,11 @@ public sealed class MainWindow : Window
     private Task MoveLayerAsync()
     {
         int offsetX = (int)(layerMoveX.Value ?? 0), offsetY = (int)(layerMoveY.Value ?? 0);
+        bool snap = snapMove.IsChecked == true;
         Guid[] ids = SelectedLayerIds();
         return ids.Length > 1
-            ? Task.Run(() => Workspace.MoveSelectedLayers(ids, offsetX, offsetY))
-            : Task.Run(() => Workspace.MoveActiveLayer(offsetX, offsetY));
+            ? Task.Run(() => Workspace.MoveSelectedLayers(ids, offsetX, offsetY, snap))
+            : Task.Run(() => Workspace.MoveActiveLayer(offsetX, offsetY, snap));
     }
 
     private Guid[] SelectedLayerIds() =>
