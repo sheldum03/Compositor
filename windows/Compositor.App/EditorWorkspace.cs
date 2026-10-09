@@ -57,8 +57,7 @@ public sealed class EditorWorkspace
     public bool CanFreeDistort => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
         !session.HasGroups && session.ActiveLayerId is { } layerId &&
         session.Layers.SingleOrDefault(layer => layer.Id == layerId) is
-        { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false } &&
-        session.IsLayerTransformIdentity(layerId);
+        { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false };
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true && !readOnlyTextCache;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
@@ -414,7 +413,7 @@ public sealed class EditorWorkspace
         RequireEditableSession();
         ProjectSession session = RequireSession();
         if (!CanFreeDistort || session.ActiveLayerId is not { } layerId)
-            throw new NotSupportedException("自由扭曲目前只支持无组、无蒙版、无变换的平面栅格图层。");
+            throw new NotSupportedException("自由扭曲目前只支持无组、无蒙版的平面栅格图层。");
         Edit(editSession => ImageProjectWorkflow.ApplyFreeDistort(editSession, layerId, corners));
     }
 

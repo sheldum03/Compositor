@@ -1283,10 +1283,15 @@ public static class ImageProjectWorkflow
         if (!session.CanEdit) throw new NotSupportedException("This project is read-only.");
         FlatLayerInfo layer = session.Layers.SingleOrDefault(item => item.Id == layerId)
             ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
-        if (layer.IsGroup || layer.IsAdjustment || layer.IsText || layer.HasMask ||
-            !session.IsLayerTransformIdentity(layerId))
-            throw new NotSupportedException("自由扭曲目前只支持无组、无蒙版、无变换的平面栅格图层。");
+        if (layer.IsGroup || layer.IsAdjustment || layer.IsText || layer.HasMask)
+            throw new NotSupportedException("自由扭曲目前只支持无组、无蒙版的平面栅格图层。");
         TileRaster source = session.GetLayerRaster(layerId);
+        if (!session.IsLayerTransformIdentity(layerId))
+        {
+            JsonObject manifest = session.Current["layers"]!.AsArray()
+                .Single(node => Guid.Parse(node!["id"]!.GetValue<string()) == layerId)!.AsObject();
+            source = TransformCachedRaster(source, manifest["transform"]!.AsObject(), session.Width, session.Height);
+        }
         TileRaster warped = RasterCompositor.ApplyPerspectiveWarp(source, corners, session.Width, session.Height);
         session.ReplaceLayerTransformWithRaster(layerId, warped, null);
     }
