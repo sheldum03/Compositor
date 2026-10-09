@@ -1627,6 +1627,7 @@ public sealed class ProjectSession
         transform["rotation"] = 0d;
         transform["flipX"] = false;
         transform["flipY"] = false;
+        next["layers"]![index]!.AsObject().Remove("maskPlacement");
         Commit(new Snapshot(next, nextRasters, nextMasks is { Count: > 0 } ? nextMasks : null, ++nextRevision));
     }
 
@@ -1872,6 +1873,8 @@ public sealed class ProjectSession
         baked["imageFile"] = groupId.ToString("D").ToUpperInvariant() + ".png";
         baked.Remove("maskFile");
         baked.Remove("maskEnabled");
+        baked.Remove("maskLinked");
+        baked.Remove("maskPlacement");
         baked["transform"] = new JsonObject
         {
             ["origin"] = new JsonArray(0d, 0d),
@@ -2045,6 +2048,8 @@ public sealed class ProjectSession
         lowerTransform["flipY"] = false;
         lowerNode.Remove("maskFile");
         lowerNode.Remove("maskEnabled");
+        lowerNode.Remove("maskLinked");
+        lowerNode.Remove("maskPlacement");
         lowerNode.Remove("maskSourceID");
         for (int index = indexes[^1]; index >= indexes[0]; index--)
             if (index != indexes[0]) nextLayers.RemoveAt(index);
@@ -2128,6 +2133,8 @@ public sealed class ProjectSession
         lowerNode["imageFile"] = lower.Id.ToString("D").ToUpperInvariant() + ".png";
         lowerNode.Remove("maskFile");
         lowerNode.Remove("maskEnabled");
+        lowerNode.Remove("maskLinked");
+        lowerNode.Remove("maskPlacement");
         lowerNode.Remove("maskSourceID");
         lowerNode["transform"] = new JsonObject
         {

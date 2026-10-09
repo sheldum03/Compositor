@@ -21,6 +21,8 @@ public sealed class EditorWorkspace
     private Guid cloneBrushLayer;
     private BlurBrushStroke? blurBrush;
     private Guid blurBrushLayer;
+    private WarpBrushStroke? warpBrush;
+    private Guid warpBrushLayer;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private Guid? clipboardLayerId;
@@ -41,7 +43,7 @@ public sealed class EditorWorkspace
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
-    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null;
+    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null || warpBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public bool HasFilterPreview => filterPreviewRaster is not null;
     public ProjectSession? Session { get; private set; }
@@ -847,6 +849,36 @@ public sealed class EditorWorkspace
             Edit(current => current.ReplaceLayerRaster(blurBrushLayer, pixels));
     }
 
+    public void BeginWarpStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, WarpBrushMode mode)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        warpBrushLayer = layerId;
+        warpBrush = new WarpBrushStroke(session.GetLayerRaster(layerId), settings, mode,
+            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
+        AppendWarpStroke(point);
+    }
+
+    public void AppendWarpStroke(BrushPoint point)
+    {
+        var active = warpBrush ?? throw new InvalidOperationException("No active warp stroke.");
+        active.Append(DocumentToLayerPoint(RequireSession(), warpBrushLayer, point));
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), warpBrushLayer, active.Snapshot());
+    }
+
+    public void CommitWarpStroke(BrushPoint point)
+    {
+        AppendWarpStroke(point);
+        var active = warpBrush!;
+        TileRaster pixels = active.Commit();
+        warpBrush = null;
+        var session = RequireSession();
+        if (SamePixels(session.GetLayerRaster(warpBrushLayer), pixels))
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        else
+            Edit(current => current.ReplaceLayerRaster(warpBrushLayer, pixels));
+    }
+
     public void BeginMaskStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, bool reveal)
     {
         RequireIdle();
@@ -921,6 +953,10 @@ public sealed class EditorWorkspace
         else if (blurBrush is { } currentBlurBrush)
         {
             currentBlurBrush.Cancel(); blurBrush = null;
+        }
+        else if (warpBrush is { } currentWarpBrush)
+        {
+            currentWarpBrush.Cancel(); warpBrush = null;
         }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
