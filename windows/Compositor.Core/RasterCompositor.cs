@@ -840,6 +840,110 @@ public static class RasterCompositor
         }
     }
 
+    public static TileRaster ApplyPerspectiveWarp(TileRaster image,
+        IReadOnlyList<(double X, double Y)> corners, int width, int height)
+    {
+        if (corners.Count != 4 || width < 1 || height < 1)
+            throw new ArgumentException("A perspective warp needs four corners and a valid output size.");
+        if (corners.Any(point => !double.IsFinite(point.X) || !double.IsFinite(point.Y) ||
+            Math.Abs(point.X) > 1_000_000 || Math.Abs(point.Y) > 1_000_000))
+            throw new ArgumentException("Perspective corners are invalid.", nameof(corners));
+        double sign = 0;
+        for (int index = 0; index < 4; index++)
+        {
+            var a = corners[index]; var b = corners[(index + 1) % 4]; var c = corners[(index + 2) % 4];
+            double cross = (b.X - a.X) * (c.Y - b.Y) - (b.Y - a.Y) * (c.X - b.X);
+            if (Math.Abs(cross) <= 0.01 || sign != 0 && (cross < 0) != (sign < 0))
+                throw new ArgumentException("Perspective corners must form a convex quadrilateral.", nameof(corners));
+            if (sign == 0) sign = cross < 0 ? -1 : 1;
+        }
+        double sx = corners[0].X - corners[1].X + corners[2].X - corners[3].X;
+        double sy = corners[0].Y - corners[1].Y + corners[2].Y - corners[3].Y;
+        double g = 0, h = 0;
+        if (Math.Abs(sx) > 1e-9 || Math.Abs(sy) > 1e-9)
+        {
+            double dx1 = corners[1].X - corners[2].X, dx2 = corners[3].X - corners[2].X;
+            double dy1 = corners[1].Y - corners[2].Y, dy2 = corners[3].Y - corners[2].Y;
+            double denominator = dx1 * dy2 - dx2 * dy1;
+            if (Math.Abs(denominator) <= 1e-12) throw new ArgumentException("Perspective corners are singular.", nameof(corners));
+            g = (sx * dy2 - dx2 * sy) / denominator;
+            h = (dx1 * sy - sx * dy1) / denominator;
+        }
+        double a11 = corners[1].X - corners[0].X + g * corners[1].X;
+        double a12 = corners[3].X - corners[0].X + h * corners[3].X;
+        double a13 = corners[0].X;
+        double a21 = corners[1].Y - corners[0].Y + g * corners[1].Y;
+        double a22 = corners[3].Y - corners[0].Y + h * corners[3].Y;
+        double a23 = corners[0].Y;
+        double a31 = g, a32 = h, a33 = 1;
+        double determinant = a11 * (a22 * a33 - a23 * a32) -
+            a12 * (a21 * a33 - a23 * a31) + a13 * (a21 * a32 - a22 * a31);
+        if (Math.Abs(determinant) <= 1e-12) throw new ArgumentException("Perspective corners are singular.", nameof(corners));
+        double i11 = (a22 * a33 - a23 * a32) / determinant;
+        double i12 = (a13 * a32 - a12 * a33) / determinant;
+        double i13 = (a12 * a23 - a13 * a22) / determinant;
+        double i21 = (a23 * a31 - a21 * a33) / determinant;
+        double i22 = (a11 * a33 - a13 * a31) / determinant;
+        double i23 = (a13 * a21 - a11 * a23) / determinant;
+        double i31 = (a21 * a32 - a22 * a31) / determinant;
+        double i32 = (a12 * a31 - a11 * a32) / determinant;
+        double i33 = (a11 * a22 - a12 * a21) / determinant;
+        byte[] sourcePixels = ToRgba(image);
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                double documentX = column * TileRaster.TileSize + x + 0.5;
+                double documentY = row * TileRaster.TileSize + y + 0.5;
+                double unitW = i31 * documentX + i32 * documentY + i33;
+                if (Math.Abs(unitW) <= 1e-12) continue;
+                double unitX = (i11 * documentX + i12 * documentY + i13) / unitW;
+                double unitY = (i21 * documentX + i22 * documentY + i23) / unitW;
+                if (unitX < 0 || unitX > 1 || unitY < 0 || unitY > 1) continue;
+                double sourceX = Math.Clamp(unitX * image.Width - 0.5, 0, image.Width - 1);
+                double sourceY = Math.Clamp(unitY * image.Height - 0.5, 0, image.Height - 1);
+                int left = (int)Math.Floor(sourceX), top = (int)Math.Floor(sourceY);
+                int right = Math.Min(image.Width - 1, left + 1), bottom = Math.Min(image.Height - 1, top + 1);
+                double fx = sourceX - left, fy = sourceY - top;
+                Span<byte> output = tile.AsSpan((y * size.Width + x) * 4, 4);
+                int topLeft = (top * image.Width + left) * 4, topRight = (top * image.Width + right) * 4;
+                int bottomLeft = (bottom * image.Width + left) * 4, bottomRight = (bottom * image.Width + right) * 4;
+                for (int channel = 0; channel < 4; channel++)
+                {
+                    double topValue = sourcePixels[topLeft + channel] * (1 - fx) +
+                        sourcePixels[topRight + channel] * fx;
+                    double bottomValue = sourcePixels[bottomLeft + channel] * (1 - fx) +
+                        sourcePixels[bottomRight + channel] * fx;
+                    output[channel] = (byte)Math.Clamp(Math.Round(topValue * (1 - fy) + bottomValue * fy,
+                        MidpointRounding.AwayFromZero), 0, 255);
+                }
+            }
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+
+        static byte[] ToRgba(TileRaster raster)
+        {
+            byte[] result = new byte[checked(raster.Width * raster.Height * 4)];
+            for (int row = 0; row * TileRaster.TileSize < raster.Height; row++)
+            for (int column = 0; column * TileRaster.TileSize < raster.Width; column++)
+            {
+                var size = raster.TileDimensions(column, row);
+                byte[] tile = raster.ReadTileCopy(column, row);
+                for (int y = 0; y < size.Height; y++)
+                    tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(result.AsSpan(
+                        ((row * TileRaster.TileSize + y) * raster.Width + column * TileRaster.TileSize) * 4,
+                        size.Width * 4));
+            }
+            return result;
+        }
+    }
+
     public static TileRaster ApplyAlphaMask(TileRaster image, TileRaster source, double sourceOpacity = 1)
     {
         if (image.Width != source.Width || image.Height != source.Height)

@@ -62,6 +62,15 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown layerMoveY = new() { Name = "LayerMoveY", Minimum = -30000, Maximum = 30000, Value = 0, Width = 70 };
     private readonly CheckBox snapMove = new() { Name = "SnapMove", Content = "吸附", IsChecked = true };
     private readonly NumericUpDown layerRotation = new() { Name = "LayerRotation", Minimum = -3600, Maximum = 3600, Value = 15, Width = 70 };
+    private readonly NumericUpDown distortTopLeftX = new() { Name = "DistortTopLeftX", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortTopLeftY = new() { Name = "DistortTopLeftY", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortTopRightX = new() { Name = "DistortTopRightX", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortTopRightY = new() { Name = "DistortTopRightY", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortBottomRightX = new() { Name = "DistortBottomRightX", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortBottomRightY = new() { Name = "DistortBottomRightY", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortBottomLeftX = new() { Name = "DistortBottomLeftX", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly NumericUpDown distortBottomLeftY = new() { Name = "DistortBottomLeftY", Minimum = -30000, Maximum = 30000, Width = 62 };
+    private readonly StackPanel freeDistortEditor = new() { Name = "FreeDistortEditor", Spacing = 4, IsVisible = false };
     private readonly ComboBox layerBlendMode = new() { Name = "LayerBlendMode", Width = 150 };
     private readonly NumericUpDown adjustmentExposure = new() { Name = "AdjustmentExposure", Minimum = -20, Maximum = 20, Value = 0, Width = 70 };
     private readonly NumericUpDown adjustmentOffset = new() { Name = "AdjustmentOffset", Minimum = -0.5m, Maximum = 0.5m, Value = 0, Width = 70 };
@@ -554,6 +563,21 @@ public sealed class MainWindow : Window
         move.Children.Add(snapMove);
         move.Children.Add(Command("MoveLayer", "移动图层/组", MoveLayerAsync, layer: true));
         actions.Children.Add(move);
+        freeDistortEditor.Children.Add(new TextBlock { Text = "自由扭曲角点（左上 / 右上 / 右下 / 左下）" });
+        var distortTop = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+        distortTop.Children.Add(new TextBlock { Text = "左上", VerticalAlignment = VerticalAlignment.Center });
+        distortTop.Children.Add(distortTopLeftX); distortTop.Children.Add(distortTopLeftY);
+        distortTop.Children.Add(new TextBlock { Text = "右上", VerticalAlignment = VerticalAlignment.Center });
+        distortTop.Children.Add(distortTopRightX); distortTop.Children.Add(distortTopRightY);
+        freeDistortEditor.Children.Add(distortTop);
+        var distortBottom = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+        distortBottom.Children.Add(new TextBlock { Text = "右下", VerticalAlignment = VerticalAlignment.Center });
+        distortBottom.Children.Add(distortBottomRightX); distortBottom.Children.Add(distortBottomRightY);
+        distortBottom.Children.Add(new TextBlock { Text = "左下", VerticalAlignment = VerticalAlignment.Center });
+        distortBottom.Children.Add(distortBottomLeftX); distortBottom.Children.Add(distortBottomLeftY);
+        freeDistortEditor.Children.Add(distortBottom);
+        freeDistortEditor.Children.Add(Command("ApplyFreeDistort", "应用自由扭曲", ApplyFreeDistortAsync, layer: true));
+        actions.Children.Add(freeDistortEditor);
         actions.Children.Add(Command("ApplyAppearance", "应用外观", AppearanceAsync, layer: true));
         actions.Children.Add(Command("InvertLayer", "反相图层", InvertLayerAsync, layer: true));
         actions.Children.Add(Command("Visibility", "显示 / 隐藏", VisibilityAsync, layer: true));
@@ -1074,6 +1098,11 @@ public sealed class MainWindow : Window
             if (selectedId is { } id) Workspace.Session!.SelectLayer(id);
             foreach (var button in documentButtons.Where(button => button.Name == "ContentFill"))
                 button.IsEnabled = Workspace.CanContentFill;
+            double documentWidth = Workspace.Session?.Width ?? 1, documentHeight = Workspace.Session?.Height ?? 1;
+            distortTopLeftX.Value = 0; distortTopLeftY.Value = 0;
+            distortTopRightX.Value = (decimal)documentWidth; distortTopRightY.Value = 0;
+            distortBottomRightX.Value = (decimal)documentWidth; distortBottomRightY.Value = (decimal)documentHeight;
+            distortBottomLeftX.Value = 0; distortBottomLeftY.Value = (decimal)documentHeight;
             layerName.Text = selected?.Name ?? "";
             layerOpacity.Value = selected is null ? 100 : (decimal)(selected.Opacity * 100);
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
@@ -1158,6 +1187,7 @@ public sealed class MainWindow : Window
             shapeCornerRadius.Value = shape is null ? 0 : (decimal)shape.CornerRadius;
         }
         finally { refreshing = false; }
+        freeDistortEditor.IsVisible = Workspace.CanFreeDistort;
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
         bool showTextEditor = selected?.IsText == true && !multiple && (Workspace.CanEdit || missingFont);
         layerName.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -1277,6 +1307,8 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanLayerViaCopy;
             if (button.Name == "ApplyText")
                 button.IsEnabled = Workspace.CanEdit && selected?.IsText == true && !multiple && !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyFreeDistort")
+                button.IsEnabled = Workspace.CanFreeDistort;
             if (button.Name == "InvertLayer")
                 button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false, IsText: false, IsAdjustment: false } &&
                     !multiple && !Workspace.HasFloatingSelection;
@@ -1897,6 +1929,18 @@ public sealed class MainWindow : Window
         return ids.Length > 1
             ? Task.Run(() => Workspace.MoveSelectedLayers(ids, offsetX, offsetY, snap))
             : Task.Run(() => Workspace.MoveActiveLayer(offsetX, offsetY, snap));
+    }
+
+    private Task ApplyFreeDistortAsync()
+    {
+        var corners = new[]
+        {
+            ((double)(distortTopLeftX.Value ?? 0), (double)(distortTopLeftY.Value ?? 0)),
+            ((double)(distortTopRightX.Value ?? 0), (double)(distortTopRightY.Value ?? 0)),
+            ((double)(distortBottomRightX.Value ?? 0), (double)(distortBottomRightY.Value ?? 0)),
+            ((double)(distortBottomLeftX.Value ?? 0), (double)(distortBottomLeftY.Value ?? 0))
+        };
+        return Task.Run(() => Workspace.ApplyFreeDistort(corners));
     }
 
     private Guid[] SelectedLayerIds() =>

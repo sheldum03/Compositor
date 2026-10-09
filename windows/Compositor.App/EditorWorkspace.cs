@@ -51,6 +51,11 @@ public sealed class EditorWorkspace
         session.Layers.SingleOrDefault(layer => layer.Id == layerId) is
         { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false } &&
         session.IsLayerTransformIdentity(layerId);
+    public bool CanFreeDistort => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
+        !session.HasGroups && session.ActiveLayerId is { } layerId &&
+        session.Layers.SingleOrDefault(layer => layer.Id == layerId) is
+        { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false } &&
+        session.IsLayerTransformIdentity(layerId);
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true && !readOnlyTextCache;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
@@ -398,6 +403,16 @@ public sealed class EditorWorkspace
         TileRaster source = session.GetLayerRaster(layerId);
         TileRaster filled = RasterCompositor.ApplyContentFill(source, SelectionForLayer(session, layerId, selection));
         if (!SamePixels(source, filled)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, filled));
+    }
+
+    public void ApplyFreeDistort(IReadOnlyList<(double X, double Y)> corners)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        ProjectSession session = RequireSession();
+        if (!CanFreeDistort || session.ActiveLayerId is not { } layerId)
+            throw new NotSupportedException("自由扭曲目前只支持无组、无蒙版、无变换的平面栅格图层。");
+        Edit(editSession => ImageProjectWorkflow.ApplyFreeDistort(editSession, layerId, corners));
     }
 
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)

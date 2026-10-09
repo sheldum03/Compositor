@@ -1277,6 +1277,20 @@ public static class ImageProjectWorkflow
         session.ReplaceLayerTransformWithRaster(layerId, baked, bakedMask);
     }
 
+    public static void ApplyFreeDistort(ProjectSession session, Guid layerId,
+        IReadOnlyList<(double X, double Y)> corners)
+    {
+        if (!session.CanEdit) throw new NotSupportedException("This project is read-only.");
+        FlatLayerInfo layer = session.Layers.SingleOrDefault(item => item.Id == layerId)
+            ?? throw new ArgumentException("Layer does not belong to this project.", nameof(layerId));
+        if (layer.IsGroup || layer.IsAdjustment || layer.IsText || layer.HasMask ||
+            !session.IsLayerTransformIdentity(layerId))
+            throw new NotSupportedException("自由扭曲目前只支持无组、无蒙版、无变换的平面栅格图层。");
+        TileRaster source = session.GetLayerRaster(layerId);
+        TileRaster warped = RasterCompositor.ApplyPerspectiveWarp(source, corners, session.Width, session.Height);
+        session.ReplaceLayerTransformWithRaster(layerId, warped, null);
+    }
+
     public static void ExportPng(ProjectSession session, string output)
     {
         ImageCodec.SavePng(RenderFlatNormal(session), output);
