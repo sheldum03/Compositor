@@ -2,6 +2,50 @@ namespace Compositor.Core;
 
 public static class RasterCompositor
 {
+    public static TileRaster CreateShape(int width, int height, ShapeSettings settings)
+    {
+        if (width < 1 || height < 1) throw new ArgumentOutOfRangeException(nameof(width));
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        byte red = (byte)Math.Round(settings.Red * 255, MidpointRounding.AwayFromZero);
+        byte green = (byte)Math.Round(settings.Green * 255, MidpointRounding.AwayFromZero);
+        byte blue = (byte)Math.Round(settings.Blue * 255, MidpointRounding.AwayFromZero);
+        double radius = Math.Min(settings.CornerRadius, Math.Min(width, height) / 2d);
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                double px = column * TileRaster.TileSize + x + 0.5;
+                double py = row * TileRaster.TileSize + y + 0.5;
+                bool inside = settings.Kind == "Ellipse"
+                    ? Math.Pow((px - width / 2d) / (width / 2d), 2) +
+                      Math.Pow((py - height / 2d) / (height / 2d), 2) <= 1
+                    : IsRoundedRectangle(px, py, width, height, radius);
+                if (!inside) continue;
+                int offset = (y * size.Width + x) * 4;
+                tile[offset] = red;
+                tile[offset + 1] = green;
+                tile[offset + 2] = blue;
+                tile[offset + 3] = 255;
+            }
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+
+        static bool IsRoundedRectangle(double x, double y, int width, int height, double radius)
+        {
+            if (radius <= 0) return x > 0 && y > 0 && x < width && y < height;
+            double left = Math.Abs(x - width / 2d) - (width / 2d - radius);
+            double top = Math.Abs(y - height / 2d) - (height / 2d - radius);
+            if (left <= 0 || top <= 0) return x > 0 && y > 0 && x < width && y < height;
+            return left * left + top * top <= radius * radius;
+        }
+    }
+
     public static TileRaster ApplyExposure(TileRaster image, ExposureSettings settings)
     {
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));

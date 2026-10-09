@@ -28,6 +28,7 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
+    private readonly NumericUpDown shapeCornerRadius = new() { Name = "ShapeCornerRadius", Minimum = 0, Maximum = 30000, Value = 0, Width = 70 };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
     private readonly NumericUpDown maskRadius = new() { Name = "MaskRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
     private readonly StackPanel brushOptions = new() { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 0, 0, 12) };
@@ -261,6 +262,11 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddLayer", "新增图层", AddLayerAsync, document: true));
         structure.Children.Add(Command("AddTextLayer", "新增文字", AddTextLayerAsync, document: true));
         structure.Children.Add(Command("AddBoxTextLayer", "新增框文字", AddBoxTextLayerAsync, document: true));
+        structure.Children.Add(Command("AddRectangleShape", "新增矩形", AddRectangleShapeAsync, layer: true));
+        structure.Children.Add(Command("AddEllipseShape", "新增椭圆", AddEllipseShapeAsync, layer: true));
+        structure.Children.Add(new TextBlock { Text = "圆角", VerticalAlignment = VerticalAlignment.Center });
+        structure.Children.Add(shapeCornerRadius);
+        structure.Children.Add(Command("ApplyShape", "应用形状参数", ApplyShapeAsync, layer: true));
         structure.Children.Add(Command("AddExposureAdjustment", "新增曝光调整", AddExposureAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddLevelsAdjustment", "新增色阶调整", AddLevelsAdjustmentAsync, layer: true));
         structure.Children.Add(Command("AddHueSaturationAdjustment", "新增色相/饱和度", AddHueSaturationAdjustmentAsync, layer: true));
@@ -543,7 +549,7 @@ public sealed class MainWindow : Window
         {
             Text = item is null ? "" : (item.IsVisible ? "●  " : "○  ") +
                 (item.MaskSourceId is not null ? "[剪贴] " : "") + (item.IsAdjustment ? "[调整] " : "") +
-                (item.IsText ? "[文字] " : "") + item.Name,
+                (item.IsText ? "[文字] " : "") + (item.IsShape ? "[形状] " : "") + item.Name,
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
@@ -919,6 +925,7 @@ public sealed class MainWindow : Window
         HueSaturationSettings? hueSaturation = null;
         CurvesSettings? curves = null;
         GradientMapSettings? gradientMap = null;
+        ShapeSettings? shape = null;
         GaussianBlurSettings? gaussianBlur = null;
         MotionBlurSettings? motionBlur = null;
         NoiseSettings? noise = null;
@@ -965,6 +972,8 @@ public sealed class MainWindow : Window
                 lensCorrection = Workspace.Session!.GetLensCorrectionAdjustment(selected.Id);
             if (selected?.IsAdjustment == true && selected.AdjustmentKind == "Grain")
                 grain = Workspace.Session!.GetGrainAdjustment(selected.Id);
+            if (selected?.IsShape == true)
+                shape = Workspace.Session!.GetShape(selected.Id);
             adjustmentExposure.Value = exposure is null ? 0 : (decimal)exposure.Exposure;
             adjustmentOffset.Value = exposure is null ? 0 : (decimal)exposure.Offset;
             adjustmentGamma.Value = exposure is null ? 1 : (decimal)exposure.Gamma;
@@ -998,6 +1007,7 @@ public sealed class MainWindow : Window
             grainAmount.Value = grain is null ? 25 : (decimal)grain.Amount;
             grainSize.Value = grain is null ? 1.5m : (decimal)grain.Size;
             grainRoughness.Value = grain is null ? 50 : (decimal)grain.Roughness;
+            shapeCornerRadius.Value = shape is null ? 0 : (decimal)shape.CornerRadius;
         }
         finally { refreshing = false; }
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
@@ -1125,6 +1135,12 @@ public sealed class MainWindow : Window
                     !multiple && !Workspace.HasFloatingSelection;
             if (button.Name == "AddExposureAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name is "AddRectangleShape" or "AddEllipseShape")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyShape")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected?.IsShape == true && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyExposureAdjustment")
                 button.IsEnabled = showExposureEditor && !Workspace.HasFloatingSelection;
@@ -1402,6 +1418,34 @@ public sealed class MainWindow : Window
     });
     private Task AddTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer());
     private Task AddBoxTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer("文字", box: true));
+    private Task AddRectangleShapeAsync()
+    {
+        var selected = ShapeColor(color.SelectedIndex);
+        double radius = (double)(shapeCornerRadius.Value ?? 0);
+        return Task.Run(() => Workspace.AddShapeLayer(new ShapeSettings(
+            "Rectangle", selected.Red, selected.Green, selected.Blue, radius)));
+    }
+    private Task AddEllipseShapeAsync()
+    {
+        var selected = ShapeColor(color.SelectedIndex);
+        return Task.Run(() => Workspace.AddShapeLayer(new ShapeSettings(
+            "Ellipse", selected.Red, selected.Green, selected.Blue)));
+    }
+    private Task ApplyShapeAsync()
+    {
+        if (selectedId is not { } id || Workspace.Session is not { } session)
+            throw new InvalidOperationException("当前工程没有活动形状图层。");
+        ShapeSettings current = session.GetShape(id);
+        var selected = ShapeColor(color.SelectedIndex);
+        double radius = (double)(shapeCornerRadius.Value ?? (decimal)current.CornerRadius);
+        return Task.Run(() => Workspace.Edit(editSession => editSession.SetShape(id, current with
+        {
+            Red = selected.Red,
+            Green = selected.Green,
+            Blue = selected.Blue,
+            CornerRadius = radius
+        })));
+    }
     private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
     private Task AddLevelsAdjustmentAsync() => Task.Run(() => Workspace.AddLevelsAdjustment());
     private Task AddHueSaturationAdjustmentAsync() => Task.Run(() => Workspace.AddHueSaturationAdjustment());
@@ -1713,6 +1757,8 @@ public sealed class MainWindow : Window
         3 => (1, 0.3, 0.1),
         _ => (0, 0, 0)
     };
+
+    private static (double Red, double Green, double Blue) ShapeColor(int index) => TextColor(index);
 
     private static int TextColorIndex(TextLayerMetadata metadata)
     {

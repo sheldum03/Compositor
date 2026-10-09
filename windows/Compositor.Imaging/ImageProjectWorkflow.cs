@@ -1223,7 +1223,7 @@ public static class ImageProjectWorkflow
 
     private static bool IsFlatNormalLayer(JsonObject layer, int width, int height)
     {
-        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "text", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskSourceID", "name", "opacity", "shape", "text", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null ||
             layer["maskEnabled"] is not null && layer["maskFile"] is null ||
             layer["maskSourceID"] is { } source && !Guid.TryParse(source.GetValue<string>(), out _) ||
@@ -1253,6 +1253,8 @@ public static class ImageProjectWorkflow
                 layer["maskFile"] is not null || layer["maskSourceID"] is not null) return false;
         }
         else if (layer["imageFile"] is null) return false;
+        if (layer["shape"] is { } shape && (!ShapeSettings.TryRead(shape, out _) ||
+            layer["adjustment"] is not null || layer["text"] is not null)) return false;
         var transform = layer["transform"]?.AsObject();
         if (transform is null || !transform.All(pair => new[] { "flipX", "flipY", "origin", "rotation", "sampling", "size" }.Contains(pair.Key))) return false;
         var origin = transform["origin"]?.AsArray();

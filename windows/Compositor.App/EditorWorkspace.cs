@@ -155,6 +155,18 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
+    public void AddShapeLayer(ShapeSettings settings)
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        RequireEditableSession();
+        int index = session.ActiveLayerId is { } active
+            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
+            : session.Layers.Count;
+        session.AddShapeLayer(settings.Kind == "Ellipse" ? "椭圆形状" : "矩形形状", settings, index);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
     public void AddExposureAdjustment(double exposure = 1, double offset = 0, double gamma = 1)
     {
         RequireIdle();

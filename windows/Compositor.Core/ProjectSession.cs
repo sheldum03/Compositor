@@ -8,6 +8,8 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
     public bool IsText { get; init; }
     public bool IsAdjustment { get; init; }
     public string? AdjustmentKind { get; init; }
+    public bool IsShape { get; init; }
+    public string? ShapeKind { get; init; }
     public Guid? ParentId { get; init; }
     public double Opacity { get; init; } = 1;
     public string BlendMode { get; init; } = "Normal";
@@ -110,6 +112,8 @@ public sealed class ProjectSession
             IsText = layer["text"] is not null,
             IsAdjustment = layer["adjustment"] is not null,
             AdjustmentKind = layer["adjustment"]?["kind"]?.GetValue<string>(),
+            IsShape = layer["shape"] is not null,
+            ShapeKind = layer["shape"]?["kind"]?.GetValue<string>(),
             ParentId = layer["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null,
             Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
@@ -255,6 +259,14 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Adjustment layers do not have a raster asset.");
         return TryGetLoadedLayerRaster(layerId, out var raster) ? raster
             : throw new InvalidOperationException("Layer rasters have not been loaded.");
+    }
+
+    public ShapeSettings GetShape(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        if (!ShapeSettings.TryRead(Current["layers"]![index]!["shape"], out var settings))
+            throw new InvalidOperationException("Layer is not a valid shape layer.");
+        return settings;
     }
 
     public void UpdateTextLayer(TextLayerMetadata metadata, TileRaster raster)
@@ -656,6 +668,32 @@ public sealed class ProjectSession
         RequireLayerStructureEditing();
         CheckRasterSize(raster);
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
+    }
+
+    public Guid AddShapeLayer(string name, ShapeSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["shape"] = settings.ToJson();
+        return InsertLayer(layer, RasterCompositor.CreateShape(Width, Height, settings), destinationIndex);
+    }
+
+    public void SetShape(Guid layerId, ShapeSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        FlatLayerInfo layer = Layers[index];
+        if (layer.IsGroup || layer.IsAdjustment || layer.IsText)
+            throw new InvalidOperationException("Only raster layers can be shape layers.");
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["shape"] = settings.ToJson();
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
+        {
+            [layerId] = RasterCompositor.CreateShape(Width, Height, settings)
+        };
+        Commit(new Snapshot(next, rasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
     public Guid AddRootRasterLayer(string name, TileRaster raster, int destinationIndex)

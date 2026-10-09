@@ -55,6 +55,23 @@ if (!reopenedLegacy.CanEdit || reopenedLegacy.SourceFormatVersion != 8 ||
 string legacyExport = Path.Combine(output, "legacy-export.png");
 ImageProjectWorkflow.ExportPng(reopenedLegacy, legacyExport);
 AssertRaster(session.Raster, ImageCodec.Load(legacyExport));
+var shapeSession = ProjectSession.CreateBlank(32, 24, 72);
+Guid shapeId = shapeSession.AddShapeLayer("Rounded rectangle", new ShapeSettings("Rectangle", 1, 0.3, 0.1, 6), 1);
+if (!shapeSession.Layers.Single(layer => layer.Id == shapeId).IsShape ||
+    shapeSession.GetShape(shapeId).CornerRadius != 6 ||
+    ImageProjectWorkflow.RenderFlatNormal(shapeSession).TileCount == 0)
+    throw new Exception("Shape layer creation did not produce editable metadata and pixels.");
+shapeSession.SetShape(shapeId, new ShapeSettings("Ellipse", 0.1, 0.3, 1));
+if (shapeSession.GetShape(shapeId).Kind != "Ellipse" || !shapeSession.Undo() ||
+    shapeSession.GetShape(shapeId).Kind != "Rectangle" || !shapeSession.Redo() ||
+    shapeSession.GetShape(shapeId).Kind != "Ellipse")
+    throw new Exception("Shape parameter history did not undo and redo.");
+string shapeProject = Path.Combine(output, "Shape.comp");
+ImageProjectWorkflow.Save(shapeSession, shapeProject);
+var reopenedShape = ImageProjectWorkflow.OpenEditable(shapeProject);
+if (reopenedShape.Layers.Single(layer => layer.Id == shapeId).ShapeKind != "Ellipse" ||
+    reopenedShape.GetShape(shapeId).Blue != 1)
+    throw new Exception("Shape metadata did not survive save and reopen.");
 try
 {
     session.RenameLayer("  ");
