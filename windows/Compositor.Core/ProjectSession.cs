@@ -2137,6 +2137,9 @@ public sealed class ProjectSession
         lowerNode.Remove("maskLinked");
         lowerNode.Remove("maskPlacement");
         lowerNode.Remove("maskSourceID");
+        lowerNode.Remove("shape");
+        lowerNode.Remove("gradient");
+        lowerNode.Remove("text");
         for (int index = indexes[^1]; index >= indexes[0]; index--)
             if (index != indexes[0]) nextLayers.RemoveAt(index);
         next["activeLayerID"] = lower.Id.ToString("D");
@@ -2222,6 +2225,9 @@ public sealed class ProjectSession
         lowerNode.Remove("maskLinked");
         lowerNode.Remove("maskPlacement");
         lowerNode.Remove("maskSourceID");
+        lowerNode.Remove("shape");
+        lowerNode.Remove("gradient");
+        lowerNode.Remove("text");
         lowerNode["transform"] = new JsonObject
         {
             ["origin"] = new JsonArray(0d, 0d),
