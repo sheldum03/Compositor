@@ -49,7 +49,7 @@ public sealed class SoftBrushStroke
                 coverageColors[coverageValue * 4 + c] = Round255(this.settings.Color[c] * alpha);
             coverageColors[coverageValue * 4 + 3] = (byte)alpha;
         }
-        // Match the 24-stop normalized Gaussian tip used by the CPU reference at zero hardness.
+        // The Gaussian falloff starts at the hardness radius and reaches zero at the rim.
         tip = new byte[settings.Diameter * settings.Diameter];
         var stops = Enumerable.Range(0, 25).Select(i =>
             Math.Max(0, (Math.Exp(-2.5 * i * i / (24.0 * 24)) - Math.Exp(-2.5)) / (1 - Math.Exp(-2.5)))).ToArray();
@@ -59,6 +59,7 @@ public sealed class SoftBrushStroke
         {
             double u = Math.Sqrt(Math.Pow(x + 0.5 - radius, 2) + Math.Pow(y + 0.5 - radius, 2)) / radius;
             if (u >= 1) continue;
+            if (settings.Hardness < 1) u = Math.Max(0, (u - settings.Hardness) / (1 - settings.Hardness));
             double coverage = settings.Hardness >= 1
                 ? 1
                 : (stops[Math.Min(23, (int)(u * 24))] +

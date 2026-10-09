@@ -54,6 +54,7 @@ public sealed class MainWindow : Window
         ItemsSource = new[] { "隐藏", "显示" }, SelectedIndex = 0 };
     private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
+    private readonly NumericUpDown hardness = new() { Name = "BrushHardness", Minimum = 0, Maximum = 100, Value = 0, Width = 75 };
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "前景色" }, SelectedIndex = 0, Width = 90 };
     private readonly Button foregroundSwatch = new() { Name = "ForegroundColor", Content = "前景色" };
     private readonly Button backgroundSwatch = new() { Name = "BackgroundColor", Content = "背景色" };
@@ -62,7 +63,7 @@ public sealed class MainWindow : Window
     private readonly ComboBox gradientEndColor = new() { Name = "GradientEndColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "自定义" }, SelectedIndex = 1, Width = 78 };
     private readonly NumericUpDown gradientAngle = new() { Name = "GradientAngle", Minimum = -3600, Maximum = 3600, Value = 0, Width = 70 };
     private readonly StackPanel gradientLayerEditor = new() { Name = "GradientLayerEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
-    private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
+    private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔", "自定义" }, SelectedIndex = 0, Width = 85 };
     private readonly NumericUpDown maskRadius = new() { Name = "MaskRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
     private readonly CheckBox maskLinked = new() { Name = "MaskLinked", Content = "蒙版随图层" };
     private readonly NumericUpDown maskPlacementX = new() { Name = "MaskPlacementX", Minimum = -30000, Maximum = 30000, Value = 0, Width = 62 };
@@ -314,6 +315,18 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(diameter);
         brushOptions.Children.Add(new TextBlock { Text = "不透明度 %", VerticalAlignment = VerticalAlignment.Center });
         brushOptions.Children.Add(opacity); brushOptions.Children.Add(brushType); brushOptions.Children.Add(color);
+        brushOptions.Children.Add(new TextBlock { Text = "硬度 %", VerticalAlignment = VerticalAlignment.Center });
+        brushOptions.Children.Add(hardness);
+        brushType.SelectionChanged += (_, _) =>
+        {
+            if (brushType.SelectedIndex == 0) hardness.Value = 0;
+            if (brushType.SelectedIndex == 1) hardness.Value = 100;
+        };
+        hardness.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == NumericUpDown.ValueProperty)
+                brushType.SelectedIndex = hardness.Value == 0 ? 0 : hardness.Value == 100 ? 1 : 2;
+        };
         brushOptions.Children.Add(foregroundSwatch);
         brushOptions.Children.Add(backgroundSwatch);
         brushOptions.Children.Add(Command("SwapPalette", "交换 X", SwapPaletteAsync, refresh: false));
@@ -815,7 +828,7 @@ public sealed class MainWindow : Window
             var selected = SelectedBrushColor();
             double[] selectedColor = [selected.Red, selected.Green, selected.Blue];
             var settings = new SoftBrushSettings((int)(diameter.Value ?? 40),
-                (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0);
+                (double)(opacity.Value ?? 100) / 100, selectedColor, (double)(hardness.Value ?? 0) / 100);
             if (maskPaint.IsChecked == true)
                 Workspace.BeginMaskStroke(id, settings, point, maskPaintMode.SelectedIndex == 1);
             else if (blurPaint.IsChecked == true)
@@ -1092,6 +1105,7 @@ public sealed class MainWindow : Window
             if ((!Workspace.HasActiveStroke || Workspace.ShapePreview is not null) && HandleToolKey(e.Key, e.KeyModifiers))
             { e.Handled = true; return; }
             if (Workspace.HasActiveStroke) return;
+            if (HandleBrushTipKey(e.Key, e.KeyModifiers)) { e.Handled = true; return; }
             if (e.KeyModifiers == KeyModifiers.None && HandleOpacityKey(e.Key)) { e.Handled = true; return; }
             Func<Task>? command = e.KeyModifiers switch
             {
@@ -1174,6 +1188,32 @@ public sealed class MainWindow : Window
         }
         canvas.Focus();
         status.Text = $"已选择{tool.Content}工具。";
+        return true;
+    }
+
+    private bool HandleBrushTipKey(Key key, KeyModifiers modifiers)
+    {
+        if (key is not (Key.OemOpenBrackets or Key.OemCloseBrackets) ||
+            modifiers is not (KeyModifiers.None or KeyModifiers.Shift)) return false;
+        bool brush = paint.IsChecked == true || maskPaint.IsChecked == true || clonePaint.IsChecked == true || blurPaint.IsChecked == true ||
+            healingPaint.IsChecked == true || smudgePaint.IsChecked == true || liquifyPaint.IsChecked == true;
+        if (!brush || canvas.TextEditEnabled || !Workspace.CanEdit) return false;
+        bool increase = key == Key.OemCloseBrackets;
+        if (modifiers == KeyModifiers.Shift)
+        {
+            double quarter = (double)(hardness.Value ?? 0) / 25;
+            double step = increase ? Math.Floor(quarter + 0.001) + 1 : Math.Ceiling(quarter - 0.001) - 1;
+            hardness.Value = (decimal)(Math.Clamp(step, 0, 4) * 25);
+            status.Text = $"笔刷硬度 {hardness.Value}%。";
+        }
+        else
+        {
+            double current = (double)(diameter.Value ?? 40);
+            double stepped = increase ? Math.Max(current + 1, Math.Round(current * 1.2, MidpointRounding.AwayFromZero))
+                : Math.Min(current - 1, Math.Round(current / 1.2, MidpointRounding.AwayFromZero));
+            diameter.Value = (decimal)Math.Clamp(stepped, 1, 2000);
+            status.Text = $"笔刷直径 {diameter.Value} px。";
+        }
         return true;
     }
 
