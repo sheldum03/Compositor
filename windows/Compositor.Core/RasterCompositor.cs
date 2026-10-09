@@ -56,29 +56,51 @@ public static class RasterCompositor
             for (int y = 0; y < size.Height; y++)
             for (int x = 0; x < size.Width; x++)
             {
-                double px = (column * TileRaster.TileSize + x + 0.5) * drawnWidth / width;
-                double py = (row * TileRaster.TileSize + y + 0.5) * drawnHeight / height;
-                bool inside = settings.Kind == "Ellipse"
-                    ? Math.Pow((px - drawnWidth / 2) / (drawnWidth / 2), 2) +
-                      Math.Pow((py - drawnHeight / 2) / (drawnHeight / 2), 2) <= 1
-                    : IsRoundedRectangle(px, py, drawnWidth, drawnHeight, radius);
-                if (!inside) continue;
+                double left = (column * TileRaster.TileSize + x) * drawnWidth / width;
+                double top = (row * TileRaster.TileSize + y) * drawnHeight / height;
+                double right = (column * TileRaster.TileSize + x + 1d) * drawnWidth / width;
+                double bottom = (row * TileRaster.TileSize + y + 1d) * drawnHeight / height;
+                int covered = ShapeCoverage(left, top, right, bottom);
+                if (covered == 0) continue;
+                int alpha = (covered * 255 + 32) / 64;
                 int offset = (y * size.Width + x) * 4;
-                tile[offset] = red;
-                tile[offset + 1] = green;
-                tile[offset + 2] = blue;
-                tile[offset + 3] = 255;
+                tile[offset] = (byte)((red * alpha + 127) / 255);
+                tile[offset + 1] = (byte)((green * alpha + 127) / 255);
+                tile[offset + 2] = (byte)((blue * alpha + 127) / 255);
+                tile[offset + 3] = (byte)alpha;
             }
             result = result.ReplaceTile(column, row, tile);
         }
         return result;
 
+        bool Contains(double x, double y) => settings.Kind == "Ellipse"
+            ? Math.Pow((x - drawnWidth / 2) / (drawnWidth / 2), 2) +
+              Math.Pow((y - drawnHeight / 2) / (drawnHeight / 2), 2) <= 1
+            : IsRoundedRectangle(x, y, drawnWidth, drawnHeight, radius);
+
+        int ShapeCoverage(double left, double top, double right, double bottom)
+        {
+            if (settings.Kind == "Rectangle" && radius == 0) return 64;
+            double centerX = drawnWidth / 2, centerY = drawnHeight / 2;
+            if (!Contains(Math.Clamp(centerX, left, right), Math.Clamp(centerY, top, bottom))) return 0;
+            double farX = Math.Abs(left - centerX) > Math.Abs(right - centerX) ? left : right;
+            double farY = Math.Abs(top - centerY) > Math.Abs(bottom - centerY) ? top : bottom;
+            if (Contains(farX, farY)) return 64;
+            // Only cells crossing a curved edge need subpixel coverage samples.
+            int covered = 0;
+            for (int sampleY = 0; sampleY < 8; sampleY++)
+            for (int sampleX = 0; sampleX < 8; sampleX++)
+                if (Contains(left + (sampleX + 0.5) * (right - left) / 8,
+                    top + (sampleY + 0.5) * (bottom - top) / 8)) covered++;
+            return covered;
+        }
+
         static bool IsRoundedRectangle(double x, double y, double width, double height, double radius)
         {
-            if (radius <= 0) return x > 0 && y > 0 && x < width && y < height;
+            if (radius <= 0) return x >= 0 && y >= 0 && x <= width && y <= height;
             double left = Math.Abs(x - width / 2d) - (width / 2d - radius);
             double top = Math.Abs(y - height / 2d) - (height / 2d - radius);
-            if (left <= 0 || top <= 0) return x > 0 && y > 0 && x < width && y < height;
+            if (left <= 0 || top <= 0) return x >= 0 && y >= 0 && x <= width && y <= height;
             return left * left + top * top <= radius * radius;
         }
     }
