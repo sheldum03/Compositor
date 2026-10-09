@@ -46,7 +46,7 @@ public sealed class EditorWorkspace
     private TileRaster? gradientRaster;
     private GrayTileRaster? gradientMask;
     private bool gradientDragging;
-    private sealed record LayerMoveEdit(Guid[] LayerIds, Vector Offset, bool Snap);
+    private sealed record LayerMoveEdit(Guid[] LayerIds, Vector Offset, bool Snap, bool Duplicate);
     private LayerMoveEdit? layerMoveEdit;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
@@ -1600,20 +1600,25 @@ public sealed class EditorWorkspace
         UpdateSelectionOutline();
     }
 
-    public void BeginLayerMove(IReadOnlyList<Guid> layerIds)
+    public void BeginLayerMove(IReadOnlyList<Guid> layerIds, bool duplicate = false)
     {
         RequireIdle();
         RequireEditableSession();
         if (!RequireSession().CanTransformLayers(layerIds)) throw new InvalidOperationException("没有可移动的可见像素图层。");
         CancelFilterPreview();
-        layerMoveEdit = new(layerIds.ToArray(), new Vector(0, 0), false);
+        ProjectSession session = RequireSession();
+        bool canDuplicate = duplicate && layerIds.Count == 1 && !session.HasGroups &&
+            session.Layers.Single(layer => layer.Id == layerIds[0]) is { IsGroup: false, IsAdjustment: false };
+        layerMoveEdit = new(layerIds.ToArray(), new Vector(0, 0), false, canDuplicate);
     }
 
     public void PreviewLayerMove(Vector offset, bool snap)
     {
         var edit = layerMoveEdit ?? throw new InvalidOperationException("当前没有图层移动草稿。");
         if (offset.X == 0 && offset.Y == 0) snap = false;
-        var previewSession = RequireSession().CreateLayerMovePreview(edit.LayerIds, offset.X, offset.Y, snap);
+        var previewSession = edit.Duplicate
+            ? RequireSession().CreateLayerDuplicateMovePreview(edit.LayerIds[0], offset.X, offset.Y, snap)
+            : RequireSession().CreateLayerMovePreview(edit.LayerIds, offset.X, offset.Y, snap);
         Preview = ImageProjectWorkflow.RenderFlatNormal(previewSession);
         layerMoveEdit = edit with { Offset = offset, Snap = snap };
     }
@@ -1622,7 +1627,11 @@ public sealed class EditorWorkspace
     {
         if (layerMoveEdit is not { } edit) return;
         layerMoveEdit = null;
-        Edit(session => session.TransformLayers(edit.LayerIds, edit.Offset.X, edit.Offset.Y, 1, 0, edit.Snap));
+        if (edit.Duplicate)
+            Edit(session => session.DuplicateLayerForMove(edit.LayerIds[0], session.Layers.Single(layer => layer.Id == edit.LayerIds[0]).Name + " copy",
+                edit.Offset.X, edit.Offset.Y, edit.Snap));
+        else
+            Edit(session => session.TransformLayers(edit.LayerIds, edit.Offset.X, edit.Offset.Y, 1, 0, edit.Snap));
     }
 
     public void CancelLayerMove()

@@ -1582,6 +1582,57 @@ public sealed class ProjectSession
         return preview;
     }
 
+    public ProjectSession CreateLayerDuplicateMovePreview(Guid layerId, double offsetX, double offsetY, bool snap)
+    {
+        RequireLayerStructureEditing();
+        var preview = new ProjectSession(SavedDirectory, (JsonObject)Current.DeepClone(), "", CanEdit,
+            ReadOnlyMemory<byte>.Empty, AssetHashes, SourceFormatVersion);
+        preview.snapshots[0] = new Snapshot(preview.Current, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, 0);
+        preview.DuplicateLayerForMove(layerId, Layers[FindLayer(layerId)].Name + " copy", offsetX, offsetY, snap);
+        return preview;
+    }
+
+    public Guid DuplicateLayerForMove(Guid layerId, string name, double offsetX, double offsetY, bool snap = false)
+    {
+        RequireLayerStructureEditing();
+        if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY))
+            throw new ArgumentOutOfRangeException(nameof(offsetX));
+        int index = FindLayer(layerId);
+        FlatLayerInfo source = Layers[index];
+        if (source.IsGroup || source.IsAdjustment)
+            throw new NotSupportedException("只有普通像素图层支持 Alt 拖动复制。");
+        LayerTransformInfo currentTransform = GetLayerTransform(layerId);
+        if (snap) (offsetX, offsetY) = SnapMoveOffset([layerId], offsetX, offsetY);
+        var layer = (JsonObject)Current["layers"]![index]!.DeepClone();
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 1000)
+            throw new ArgumentException("Layer name must contain 1 to 1000 characters.", nameof(name));
+        Guid id = Guid.NewGuid();
+        layer["name"] = name;
+        layer["id"] = id.ToString("D");
+        layer["imageFile"] = id.ToString("D").ToUpperInvariant() + ".png";
+        if (layer["maskFile"] is not null)
+            layer["maskFile"] = id.ToString("D").ToUpperInvariant() + ".mask.png";
+        var transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Layer transform data is missing.");
+        transform["origin"] = new JsonArray(currentTransform.X + offsetX, currentTransform.Y + offsetY);
+        UpdateMaskPlacement(layer, Current["layers"]![index]!["transform"]!.AsObject(), transform);
+
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]!.AsArray().Insert(index + 1, layer);
+        next["activeLayerID"] = id.ToString("D");
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
+        {
+            [id] = GetLayerRaster(layerId)
+        };
+        var masks = snapshots[cursor].LayerMasks is { } currentMasks
+            ? new Dictionary<Guid, GrayTileRaster>(currentMasks)
+            : null;
+        if (masks is not null && masks.TryGetValue(layerId, out GrayTileRaster? sourceMask))
+            masks[id] = CloneMask(sourceMask);
+        Commit(new Snapshot(next, rasters, masks, ++nextRevision));
+        return id;
+    }
+
     public void TransformLayers(IReadOnlyList<Guid> layerIds, double offsetX, double offsetY,
         double scale, double rotation, bool snap = false)
     {

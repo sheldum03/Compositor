@@ -15,7 +15,7 @@ public sealed class CanvasView : Control
     private bool freeDistorting;
     private bool gradientDragging;
     private bool shaping;
-    private Point? layerMoveStart;
+    private (Point Start, bool Moved)? layerMoveStart;
     private (Point Start, double Scale, bool Moved)? zoomDrag;
     private ShapeDraft? shapeDraft;
     private int gradientHandle = -1;
@@ -75,7 +75,7 @@ public sealed class CanvasView : Control
     public event Action? ShapeFinished;
     public event Action? ShapeCanceled;
     public event Action<double>? ZoomChanged;
-    public event Action? LayerMoveStarted;
+    public event Action<KeyModifiers>? LayerMoveStarted;
     public event Action<Vector, bool>? LayerMoveChanged;
     public event Action? LayerMoveFinished;
     public event Action? LayerMoveCanceled;
@@ -94,10 +94,10 @@ public sealed class CanvasView : Control
             if (!pan && LayerMoveEnabled && properties.IsLeftButtonPressed)
             {
                 Focus();
-                layerMoveStart = document;
+                layerMoveStart = (document, false);
                 captured = e.Pointer;
                 captured.Capture(this);
-                LayerMoveStarted?.Invoke();
+                LayerMoveStarted?.Invoke(e.KeyModifiers);
                 e.Handled = true;
                 return;
             }
@@ -243,10 +243,11 @@ public sealed class CanvasView : Control
             if (layerMoveStart is not null)
             {
                 MoveLayers(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers);
+                bool moved = layerMoveStart.Value.Moved;
                 layerMoveStart = null;
                 captured = null;
                 e.Pointer.Capture(null);
-                LayerMoveFinished?.Invoke();
+                if (moved) LayerMoveFinished?.Invoke(); else LayerMoveCanceled?.Invoke();
                 e.Handled = true;
                 return;
             }
@@ -398,11 +399,12 @@ public sealed class CanvasView : Control
 
     private void MoveLayers(Point document, KeyModifiers modifiers)
     {
-        if (layerMoveStart is not { } start) return;
-        Vector offset = document - start;
+        if (layerMoveStart is not { } drag) return;
+        Vector offset = document - drag.Start;
         if (modifiers.HasFlag(KeyModifiers.Shift))
             offset = Math.Abs(offset.X) >= Math.Abs(offset.Y) ? new Vector(offset.X, 0) : new Vector(0, offset.Y);
         offset = new Vector(Math.Round(offset.X, MidpointRounding.AwayFromZero), Math.Round(offset.Y, MidpointRounding.AwayFromZero));
+        layerMoveStart = drag with { Moved = Math.Abs(offset.X) >= 1 || Math.Abs(offset.Y) >= 1 };
         LayerMoveChanged?.Invoke(offset, !modifiers.HasFlag(KeyModifiers.Control));
     }
 

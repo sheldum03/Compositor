@@ -845,7 +845,7 @@ public sealed class MainWindow : Window
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
         layout.Children.Add(canvas);
-        canvas.LayerMoveStarted += () => LayerMoveStep(() => Workspace.BeginLayerMove(SelectedLayerIds()));
+        canvas.LayerMoveStarted += modifiers => LayerMoveStep(() => Workspace.BeginLayerMove(SelectedLayerIds(), modifiers.HasFlag(KeyModifiers.Alt)));
         canvas.LayerMoveChanged += (offset, snap) => LayerMoveStep(() => Workspace.PreviewLayerMove(offset, snap && snapMove.IsChecked == true));
         canvas.LayerMoveFinished += () => LayerMoveStep(Workspace.FinishLayerMove, finished: true);
         canvas.LayerMoveCanceled += () => LayerMoveStep(Workspace.CancelLayerMove, finished: true);
