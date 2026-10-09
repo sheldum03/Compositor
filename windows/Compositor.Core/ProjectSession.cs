@@ -146,6 +146,23 @@ public sealed class ProjectSession
                 "box", box["width"]!.GetValue<double>());
         }).ToArray();
     public bool HasGroups => Layers.Any(layer => layer.IsGroup);
+    public IReadOnlySet<Guid> EffectiveVisibleLayerIds
+    {
+        get
+        {
+            var byId = Layers.ToDictionary(layer => layer.Id);
+            bool Visible(FlatLayerInfo layer)
+            {
+                while (true)
+                {
+                    if (!layer.IsVisible) return false;
+                    if (layer.ParentId is not { } parent) return true;
+                    layer = byId[parent];
+                }
+            }
+            return byId.Values.Where(Visible).Select(layer => layer.Id).ToHashSet();
+        }
+    }
     public string SourceDirectory => SavedDirectory ?? throw new InvalidOperationException("This document has not been saved yet.");
     public int Width => Current["width"]!.GetValue<int>();
     public int Height => Current["height"]!.GetValue<int>();
@@ -1343,16 +1360,22 @@ public sealed class ProjectSession
     public void FlipGroup(Guid groupId, bool horizontal)
     {
         RequireGroupStructureEditing();
-        int index = FindLayer(groupId);
-        var current = Current["layers"]![index]!.AsObject();
-        if (current["isGroup"]?.GetValue<bool>() != true)
-            throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        Guid[] ids = GroupTransformMembers(groupId);
+        LayerTransformInfo box = TransformBox(ids);
+        double axis = horizontal ? box.X + box.Width / 2 : box.Y + box.Height / 2;
         var next = (JsonObject)Current.DeepClone();
-        var transform = next["layers"]![index]!["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        string field = horizontal ? "flipX" : "flipY";
-        transform[field] = !(transform[field]?.GetValue<bool>() ?? false);
-        UpdateMaskPlacement(next["layers"]![index]!.AsObject(), current["transform"]!.AsObject(), transform);
+        foreach (Guid id in ids)
+        {
+            int index = FindLayer(id);
+            LayerTransformInfo current = GetLayerTransform(id);
+            var transform = next["layers"]![index]!["transform"]!.AsObject();
+            transform[horizontal ? "flipX" : "flipY"] = !(horizontal ? current.FlipX : current.FlipY);
+            transform["origin"] = horizontal
+                ? new JsonArray(2 * axis - current.X - current.Width, current.Y)
+                : new JsonArray(current.X, 2 * axis - current.Y - current.Height);
+            transform["rotation"] = -current.Rotation;
+            UpdateMaskPlacement(next["layers"]![index]!.AsObject(), Current["layers"]![index]!["transform"]!.AsObject(), transform);
+        }
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
@@ -1361,25 +1384,7 @@ public sealed class ProjectSession
         RequireGroupStructureEditing();
         if (!double.IsFinite(factor) || factor is <= 0 or > 100)
             throw new ArgumentOutOfRangeException(nameof(factor));
-        int index = FindLayer(groupId);
-        var layer = Current["layers"]![index]!.AsObject();
-        if (layer["isGroup"]?.GetValue<bool>() != true)
-            throw new ArgumentException("Layer is not a group.", nameof(groupId));
-        var transform = layer["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        var origin = transform["origin"]?.AsArray();
-        var size = transform["size"]?.AsArray();
-        if (origin?.Count != 2 || size?.Count != 2)
-            throw new InvalidDataException("Group transform data is invalid.");
-        double x = origin[0]!.GetValue<double>(), y = origin[1]!.GetValue<double>();
-        double width = size[0]!.GetValue<double>(), height = size[1]!.GetValue<double>();
-        double nextWidth = width * factor, nextHeight = height * factor;
-        if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(width) || !double.IsFinite(height) ||
-            !double.IsFinite(nextWidth) || !double.IsFinite(nextHeight) || width <= 0 || height <= 0 ||
-            nextWidth <= 0 || nextHeight <= 0)
-            throw new InvalidDataException("Group transform data is invalid.");
-        SetGroupTransform(groupId, x + (width - nextWidth) / 2, y + (height - nextHeight) / 2,
-            nextWidth, nextHeight, transform["rotation"]?.GetValue<double>() ?? 0);
+        TransformLayers(GroupTransformMembers(groupId), 0, 0, factor, 0);
     }
 
     public void MoveGroup(Guid groupId, double offsetX, double offsetY, bool snap = false)
@@ -1387,22 +1392,7 @@ public sealed class ProjectSession
         RequireGroupStructureEditing();
         if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY))
             throw new ArgumentOutOfRangeException(nameof(offsetX));
-        int index = FindLayer(groupId);
-        var layer = Current["layers"]![index]!.AsObject();
-        if (layer["isGroup"]?.GetValue<bool>() != true)
-            throw new ArgumentException("Layer is not a group.", nameof(groupId));
-        var transform = layer["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        var origin = transform["origin"]?.AsArray();
-        var size = transform["size"]?.AsArray();
-        if (origin?.Count != 2 || size?.Count != 2)
-            throw new InvalidDataException("Group transform data is invalid.");
-        if (snap) (offsetX, offsetY) = SnapMoveOffset([groupId], offsetX, offsetY);
-        SetGroupTransform(groupId,
-            origin[0]!.GetValue<double>() + offsetX,
-            origin[1]!.GetValue<double>() + offsetY,
-            size[0]!.GetValue<double>(), size[1]!.GetValue<double>(),
-            transform["rotation"]?.GetValue<double>() ?? 0);
+        TransformLayers(GroupTransformMembers(groupId), offsetX, offsetY, 1, 0, snap);
     }
 
     public void FlipLayerTransform(Guid layerId, bool horizontal)
@@ -1587,22 +1577,19 @@ public sealed class ProjectSession
     public void TransformLayers(IReadOnlyList<Guid> layerIds, double offsetX, double offsetY,
         double scale, double rotation, bool snap = false)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         if (layerIds.Count == 0)
             throw new ArgumentException("At least one layer is required.", nameof(layerIds));
         if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY) ||
             !double.IsFinite(scale) || scale <= 0 || scale > 100 || !double.IsFinite(rotation))
             throw new ArgumentOutOfRangeException(nameof(scale));
 
-        Guid[] ids = layerIds.Distinct().ToArray();
+        Guid[] ids = TransformMemberIds(layerIds);
         if (snap && scale == 1 && rotation == 0)
             (offsetX, offsetY) = SnapMoveOffset(ids, offsetX, offsetY);
         var transforms = ids.Select(id =>
         {
             int index = FindLayer(id);
-            FlatLayerInfo layer = Layers[index];
-            if (layer.IsGroup || layer.IsAdjustment || layer.ParentId is not null)
-                throw new NotSupportedException("多层变换目前只支持无组根图层。");
             return (Index: index, Transform: GetLayerTransform(id));
         }).ToArray();
         if (offsetX == 0 && offsetY == 0 && scale == 1 && rotation == 0) return;
@@ -1722,45 +1709,14 @@ public sealed class ProjectSession
     public void RotateGroup90(Guid groupId, bool clockwise)
     {
         RequireGroupStructureEditing();
-        int index = FindLayer(groupId);
-        var layer = Current["layers"]![index]!.AsObject();
-        if (layer["isGroup"]?.GetValue<bool>() != true)
-            throw new ArgumentException("Layer is not a group.", nameof(groupId));
-        var transform = layer["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        var origin = transform["origin"]?.AsArray();
-        var size = transform["size"]?.AsArray();
-        if (origin?.Count != 2 || size?.Count != 2)
-            throw new InvalidDataException("Group transform data is invalid.");
-        double rotation = transform["rotation"]?.GetValue<double>() ?? 0;
-        if (!double.IsFinite(rotation)) throw new InvalidDataException("Group transform data is invalid.");
-        SetGroupTransform(groupId,
-            origin[0]!.GetValue<double>() + (size[0]!.GetValue<double>() - size[1]!.GetValue<double>()) / 2,
-            origin[1]!.GetValue<double>() + (size[1]!.GetValue<double>() - size[0]!.GetValue<double>()) / 2,
-            size[1]!.GetValue<double>(),
-            size[0]!.GetValue<double>(),
-            rotation + (clockwise ? 90 : -90));
+        TransformLayers(GroupTransformMembers(groupId), 0, 0, 1, clockwise ? 90 : -90);
     }
 
     public void RotateGroupTransform(Guid groupId, double degrees)
     {
         RequireGroupStructureEditing();
         if (!double.IsFinite(degrees)) throw new ArgumentOutOfRangeException(nameof(degrees));
-        int index = FindLayer(groupId);
-        var layer = Current["layers"]![index]!.AsObject();
-        if (layer["isGroup"]?.GetValue<bool>() != true)
-            throw new ArgumentException("Layer is not a group.", nameof(groupId));
-        var transform = layer["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        var origin = transform["origin"]?.AsArray();
-        var size = transform["size"]?.AsArray();
-        if (origin?.Count != 2 || size?.Count != 2)
-            throw new InvalidDataException("Group transform data is invalid.");
-        double rotation = transform["rotation"]?.GetValue<double>() ?? 0;
-        if (!double.IsFinite(rotation)) throw new InvalidDataException("Group transform data is invalid.");
-        SetGroupTransform(groupId,
-            origin[0]!.GetValue<double>(), origin[1]!.GetValue<double>(),
-            size[0]!.GetValue<double>(), size[1]!.GetValue<double>(), rotation + degrees);
+        TransformLayers(GroupTransformMembers(groupId), 0, 0, 1, degrees);
     }
 
     public bool IsGroupTransformIdentity(Guid groupId)
@@ -1787,28 +1743,64 @@ public sealed class ProjectSession
         if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(width) || !double.IsFinite(height) ||
             !double.IsFinite(rotation) || width <= 0 || height <= 0)
             throw new ArgumentOutOfRangeException(nameof(width));
-        int index = FindLayer(groupId);
-        var current = Current["layers"]![index]!.AsObject();
-        if (current["isGroup"]?.GetValue<bool>() != true)
-            throw new ArgumentException("Layer is not a group.", nameof(groupId));
-        var currentTransform = current["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        var currentOrigin = currentTransform["origin"]?.AsArray();
-        var currentSize = currentTransform["size"]?.AsArray();
-        if (currentOrigin?.Count != 2 || currentSize?.Count != 2)
-            throw new InvalidDataException("Group transform data is invalid.");
-        if (currentOrigin[0]!.GetValue<double>() == x && currentOrigin[1]!.GetValue<double>() == y &&
-            currentSize[0]!.GetValue<double>() == width && currentSize[1]!.GetValue<double>() == height &&
-            (currentTransform["rotation"]?.GetValue<double>() ?? 0) == rotation)
-            return;
+        Guid[] ids = GroupTransformMembers(groupId);
+        LayerTransformInfo box = TransformBox(ids);
+        LayerTransformInfo target = new(x, y, width, height, rotation, false, false);
+        if (box == target) return;
         var next = (JsonObject)Current.DeepClone();
-        var transform = next["layers"]![index]!["transform"]?.AsObject()
-            ?? throw new InvalidDataException("Group transform data is missing.");
-        transform["origin"] = new JsonArray(x, y);
-        transform["size"] = new JsonArray(width, height);
-        transform["rotation"] = rotation;
-        UpdateMaskPlacement(next["layers"]![index]!.AsObject(), currentTransform, transform);
-        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+        int[] indexes = ids.Select(FindLayer).ToArray();
+        foreach (int index in indexes)
+        {
+            var oldTransform = Current["layers"]![index]!["transform"]!.AsObject();
+            LayerTransformInfo moved = LayerTransformInfo.Read(oldTransform).Following(box, target);
+            if (!double.IsFinite(moved.X) || !double.IsFinite(moved.Y) || !double.IsFinite(moved.Width) ||
+                !double.IsFinite(moved.Height) || moved.Width <= 0 || moved.Height <= 0 || !double.IsFinite(moved.Rotation))
+                throw new ArgumentOutOfRangeException(nameof(width));
+            var transform = next["layers"]![index]!["transform"]!.AsObject();
+            transform["origin"] = new JsonArray(moved.X, moved.Y);
+            transform["size"] = new JsonArray(moved.Width, moved.Height);
+            transform["rotation"] = moved.Rotation;
+            transform["flipX"] = moved.FlipX;
+            transform["flipY"] = moved.FlipY;
+            UpdateMaskPlacement(next["layers"]![index]!.AsObject(), oldTransform, transform);
+        }
+        Commit(new Snapshot(next, ShapeRastersAfterResize(next, indexes), snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    private Guid[] GroupTransformMembers(Guid groupId)
+    {
+        if (!Layers[FindLayer(groupId)].IsGroup) throw new ArgumentException("Layer is not a group.", nameof(groupId));
+        return TransformMemberIds([groupId]);
+    }
+
+    private Guid[] TransformMemberIds(IReadOnlyList<Guid> selectedIds)
+    {
+        var byId = Layers.ToDictionary(layer => layer.Id);
+        var selected = selectedIds.ToHashSet();
+        foreach (Guid id in selected) if (!byId.ContainsKey(id)) throw new ArgumentException("Layer does not belong to this project.", nameof(selectedIds));
+        var visible = EffectiveVisibleLayerIds;
+        bool Included(FlatLayerInfo layer)
+        {
+            if (layer.IsGroup || layer.IsAdjustment || !visible.Contains(layer.Id)) return false;
+            while (true)
+            {
+                if (selected.Contains(layer.Id)) return true;
+                if (layer.ParentId is not { } parent) return false;
+                layer = byId[parent];
+            }
+        }
+        Guid[] members = byId.Values.Where(Included).Select(layer => layer.Id).ToArray();
+        if (members.Length == 0) throw new InvalidOperationException("没有可变换的可见像素图层。");
+        return members;
+    }
+
+    private LayerTransformInfo TransformBox(IReadOnlyList<Guid> layerIds)
+    {
+        var corners = layerIds.Select(GetLayerTransform).SelectMany(transform => new[]
+            { transform.ToDocument(0, 0), transform.ToDocument(1, 0), transform.ToDocument(1, 1), transform.ToDocument(0, 1) }).ToArray();
+        double left = corners.Min(point => point.X), top = corners.Min(point => point.Y);
+        return new(left, top, Math.Max(1, corners.Max(point => point.X) - left),
+            Math.Max(1, corners.Max(point => point.Y) - top), 0, false, false);
     }
 
     public Guid GroupLayers(IReadOnlyList<Guid> layerIds, string name)
@@ -2603,7 +2595,8 @@ public sealed class ProjectSession
         double right = movingBounds.Max(item => item.Right) + offsetX;
         double bottom = movingBounds.Max(item => item.Bottom) + offsetY;
         double[] xs = [0, Width / 2d, Width], ys = [0, Height / 2d, Height];
-        foreach (FlatLayerInfo layer in Layers.Where(layer => layer.IsVisible && !moving.Contains(layer.Id)))
+        var visible = EffectiveVisibleLayerIds;
+        foreach (FlatLayerInfo layer in Layers.Where(layer => !layer.IsGroup && !layer.IsAdjustment && visible.Contains(layer.Id) && !moving.Contains(layer.Id)))
         {
             var bounds = Bounds(GetLayerTransform(layer.Id));
             xs = [.. xs, bounds.Left, (bounds.Left + bounds.Right) / 2, bounds.Right];

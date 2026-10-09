@@ -765,9 +765,11 @@ public static class ImageProjectWorkflow
             {
                 if (layer["imageFile"] is not null || layer["adjustment"] is not null)
                     throw new NotSupportedException("Cached group metadata is not supported.");
+                if ((layer["opacity"]?.GetValue<double>() ?? 1) != 1 || (layer["blendMode"]?.GetValue<string>() ?? "Normal") != "Normal")
+                    throw new NotSupportedException("Only pass-through groups are supported.");
                 var groupTransform = layer["transform"]?.AsObject()
                     ?? throw new NotSupportedException("Cached group transform data is missing.");
-                if (mask is not null) mask = ResolveLayerMask(mask, layer, width, height);
+                if (mask is not null) mask = TransformCachedMask(mask, layer["maskPlacement"] as JsonObject ?? groupTransform, width, height);
                 prepared.Add(id, new CachedLayer(layer, id, null, mask));
                 continue;
             }
@@ -886,56 +888,57 @@ public static class ImageProjectWorkflow
             return RestoreAlpha(stack, alpha);
         }
 
-        TileRaster RenderNode(CachedLayer layer, IReadOnlyList<GrayTileRaster> inheritedMasks)
+        TileRaster RenderNode(CachedLayer layer, IReadOnlyList<GrayTileRaster> inheritedMasks, TileRaster backdrop)
         {
             if (!(layer.Manifest["isVisible"]?.GetValue<bool>() ?? true))
-                return new TileRaster(width, height);
+                return backdrop;
             if (layer.Raster is not null)
             {
                 TileRaster raster = ResolveLeaf(layer.Id);
                 foreach (GrayTileRaster groupMask in inheritedMasks)
                     raster = RasterCompositor.ApplyMask(raster, groupMask);
-                return raster;
+                return CompositeChild(backdrop, layer, raster);
             }
             var groupMasks = inheritedMasks;
             if (layer.Mask is not null && (layer.Manifest["maskEnabled"]?.GetValue<bool>() ?? true))
                 groupMasks = inheritedMasks.Append(layer.Mask).ToArray();
-            var result = new TileRaster(width, height);
-            if (children.TryGetValue(layer.Id, out var descendants))
+            return children.TryGetValue(layer.Id, out var descendants)
+                ? RenderSiblings(descendants, groupMasks, backdrop) : backdrop;
+        }
+
+        TileRaster RenderSiblings(IReadOnlyList<CachedLayer> descendants, IReadOnlyList<GrayTileRaster> groupMasks, TileRaster backdrop)
+        {
+            var result = backdrop;
+            for (int index = 0; index < descendants.Count; index++)
             {
-                for (int index = 0; index < descendants.Length; index++)
+                var child = descendants[index];
+                if (renderIds is not null && !renderIds.Contains(child.Id)) continue;
+                if (!(child.Manifest["isVisible"]?.GetValue<bool>() ?? true)) continue;
+                if (child.Raster is null)
                 {
-                    var child = descendants[index];
-                    if (renderIds is not null && !renderIds.Contains(child.Id)) continue;
-                    if (!(child.Manifest["isVisible"]?.GetValue<bool>() ?? true)) continue;
-                    if (child.Raster is null)
-                    {
-                        result = CompositeChild(result, child, RenderNode(child, groupMasks));
-                        continue;
-                    }
-                    var clipped = new List<CachedLayer>();
-                    int end = index + 1;
-                    while (end < descendants.Length && descendants[end].Raster is not null &&
-                           (descendants[end].Manifest["isVisible"]?.GetValue<bool>() ?? true) &&
-                           descendants[end].Manifest["maskSourceID"] is { } source &&
-                           Guid.Parse(source.GetValue<string>()) == child.Id)
-                    {
-                        clipped.Add(descendants[end]);
-                        end++;
-                    }
-                    TileRaster childRaster = clipped.Count == 0
-                        ? ResolveLeaf(child.Id)
-                        : RenderClipStack(child, clipped);
-                    foreach (GrayTileRaster groupMask in groupMasks)
-                        childRaster = RasterCompositor.ApplyMask(childRaster, groupMask);
-                    result = CompositeChild(result, child, childRaster, clipped.Count != 0);
-                    index = end - 1;
+                    result = RenderNode(child, groupMasks, result);
+                    continue;
                 }
+                var clipped = new List<CachedLayer>();
+                int end = index + 1;
+                while (end < descendants.Count && descendants[end].Raster is not null &&
+                       (renderIds is null || renderIds.Contains(descendants[end].Id)) &&
+                       (descendants[end].Manifest["isVisible"]?.GetValue<bool>() ?? true) &&
+                       descendants[end].Manifest["maskSourceID"] is { } source &&
+                       Guid.Parse(source.GetValue<string>()) == child.Id)
+                {
+                    clipped.Add(descendants[end]);
+                    end++;
+                }
+                TileRaster childRaster = clipped.Count == 0
+                    ? ResolveLeaf(child.Id)
+                    : RenderClipStack(child, clipped);
+                foreach (GrayTileRaster groupMask in groupMasks)
+                    childRaster = RasterCompositor.ApplyMask(childRaster, groupMask);
+                result = CompositeChild(result, child, childRaster, clipped.Count != 0);
+                index = end - 1;
             }
-            var transform = layer.Manifest["transform"]!.AsObject();
-            return IsIdentityTransform(transform, width, height)
-                ? result
-                : TransformCachedRaster(result, transform, width, height);
+            return result;
         }
 
         TileRaster CompositeChild(TileRaster bottom, CachedLayer layer, TileRaster top, bool stackAlreadyStyled = false)
@@ -959,7 +962,7 @@ public static class ImageProjectWorkflow
             if (!prepared.TryGetValue(rootId, out var root))
                 throw new ArgumentException("The requested layer does not exist.", nameof(rootOnly));
             TileRaster rootRaster = root.Raster is null
-                ? RenderNode(root, Array.Empty<GrayTileRaster>())
+                ? RenderNode(root, Array.Empty<GrayTileRaster>(), new TileRaster(width, height))
                 : ResolveLeaf(root.Id);
             return applyRootAppearance
                 ? CompositeChild(new TileRaster(width, height), root, rootRaster)
@@ -967,14 +970,8 @@ public static class ImageProjectWorkflow
         }
 
         var output = new TileRaster(width, height);
-        if (children.TryGetValue(Guid.Empty, out var roots))
-            foreach (var root in roots)
-            {
-                if (renderIds is not null && !renderIds.Contains(root.Id)) continue;
-                TileRaster raster = RenderNode(root, Array.Empty<GrayTileRaster>());
-                output = CompositeChild(output, root, raster);
-            }
-        return output;
+        return children.TryGetValue(Guid.Empty, out var roots)
+            ? RenderSiblings(roots, Array.Empty<GrayTileRaster>(), output) : output;
     }
 
     private static TileRaster UnpremultiplyOpaque(TileRaster source)
