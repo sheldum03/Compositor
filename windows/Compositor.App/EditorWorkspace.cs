@@ -54,6 +54,15 @@ public sealed class EditorWorkspace
     public bool IsDirty => Session?.IsDirty ?? false;
     public string? ProjectDirectory => Session?.SavedDirectory;
 
+    public (double Red, double Green, double Blue)? SamplePreviewColor(double x, double y)
+    {
+        if (Preview is not { } preview || !double.IsFinite(x) || !double.IsFinite(y)) return null;
+        int pixelX = (int)Math.Floor(x), pixelY = (int)Math.Floor(y);
+        if (pixelX < 0 || pixelY < 0 || pixelX >= preview.Width || pixelY >= preview.Height) return null;
+        var sample = preview.ReadPixel(pixelX, pixelY);
+        return (sample.Red / 255d, sample.Green / 255d, sample.Blue / 255d);
+    }
+
     public void New(int width, int height, double resolution)
     {
         RequireIdle();

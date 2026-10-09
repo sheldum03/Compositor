@@ -181,6 +181,16 @@ internal static class CanvasChecks
         Require(Find<ComboBox>(window, "BrushType").IsEffectivelyEnabled, "Brush type control is unavailable.");
         Find<ComboBox>(window, "BrushType").SelectedIndex = 0;
         Find<ComboBox>(window, "BrushColor").SelectedIndex = 3;
+        Find<CheckBox>(window, "Eyedropper").IsChecked = true;
+        Require(canvas.EyedropperEnabled && !canvas.PaintEnabled,
+            "Eyedropper mode did not disable painting or enable canvas sampling.");
+        window.MouseDown(DocumentPoint(new Point(100, 100)), MouseButton.Left);
+        window.MouseUp(DocumentPoint(new Point(100, 100)), MouseButton.Left);
+        Dispatcher.UIThread.RunJobs();
+        Require(Find<ComboBox>(window, "BrushColor").SelectedIndex == 4 && !workspace.IsDirty,
+            "Eyedropper did not select a sampled palette color without changing the document.");
+        Find<CheckBox>(window, "Eyedropper").IsChecked = false;
+        Find<CheckBox>(window, "Paint").IsChecked = true;
         Point anchor = new(100.25, 110.25);
         Point viewAnchor = canvas.Viewport.ToView(anchor);
         window.MouseWheel(WindowPoint(viewAnchor), new Vector(0, 2));

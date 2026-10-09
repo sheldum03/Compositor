@@ -22,12 +22,13 @@ public sealed class MainWindow : Window
     private readonly StackPanel toolbar = new() { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
     private readonly DockPanel sidebar = new() { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
     private readonly CheckBox paint = new() { Content = "软笔", Name = "Paint", IsChecked = true };
+    private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
     private readonly CheckBox maskPaint = new() { Content = "蒙版笔刷", Name = "MaskPaint" };
     private readonly ComboBox maskPaintMode = new() { Name = "MaskPaintMode", Width = 75,
         ItemsSource = new[] { "隐藏", "显示" }, SelectedIndex = 0 };
     private readonly NumericUpDown diameter = new() { Name = "BrushDiameter", Minimum = 1, Maximum = 2000, Value = 40, Width = 90 };
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
-    private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色" }, SelectedIndex = 0, Width = 90 };
+    private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 0, Width = 90 };
     private readonly NumericUpDown shapeCornerRadius = new() { Name = "ShapeCornerRadius", Minimum = 0, Maximum = 30000, Value = 0, Width = 70 };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
     private readonly NumericUpDown maskRadius = new() { Name = "MaskRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
@@ -165,6 +166,7 @@ public sealed class MainWindow : Window
     private FlatLayerInfo? draggingLayer;
     private Point layerDragStart;
     private bool draggingLayers;
+    private (double Red, double Green, double Blue) sampledColor;
     public EditorWorkspace Workspace => projects[activeProjectIndex];
     public int ProjectCount => projects.Count;
     public int ActiveProjectIndex => activeProjectIndex;
@@ -230,17 +232,18 @@ public sealed class MainWindow : Window
         rectangleSelect.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionEnabled = rectangleSelect.IsChecked == true;
-            if (canvas.SelectionEnabled) { paint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; }
+            if (canvas.SelectionEnabled) { paint.IsChecked = false; moveSelection.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             UpdatePaintMode();
         };
         moveSelection.IsCheckedChanged += (_, _) =>
         {
             canvas.SelectionMoveEnabled = moveSelection.IsChecked == true;
-            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; maskPaint.IsChecked = false; }
+            if (canvas.SelectionMoveEnabled) { rectangleSelect.IsChecked = false; paint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             UpdatePaintMode();
         };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
+        brushOptions.Children.Add(eyedropper);
         brushOptions.Children.Add(maskPaint);
         brushOptions.Children.Add(maskPaintMode);
         brushOptions.Children.Add(new TextBlock { Text = "直径", VerticalAlignment = VerticalAlignment.Center });
@@ -605,10 +608,8 @@ public sealed class MainWindow : Window
         canvas.StrokeStarted += point => PaintStep(() =>
         {
             if (selectedId is not { } id) return;
-            double[] selectedColor = color.SelectedIndex switch
-            {
-                1 => [1, 1, 1], 2 => [0.1, 0.3, 0.9], 3 => [1, 0.3, 0.1], _ => [0, 0, 0]
-            };
+            var selected = SelectedBrushColor();
+            double[] selectedColor = [selected.Red, selected.Green, selected.Blue];
             var settings = new SoftBrushSettings((int)(diameter.Value ?? 40),
                 (double)(opacity.Value ?? 100) / 100, selectedColor, brushType.SelectedIndex == 1 ? 1 : 0);
             if (maskPaint.IsChecked == true)
@@ -626,6 +627,18 @@ public sealed class MainWindow : Window
             else Workspace.CommitStroke(point);
         });
         canvas.StrokeCanceled += () => PaintStep(Workspace.CancelStroke);
+        canvas.ColorSampled += point =>
+        {
+            var sampled = Workspace.SamplePreviewColor(point.X, point.Y);
+            if (sampled is not { } value)
+            {
+                status.Text = "吸管位置超出画布。";
+                return;
+            }
+            sampledColor = value;
+            color.SelectedIndex = 4;
+            status.Text = $"已取样 RGB({(int)Math.Round(value.Red * 255)}, {(int)Math.Round(value.Green * 255)}, {(int)Math.Round(value.Blue * 255)})。";
+        };
         canvas.TextHitTest = TextCaretAt;
         canvas.TextCaretPressed += (characterIndex, extend) =>
         {
@@ -639,14 +652,25 @@ public sealed class MainWindow : Window
         };
         paint.IsCheckedChanged += (_, _) =>
         {
-            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; maskPaint.IsChecked = false; }
+            if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
             if (paint.IsChecked == true) moveSelection.IsChecked = false;
             UpdatePaintMode();
         };
         maskPaint.IsCheckedChanged += (_, _) =>
         {
-            if (maskPaint.IsChecked == true) { paint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; }
+            if (maskPaint.IsChecked == true) { paint.IsChecked = false; rectangleSelect.IsChecked = false; moveSelection.IsChecked = false; eyedropper.IsChecked = false; }
             maskPaintMode.IsEnabled = maskPaint.IsChecked == true;
+            UpdatePaintMode();
+        };
+        eyedropper.IsCheckedChanged += (_, _) =>
+        {
+            if (eyedropper.IsChecked == true)
+            {
+                paint.IsChecked = false;
+                maskPaint.IsChecked = false;
+                rectangleSelect.IsChecked = false;
+                moveSelection.IsChecked = false;
+            }
             UpdatePaintMode();
         };
         canvas.SelectionFinished += rectangle =>
@@ -906,6 +930,7 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.HasFloatingSelection;
         layers.IsEnabled = !Workspace.HasFloatingSelection;
         pixelGrid.IsEnabled = Workspace.Session is not null;
+        eyedropper.IsEnabled = Workspace.Session is not null && !Workspace.HasFloatingSelection;
         rectangleSelect.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection;
         moveSelection.IsEnabled = Workspace.CanEdit && (Workspace.HasSelection || Workspace.HasFloatingSelection);
         selectionShape.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection;
@@ -1346,12 +1371,13 @@ public sealed class MainWindow : Window
         maskPaintMode.IsEnabled = hasMask && maskPaint.IsChecked == true;
         bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
         paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
-        canvas.TextEditEnabled = textMode;
-        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !Workspace.HasFloatingSelection &&
+        canvas.TextEditEnabled = textMode && eyedropper.IsChecked != true;
+        canvas.EyedropperEnabled = Workspace.Session is not null && eyedropper.IsChecked == true && !Workspace.HasFloatingSelection;
+        canvas.PaintEnabled = editable && !selectedAdjustment && !textMode && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection &&
             ((!selectedGroup && paint.IsChecked == true) ||
              maskPaint.IsChecked == true);
-        canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
-        canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment &&
+        canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
+        canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
     }
 
@@ -1758,7 +1784,11 @@ public sealed class MainWindow : Window
         _ => (0, 0, 0)
     };
 
-    private static (double Red, double Green, double Blue) ShapeColor(int index) => TextColor(index);
+    private (double Red, double Green, double Blue) SelectedBrushColor() =>
+        color.SelectedIndex == 4 ? sampledColor : TextColor(color.SelectedIndex);
+
+    private (double Red, double Green, double Blue) ShapeColor(int index) =>
+        index == 4 ? sampledColor : TextColor(index);
 
     private static int TextColorIndex(TextLayerMetadata metadata)
     {

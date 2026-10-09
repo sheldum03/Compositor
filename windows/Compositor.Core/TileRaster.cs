@@ -41,6 +41,22 @@ public sealed class TileRaster
             ? (byte[])tile.Clone() : new byte[size.Width * size.Height * 4];
     }
 
+    public (byte Red, byte Green, byte Blue, byte Alpha) ReadPixel(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= Width || y >= Height)
+            throw new ArgumentOutOfRangeException(nameof(x));
+        int column = x / TileSize, row = y / TileSize;
+        var size = TileDimensions(column, row);
+        byte[] tile = ReadTileCopy(column, row);
+        int offset = ((y - row * TileSize) * size.Width + x - column * TileSize) * 4;
+        int alpha = tile[offset + 3];
+        if (alpha == 0) return (0, 0, 0, 0);
+        static byte Unpremultiply(byte value, int alpha) =>
+            (byte)Math.Clamp((value * 255 + alpha / 2) / alpha, 0, 255);
+        return (Unpremultiply(tile[offset], alpha), Unpremultiply(tile[offset + 1], alpha),
+            Unpremultiply(tile[offset + 2], alpha), (byte)alpha);
+    }
+
     public TileRaster ReplaceTile(int column, int row, ReadOnlySpan<byte> premultipliedRgba)
     {
         var size = TileDimensions(column, row);

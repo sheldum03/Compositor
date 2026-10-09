@@ -28,6 +28,7 @@ public sealed class CanvasView : Control
     public bool LassoEnabled { get; set; }
     public bool SelectionMoveEnabled { get; set; }
     public bool TextEditEnabled { get; set; }
+    public bool EyedropperEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
@@ -44,6 +45,7 @@ public sealed class CanvasView : Control
     public event Action<Point, Point>? SelectionMoveFinished;
     public event Action? SelectionCanceled;
     public event Action<int, bool>? TextCaretPressed;
+    public event Action<Point>? ColorSampled;
 
     public CanvasView()
     {
@@ -60,6 +62,12 @@ public sealed class CanvasView : Control
             {
                 if (TextHitTest?.Invoke(document) is { } characterIndex)
                     TextCaretPressed?.Invoke(characterIndex, e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                e.Handled = true;
+                return;
+            }
+            if (!pan && EyedropperEnabled && properties.IsLeftButtonPressed)
+            {
+                ColorSampled?.Invoke(document);
                 e.Handled = true;
                 return;
             }
