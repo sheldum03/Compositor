@@ -335,6 +335,13 @@ public sealed class MainWindow : Window
             if (change.Property == NumericUpDown.ValueProperty)
                 brushType.SelectedIndex = hardness.Value == 0 ? 0 : hardness.Value == 100 ? 1 : 2;
         };
+        foreach (NumericUpDown field in new[] { diameter, hardness, opacity })
+            field.PropertyChanged += (_, change) =>
+            {
+                if (!refreshing && change.Property == NumericUpDown.ValueProperty)
+                    Workspace.BrushTip = new((int)(diameter.Value ?? 40), (double)(hardness.Value ?? 0) / 100,
+                        (double)(opacity.Value ?? 100) / 100);
+            };
         brushOptions.Children.Add(foregroundSwatch);
         brushOptions.Children.Add(backgroundSwatch);
         brushOptions.Children.Add(Command("SwapPalette", "交换 X", SwapPaletteAsync, refresh: false));
@@ -1453,6 +1460,8 @@ public sealed class MainWindow : Window
         refreshing = true;
         brushMode.SelectedIndex = Workspace.BrushErasing ? 1 : 0;
         refreshing = false;
+        Workspace.SelectBrushFamily(SelectedBrushFamily);
+        RefreshBrushTip();
         Title = (Workspace.IsDirty ? "● " : "") +
             (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : Workspace.Session is not null ? "未命名 — " : "") + "Compositor";
         RefreshPreview();
@@ -1968,8 +1977,28 @@ public sealed class MainWindow : Window
 
     private Task EditAsync(Action<ProjectSession> edit) => Task.Run(() => Workspace.Edit(edit));
 
+    private BrushTipFamily SelectedBrushFamily => clonePaint.IsChecked == true ? BrushTipFamily.Clone
+        : blurPaint.IsChecked == true || smudgePaint.IsChecked == true || liquifyPaint.IsChecked == true
+        ? BrushTipFamily.Smear : BrushTipFamily.Paint;
+
+    private void RefreshBrushTip()
+    {
+        bool wasRefreshing = refreshing;
+        refreshing = true;
+        BrushTipSettings settings = Workspace.BrushTip;
+        diameter.Value = settings.Diameter;
+        hardness.Value = (decimal)(settings.Hardness * 100);
+        opacity.Value = (decimal)(settings.Opacity * 100);
+        refreshing = wasRefreshing;
+    }
+
     private void UpdatePaintMode()
     {
+        if (Workspace.BrushFamily != SelectedBrushFamily)
+        {
+            Workspace.SelectBrushFamily(SelectedBrushFamily);
+            RefreshBrushTip();
+        }
         bool multiple = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).Take(2).Count() > 1;
         bool editable = Workspace.CanEdit && selectedId is not null && !multiple;
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;

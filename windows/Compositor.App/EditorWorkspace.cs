@@ -10,11 +10,22 @@ internal enum ResizeFilter
     Lanczos3
 }
 
+public enum BrushTipFamily { Paint, Clone, Smear }
+public sealed record BrushTipSettings(int Diameter = 40, double Hardness = 0, double Opacity = 1);
+
 public sealed class EditorWorkspace
 {
     public PaletteColor ForegroundColor { get; set; } = PaletteColor.Black;
     public PaletteColor BackgroundColor { get; set; } = PaletteColor.White;
     public bool BrushErasing { get; set; }
+    private readonly BrushTipSettings[] brushTips = [new(), new(), new()];
+    public BrushTipFamily BrushFamily { get; private set; }
+    public BrushTipSettings BrushTip
+    {
+        get => brushTips[(int)BrushFamily];
+        set => brushTips[(int)BrushFamily] = value;
+    }
+    public void SelectBrushFamily(BrushTipFamily family) => BrushFamily = family;
     private SoftBrushStroke? brush;
     private Guid brushLayer;
     private SoftBrushStroke? maskBrush;
