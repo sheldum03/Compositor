@@ -19,6 +19,8 @@ public sealed class EditorWorkspace
     private bool maskBrushReveal;
     private CloneBrushStroke? cloneBrush;
     private Guid cloneBrushLayer;
+    private BlurBrushStroke? blurBrush;
+    private Guid blurBrushLayer;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private Guid? clipboardLayerId;
@@ -39,7 +41,7 @@ public sealed class EditorWorkspace
     private sealed record SelectionMoveHistory(GrayTileRaster Before, GrayTileRaster After);
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
-    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null;
+    public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public bool HasFilterPreview => filterPreviewRaster is not null;
     public ProjectSession? Session { get; private set; }
@@ -815,6 +817,36 @@ public sealed class EditorWorkspace
             Edit(current => current.ReplaceLayerRaster(cloneBrushLayer, pixels));
     }
 
+    public void BeginBlurStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point)
+    {
+        RequireIdle();
+        var session = RequireSession();
+        blurBrushLayer = layerId;
+        blurBrush = new BlurBrushStroke(session.GetLayerRaster(layerId), settings,
+            Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
+        AppendBlurStroke(point);
+    }
+
+    public void AppendBlurStroke(BrushPoint point)
+    {
+        var active = blurBrush ?? throw new InvalidOperationException("No active blur stroke.");
+        active.Append(DocumentToLayerPoint(RequireSession(), blurBrushLayer, point));
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), blurBrushLayer, active.Snapshot());
+    }
+
+    public void CommitBlurStroke(BrushPoint point)
+    {
+        AppendBlurStroke(point);
+        var active = blurBrush!;
+        TileRaster pixels = active.Commit();
+        blurBrush = null;
+        var session = RequireSession();
+        if (SamePixels(session.GetLayerRaster(blurBrushLayer), pixels))
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        else
+            Edit(current => current.ReplaceLayerRaster(blurBrushLayer, pixels));
+    }
+
     public void BeginMaskStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point, bool reveal)
     {
         RequireIdle();
@@ -882,6 +914,10 @@ public sealed class EditorWorkspace
         else if (cloneBrush is { } currentCloneBrush)
         {
             currentCloneBrush.Cancel(); cloneBrush = null;
+        }
+        else if (blurBrush is { } currentBlurBrush)
+        {
+            currentBlurBrush.Cancel(); blurBrush = null;
         }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
