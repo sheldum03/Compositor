@@ -27,6 +27,7 @@ public sealed class EditorWorkspace
     }
     public void SelectBrushFamily(BrushTipFamily family) => BrushFamily = family;
     private SoftBrushStroke? brush;
+    private TileRaster? brushSource;
     private Guid brushLayer;
     private SoftBrushStroke? maskBrush;
     private Guid maskBrushLayer;
@@ -878,11 +879,22 @@ public sealed class EditorWorkspace
     public void BeginStroke(Guid layerId, SoftBrushSettings settings, BrushPoint point)
     {
         RequireIdle();
+        RequireEditableSession();
         var session = RequireSession();
+        TileRaster source = EditablePixelSource(session, layerId);
         brushLayer = layerId;
-        brush = new SoftBrushStroke(session.GetLayerRaster(layerId), settings,
+        brush = new SoftBrushStroke(source, settings,
             Selection is { } selection ? SelectionForLayer(session, layerId, selection) : null);
+        brushSource = source;
         AppendStroke(point);
+    }
+
+    private static TileRaster EditablePixelSource(ProjectSession session, Guid layerId)
+    {
+        if (!session.Layers.Single(layer => layer.Id == layerId).IsText) return session.GetLayerRaster(layerId);
+        TextLayerRenderResult rendered = TextLayerWorkflow.Render(session, layerId);
+        if (!rendered.Status.FontAvailable) throw new NotSupportedException(rendered.Status.Message);
+        return rendered.Raster;
     }
 
     public bool CanGradient(bool mask) => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection && !session.HasGroups &&
@@ -898,13 +910,7 @@ public sealed class EditorWorkspace
             if (!CanGradient(mask)) throw new InvalidOperationException("当前图层或蒙版不能绘制渐变。");
             var session = RequireSession();
             if (session.ActiveLayerId != layerId) throw new InvalidOperationException("请先选择渐变的目标图层。");
-            TileRaster source = session.GetLayerRaster(layerId);
-            if (session.Layers.Single(layer => layer.Id == layerId).IsText)
-            {
-                TextLayerRenderResult rendered = TextLayerWorkflow.Render(session, layerId);
-                if (!rendered.Status.FontAvailable) throw new NotSupportedException(rendered.Status.Message);
-                source = rendered.Raster;
-            }
+            TileRaster source = EditablePixelSource(session, layerId);
             GrayTileRaster? sourceMask = mask ? session.GetLayerMask(layerId) : null;
             GrayTileRaster? selection = Selection is not { } currentSelection ? null : sourceMask is { } currentMask
                 ? SelectionForMask(session, layerId, currentSelection, currentMask.Width, currentMask.Height)
@@ -973,7 +979,7 @@ public sealed class EditorWorkspace
     {
         var active = brush ?? throw new InvalidOperationException("No active brush stroke.");
         active.Append(DocumentToLayerPoint(RequireSession(), brushLayer, point));
-        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), brushLayer, active.Snapshot());
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession(), brushLayer, active.Snapshot(), useOverrideForText: true);
     }
 
     public void BeginCloneStroke(Guid layerId, SoftBrushSettings settings, BrushPoint sourcePoint, BrushPoint targetPoint)
@@ -1147,19 +1153,20 @@ public sealed class EditorWorkspace
         AppendStroke(point);
         var active = brush!;
         TileRaster pixels = active.Commit();
-        brush = null;
+        TileRaster source = brushSource!;
+        brush = null; brushSource = null;
         var session = RequireSession();
-        if (SamePixels(session.GetLayerRaster(brushLayer), pixels))
+        if (SamePixels(source, pixels))
             Preview = ImageProjectWorkflow.RenderFlatNormal(session);
         else
-            Edit(current => current.ReplaceLayerRaster(brushLayer, pixels));
+            Edit(current => current.ReplaceLayerRaster(brushLayer, pixels, rasterizeText: true));
     }
 
     public void CancelStroke()
     {
         if (brush is { } currentBrush)
         {
-            currentBrush.Cancel(); brush = null;
+            currentBrush.Cancel(); brush = null; brushSource = null;
         }
         else if (maskBrush is { } currentMaskBrush)
         {

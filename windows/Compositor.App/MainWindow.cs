@@ -29,6 +29,7 @@ public sealed class MainWindow : Window
     private readonly CheckBox smudgePaint = new() { Content = "涂抹", Name = "SmudgePaint" };
     private readonly CheckBox liquifyPaint = new() { Content = "液化", Name = "LiquifyPaint" };
     private readonly CheckBox eyedropper = new() { Content = "吸管", Name = "Eyedropper" };
+    private readonly CheckBox textTool = new() { Content = "文字 T", Name = "TextTool" };
     private readonly CheckBox gradientTool = new() { Content = "渐变", Name = "GradientTool" };
     private readonly CheckBox shapeTool = new() { Content = "形状", Name = "ShapeTool" };
     private readonly ComboBox shapeKind = new() { Name = "ShapeKind", ItemsSource = new[] { "矩形", "椭圆" }, SelectedIndex = 0, Width = 85 };
@@ -315,6 +316,7 @@ public sealed class MainWindow : Window
         brushOptions.Children.Add(smudgePaint);
         brushOptions.Children.Add(liquifyPaint);
         brushOptions.Children.Add(eyedropper);
+        brushOptions.Children.Add(textTool);
         brushOptions.Children.Add(gradientTool);
         brushOptions.Children.Add(shapeTool);
         brushOptions.Children.Add(maskPaint);
@@ -988,12 +990,21 @@ public sealed class MainWindow : Window
             }
             UpdatePaintMode();
         };
+        textTool.IsCheckedChanged += (_, _) => UpdatePaintMode();
         CheckBox[] canvasTools = [paint, maskPaint, clonePaint, blurPaint, healingPaint,
-            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection];
+            smudgePaint, liquifyPaint, eyedropper, rectangleSelect, moveSelection, textTool];
         foreach (CheckBox tool in canvasTools)
             tool.IsCheckedChanged += (_, _) =>
             {
-                if (tool.IsChecked == true) { freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; shapeTool.IsChecked = false; }
+                if (tool.IsChecked == true)
+                {
+                    if (tool == textTool)
+                    {
+                        foreach (CheckBox other in canvasTools.Where(other => other != textTool)) other.IsChecked = false;
+                    }
+                    else textTool.IsChecked = false;
+                    freeDistortHandles.IsChecked = false; gradientTool.IsChecked = false; shapeTool.IsChecked = false;
+                }
             };
         gradientTool.IsCheckedChanged += (_, _) =>
         {
@@ -1181,6 +1192,7 @@ public sealed class MainWindow : Window
             Key.S => clonePaint,
             Key.R => blurPaint,
             Key.I => eyedropper,
+            Key.T => textTool,
             Key.G => gradientTool,
             Key.U => shapeTool,
             Key.M or Key.L or Key.W => rectangleSelect,
@@ -2004,14 +2016,15 @@ public sealed class MainWindow : Window
         bool selectedGroup = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsGroup;
         bool hasMask = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).HasMask;
         if (!hasMask && gradientMaskTarget.IsChecked == true) gradientMaskTarget.IsChecked = false;
-        bool textMode = editable && !selectedGroup && Workspace.Session!.TextLayers.SingleOrDefault(text => text.Id == selectedId) is { } text &&
+        bool textMode = textTool.IsChecked == true && editable && !selectedGroup && Workspace.Session!.TextLayers.SingleOrDefault(text => text.Id == selectedId) is { } text &&
             TextLayerWorkflow.Inspect(Workspace.Session).Single(status => status.Metadata.Id == text.Id).FontAvailable &&
             !Workspace.HasFloatingSelection && rectangleSelect.IsChecked != true && moveSelection.IsChecked != true && maskPaint.IsChecked != true && gradientTool.IsChecked != true && shapeTool.IsChecked != true;
         maskPaint.IsEnabled = hasMask;
         maskPaintMode.IsEnabled = hasMask && (maskPaint.IsChecked == true || gradientTool.IsChecked == true && gradientMaskTarget.IsChecked == true);
         bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
         bool selectedText = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsText;
-        brushMode.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText && paint.IsChecked == true;
+        textTool.IsEnabled = editable && selectedText;
+        brushMode.IsEnabled = editable && !selectedGroup && !selectedAdjustment && paint.IsChecked == true;
         paint.Content = Workspace.BrushErasing ? "擦除" : "笔刷";
         paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
         clonePaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
@@ -2044,6 +2057,7 @@ public sealed class MainWindow : Window
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
         RefreshPalette();
         UpdateGradientControls();
+        RefreshTextOverlay();
     }
 
     private int? TextCaretAt(Point document)
@@ -2107,8 +2121,17 @@ public sealed class MainWindow : Window
         int index = selectedId is { } id ? session.Layers.ToList().FindIndex(layer => layer.Id == id) + 1 : session.Layers.Count;
         session.AddBlankLayer("Layer " + (session.Layers.Count + 1), index);
     });
-    private Task AddTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer());
-    private Task AddBoxTextLayerAsync() => Task.Run(() => Workspace.AddTextLayer("文字", box: true));
+    private async Task AddTextLayerAsync()
+    {
+        await Task.Run(() => Workspace.AddTextLayer());
+        textTool.IsChecked = true;
+    }
+
+    private async Task AddBoxTextLayerAsync()
+    {
+        await Task.Run(() => Workspace.AddTextLayer("文字", box: true));
+        textTool.IsChecked = true;
+    }
     private Task AddRectangleShapeAsync()
     {
         var selected = ShapeColor(color.SelectedIndex);
