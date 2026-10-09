@@ -46,6 +46,11 @@ public sealed class EditorWorkspace
     public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null || warpBrush is not null;
     public bool HasFloatingSelection => floatingRaster is not null;
     public bool HasFilterPreview => filterPreviewRaster is not null;
+    public bool CanContentFill => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection &&
+        Selection is { CoveredPixels: > 0 } && !session.HasGroups && session.ActiveLayerId is { } layerId &&
+        session.Layers.SingleOrDefault(layer => layer.Id == layerId) is
+        { IsGroup: false, IsAdjustment: false, IsText: false, HasMask: false } &&
+        session.IsLayerTransformIdentity(layerId);
     public ProjectSession? Session { get; private set; }
     public bool CanEdit => Session?.CanEdit == true && !readOnlyTextCache;
     public string ReadOnlyNotice => Session?.HasTextLayers == true
@@ -381,6 +386,18 @@ public sealed class EditorWorkspace
     public void PreviewGrainFilter(GrainSettings settings)
     {
         PreviewSelectionFilter(source => RasterCompositor.ApplyGrain(source, settings), "选区颗粒");
+    }
+
+    public void ApplyContentFill()
+    {
+        RequireIdle();
+        RequireEditableSession();
+        ProjectSession session = RequireSession();
+        if (!CanContentFill || Selection is not { } selection || session.ActiveLayerId is not { } layerId)
+            throw new NotSupportedException("内容填充目前只支持无组、无蒙版、无变换的平面栅格图层选区。");
+        TileRaster source = session.GetLayerRaster(layerId);
+        TileRaster filled = RasterCompositor.ApplyContentFill(source, SelectionForLayer(session, layerId, selection));
+        if (!SamePixels(source, filled)) Edit(editSession => editSession.ReplaceLayerRaster(layerId, filled));
     }
 
     private void PreviewSelectionFilter(Func<TileRaster, TileRaster> apply, string filterName)

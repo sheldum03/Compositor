@@ -660,6 +660,186 @@ public static class RasterCompositor
         return result;
     }
 
+    public static TileRaster ApplyContentFill(TileRaster image, GrayTileRaster selection)
+    {
+        if (image.Width != selection.Width || image.Height != selection.Height)
+            throw new ArgumentException("Image and selection dimensions must match.");
+        int width = image.Width, height = image.Height, count = checked(width * height);
+        byte[] original = ToRgba(image), pixels = (byte[])original.Clone(), mask = ToCoverage(selection);
+        bool[] target = new bool[count], known = new bool[count], valid = new bool[count], queued = new bool[count];
+        int[] chosen = new int[count], donors = new int[count], queue = new int[count];
+        Array.Fill(chosen, -1);
+        int missing = 0, donorCount = 0, head = 0, tail = 0, scan = 0;
+        for (int index = 0; index < count; index++)
+        {
+            target[index] = mask[index] != 0;
+            known[index] = !target[index] && pixels[index * 4 + 3] == 255;
+            if (target[index]) missing++;
+        }
+        if (missing == 0) return image;
+
+        int radius = width >= 5 && height >= 5 ? 2 : 0;
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int index = y * width + x;
+            if (!known[index] || !PatchIsKnown(x, y)) continue;
+            valid[index] = true;
+            donors[donorCount++] = index;
+        }
+        if (donorCount == 0)
+            throw new InvalidOperationException("选区周围没有足够的不透明像素，无法生成内容填充。");
+
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            int index = y * width + x;
+            if (!target[index] || !TouchesKnown(x, y)) continue;
+            queued[index] = true;
+            queue[tail++] = index;
+        }
+
+        uint seed = 0x6D2B79F5;
+        while (true)
+        {
+            while (head < tail)
+            {
+                int index = queue[head++], x = index % width, y = index / width, best = -1;
+                double score = double.MaxValue;
+                Span<int> neighbors = stackalloc[] { x > 0 ? index - 1 : -1, x + 1 < width ? index + 1 : -1,
+                    y > 0 ? index - width : -1, y + 1 < height ? index + width : -1 };
+                for (int neighborIndex = 0; neighborIndex < neighbors.Length; neighborIndex++)
+                {
+                    int neighbor = neighbors[neighborIndex];
+                    if (neighbor < 0) continue;
+                    int candidate = chosen[neighbor] >= 0 ? chosen[neighbor] + index - neighbor : neighbor;
+                    if ((uint)candidate >= (uint)count || !valid[candidate]) continue;
+                    double candidateScore = MatchPatch(pixels, known, width, height, index, candidate, radius);
+                    if (candidateScore < score) { score = candidateScore; best = candidate; }
+                }
+                for (int sample = 0; sample < 28; sample++)
+                {
+                    int candidate = donors[Next(ref seed) % donorCount];
+                    double candidateScore = MatchPatch(pixels, known, width, height, index, candidate, radius);
+                    if (candidateScore < score) { score = candidateScore; best = candidate; }
+                }
+                best = best >= 0 ? best : donors[0];
+                Buffer.BlockCopy(pixels, best * 4, pixels, index * 4, 4);
+                known[index] = true;
+                chosen[index] = best;
+                foreach (int neighbor in neighbors)
+                    if (neighbor >= 0 && target[neighbor] && !known[neighbor] && !queued[neighbor])
+                    {
+                        queued[neighbor] = true;
+                        queue[tail++] = neighbor;
+                    }
+            }
+            while (scan < count && (!target[scan] || known[scan])) scan++;
+            if (scan >= count) break;
+            queued[scan] = true;
+            queue[tail++] = scan;
+        }
+
+        for (int index = 0; index < count; index++)
+        {
+            int amount = mask[index];
+            if (amount == 0 || !target[index]) continue;
+            if (amount < 255)
+                for (int channel = 0; channel < 4; channel++)
+                    pixels[index * 4 + channel] = (byte)((pixels[index * 4 + channel] * amount +
+                        original[index * 4 + channel] * (255 - amount) + 127) / 255);
+        }
+        return FromRgba(width, height, pixels);
+
+        bool PatchIsKnown(int x, int y)
+        {
+            for (int dy = -radius; dy <= radius; dy++)
+            for (int dx = -radius; dx <= radius; dx++)
+            {
+                int sx = x + dx, sy = y + dy;
+                if ((uint)sx >= (uint)width || (uint)sy >= (uint)height || !known[sy * width + sx]) return false;
+            }
+            return true;
+        }
+
+        bool TouchesKnown(int x, int y) =>
+            x > 0 && known[y * width + x - 1] || x + 1 < width && known[y * width + x + 1] ||
+            y > 0 && known[(y - 1) * width + x] || y + 1 < height && known[(y + 1) * width + x];
+
+        static double MatchPatch(byte[] pixels, bool[] known, int width, int height, int target, int donor, int radius)
+        {
+            int px = target % width, py = target / width, qx = donor % width, qy = donor / width, compared = 0;
+            double score = 0;
+            for (int dy = -radius; dy <= radius; dy++)
+            for (int dx = -radius; dx <= radius; dx++)
+            {
+                int x = px + dx, y = py + dy, sx = qx + dx, sy = qy + dy;
+                if ((uint)x >= (uint)width || (uint)y >= (uint)height || (uint)sx >= (uint)width ||
+                    (uint)sy >= (uint)height || !known[y * width + x]) continue;
+                int left = (y * width + x) * 4, right = (sy * width + sx) * 4;
+                for (int channel = 0; channel < 4; channel++)
+                {
+                    double difference = pixels[left + channel] - pixels[right + channel];
+                    score += difference * difference;
+                }
+                compared++;
+            }
+            return compared == 0 ? double.MaxValue : score / compared;
+        }
+
+        static uint Next(ref uint state)
+        {
+            state = unchecked(state * 1664525U + 1013904223U);
+            return state;
+        }
+
+        static byte[] ToRgba(TileRaster raster)
+        {
+            byte[] result = new byte[checked(raster.Width * raster.Height * 4)];
+            for (int row = 0; row * TileSize < raster.Height; row++)
+            for (int column = 0; column * TileSize < raster.Width; column++)
+            {
+                var size = raster.TileDimensions(column, row);
+                byte[] tile = raster.ReadTileCopy(column, row);
+                for (int y = 0; y < size.Height; y++)
+                    tile.AsSpan(y * size.Width * 4, size.Width * 4).CopyTo(result.AsSpan(
+                        ((row * TileSize + y) * raster.Width + column * TileSize) * 4, size.Width * 4));
+            }
+            return result;
+        }
+
+        static byte[] ToCoverage(GrayTileRaster raster)
+        {
+            byte[] result = new byte[checked(raster.Width * raster.Height)];
+            for (int row = 0; row * TileSize < raster.Height; row++)
+            for (int column = 0; column * TileSize < raster.Width; column++)
+            {
+                var size = raster.TileDimensions(column, row);
+                byte[] tile = raster.ReadTileCopy(column, row);
+                for (int y = 0; y < size.Height; y++)
+                    tile.AsSpan(y * size.Width, size.Width).CopyTo(result.AsSpan(
+                        (row * TileSize + y) * raster.Width + column * TileSize, size.Width));
+            }
+            return result;
+        }
+
+        static TileRaster FromRgba(int width, int height, ReadOnlySpan<byte> rgba)
+        {
+            var result = new TileRaster(width, height);
+            for (int row = 0; row * TileSize < height; row++)
+            for (int column = 0; column * TileSize < width; column++)
+            {
+                var size = result.TileDimensions(column, row);
+                byte[] tile = new byte[size.Width * size.Height * 4];
+                for (int y = 0; y < size.Height; y++)
+                    rgba.Slice(((row * TileSize + y) * width + column * TileSize) * 4, size.Width * 4)
+                        .CopyTo(tile.AsSpan(y * size.Width * 4, size.Width * 4));
+                result = result.ReplaceTile(column, row, tile);
+            }
+            return result;
+        }
+    }
+
     public static TileRaster ApplyAlphaMask(TileRaster image, TileRaster source, double sourceOpacity = 1)
     {
         if (image.Width != source.Width || image.Height != source.Height)

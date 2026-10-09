@@ -224,6 +224,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(new TextBlock { Text = "羽化半径", VerticalAlignment = VerticalAlignment.Center });
         toolbar.Children.Add(selectionFeatherRadius);
         toolbar.Children.Add(Command("FeatherSelection", "羽化选区", FeatherSelectionAsync, document: true));
+        toolbar.Children.Add(Command("ContentFill", "内容填充", ContentFillAsync, document: true));
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
         toolbar.Children.Add(Command("CopyMergedSelection", "合并复制", CopyMergedSelectionAsync, document: true));
         toolbar.Children.Add(Command("CutSelection", "剪切选区", CutSelectionAsync, document: true));
@@ -1032,6 +1033,8 @@ public sealed class MainWindow : Window
                 button.IsEnabled = false;
         foreach (var button in documentButtons.Where(button => button.Name is "CommitFloatingSelection" or "CancelFloatingSelection"))
             button.IsEnabled = Workspace.HasFloatingSelection;
+        foreach (var button in documentButtons.Where(button => button.Name == "ContentFill"))
+            button.IsEnabled = Workspace.CanContentFill;
         layers.IsEnabled = !Workspace.HasFloatingSelection;
         pixelGrid.IsEnabled = Workspace.Session is not null;
         eyedropper.IsEnabled = Workspace.Session is not null && !Workspace.HasFloatingSelection;
@@ -1067,6 +1070,8 @@ public sealed class MainWindow : Window
         try
         {
             if (selectedId is { } id) Workspace.Session!.SelectLayer(id);
+            foreach (var button in documentButtons.Where(button => button.Name == "ContentFill"))
+                button.IsEnabled = Workspace.CanContentFill;
             layerName.Text = selected?.Name ?? "";
             layerOpacity.Value = selected is null ? 100 : (decimal)(selected.Opacity * 100);
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
@@ -2018,6 +2023,8 @@ public sealed class MainWindow : Window
         moveSelection.IsEnabled = Workspace.HasSelection;
         return Task.CompletedTask;
     }
+
+    private Task ContentFillAsync() => Task.Run(Workspace.ApplyContentFill);
 
     private async Task CopySelectionAsync()
     {
