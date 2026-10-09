@@ -494,7 +494,8 @@ public static class ImageProjectWorkflow
         }
     }
 
-    public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster)
+    public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster,
+        bool useOverrideForText = false)
     {
         if (!session.CanEdit) throw new NotSupportedException("Temporary pixel previews require an editable project.");
         FlatLayerInfo layerInfo = session.Layers.SingleOrDefault(layer => layer.Id == layerId)
@@ -504,8 +505,8 @@ public static class ImageProjectWorkflow
             (current is null && (overrideRaster.Width != session.Width || overrideRaster.Height != session.Height)))
             throw new ArgumentException("Preview raster dimensions do not match the layer.", nameof(overrideRaster));
         return session.HasGroups
-            ? RenderCachedCore(session, true, layerId, overrideRaster, null)
-            : RenderFlatNormalCore(session, layerId, overrideRaster, null);
+            ? RenderCachedCore(session, true, layerId, overrideRaster, null, useOverrideForText: useOverrideForText)
+            : RenderFlatNormalCore(session, layerId, overrideRaster, null, useOverrideForText: useOverrideForText);
     }
 
     public static TileRaster RenderFlatNormal(ProjectSession session, Guid layerId, TileRaster overrideRaster,
@@ -526,7 +527,7 @@ public static class ImageProjectWorkflow
     }
 
     private static TileRaster RenderFlatNormalCore(ProjectSession session, Guid? overrideLayerId, TileRaster? overrideRaster,
-        GrayTileRaster? overrideMask, IReadOnlySet<Guid>? renderOnly = null)
+        GrayTileRaster? overrideMask, IReadOnlySet<Guid>? renderOnly = null, bool useOverrideForText = false)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -583,7 +584,7 @@ public static class ImageProjectWorkflow
                 raster = ImageCodec.Load(image);
                 if (session.CanEdit) ProjectStore.CheckAssetHash(session, imageName, image);
             }
-            if (layer["text"] is not null)
+            if (layer["text"] is not null && !(useOverrideForText && overrideLayerId == id))
             {
                 TextLayerMetadata text = session.TextLayers.Single(metadata => metadata.Id == Guid.Parse(layer["id"]!.GetValue<string>()));
                 if (TextLayerWorkflow.Inspect(session).Single(status => status.Metadata.Id == text.Id).FontAvailable)
@@ -734,7 +735,7 @@ public static class ImageProjectWorkflow
     private static TileRaster RenderCachedCore(ProjectSession session, bool useLoadedAssets = false,
         Guid? overrideLayerId = null, TileRaster? overrideRaster = null, GrayTileRaster? overrideMask = null,
         Guid? rootOnly = null, bool applyRootAppearance = false, IReadOnlySet<Guid>? renderRoots = null,
-        IReadOnlyDictionary<Guid, TileRaster>? maskSourceOverrides = null)
+        IReadOnlyDictionary<Guid, TileRaster>? maskSourceOverrides = null, bool useOverrideForText = false)
     {
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
@@ -778,7 +779,7 @@ public static class ImageProjectWorkflow
                 : useLoadedAssets && session.TryGetLoadedLayerRaster(id, out var loadedRaster)
                 ? loadedRaster
                 : ImageCodec.Load(Path.Combine(session.SourceDirectory, "images", imageName));
-            if (layer["text"] is not null)
+            if (layer["text"] is not null && !(useOverrideForText && overrideLayerId == id))
             {
                 TextLayerMetadata text = session.TextLayers.Single(metadata => metadata.Id == id);
                 TextLayerStatus status = TextLayerWorkflow.Inspect(session).Single(item => item.Metadata.Id == id);

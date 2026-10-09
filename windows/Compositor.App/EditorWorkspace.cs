@@ -876,7 +876,7 @@ public sealed class EditorWorkspace
 
     public bool CanGradient(bool mask) => Session is { } session && CanEdit && !HasActiveStroke && !HasFloatingSelection && !session.HasGroups &&
         session.ActiveLayerId is { } id && session.Layers.SingleOrDefault(layer => layer.Id == id) is { IsVisible: true } layer &&
-        (mask ? layer.HasMask && session.IsLayerMaskEnabled(id) : !layer.IsGroup && !layer.IsAdjustment && !layer.IsText);
+        (mask ? layer.HasMask && session.IsLayerMaskEnabled(id) : !layer.IsGroup && !layer.IsAdjustment);
 
     public void BeginGradient(Guid layerId, Point start, Point end, bool mask)
     {
@@ -888,6 +888,12 @@ public sealed class EditorWorkspace
             var session = RequireSession();
             if (session.ActiveLayerId != layerId) throw new InvalidOperationException("请先选择渐变的目标图层。");
             TileRaster source = session.GetLayerRaster(layerId);
+            if (session.Layers.Single(layer => layer.Id == layerId).IsText)
+            {
+                TextLayerRenderResult rendered = TextLayerWorkflow.Render(session, layerId);
+                if (!rendered.Status.FontAvailable) throw new NotSupportedException(rendered.Status.Message);
+                source = rendered.Raster;
+            }
             GrayTileRaster? sourceMask = mask ? session.GetLayerMask(layerId) : null;
             GrayTileRaster? selection = Selection is not { } currentSelection ? null : sourceMask is { } currentMask
                 ? SelectionForMask(session, layerId, currentSelection, currentMask.Width, currentMask.Height)
@@ -921,7 +927,7 @@ public sealed class EditorWorkspace
         {
             gradientRaster = GradientFill.Apply(edit.Source, edit.Selection, start, end, settings,
                 session.GetLayerTransform(edit.LayerId), session.Width, session.Height);
-            Preview = ImageProjectWorkflow.RenderFlatNormal(session, edit.LayerId, gradientRaster);
+            Preview = ImageProjectWorkflow.RenderFlatNormal(session, edit.LayerId, gradientRaster, useOverrideForText: true);
         }
     }
 
@@ -941,7 +947,7 @@ public sealed class EditorWorkspace
         if (edit.Mask is { } sourceMask && mask is not null && !SameCoverage(sourceMask, mask))
             Edit(session => session.ReplaceLayerMask(edit.LayerId, mask));
         else if (edit.Mask is null && pixels is not null && !SamePixels(edit.Source, pixels))
-            Edit(session => session.ReplaceLayerRaster(edit.LayerId, pixels));
+            Edit(session => session.ReplaceLayerRaster(edit.LayerId, pixels, rasterizeText: true));
         else Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 

@@ -490,21 +490,23 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public void ReplaceLayerRaster(Guid layerId, TileRaster raster)
+    public void ReplaceLayerRaster(Guid layerId, TileRaster raster, bool rasterizeText = false)
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only in the first production slice.");
         int index = FindLayer(layerId);
         if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层没有可直接编辑的像素。");
-        if (Current["layers"]![index]!["text"] is not null)
+        bool hasText = Current["layers"]![index]!["text"] is not null;
+        if (hasText && !rasterizeText)
             throw new NotSupportedException("Text layers require the text renderer to keep metadata and pixels in sync.");
         CheckRasterSize(raster);
         var current = snapshots[cursor].LayerRasters
             ?? throw new InvalidOperationException("Layer rasters have not been loaded.");
-        if (ReferenceEquals(current[layerId], raster)) return;
+        if (ReferenceEquals(current[layerId], raster) && !hasText) return;
         var next = new Dictionary<Guid, TileRaster>(current) { [layerId] = raster };
         var manifest = (JsonObject)Current.DeepClone();
         manifest["layers"]![index]!.AsObject().Remove("shape");
         manifest["layers"]![index]!.AsObject().Remove("gradient");
+        if (rasterizeText) manifest["layers"]![index]!.AsObject().Remove("text");
         Commit(new Snapshot(manifest, next, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
