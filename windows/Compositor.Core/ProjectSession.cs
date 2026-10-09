@@ -10,6 +10,7 @@ public sealed record FlatLayerInfo(Guid Id, string Name, bool IsVisible)
     public string? AdjustmentKind { get; init; }
     public bool IsShape { get; init; }
     public string? ShapeKind { get; init; }
+    public bool IsGradient { get; init; }
     public Guid? ParentId { get; init; }
     public double Opacity { get; init; } = 1;
     public string BlendMode { get; init; } = "Normal";
@@ -170,6 +171,7 @@ public sealed class ProjectSession
             AdjustmentKind = layer["adjustment"]?["kind"]?.GetValue<string>(),
             IsShape = layer["shape"] is not null,
             ShapeKind = layer["shape"]?["kind"]?.GetValue<string>(),
+            IsGradient = layer["gradient"] is not null,
             ParentId = layer["parentID"] is { } parent ? Guid.Parse(parent.GetValue<string>()) : null,
             Opacity = layer["opacity"]?.GetValue<double>() ?? 1,
             BlendMode = layer["blendMode"]?.GetValue<string>() ?? "Normal",
@@ -321,6 +323,14 @@ public sealed class ProjectSession
         int index = FindLayer(layerId);
         if (!ShapeSettings.TryRead(Current["layers"]![index]!["shape"], out var settings))
             throw new InvalidOperationException("Layer is not a valid shape layer.");
+        return settings;
+    }
+
+    public GradientSettings GetGradient(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        if (!GradientSettings.TryRead(Current["layers"]![index]!["gradient"], out var settings))
+            throw new InvalidOperationException("Layer is not a gradient layer.");
         return settings;
     }
 
@@ -806,9 +816,37 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Only raster layers can be shape layers.");
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["shape"] = settings.ToJson();
+        next["layers"]![index]!.AsObject().Remove("gradient");
         var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
         {
             [layerId] = RasterCompositor.CreateShape(Width, Height, settings)
+        };
+        Commit(new Snapshot(next, rasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    public Guid AddGradientLayer(string name, GradientSettings settings, int destinationIndex)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        var layer = CreateBlankLayer(name, Width, Height);
+        layer["gradient"] = settings.ToJson();
+        return InsertLayer(layer, RasterCompositor.CreateGradient(Width, Height, settings), destinationIndex);
+    }
+
+    public void SetGradient(Guid layerId, GradientSettings settings)
+    {
+        RequireLayerStructureEditing();
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        int index = FindLayer(layerId);
+        FlatLayerInfo layer = Layers[index];
+        if (layer.IsGroup || layer.IsAdjustment || layer.IsText)
+            throw new InvalidOperationException("Only raster layers can be gradient layers.");
+        var next = (JsonObject)Current.DeepClone();
+        next["layers"]![index]!["gradient"] = settings.ToJson();
+        next["layers"]![index]!.AsObject().Remove("shape");
+        var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
+        {
+            [layerId] = RasterCompositor.CreateGradient(Width, Height, settings)
         };
         Commit(new Snapshot(next, rasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }

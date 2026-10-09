@@ -318,7 +318,7 @@ public static class ProjectStore
 
     private static bool IsEditableLayer(JsonObject layer, int width, int height, bool allowGroups)
     {
-        if (!layer.All(pair => new[] { "adjustment", "blendMode", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskLinked", "maskPlacement", "maskSourceID", "name", "opacity", "parentID", "shape", "text", "transform" }.Contains(pair.Key)) ||
+        if (!layer.All(pair => new[] { "adjustment", "blendMode", "gradient", "id", "imageFile", "isGroup", "isVisible", "maskEnabled", "maskFile", "maskLinked", "maskPlacement", "maskSourceID", "name", "opacity", "parentID", "shape", "text", "transform" }.Contains(pair.Key)) ||
             layer["isVisible"] is null || !Guid.TryParse(layer["id"]?.GetValue<string>(), out var id) ||
             !allowGroups && (layer["isGroup"]?.GetValue<bool>() == true || layer["parentID"] is not null) ||
             layer["isGroup"]?.GetValue<bool>() == true && layer["maskSourceID"] is not null ||
@@ -334,7 +334,10 @@ public static class ProjectStore
             layer["text"] is { } text && !IsValidTextMetadata(text.AsObject()) ||
             layer["shape"] is { } shape && (!ShapeSettings.TryRead(shape, out _) ||
                 layer["isGroup"]?.GetValue<bool>() == true || layer["adjustment"] is not null ||
-                layer["text"] is not null || layer["imageFile"] is null) ||
+                layer["text"] is not null || layer["gradient"] is not null || layer["imageFile"] is null) ||
+            layer["gradient"] is { } gradient && (!GradientSettings.TryRead(gradient, out _) ||
+                layer["isGroup"]?.GetValue<bool>() == true || layer["adjustment"] is not null ||
+                layer["text"] is not null || layer["shape"] is not null || layer["imageFile"] is null) ||
             layer["adjustment"] is { } adjustment && !IsValidEditableAdjustment(layer, adjustment.AsObject(), width, height) ||
             layer["isGroup"]?.GetValue<bool>() != true && layer["adjustment"] is null &&
             !string.Equals(layer["imageFile"]?.GetValue<string>(), id.ToString("D") + ".png", StringComparison.OrdinalIgnoreCase) ||
@@ -374,7 +377,7 @@ public static class ProjectStore
         if (version < 5 && layer["maskSourceID"] is not null) return false;
         if (version < 6 && isGroup && layer["maskFile"] is not null) return false;
         if (version < 7 && layer["adjustment"] is not null) return false;
-        if (version < 8 && (layer["text"] is not null || layer["shape"] is not null)) return false;
+        if (version < 8 && (layer["text"] is not null || layer["shape"] is not null || layer["gradient"] is not null)) return false;
         return true;
     }
 

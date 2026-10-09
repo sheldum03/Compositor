@@ -2,6 +2,39 @@ namespace Compositor.Core;
 
 public static class RasterCompositor
 {
+    public static TileRaster CreateGradient(int width, int height, GradientSettings settings)
+    {
+        if (width < 1 || height < 1) throw new ArgumentOutOfRangeException(nameof(width));
+        if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        double radians = settings.Angle * Math.PI / 180;
+        double cos = Math.Cos(radians), sin = Math.Sin(radians);
+        double span = Math.Sqrt(width * (double)width + height * (double)height) / 2;
+        var result = new TileRaster(width, height);
+        for (int row = 0; row * TileRaster.TileSize < height; row++)
+        for (int column = 0; column * TileRaster.TileSize < width; column++)
+        {
+            var size = result.TileDimensions(column, row);
+            byte[] tile = new byte[size.Width * size.Height * 4];
+            for (int y = 0; y < size.Height; y++)
+            for (int x = 0; x < size.Width; x++)
+            {
+                double px = column * TileRaster.TileSize + x + 0.5 - width / 2d;
+                double py = row * TileRaster.TileSize + y + 0.5 - height / 2d;
+                double amount = Math.Clamp((px * cos + py * sin) / span + 0.5, 0, 1);
+                int offset = (y * size.Width + x) * 4;
+                tile[offset] = ToByte(settings.StartRed + (settings.EndRed - settings.StartRed) * amount);
+                tile[offset + 1] = ToByte(settings.StartGreen + (settings.EndGreen - settings.StartGreen) * amount);
+                tile[offset + 2] = ToByte(settings.StartBlue + (settings.EndBlue - settings.StartBlue) * amount);
+                tile[offset + 3] = 255;
+            }
+            result = result.ReplaceTile(column, row, tile);
+        }
+        return result;
+
+        static byte ToByte(double value) => (byte)Math.Round(Math.Clamp(value, 0, 1) * 255,
+            MidpointRounding.AwayFromZero);
+    }
+
     public static TileRaster CreateShape(int width, int height, ShapeSettings settings)
     {
         if (width < 1 || height < 1) throw new ArgumentOutOfRangeException(nameof(width));

@@ -35,6 +35,10 @@ public sealed class MainWindow : Window
     private readonly NumericUpDown opacity = new() { Name = "BrushOpacity", Minimum = 1, Maximum = 100, Value = 100, Width = 90 };
     private readonly ComboBox color = new() { Name = "BrushColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 0, Width = 90 };
     private readonly NumericUpDown shapeCornerRadius = new() { Name = "ShapeCornerRadius", Minimum = 0, Maximum = 30000, Value = 0, Width = 70 };
+    private readonly ComboBox gradientStartColor = new() { Name = "GradientStartColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 0, Width = 78 };
+    private readonly ComboBox gradientEndColor = new() { Name = "GradientEndColor", ItemsSource = new[] { "黑色", "白色", "蓝色", "橙色", "取样色" }, SelectedIndex = 1, Width = 78 };
+    private readonly NumericUpDown gradientAngle = new() { Name = "GradientAngle", Minimum = -3600, Maximum = 3600, Value = 0, Width = 70 };
+    private readonly StackPanel gradientLayerEditor = new() { Name = "GradientLayerEditor", Orientation = Orientation.Horizontal, Spacing = 6, IsVisible = false };
     private readonly ComboBox brushType = new() { Name = "BrushType", ItemsSource = new[] { "软笔", "硬笔" }, SelectedIndex = 0, Width = 75 };
     private readonly NumericUpDown maskRadius = new() { Name = "MaskRadius", Minimum = 1, Maximum = 200, Value = 3, Width = 65 };
     private readonly CheckBox maskLinked = new() { Name = "MaskLinked", Content = "蒙版随图层" };
@@ -295,6 +299,7 @@ public sealed class MainWindow : Window
         structure.Children.Add(Command("AddBoxTextLayer", "新增框文字", AddBoxTextLayerAsync, document: true));
         structure.Children.Add(Command("AddRectangleShape", "新增矩形", AddRectangleShapeAsync, layer: true));
         structure.Children.Add(Command("AddEllipseShape", "新增椭圆", AddEllipseShapeAsync, layer: true));
+        structure.Children.Add(Command("AddGradientLayer", "新增渐变", AddGradientLayerAsync, layer: true));
         structure.Children.Add(new TextBlock { Text = "圆角", VerticalAlignment = VerticalAlignment.Center });
         structure.Children.Add(shapeCornerRadius);
         structure.Children.Add(Command("ApplyShape", "应用形状参数", ApplyShapeAsync, layer: true));
@@ -363,6 +368,14 @@ public sealed class MainWindow : Window
         resolveTextFont = Command("ResolveTextFont", "选择字体并解锁", ResolveTextFontAsync, layer: true);
         textEditorPanel.Children.Add(resolveTextFont);
         actions.Children.Add(textEditorPanel);
+        gradientLayerEditor.Children.Add(new TextBlock { Text = "起点", VerticalAlignment = VerticalAlignment.Center });
+        gradientLayerEditor.Children.Add(gradientStartColor);
+        gradientLayerEditor.Children.Add(new TextBlock { Text = "终点", VerticalAlignment = VerticalAlignment.Center });
+        gradientLayerEditor.Children.Add(gradientEndColor);
+        gradientLayerEditor.Children.Add(new TextBlock { Text = "角度", VerticalAlignment = VerticalAlignment.Center });
+        gradientLayerEditor.Children.Add(gradientAngle);
+        gradientLayerEditor.Children.Add(Command("ApplyGradientLayer", "应用渐变", ApplyGradientLayerAsync, layer: true));
+        actions.Children.Add(gradientLayerEditor);
         var appearance = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         appearance.Children.Add(new TextBlock { Text = "透明度 %", VerticalAlignment = VerticalAlignment.Center });
         appearance.Children.Add(layerOpacity);
@@ -624,7 +637,7 @@ public sealed class MainWindow : Window
         {
             Text = item is null ? "" : (item.IsVisible ? "●  " : "○  ") +
                 (item.MaskSourceId is not null ? "[剪贴] " : "") + (item.IsAdjustment ? "[调整] " : "") +
-                (item.IsText ? "[文字] " : "") + (item.IsShape ? "[形状] " : "") + item.Name,
+                (item.IsText ? "[文字] " : "") + (item.IsShape ? "[形状] " : "") + (item.IsGradient ? "[渐变] " : "") + item.Name,
             Margin = new Thickness(5), TextTrimming = TextTrimming.CharacterEllipsis
         });
         layers.SelectionChanged += (_, _) => { if (!refreshing) UpdateSelection(); };
@@ -1130,6 +1143,7 @@ public sealed class MainWindow : Window
         NoiseSettings? noise = null;
         LensCorrectionSettings? lensCorrection = null;
         GrainSettings? grain = null;
+        GradientSettings? gradient = null;
         refreshing = true;
         try
         {
@@ -1181,6 +1195,8 @@ public sealed class MainWindow : Window
                 grain = Workspace.Session!.GetGrainAdjustment(selected.Id);
             if (selected?.IsShape == true)
                 shape = Workspace.Session!.GetShape(selected.Id);
+            if (selected?.IsGradient == true)
+                gradient = Workspace.Session!.GetGradient(selected.Id);
             LayerTransformInfo maskTransform = selected?.HasMask == true && !multiple
                 ? Workspace.ActiveLayerMaskTransform()
                 : new LayerTransformInfo(0, 0, Workspace.Session?.Width ?? 1, Workspace.Session?.Height ?? 1, 0, false, false);
@@ -1224,9 +1240,13 @@ public sealed class MainWindow : Window
             grainSize.Value = grain is null ? 1.5m : (decimal)grain.Size;
             grainRoughness.Value = grain is null ? 50 : (decimal)grain.Roughness;
             shapeCornerRadius.Value = shape is null ? 0 : (decimal)shape.CornerRadius;
+            gradientStartColor.SelectedIndex = gradient is null ? 0 : GradientColorIndex(gradient.StartRed, gradient.StartGreen, gradient.StartBlue);
+            gradientEndColor.SelectedIndex = gradient is null ? 1 : GradientColorIndex(gradient.EndRed, gradient.EndGreen, gradient.EndBlue);
+            gradientAngle.Value = gradient is null ? 0 : (decimal)gradient.Angle;
         }
         finally { refreshing = false; }
         freeDistortEditor.IsVisible = Workspace.CanFreeDistort;
+        gradientLayerEditor.IsVisible = selected?.IsGradient == true && !multiple && Workspace.CanEdit;
         bool missingFont = text is not null && !TextLayerWorkflow.Inspect(Workspace.Session!).Single(status => status.Metadata.Id == text.Id).FontAvailable;
         bool showTextEditor = selected?.IsText == true && !multiple && (Workspace.CanEdit || missingFont);
         layerName.IsEnabled = Workspace.CanEdit && selected is not null && !multiple;
@@ -1354,11 +1374,14 @@ public sealed class MainWindow : Window
             if (button.Name == "AddExposureAdjustment")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
-            if (button.Name is "AddRectangleShape" or "AddEllipseShape")
+            if (button.Name is "AddRectangleShape" or "AddEllipseShape" or "AddGradientLayer")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyShape")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected?.IsShape == true && !multiple &&
+                    !Workspace.HasFloatingSelection;
+            if (button.Name == "ApplyGradientLayer")
+                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected?.IsGradient == true && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyExposureAdjustment")
                 button.IsEnabled = showExposureEditor && !Workspace.HasFloatingSelection;
@@ -1676,6 +1699,14 @@ public sealed class MainWindow : Window
         return Task.Run(() => Workspace.AddShapeLayer(new ShapeSettings(
             "Ellipse", selected.Red, selected.Green, selected.Blue)));
     }
+    private Task AddGradientLayerAsync()
+    {
+        var start = GradientColor(gradientStartColor.SelectedIndex);
+        var end = GradientColor(gradientEndColor.SelectedIndex);
+        return Task.Run(() => Workspace.AddGradientLayer(new GradientSettings(
+            start.Red, start.Green, start.Blue, end.Red, end.Green, end.Blue,
+            (double)(gradientAngle.Value ?? 0))));
+    }
     private Task ApplyShapeAsync()
     {
         if (selectedId is not { } id || Workspace.Session is not { } session)
@@ -1689,6 +1720,24 @@ public sealed class MainWindow : Window
             Green = selected.Green,
             Blue = selected.Blue,
             CornerRadius = radius
+        })));
+    }
+    private Task ApplyGradientLayerAsync()
+    {
+        if (selectedId is not { } id || Workspace.Session is not { } session)
+            throw new InvalidOperationException("当前工程没有活动渐变图层。");
+        GradientSettings current = session.GetGradient(id);
+        var start = GradientColor(gradientStartColor.SelectedIndex);
+        var end = GradientColor(gradientEndColor.SelectedIndex);
+        return Task.Run(() => Workspace.Edit(editSession => editSession.SetGradient(id, current with
+        {
+            StartRed = start.Red,
+            StartGreen = start.Green,
+            StartBlue = start.Blue,
+            EndRed = end.Red,
+            EndGreen = end.Green,
+            EndBlue = end.Blue,
+            Angle = (double)(gradientAngle.Value ?? (decimal)current.Angle)
         })));
     }
     private Task AddExposureAdjustmentAsync() => Task.Run(() => Workspace.AddExposureAdjustment());
@@ -2043,6 +2092,17 @@ public sealed class MainWindow : Window
 
     private (double Red, double Green, double Blue) ShapeColor(int index) =>
         index == 4 ? sampledColor : TextColor(index);
+
+    private (double Red, double Green, double Blue) GradientColor(int index) =>
+        index == 4 ? sampledColor : TextColor(index);
+
+    private static int GradientColorIndex(double red, double green, double blue)
+    {
+        if (red == 1 && green == 1 && blue == 1) return 1;
+        if (red == 0.1 && green == 0.3 && blue == 0.9) return 2;
+        if (red == 1 && green == 0.3 && blue == 0.1) return 3;
+        return 0;
+    }
 
     private static int TextColorIndex(TextLayerMetadata metadata)
     {
