@@ -943,6 +943,8 @@ public sealed class MainWindow : Window
         var selectedItems = (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>()).ToArray();
         var selected = selectedItems.FirstOrDefault();
         bool multiple = selectedItems.Length > 1;
+        bool multipleTransform = multiple && !groupedProject &&
+            selectedItems.All(item => !item.IsGroup && !item.IsAdjustment && item.ParentId is null);
         selectedId = selected?.Id;
         TextLayerMetadata? text = null;
         ExposureSettings? exposure = null;
@@ -1264,12 +1266,18 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanMoveLayer(selected.Id, -1);
             if (button.Name is "ScaleGroupDown" or "ScaleGroupUp" or "RotateGroupCounterClockwise" or "RotateGroupClockwise" or
                 "RotateLayerCounterClockwise" or "RotateLayerClockwise")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsAdjustment && !multiple &&
-                    (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection;
+                button.IsEnabled = Workspace.CanEdit && selected is not null &&
+                    (multiple ? multipleTransform : !selected.IsAdjustment && (selected.IsGroup || !groupedProject)) &&
+                    !Workspace.HasFloatingSelection;
             if (button.Name == "RotateLayerCustom")
-                button.IsEnabled = Workspace.CanEdit && selected is not null && !selected.IsAdjustment && !multiple &&
-                    (selected.IsGroup || !groupedProject) && !Workspace.HasFloatingSelection &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null &&
+                    (multiple ? multipleTransform : !selected.IsAdjustment && (selected.IsGroup || !groupedProject)) &&
+                    !Workspace.HasFloatingSelection &&
                     layerRotation.Value is not null;
+            if (button.Name == "MoveLayer")
+                button.IsEnabled = Workspace.CanEdit && selected is not null &&
+                    (multiple ? multipleTransform : !selected.IsAdjustment && (selected.IsGroup || !groupedProject)) &&
+                    !Workspace.HasFloatingSelection;
             if (button.Name == "GroupLayer")
                 button.IsEnabled = Workspace.CanEdit && selectedItems.Length > 0 && selectedItems.All(item => !item.IsAdjustment) && !Workspace.HasFloatingSelection;
             if (button.Name == "UngroupLayer")
@@ -1713,30 +1721,49 @@ public sealed class MainWindow : Window
 
     private Task ScaleGroupAsync(bool enlarge)
     {
-        return Task.Run(() => Workspace.ScaleActiveLayer(enlarge));
+        Guid[] ids = SelectedLayerIds();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.ScaleSelectedLayers(ids, enlarge))
+            : Task.Run(() => Workspace.ScaleActiveLayer(enlarge));
     }
 
     private Task RotateGroupAsync(bool clockwise)
     {
-        return Task.Run(() => Workspace.RotateActiveLayer90(clockwise));
+        Guid[] ids = SelectedLayerIds();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.RotateSelectedLayers(ids, clockwise ? 90 : -90))
+            : Task.Run(() => Workspace.RotateActiveLayer90(clockwise));
     }
 
     private Task RotateLayerAsync(bool clockwise)
     {
-        return Task.Run(() => Workspace.RotateActiveLayer(clockwise ? 15 : -15));
+        Guid[] ids = SelectedLayerIds();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.RotateSelectedLayers(ids, clockwise ? 15 : -15))
+            : Task.Run(() => Workspace.RotateActiveLayer(clockwise ? 15 : -15));
     }
 
     private Task RotateLayerCustomAsync()
     {
         double degrees = (double)(layerRotation.Value ?? 0);
-        return Task.Run(() => Workspace.RotateActiveLayer(degrees));
+        Guid[] ids = SelectedLayerIds();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.RotateSelectedLayers(ids, degrees))
+            : Task.Run(() => Workspace.RotateActiveLayer(degrees));
     }
 
     private Task MoveLayerAsync()
     {
         int offsetX = (int)(layerMoveX.Value ?? 0), offsetY = (int)(layerMoveY.Value ?? 0);
-        return Task.Run(() => Workspace.MoveActiveLayer(offsetX, offsetY));
+        Guid[] ids = SelectedLayerIds();
+        return ids.Length > 1
+            ? Task.Run(() => Workspace.MoveSelectedLayers(ids, offsetX, offsetY))
+            : Task.Run(() => Workspace.MoveActiveLayer(offsetX, offsetY));
     }
+
+    private Guid[] SelectedLayerIds() =>
+        (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>())
+        .Select(layer => layer.Id).ToArray();
     private Task RenameAsync()
     {
         Guid id = selectedId!.Value;

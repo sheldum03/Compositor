@@ -1272,6 +1272,13 @@ public sealed class EditorWorkspace
         Edit(editSession => editSession.MoveLayerTransform(layerId, offsetX, offsetY));
     }
 
+    public void MoveSelectedLayers(IReadOnlyList<Guid> layerIds, int offsetX, int offsetY)
+    {
+        RequireIdle();
+        if (layerIds.Count < 2) throw new ArgumentException("请选择至少两个图层。", nameof(layerIds));
+        Edit(editSession => editSession.TransformLayers(layerIds, offsetX, offsetY, 1, 0));
+    }
+
     public void ScaleActiveLayer(bool enlarge)
     {
         RequireIdle();
@@ -1282,6 +1289,13 @@ public sealed class EditorWorkspace
             Edit(editSession => editSession.ScaleGroup(layerId, enlarge ? 1.1 : 0.9));
         else
             Edit(editSession => editSession.ScaleLayerTransform(layerId, enlarge ? 1.1 : 0.9));
+    }
+
+    public void ScaleSelectedLayers(IReadOnlyList<Guid> layerIds, bool enlarge)
+    {
+        RequireIdle();
+        if (layerIds.Count < 2) throw new ArgumentException("请选择至少两个图层。", nameof(layerIds));
+        Edit(editSession => editSession.TransformLayers(layerIds, 0, 0, enlarge ? 1.1 : 0.9, 0));
     }
 
     public void RotateActiveLayer90(bool clockwise)
@@ -1306,6 +1320,13 @@ public sealed class EditorWorkspace
             Edit(editSession => editSession.RotateGroupTransform(layerId, degrees));
         else
             Edit(editSession => editSession.RotateLayerTransform(layerId, degrees));
+    }
+
+    public void RotateSelectedLayers(IReadOnlyList<Guid> layerIds, double degrees)
+    {
+        RequireIdle();
+        if (layerIds.Count < 2) throw new ArgumentException("请选择至少两个图层。", nameof(layerIds));
+        Edit(editSession => editSession.TransformLayers(layerIds, 0, 0, 1, degrees));
     }
 
     public void AddActiveLayerMask()

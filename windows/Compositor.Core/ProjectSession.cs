@@ -1400,6 +1400,62 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
+    public void TransformLayers(IReadOnlyList<Guid> layerIds, double offsetX, double offsetY,
+        double scale, double rotation)
+    {
+        RequireLayerStructureEditing();
+        if (layerIds.Count == 0 || layerIds.Count > 1000)
+            throw new ArgumentException("At least one layer is required.", nameof(layerIds));
+        if (!double.IsFinite(offsetX) || !double.IsFinite(offsetY) ||
+            !double.IsFinite(scale) || scale <= 0 || scale > 100 || !double.IsFinite(rotation))
+            throw new ArgumentOutOfRangeException(nameof(scale));
+
+        Guid[] ids = layerIds.Distinct().ToArray();
+        var transforms = ids.Select(id =>
+        {
+            int index = FindLayer(id);
+            FlatLayerInfo layer = Layers[index];
+            if (layer.IsGroup || layer.IsAdjustment || layer.ParentId is not null)
+                throw new NotSupportedException("多层变换目前只支持无组根图层。");
+            return (Id: id, Index: index, Transform: GetLayerTransform(id));
+        }).ToArray();
+        double left = transforms.Min(item => item.Transform.X);
+        double top = transforms.Min(item => item.Transform.Y);
+        double right = transforms.Max(item => item.Transform.X + item.Transform.Width);
+        double bottom = transforms.Max(item => item.Transform.Y + item.Transform.Height);
+        double pivotX = (left + right) / 2;
+        double pivotY = (top + bottom) / 2;
+        double radians = rotation * Math.PI / 180;
+        double cos = Math.Cos(radians), sin = Math.Sin(radians);
+        var next = (JsonObject)Current.DeepClone();
+        bool changed = false;
+        foreach (var item in transforms)
+        {
+            LayerTransformInfo current = item.Transform;
+            double centerX = current.X + current.Width / 2;
+            double centerY = current.Y + current.Height / 2;
+            double relativeX = (centerX - pivotX) * scale;
+            double relativeY = (centerY - pivotY) * scale;
+            double nextCenterX = pivotX + relativeX * cos - relativeY * sin + offsetX;
+            double nextCenterY = pivotY + relativeX * sin + relativeY * cos + offsetY;
+            double nextWidth = current.Width * scale;
+            double nextHeight = current.Height * scale;
+            double nextX = nextCenterX - nextWidth / 2;
+            double nextY = nextCenterY - nextHeight / 2;
+            if (nextX == current.X && nextY == current.Y && nextWidth == current.Width &&
+                nextHeight == current.Height && rotation == 0)
+                continue;
+            var transform = next["layers"]![item.Index]!["transform"]?.AsObject()
+                ?? throw new InvalidDataException("Layer transform data is missing.");
+            transform["origin"] = new JsonArray(nextX, nextY);
+            transform["size"] = new JsonArray(nextWidth, nextHeight);
+            transform["rotation"] = current.Rotation + rotation;
+            changed = true;
+        }
+        if (changed)
+            Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
     internal void ReplaceLayerTransformWithRaster(Guid layerId, TileRaster raster, GrayTileRaster? mask)
     {
         RequireLayerStructureEditing();
