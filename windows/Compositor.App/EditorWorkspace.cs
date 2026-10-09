@@ -108,6 +108,24 @@ public sealed class EditorWorkspace
         return (sample.Red / 255d, sample.Green / 255d, sample.Blue / 255d);
     }
 
+    public Guid? HitTestLayer(Point document)
+    {
+        if (Session is not { } session || !double.IsFinite(document.X) || !double.IsFinite(document.Y)) return null;
+        IReadOnlySet<Guid> visible = session.EffectiveVisibleLayerIds;
+        foreach (FlatLayerInfo layer in session.Layers.Reverse())
+        {
+            if (layer.IsGroup || layer.IsAdjustment || !visible.Contains(layer.Id) || layer.Opacity <= 0) continue;
+            LayerTransformInfo transform = session.GetLayerTransform(layer.Id);
+            (double X, double Y) local = transform.FromDocument(document.X, document.Y);
+            if (local.X < 0 || local.Y < 0 || local.X >= 1 || local.Y >= 1) continue;
+            TileRaster raster = session.GetLayerRaster(layer.Id);
+            int x = Math.Clamp((int)Math.Floor(local.X * raster.Width), 0, raster.Width - 1);
+            int y = Math.Clamp((int)Math.Floor(local.Y * raster.Height), 0, raster.Height - 1);
+            if (raster.ReadPixel(x, y).Alpha > 0) return layer.Id;
+        }
+        return null;
+    }
+
     public void New(int width, int height, double resolution)
     {
         RequireIdle();

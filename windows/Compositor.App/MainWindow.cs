@@ -845,6 +845,14 @@ public sealed class MainWindow : Window
         sidebar.Children.Add(layers);
         DockPanel.SetDock(sidebar, Dock.Right); layout.Children.Add(sidebar);
         layout.Children.Add(canvas);
+        canvas.LayerHitTest = Workspace.HitTestLayer;
+        canvas.LayerPicked += id =>
+        {
+            if (Workspace.Session is not { } session) return;
+            session.SelectLayer(id);
+            selectedId = id;
+            Refresh();
+        };
         canvas.LayerMoveStarted += modifiers => LayerMoveStep(() => Workspace.BeginLayerMove(SelectedLayerIds(), modifiers.HasFlag(KeyModifiers.Alt)));
         canvas.LayerMoveChanged += (offset, snap) => LayerMoveStep(() => Workspace.PreviewLayerMove(offset, snap && snapMove.IsChecked == true));
         canvas.LayerMoveFinished += () => LayerMoveStep(Workspace.FinishLayerMove, finished: true);
@@ -2070,6 +2078,7 @@ public sealed class MainWindow : Window
         handTool.IsEnabled = zoomTool.IsEnabled = Workspace.Session is not null;
         canvas.HandEnabled = handTool.IsEnabled && handTool.IsChecked == true;
         canvas.ZoomEnabled = zoomTool.IsEnabled && zoomTool.IsChecked == true;
+        canvas.LayerHitTest = Workspace.HitTestLayer;
         layerMoveTool.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
             Workspace.Session?.CanTransformLayers(SelectedLayerIds()) == true;
         canvas.LayerMoveEnabled = layerMoveTool.IsChecked == true && layerMoveTool.IsEnabled;

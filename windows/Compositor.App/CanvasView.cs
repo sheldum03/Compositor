@@ -48,6 +48,7 @@ public sealed class CanvasView : Control
     public bool ZoomEnabled { get; set; }
     public bool LayerMoveEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
+    public Func<Point, Guid?>? LayerHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping && zoomDrag is null && layerMoveStart is null;
     public bool IsSelecting => captured is not null && selecting;
@@ -76,6 +77,7 @@ public sealed class CanvasView : Control
     public event Action? ShapeCanceled;
     public event Action<double>? ZoomChanged;
     public event Action<KeyModifiers>? LayerMoveStarted;
+    public event Action<Guid>? LayerPicked;
     public event Action<Vector, bool>? LayerMoveChanged;
     public event Action? LayerMoveFinished;
     public event Action? LayerMoveCanceled;
@@ -93,6 +95,7 @@ public sealed class CanvasView : Control
             LastDocumentPointer = document;
             if (!pan && LayerMoveEnabled && properties.IsLeftButtonPressed)
             {
+                if (LayerHitTest?.Invoke(document) is { } hit) LayerPicked?.Invoke(hit);
                 Focus();
                 layerMoveStart = (document, false);
                 captured = e.Pointer;

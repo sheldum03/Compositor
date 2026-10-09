@@ -417,7 +417,7 @@ public static class ProjectStore
         if (!settingsValid ||
             layer["blendMode"]?.GetValue<string>() is { } blend && blend != "Normal" ||
             layer["isGroup"]?.GetValue<bool>() == true || layer["imageFile"] is not null ||
-            layer["text"] is not null || layer["parentID"] is not null ||
+            layer["text"] is not null ||
             layer["maskFile"] is not null || layer["maskSourceID"] is not null) return false;
         var transform = layer["transform"]?.AsObject();
         var origin = transform?["origin"]?.AsArray();

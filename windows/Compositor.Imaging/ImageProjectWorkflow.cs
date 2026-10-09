@@ -773,6 +773,11 @@ public static class ImageProjectWorkflow
                 prepared.Add(id, new CachedLayer(layer, id, null, mask));
                 continue;
             }
+            if (layer["adjustment"] is not null)
+            {
+                prepared.Add(id, new CachedLayer(layer, id, null, mask));
+                continue;
+            }
             if (layer["imageFile"] is not { } imageNode || layer["adjustment"] is not null)
                 throw new NotSupportedException("Cached non-raster layers are not supported.");
             string imageName = imageNode.GetValue<string>();
@@ -892,6 +897,8 @@ public static class ImageProjectWorkflow
         {
             if (!(layer.Manifest["isVisible"]?.GetValue<bool>() ?? true))
                 return backdrop;
+            if (layer.Manifest["adjustment"] is JsonObject adjustment)
+                return ApplyCachedAdjustment(backdrop, adjustment, layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
             if (layer.Raster is not null)
             {
                 TileRaster raster = ResolveLeaf(layer.Id);
@@ -914,6 +921,11 @@ public static class ImageProjectWorkflow
                 var child = descendants[index];
                 if (renderIds is not null && !renderIds.Contains(child.Id)) continue;
                 if (!(child.Manifest["isVisible"]?.GetValue<bool>() ?? true)) continue;
+                if (child.Manifest["adjustment"] is JsonObject adjustment)
+                {
+                    result = ApplyCachedAdjustment(result, adjustment, child.Manifest["opacity"]?.GetValue<double>() ?? 1);
+                    continue;
+                }
                 if (child.Raster is null)
                 {
                     result = RenderNode(child, groupMasks, result);
@@ -955,6 +967,50 @@ public static class ImageProjectWorkflow
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1 ||
                 !ProjectSession.SupportedBlendModes.Contains(mode))
                 throw new NotSupportedException("Cached layer appearance is not supported.");
+        }
+
+        TileRaster ApplyCachedAdjustment(TileRaster source, JsonObject adjustment, double opacity)
+        {
+            if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
+                throw new NotSupportedException("Cached adjustment opacity is invalid.");
+            string? kind = adjustment["kind"]?.GetValue<string>();
+            TileRaster adjusted;
+            if (kind == "Exposure" && ExposureSettings.TryRead(adjustment["exposureSettings"], out ExposureSettings exposure))
+                adjusted = RasterCompositor.ApplyExposure(source, exposure);
+            else if (kind == "Levels" && LevelsSettings.TryRead(adjustment["levelsSettings"], out LevelsSettings levels))
+                adjusted = RasterCompositor.ApplyLevels(source, levels);
+            else if (kind == "Hue/Saturation" && HueSaturationSettings.TryRead(adjustment["hueSaturationSettings"], out HueSaturationSettings hueSaturation))
+                adjusted = RasterCompositor.ApplyHueSaturation(source, hueSaturation);
+            else if (kind == "Curves" && CurvesSettings.TryRead(adjustment["curvesSettings"], out CurvesSettings curves))
+                adjusted = RasterCompositor.ApplyCurves(source, curves);
+            else if (kind == "Gradient Map" && GradientMapSettings.TryRead(adjustment["gradientMapSettings"], out GradientMapSettings gradientMap))
+                adjusted = RasterCompositor.ApplyGradientMap(source, gradientMap);
+            else if (kind == "Gaussian Blur" && GaussianBlurSettings.TryRead(adjustment["gaussianBlurSettings"], out GaussianBlurSettings gaussianBlur))
+                adjusted = RasterCompositor.ApplyGaussianBlur(source, gaussianBlur);
+            else if (kind == "Motion Blur" && MotionBlurSettings.TryRead(adjustment["motionBlurSettings"], out MotionBlurSettings motionBlur))
+                adjusted = RasterCompositor.ApplyMotionBlur(source, motionBlur);
+            else if (kind == "Add Noise" && NoiseSettings.TryRead(adjustment["noiseSettings"], out NoiseSettings noise))
+                adjusted = RasterCompositor.ApplyNoise(source, noise);
+            else if (kind == "Lens Correction" && LensCorrectionSettings.TryRead(adjustment["lensCorrectionSettings"], out LensCorrectionSettings lensCorrection))
+                adjusted = RasterCompositor.ApplyLensCorrection(source, lensCorrection);
+            else if (kind == "Grain" && GrainSettings.TryRead(adjustment["grainSettings"], out GrainSettings grain))
+                adjusted = RasterCompositor.ApplyGrain(source, grain);
+            else throw new NotSupportedException("Cached adjustment settings are invalid.");
+            if (opacity == 1) return adjusted;
+            var result = new TileRaster(source.Width, source.Height);
+            for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
+            for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
+            {
+                byte[] original = source.ReadTileCopy(column, row);
+                byte[] changed = adjusted.ReadTileCopy(column, row);
+                for (int i = 0; i < original.Length; i += 4)
+                    for (int channel = 0; channel < 3; channel++)
+                        original[i + channel] = (byte)Math.Round(
+                            original[i + channel] * (1 - opacity) + changed[i + channel] * opacity,
+                            MidpointRounding.AwayFromZero);
+                result = result.ReplaceTile(column, row, original);
+            }
+            return result;
         }
 
         if (rootOnly is { } rootId)
