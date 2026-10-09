@@ -35,14 +35,18 @@ public static class RasterCompositor
             MidpointRounding.AwayFromZero);
     }
 
-    public static TileRaster CreateShape(int width, int height, ShapeSettings settings)
+    public static TileRaster CreateShape(int width, int height, ShapeSettings settings,
+        double? logicalWidth = null, double? logicalHeight = null)
     {
         if (width < 1 || height < 1) throw new ArgumentOutOfRangeException(nameof(width));
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        double drawnWidth = logicalWidth ?? width, drawnHeight = logicalHeight ?? height;
+        if (!double.IsFinite(drawnWidth) || !double.IsFinite(drawnHeight) || drawnWidth <= 0 || drawnHeight <= 0)
+            throw new ArgumentOutOfRangeException(nameof(logicalWidth));
         byte red = (byte)Math.Round(settings.Red * 255, MidpointRounding.AwayFromZero);
         byte green = (byte)Math.Round(settings.Green * 255, MidpointRounding.AwayFromZero);
         byte blue = (byte)Math.Round(settings.Blue * 255, MidpointRounding.AwayFromZero);
-        double radius = Math.Min(settings.CornerRadius, Math.Min(width, height) / 2d);
+        double radius = Math.Min(settings.CornerRadius, Math.Min(drawnWidth, drawnHeight) / 2);
         var result = new TileRaster(width, height);
         for (int row = 0; row * TileRaster.TileSize < height; row++)
         for (int column = 0; column * TileRaster.TileSize < width; column++)
@@ -52,12 +56,12 @@ public static class RasterCompositor
             for (int y = 0; y < size.Height; y++)
             for (int x = 0; x < size.Width; x++)
             {
-                double px = column * TileRaster.TileSize + x + 0.5;
-                double py = row * TileRaster.TileSize + y + 0.5;
+                double px = (column * TileRaster.TileSize + x + 0.5) * drawnWidth / width;
+                double py = (row * TileRaster.TileSize + y + 0.5) * drawnHeight / height;
                 bool inside = settings.Kind == "Ellipse"
-                    ? Math.Pow((px - width / 2d) / (width / 2d), 2) +
-                      Math.Pow((py - height / 2d) / (height / 2d), 2) <= 1
-                    : IsRoundedRectangle(px, py, width, height, radius);
+                    ? Math.Pow((px - drawnWidth / 2) / (drawnWidth / 2), 2) +
+                      Math.Pow((py - drawnHeight / 2) / (drawnHeight / 2), 2) <= 1
+                    : IsRoundedRectangle(px, py, drawnWidth, drawnHeight, radius);
                 if (!inside) continue;
                 int offset = (y * size.Width + x) * 4;
                 tile[offset] = red;
@@ -69,7 +73,7 @@ public static class RasterCompositor
         }
         return result;
 
-        static bool IsRoundedRectangle(double x, double y, int width, int height, double radius)
+        static bool IsRoundedRectangle(double x, double y, double width, double height, double radius)
         {
             if (radius <= 0) return x > 0 && y > 0 && x < width && y < height;
             double left = Math.Abs(x - width / 2d) - (width / 2d - radius);

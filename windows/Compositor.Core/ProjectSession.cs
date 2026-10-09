@@ -826,9 +826,10 @@ public sealed class ProjectSession
         var next = (JsonObject)Current.DeepClone();
         next["layers"]![index]!["shape"] = settings.ToJson();
         next["layers"]![index]!.AsObject().Remove("gradient");
+        LayerTransformInfo transform = GetLayerTransform(layerId);
         var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!)
         {
-            [layerId] = RasterCompositor.CreateShape(Width, Height, settings)
+            [layerId] = RasterCompositor.CreateShape(Width, Height, settings, transform.Width, transform.Height)
         };
         Commit(new Snapshot(next, rasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
@@ -1566,7 +1567,7 @@ public sealed class ProjectSession
         transform["size"] = new JsonArray(width, height);
         transform["rotation"] = rotation;
         UpdateMaskPlacement(next["layers"]![index]!.AsObject(), currentTransform, transform);
-        Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+        Commit(new Snapshot(next, ShapeRastersAfterResize(next, [index]), snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
     public void TransformLayers(IReadOnlyList<Guid> layerIds, double offsetX, double offsetY,
@@ -1641,7 +1642,27 @@ public sealed class ProjectSession
             changed = true;
         }
         if (changed)
-            Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
+            Commit(new Snapshot(next, ShapeRastersAfterResize(next, transforms.Select(item => item.Index)), snapshots[cursor].LayerMasks, ++nextRevision));
+    }
+
+    private IReadOnlyDictionary<Guid, TileRaster>? ShapeRastersAfterResize(JsonObject next, IEnumerable<int> indexes)
+    {
+        var current = snapshots[cursor].LayerRasters;
+        if (current is null) return null;
+        Dictionary<Guid, TileRaster>? changed = null;
+        foreach (int index in indexes)
+        {
+            JsonNode layer = next["layers"]![index]!;
+            if (!ShapeSettings.TryRead(layer["shape"], out var shape) || shape.Kind != "Rectangle" || shape.CornerRadius <= 0)
+                continue;
+            LayerTransformInfo before = LayerTransformInfo.Read(Current["layers"]![index]!["transform"]!.AsObject());
+            LayerTransformInfo after = LayerTransformInfo.Read(layer["transform"]!.AsObject());
+            if (before.Width == after.Width && before.Height == after.Height) continue;
+            changed ??= new Dictionary<Guid, TileRaster>(current);
+            Guid id = Guid.Parse(layer["id"]!.GetValue<string>());
+            changed[id] = RasterCompositor.CreateShape(Width, Height, shape, after.Width, after.Height);
+        }
+        return changed ?? current;
     }
 
     internal void ReplaceLayerTransformWithRaster(Guid layerId, TileRaster raster, GrayTileRaster? mask)
