@@ -14,6 +14,7 @@ public sealed class EditorWorkspace
 {
     public PaletteColor ForegroundColor { get; set; } = PaletteColor.Black;
     public PaletteColor BackgroundColor { get; set; } = PaletteColor.White;
+    public bool BrushErasing { get; set; }
     private SoftBrushStroke? brush;
     private Guid brushLayer;
     private SoftBrushStroke? maskBrush;
@@ -1093,7 +1094,7 @@ public sealed class EditorWorkspace
         GrayTileRaster currentMask = session.GetLayerMask(layerId)
             ?? throw new InvalidOperationException("当前图层没有蒙版。");
         TileRaster brushBounds = new(currentMask.Width, currentMask.Height);
-        maskBrush = new SoftBrushStroke(brushBounds, settings with { Color = [1, 1, 1] },
+        maskBrush = new SoftBrushStroke(brushBounds, settings with { Color = [1, 1, 1], Erasing = false },
             Selection is { } selection ? SelectionForMask(session, layerId, selection, currentMask.Width, currentMask.Height) : null);
         AppendMaskStroke(point);
     }

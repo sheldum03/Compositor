@@ -7,7 +7,7 @@ using Compositor.Core;
 namespace Compositor.Imaging;
 
 public readonly record struct BrushPoint(double X, double Y, double Pressure = 1);
-public sealed record SoftBrushSettings(int Diameter, double Opacity, double[] Color, double Hardness = 0);
+public sealed record SoftBrushSettings(int Diameter, double Opacity, double[] Color, double Hardness = 0, bool Erasing = false);
 
 // Untransformed, unselected color painting only. CPU dabs follow Mac BrushStroke's event/tail rules.
 public sealed class SoftBrushStroke
@@ -308,6 +308,12 @@ public sealed class SoftBrushStroke
             {
                 int offset = (y - tile.Top) * tile.Width + x - tile.Left;
                 uint baselinePixel = baselinePixels.IsEmpty ? 0 : baselinePixels[offset];
+                if (settings.Erasing)
+                {
+                    resultPixels[offset] = BlendPixel(baselinePixel, 0,
+                        (uint)(255 - coverageColors[mask[offset] * 4 + 3]));
+                    continue;
+                }
                 // An untouched transparent pixel has no destination contribution.
                 if (baselinePixel == 0)
                 {

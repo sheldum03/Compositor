@@ -22,6 +22,7 @@ public sealed class MainWindow : Window
     private readonly StackPanel toolbar = new() { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 0, 12) };
     private readonly DockPanel sidebar = new() { Width = 260, Margin = new Thickness(12, 0, 0, 0) };
     private readonly CheckBox paint = new() { Content = "软笔", Name = "Paint", IsChecked = true };
+    private readonly ComboBox brushMode = new() { Name = "BrushMode", ItemsSource = new[] { "绘制 B", "擦除 E" }, SelectedIndex = 0, Width = 85 };
     private readonly CheckBox clonePaint = new() { Content = "仿制", Name = "ClonePaint" };
     private readonly CheckBox blurPaint = new() { Content = "模糊笔", Name = "BlurPaint" };
     private readonly CheckBox healingPaint = new() { Content = "修复", Name = "HealingPaint" };
@@ -301,6 +302,13 @@ public sealed class MainWindow : Window
         };
         DockPanel.SetDock(toolbar, Dock.Top); layout.Children.Add(toolbar);
         brushOptions.Children.Add(paint);
+        brushOptions.Children.Add(brushMode);
+        brushMode.SelectionChanged += (_, _) =>
+        {
+            if (refreshing) return;
+            Workspace.BrushErasing = brushMode.SelectedIndex == 1;
+            UpdatePaintMode();
+        };
         brushOptions.Children.Add(clonePaint);
         brushOptions.Children.Add(blurPaint);
         brushOptions.Children.Add(healingPaint);
@@ -828,7 +836,8 @@ public sealed class MainWindow : Window
             var selected = SelectedBrushColor();
             double[] selectedColor = [selected.Red, selected.Green, selected.Blue];
             var settings = new SoftBrushSettings((int)(diameter.Value ?? 40),
-                (double)(opacity.Value ?? 100) / 100, selectedColor, (double)(hardness.Value ?? 0) / 100);
+                (double)(opacity.Value ?? 100) / 100, selectedColor, (double)(hardness.Value ?? 0) / 100,
+                paint.IsChecked == true && Workspace.BrushErasing);
             if (maskPaint.IsChecked == true)
                 Workspace.BeginMaskStroke(id, settings, point, maskPaintMode.SelectedIndex == 1);
             else if (blurPaint.IsChecked == true)
@@ -1160,7 +1169,7 @@ public sealed class MainWindow : Window
         if (modifiers is not (KeyModifiers.None or KeyModifiers.Shift)) return false;
         CheckBox? tool = key switch
         {
-            Key.B => maskPaint.IsChecked == true ? maskPaint : paint,
+            Key.B or Key.E => maskPaint.IsChecked == true ? maskPaint : paint,
             Key.J => healingPaint,
             Key.S => clonePaint,
             Key.R => blurPaint,
@@ -1177,6 +1186,12 @@ public sealed class MainWindow : Window
             key == Key.U && modifiers == KeyModifiers.Shift && shapeTool.IsChecked == true;
         if (switches) { canvas.Cancel(); Workspace.CancelShape(); }
         if (!tool.IsEnabled) return true;
+        if (key is Key.B or Key.E)
+        {
+            Workspace.BrushErasing = key == Key.E;
+            brushMode.SelectedIndex = Workspace.BrushErasing ? 1 : 0;
+            UpdatePaintMode();
+        }
         if (key == Key.U && modifiers == KeyModifiers.Shift && shapeTool.IsChecked == true)
             shapeKind.SelectedIndex = shapeKind.SelectedIndex == 0 ? 1 : 0;
         else
@@ -1435,6 +1450,9 @@ public sealed class MainWindow : Window
             displayedPaletteWorkspace = Workspace;
         }
         RefreshPalette();
+        refreshing = true;
+        brushMode.SelectedIndex = Workspace.BrushErasing ? 1 : 0;
+        refreshing = false;
         Title = (Workspace.IsDirty ? "● " : "") +
             (Workspace.ProjectDirectory is { } path ? Path.GetFileName(path) + " — " : Workspace.Session is not null ? "未命名 — " : "") + "Compositor";
         RefreshPreview();
@@ -1964,6 +1982,8 @@ public sealed class MainWindow : Window
         maskPaintMode.IsEnabled = hasMask && (maskPaint.IsChecked == true || gradientTool.IsChecked == true && gradientMaskTarget.IsChecked == true);
         bool selectedAdjustment = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsAdjustment;
         bool selectedText = editable && Workspace.Session!.Layers.Single(layer => layer.Id == selectedId).IsText;
+        brushMode.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText && paint.IsChecked == true;
+        paint.Content = Workspace.BrushErasing ? "擦除" : "笔刷";
         paint.IsEnabled = editable && !selectedGroup && !selectedAdjustment;
         clonePaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
         blurPaint.IsEnabled = editable && !selectedGroup && !selectedAdjustment && !selectedText;
