@@ -12,9 +12,13 @@ public sealed class CanvasView : Control
 {
     private IPointer? captured;
     private bool panning, selecting, movingSelection, spaceHeld, shiftHeld, autoFit = true;
+    private bool freeDistorting;
+    private int freeDistortHandle = -1;
     private Point previous;
     private Point strokeStart;
     private Point selectionMoveStart;
+    private Point[] freeDistortCorners = [];
+    private Point[] freeDistortBefore = [];
     private Rect? selectionRect;
     private List<Point>? selectionPath;
     private SelectionOutline? selectionOutline;
@@ -30,6 +34,7 @@ public sealed class CanvasView : Control
     public bool TextEditEnabled { get; set; }
     public bool EyedropperEnabled { get; set; }
     public bool CloneEnabled { get; set; }
+    public bool FreeDistortEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
     public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection;
@@ -48,6 +53,7 @@ public sealed class CanvasView : Control
     public event Action<int, bool>? TextCaretPressed;
     public event Action<Point>? ColorSampled;
     public event Action<Point>? CloneSourceSelected;
+    public event Action<IReadOnlyList<Point>>? FreeDistortChanged;
 
     public CanvasView()
     {
@@ -60,6 +66,20 @@ public sealed class CanvasView : Control
             bool pan = properties.IsMiddleButtonPressed || spaceHeld && properties.IsLeftButtonPressed;
             Point view = e.GetPosition(this), document = Viewport.ToDocument(view);
             LastDocumentPointer = document;
+            if (!pan && FreeDistortEnabled && properties.IsLeftButtonPressed)
+            {
+                freeDistortHandle = FindFreeDistortHandle(view);
+                if (freeDistortHandle >= 0)
+                {
+                    Focus();
+                    freeDistorting = true;
+                    freeDistortBefore = (Point[])freeDistortCorners.Clone();
+                    captured = e.Pointer;
+                    captured.Capture(this);
+                    e.Handled = true;
+                }
+                return;
+            }
             if (!pan && TextEditEnabled && properties.IsLeftButtonPressed)
             {
                 if (TextHitTest?.Invoke(document) is { } characterIndex)
@@ -104,6 +124,16 @@ public sealed class CanvasView : Control
             Point view = e.GetPosition(this);
             LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
+            if (freeDistorting)
+            {
+                Point document = Viewport.ToDocument(view);
+                freeDistortCorners[freeDistortHandle] = new Point(
+                    Math.Clamp(document.X, -30000, 30000), Math.Clamp(document.Y, -30000, 30000));
+                FreeDistortChanged?.Invoke((Point[])freeDistortCorners.Clone());
+                InvalidateVisual();
+                e.Handled = true;
+                return;
+            }
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
             if (panning) { Viewport.Pan(view - previous); previous = view; autoFit = false; InvalidateVisual(); }
             else if (selecting || movingSelection)
@@ -121,6 +151,15 @@ public sealed class CanvasView : Control
             if (captured != e.Pointer) return;
             LastDocumentPointer = Viewport.ToDocument(e.GetPosition(this));
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) shiftHeld = true;
+            if (freeDistorting)
+            {
+                freeDistorting = false;
+                freeDistortHandle = -1;
+                captured = null;
+                e.Pointer.Capture(null);
+                e.Handled = true;
+                return;
+            }
             bool paint = !panning && !movingSelection;
             bool select = selecting;
             bool moveSelection = movingSelection;
@@ -185,6 +224,18 @@ public sealed class CanvasView : Control
     public void Cancel()
     {
         if (captured is null) return;
+        if (freeDistorting)
+        {
+            var pointer = captured;
+            captured = null;
+            pointer.Capture(null);
+            freeDistorting = false;
+            freeDistortHandle = -1;
+            freeDistortCorners = (Point[])freeDistortBefore.Clone();
+            FreeDistortChanged?.Invoke((Point[])freeDistortCorners.Clone());
+            InvalidateVisual();
+            return;
+        }
         bool paint = !panning;
         bool select = selecting;
         var pointer = captured; captured = null; pointer.Capture(null);
@@ -227,6 +278,12 @@ public sealed class CanvasView : Control
         textSelectionPolygons = selectionPolygons ?? [];
         textCaretStart = caretStart;
         textCaretEnd = caretEnd;
+        InvalidateVisual();
+    }
+
+    public void SetFreeDistortCorners(IReadOnlyList<Point>? corners)
+    {
+        freeDistortCorners = corners is { Count: 4 } ? corners.ToArray() : [];
         InvalidateVisual();
     }
 
@@ -320,6 +377,36 @@ public sealed class CanvasView : Control
             var pen = new Pen(Brushes.Black, 1);
             for (int i = 1; i < path.Count; i++) context.DrawLine(pen, Viewport.ToView(path[i - 1]), Viewport.ToView(path[i]));
         }
+        if (FreeDistortEnabled && freeDistortCorners.Length == 4)
+        {
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(230, 28, 104, 190)), Math.Max(1, 1 / Viewport.Scale));
+            for (int index = 0; index < 4; index++)
+                context.DrawLine(pen, Viewport.ToView(freeDistortCorners[index]), Viewport.ToView(freeDistortCorners[(index + 1) % 4]));
+            for (int index = 0; index < 4; index++)
+            {
+                Point handle = Viewport.ToView(freeDistortCorners[index]);
+                context.DrawEllipse(Brushes.White, pen, handle, 6, 6);
+            }
+        }
+    }
+
+    private int FindFreeDistortHandle(Point view)
+    {
+        if (freeDistortCorners.Length != 4) return -1;
+        const double radius = 12;
+        int nearest = -1;
+        double nearestDistance = radius * radius;
+        for (int index = 0; index < freeDistortCorners.Length; index++)
+        {
+            Point handle = Viewport.ToView(freeDistortCorners[index]);
+            double distance = Math.Pow(handle.X - view.X, 2) + Math.Pow(handle.Y - view.Y, 2);
+            if (distance <= nearestDistance)
+            {
+                nearest = index;
+                nearestDistance = distance;
+            }
+        }
+        return nearest;
     }
 
     private static Rect Normalize(Point start, Point end) => new(

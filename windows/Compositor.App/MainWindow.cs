@@ -854,6 +854,18 @@ public sealed class MainWindow : Window
             }
             catch (Exception error) { canvas.SetSelectionRect(Workspace.SelectionBounds); status.Text = "选区未完成：" + error.Message; }
         };
+        canvas.FreeDistortChanged += corners =>
+        {
+            if (refreshing || corners.Count != 4) return;
+            distortTopLeftX.Value = (decimal)corners[0].X;
+            distortTopLeftY.Value = (decimal)corners[0].Y;
+            distortTopRightX.Value = (decimal)corners[1].X;
+            distortTopRightY.Value = (decimal)corners[1].Y;
+            distortBottomRightX.Value = (decimal)corners[2].X;
+            distortBottomRightY.Value = (decimal)corners[2].Y;
+            distortBottomLeftX.Value = (decimal)corners[3].X;
+            distortBottomLeftY.Value = (decimal)corners[3].Y;
+        };
         canvas.SelectionMoveFinished += (start, end) =>
         {
             try
@@ -1119,6 +1131,7 @@ public sealed class MainWindow : Window
             distortTopRightX.Value = (decimal)documentWidth; distortTopRightY.Value = 0;
             distortBottomRightX.Value = (decimal)documentWidth; distortBottomRightY.Value = (decimal)documentHeight;
             distortBottomLeftX.Value = 0; distortBottomLeftY.Value = (decimal)documentHeight;
+            canvas.SetFreeDistortCorners(ReadFreeDistortCorners());
             layerName.Text = selected?.Name ?? "";
             layerOpacity.Value = selected is null ? 100 : (decimal)(selected.Opacity * 100);
             layerBlendMode.SelectedItem = selected?.BlendMode ?? "Normal";
@@ -1571,6 +1584,7 @@ public sealed class MainWindow : Window
              (liquifyPaint.IsEnabled && liquifyPaint.IsChecked == true) ||
              canvas.CloneEnabled ||
              maskPaint.IsChecked == true);
+        canvas.FreeDistortEnabled = Workspace.CanFreeDistort;
         canvas.SelectionEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled && !Workspace.HasFloatingSelection && rectangleSelect.IsChecked == true;
         canvas.SelectionMoveEnabled = editable && !selectedGroup && !selectedAdjustment && !canvas.EyedropperEnabled &&
             (Workspace.HasSelection || Workspace.HasFloatingSelection) && moveSelection.IsChecked == true;
@@ -1951,15 +1965,18 @@ public sealed class MainWindow : Window
 
     private Task ApplyFreeDistortAsync()
     {
-        var corners = new[]
-        {
-            ((double)(distortTopLeftX.Value ?? 0), (double)(distortTopLeftY.Value ?? 0)),
-            ((double)(distortTopRightX.Value ?? 0), (double)(distortTopRightY.Value ?? 0)),
-            ((double)(distortBottomRightX.Value ?? 0), (double)(distortBottomRightY.Value ?? 0)),
-            ((double)(distortBottomLeftX.Value ?? 0), (double)(distortBottomLeftY.Value ?? 0))
-        };
+        var points = ReadFreeDistortCorners();
+        var corners = points.Select(point => (point.X, point.Y)).ToArray();
         return Task.Run(() => Workspace.ApplyFreeDistort(corners));
     }
+
+    private Point[] ReadFreeDistortCorners() =>
+    [
+        new((double)(distortTopLeftX.Value ?? 0), (double)(distortTopLeftY.Value ?? 0)),
+        new((double)(distortTopRightX.Value ?? 0), (double)(distortTopRightY.Value ?? 0)),
+        new((double)(distortBottomRightX.Value ?? 0), (double)(distortBottomRightY.Value ?? 0)),
+        new((double)(distortBottomLeftX.Value ?? 0), (double)(distortBottomLeftY.Value ?? 0))
+    ];
 
     private Guid[] SelectedLayerIds() =>
         (layers.SelectedItems?.OfType<FlatLayerInfo>() ?? Enumerable.Empty<FlatLayerInfo>())
