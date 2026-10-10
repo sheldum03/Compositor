@@ -838,18 +838,21 @@ public sealed class ProjectSession
         return session;
     }
 
-    public Guid AddBlankLayer(string name, int destinationIndex)
+    public Guid AddBlankLayer(string name, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         int width = Current["width"]!.GetValue<int>(), height = Current["height"]!.GetValue<int>();
-        return AddRasterLayer(name, new TileRaster(width, height), destinationIndex);
+        return AddRasterLayer(name, new TileRaster(width, height), destinationIndex, parentId);
     }
 
-    public Guid AddRasterLayer(string name, TileRaster raster, int destinationIndex)
+    public Guid AddRasterLayer(string name, TileRaster raster, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         CheckRasterSize(raster);
-        return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
+        ValidateLayerInsertion(destinationIndex, parentId);
+        var layer = CreateBlankLayer(name, Width, Height);
+        if (parentId is { } parent) layer["parentID"] = parent.ToString("D");
+        return InsertLayer(layer, raster, destinationIndex);
     }
 
     public Guid AddShapeLayer(string name, ShapeSettings settings, int destinationIndex, LayerTransformInfo? placement = null,

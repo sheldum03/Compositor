@@ -1592,7 +1592,7 @@ public sealed class MainWindow : Window
         {
             button.IsEnabled = Workspace.Session is not null &&
                 (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
-            if (groupedProject && button.Name is "AddLayer" or "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
+            if (groupedProject && button.Name is "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
                 button.IsEnabled = false;
         }
         if (Workspace.HasFloatingSelection)
@@ -2232,11 +2232,7 @@ public sealed class MainWindow : Window
         canvas.SetTextOverlay(polygons, ToDocument(new Point(caret.X, caret.Y)),
             ToDocument(new Point(caret.X, caret.Y + caret.Height)));
     }
-    private Task AddLayerAsync() => EditAsync(session =>
-    {
-        int index = selectedId is { } id ? session.Layers.ToList().FindIndex(layer => layer.Id == id) + 1 : session.Layers.Count;
-        session.AddBlankLayer("Layer " + (session.Layers.Count + 1), index);
-    });
+    private Task AddLayerAsync() => Task.Run(() => Workspace.AddBlankLayer());
     private async Task AddTextLayerAsync()
     {
         await Task.Run(() => Workspace.AddTextLayer());

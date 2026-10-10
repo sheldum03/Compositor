@@ -233,6 +233,16 @@ public sealed class EditorWorkspace
         return id;
     }
 
+    public void AddBlankLayer()
+    {
+        RequireIdle();
+        ProjectSession session = RequireSession();
+        RequireEditableSession();
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddBlankLayer("Layer " + (session.Layers.Count + 1), index, parentId);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
     public void AddShapeLayer(ShapeSettings settings, Rect? bounds = null)
     {
         RequireIdle();
