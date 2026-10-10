@@ -878,7 +878,7 @@ public sealed class ProjectSession
 
     public void SetShape(Guid layerId, ShapeSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         FlatLayerInfo layer = Layers[index];
@@ -895,18 +895,20 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, rasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddGradientLayer(string name, GradientSettings settings, int destinationIndex)
+    public Guid AddGradientLayer(string name, GradientSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        ValidateLayerInsertion(destinationIndex, parentId);
         var layer = CreateBlankLayer(name, Width, Height);
         layer["gradient"] = settings.ToJson();
+        if (parentId is { } parent) layer["parentID"] = parent.ToString("D");
         return InsertLayer(layer, RasterCompositor.CreateGradient(Width, Height, settings), destinationIndex);
     }
 
     public void SetGradient(Guid layerId, GradientSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         FlatLayerInfo layer = Layers[index];

@@ -281,10 +281,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddGradientLayer("渐变", settings, index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddGradientLayer("渐变", settings, index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
