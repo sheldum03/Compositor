@@ -1955,6 +1955,7 @@ public sealed class ProjectSession
         Guid groupId = Guid.NewGuid();
         var next = (JsonObject)Current.DeepClone();
         var nextLayers = next["layers"]!.AsArray();
+        next["groupCoordinateSpace"] = "document";
         var group = new JsonObject
         {
             ["id"] = groupId.ToString("D"), ["isGroup"] = true, ["isVisible"] = true, ["name"] = name,
@@ -2512,6 +2513,8 @@ public sealed class ProjectSession
             source.Layers[sourceIndexes[0]].ParentId is not null &&
             sourceIndexes.All(index => source.Layers[index].IsGroup is false);
         var next = (JsonObject)Current.DeepClone();
+        if (source.Current["groupCoordinateSpace"]?.GetValue<string>() == "document")
+            next["groupCoordinateSpace"] = "document";
         var nextLayers = next["layers"]!.AsArray();
         var rasters = new Dictionary<Guid, TileRaster>(snapshots[cursor].LayerRasters!);
         var masks = snapshots[cursor].LayerMasks is { } currentMasks

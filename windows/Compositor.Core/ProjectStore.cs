@@ -67,6 +67,9 @@ public static class ProjectStore
             (!Guid.TryParse(active.GetValue<string>(), out var activeId) || !ids.Contains(activeId)))
             throw new InvalidDataException("Invalid active layer.");
         ValidateRelationships(layers);
+        if (manifest["groupCoordinateSpace"] is { } groupSpace &&
+            groupSpace.GetValue<string>() is not "document")
+            throw new InvalidDataException("Invalid group coordinate space.");
 
         string images = Path.Combine(source, "images");
         CheckPlain(images);
@@ -94,9 +97,15 @@ public static class ProjectStore
         }
         int imageLayerCount = layers.Count(layer => layer!["imageFile"] is not null);
         int maskCount = layers.Count(layer => layer!["maskFile"] is not null);
-        bool canEdit = layers.All(layer => IsVersionCompatible(layer!.AsObject(), version)) &&
+        bool hasGroups = layers.Any(layer => layer!["isGroup"]?.GetValue<bool>() == true);
+        bool explicitDocumentGroupSpace = manifest["groupCoordinateSpace"]?.GetValue<string>() == "document";
+        bool legacyNestedGroupTransforms = hasGroups && !explicitDocumentGroupSpace &&
+            layers.Any(layer => layer!["isGroup"]?.GetValue<bool>() == true &&
+                !IsIdentityDocumentTransform(layer["transform"]?.AsObject(), width, height));
+        bool canEdit = !legacyNestedGroupTransforms &&
+            layers.All(layer => IsVersionCompatible(layer!.AsObject(), version)) &&
             (long)imageLayerCount * width * height <= 100_000_000 &&
-            manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
+            manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "groupCoordinateSpace", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             layers.All(node => IsEditableLayer(node!.AsObject(), width, height, allowGroups: true)) &&
             Directory.GetFiles(images).Length == imageLayerCount + maskCount &&
             Directory.GetDirectories(images).Length == 0;
@@ -387,6 +396,18 @@ public static class ProjectStore
             (placement["flipY"] is null || placement["flipY"] is JsonValue flipY && flipY.TryGetValue<bool>(out _)) &&
             (placement["sampling"] is null || placement["sampling"] is JsonValue sampling &&
                 sampling.TryGetValue<string>(out string? mode) && mode is "Nearest" or "Smooth" or "High quality");
+    }
+
+    private static bool IsIdentityDocumentTransform(JsonObject? transform, int width, int height)
+    {
+        var origin = transform?["origin"]?.AsArray();
+        var size = transform?["size"]?.AsArray();
+        return origin?.Count == 2 && size?.Count == 2 &&
+            origin[0]!.GetValue<double>() == 0 && origin[1]!.GetValue<double>() == 0 &&
+            size[0]!.GetValue<double>() == width && size[1]!.GetValue<double>() == height &&
+            (transform?["rotation"]?.GetValue<double>() ?? 0) == 0 &&
+            (transform?["flipX"]?.GetValue<bool>() ?? false) == false &&
+            (transform?["flipY"]?.GetValue<bool>() ?? false) == false;
     }
 
     private static bool IsValidEditableAdjustment(JsonObject layer, JsonObject adjustment, int width, int height)

@@ -578,7 +578,7 @@ public static class ImageProjectWorkflow
         var manifest = session.Current;
         int version = manifest["version"]!.GetValue<int>();
         if (version is not (1 or 8) || version == 1 && manifest["layers"]!.AsArray().Count != 1 ||
-            !manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)))
+            !manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "groupCoordinateSpace", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)))
             throw new NotSupportedException("This project cannot be rendered by the flat Normal renderer.");
         int width = manifest["width"]!.GetValue<int>(), height = manifest["height"]!.GetValue<int>();
         var layers = manifest["layers"]!.AsArray();
