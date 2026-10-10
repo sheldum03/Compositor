@@ -1,0 +1,19 @@
+{
+  "inputs/Edited.comp/images/94D47AF9-65C6-4D60-83FF-DCB689208708.png": "bc408cb8456a111eed5b59352085be71a326ef677918315d26bc0302ffbef453",
+  "inputs/Edited.comp/manifest.json": "722e2938635d08b1189172aa04d21431e54d893dcc7a4979ef312322238352ba",
+  "inputs/Image.comp/images/94D47AF9-65C6-4D60-83FF-DCB689208708.png": "153225b44db11a4545298a174865e8d62682749ec74f5c7bbf69df4257eb7c82",
+  "inputs/Image.comp/manifest.json": "7fa0b61c8a027bb0331aaa34c75777fae8f47818bbecca0bfae354b1c61a820e",
+  "inputs/Oriented.comp/images/1D6C9750-FE6D-4B94-A816-FED5D91B7971.png": "30c600601b06036ae5a5d930d27c741150298aa91b513e47102b2c52e014890a",
+  "inputs/Oriented.comp/manifest.json": "078311b6d0774183f27f42600ef3ce1d1f2be78a83ddf9e5dbb4d4aaf7036ba9",
+  "inputs/export.png": "bc408cb8456a111eed5b59352085be71a326ef677918315d26bc0302ffbef453",
+  "inputs/memory-export.png": "153225b44db11a4545298a174865e8d62682749ec74f5c7bbf69df4257eb7c82",
+  "inputs/oriented-export.png": "30c600601b06036ae5a5d930d27c741150298aa91b513e47102b2c52e014890a",
+  "mac-produced/Edited.comp/images/94D47AF9-65C6-4D60-83FF-DCB689208708.png": "ff72af1f982aba966702d8f9e6d4b2c3691e54fd75ed04ebdb73e0a3b9f47519",
+  "mac-produced/Edited.comp/manifest.json": "8bb86a61702eaacd740c3f20893eb5ee3dfcd236ebbec248a23db83265d6baf0",
+  "mac-produced/Image.comp/images/94D47AF9-65C6-4D60-83FF-DCB689208708.png": "0c6183eea405a30dc4e981fb2f37613ad1dc028e4ad95d2f61d9837124160ba7",
+  "mac-produced/Image.comp/manifest.json": "b56ba0878bbc3ca514a095df6dadb6f5eb32866d8c8268d3824df43158bfa776",
+  "mac-produced/Oriented.comp/images/1D6C9750-FE6D-4B94-A816-FED5D91B7971.png": "e3aec2ea5323551790a90049c48dc04894e57306b8916532f8ccaf678af78467",
+  "mac-produced/Oriented.comp/manifest.json": "d44398c7155dd1c999184048debd66086c297e9f097a432ee3c696c8dab9545e",
+  "workflow-roundtrip.zip": "789c85b920b5c88caaaaf58b85e256eeac01af667eadfca831b532a907c3ac61",
+  "CompositorTests/WindowsProductionWorkflowTests.swift": "0d3925f69195100f848cab7eddc43b9300525592c2654a9c00f44033711ee1be"
+}

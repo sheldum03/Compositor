@@ -1,0 +1,15 @@
+{
+  "dllSha256": "59839e18e46b06ab23b633944ae3c3b552a300c5da389da870dfa980bcef93c1",
+  "codeViewGuid": "A11D5D5567714AE1BE597460A064C7DA",
+  "age": 1,
+  "attempts": [
+    {
+      "url": "https://symbols.nuget.org/download/symbols/MicroCom.Runtime.pdb/A11D5D5567714AE1BE597460A064C7DAFFFFFFFF/MicroCom.Runtime.pdb",
+      "status": 403
+    },
+    {
+      "url": "https://symbols.nuget.org/download/symbols/MicroCom.Runtime.pdb/A11D5D5567714AE1BE597460A064C7DA1/MicroCom.Runtime.pdb",
+      "status": 403
+    }
+  ]
+}

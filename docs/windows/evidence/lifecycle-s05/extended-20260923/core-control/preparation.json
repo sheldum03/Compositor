@@ -1,0 +1,6 @@
+{
+  "packageSha256": "4de64d5410b06354305f9939fb4aeb5ab7359d842213bd98fd31eedebca7bcf2",
+  "packageBytes": 32266,
+  "scope": "Separate core-only diagnostic using exact copies of HEAD brush classes; no production changes",
+  "localExit": 0
+}

@@ -1,0 +1,7 @@
+{
+  "sha256": "70c16929cb2514a3c1233567f6624d0209fc976864052cb0f37c369ced6b2d74",
+  "bytes": 796,
+  "completed": false,
+  "result": "/private/tmp/compositor-ai-download-integration-timeout/ai-run-20260921-163023-0f104133.zip",
+  "error": "Model download failed: curl exit=28; inspect download.log"
+}

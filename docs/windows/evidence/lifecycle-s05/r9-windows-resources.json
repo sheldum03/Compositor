@@ -1,0 +1,44 @@
+{
+  "R8": {
+    "elapsedMilliseconds": 414454.7318,
+    "postClosePrivateMiB": [
+      263.390625,
+      394.17578125,
+      428.15625,
+      360.80859375,
+      451.3203125,
+      409.38671875,
+      433.43359375,
+      538.39453125,
+      264.59765625
+    ],
+    "sampledPrivatePeakMiB": 556.8828125,
+    "idleFinalPrivateMiB": 262.45703125,
+    "finalPrivateMiB": 166.625,
+    "finalManagedMiB": 3.2078018188476562,
+    "totalAllocationEstimate": 3432152256,
+    "retainedAfterDiagnostic": 0,
+    "resourceAccepted": false
+  },
+  "R9": {
+    "elapsedMilliseconds": 416323.9061,
+    "postClosePrivateMiB": [
+      255.83984375,
+      298.91015625,
+      309.2109375,
+      316.171875,
+      360.28515625,
+      409.6484375,
+      437.1953125,
+      514.921875,
+      510.50390625
+    ],
+    "sampledPrivatePeakMiB": 538.23046875,
+    "idleFinalPrivateMiB": 509.55078125,
+    "finalPrivateMiB": 424.0234375,
+    "finalManagedMiB": 3.2132339477539062,
+    "totalAllocationEstimate": 2511869976,
+    "retainedAfterDiagnostic": 0,
+    "resourceAccepted": false
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "activeLayerID" : "00000000-0000-4000-9000-000000000005",
+  "colorSpace" : "sRGB",
+  "documentID" : "00000000-0000-4000-9000-000000000100",
+  "format" : "com.compositor.project",
+  "height" : 96,
+  "layers" : [
+    {
+      "id" : "00000000-0000-4000-9000-000000000001",
+      "isGroup" : true,
+      "isVisible" : true,
+      "maskEnabled" : true,
+      "maskFile" : "00000000-0000-4000-9000-000000000001.mask.png",
+      "name" : "Outer group",
+      "transform" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          0,
+          0
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          128,
+          96
+        ]
+      }
+    },
+    {
+      "id" : "00000000-0000-4000-9000-000000000002",
+      "isGroup" : true,
+      "isVisible" : true,
+      "name" : "Inner group",
+      "parentID" : "00000000-0000-4000-9000-000000000001",
+      "transform" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          0,
+          0
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          128,
+          96
+        ]
+      }
+    },
+    {
+      "id" : "00000000-0000-4000-9000-000000000004",
+      "isVisible" : true,
+      "name" : "Empty layer",
+      "parentID" : "00000000-0000-4000-9000-000000000002",
+      "transform" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          0,
+          0
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          128,
+          96
+        ]
+      }
+    },
+    {
+      "blendMode" : "Screen",
+      "id" : "00000000-0000-4000-9000-000000000005",
+      "imageFile" : "00000000-0000-4000-9000-000000000005.png",
+      "isVisible" : true,
+      "maskEnabled" : true,
+      "maskFile" : "00000000-0000-4000-9000-000000000005.mask.png",
+      "maskLinked" : false,
+      "maskPlacement" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          12,
+          6
+        ],
+        "rotation" : -17,
+        "sampling" : "High quality",
+        "size" : [
+          64,
+          80
+        ]
+      },
+      "name" : "Rounded shape with independent mask",
+      "opacity" : 0.72,
+      "parentID" : "00000000-0000-4000-9000-000000000002",
+      "shape" : {
+        "blue" : 0.1,
+        "cornerRadius" : 9,
+        "green" : 0.3,
+        "kind" : "Rectangle",
+        "red" : 0.9
+      },
+      "transform" : {
+        "flipX" : true,
+        "flipY" : false,
+        "origin" : [
+          20,
+          22
+        ],
+        "rotation" : 23,
+        "sampling" : "High quality",
+        "size" : [
+          70,
+          44
+        ]
+      }
+    },
+    {
+      "blendMode" : "Multiply",
+      "id" : "00000000-0000-4000-9000-000000000006",
+      "imageFile" : "00000000-0000-4000-9000-000000000006.png",
+      "isVisible" : true,
+      "maskEnabled" : false,
+      "maskFile" : "00000000-0000-4000-9000-000000000006.mask.png",
+      "name" : "Ellipse with disabled mask",
+      "opacity" : 0.6,
+      "parentID" : "00000000-0000-4000-9000-000000000001",
+      "shape" : {
+        "blue" : 0.9,
+        "cornerRadius" : 0,
+        "green" : 0.5,
+        "kind" : "Ellipse",
+        "red" : 0.1
+      },
+      "transform" : {
+        "flipX" : false,
+        "flipY" : true,
+        "origin" : [
+          50,
+          42
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          56,
+          40
+        ]
+      }
+    },
+    {
+      "id" : "00000000-0000-4000-9000-000000000003",
+      "isGroup" : true,
+      "isVisible" : false,
+      "name" : "Hidden group",
+      "transform" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          0,
+          0
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          128,
+          96
+        ]
+      }
+    },
+    {
+      "id" : "00000000-0000-4000-9000-000000000007",
+      "imageFile" : "00000000-0000-4000-9000-000000000007.png",
+      "isVisible" : true,
+      "name" : "Visible child of hidden parent",
+      "parentID" : "00000000-0000-4000-9000-000000000003",
+      "transform" : {
+        "flipX" : false,
+        "flipY" : false,
+        "origin" : [
+          0,
+          0
+        ],
+        "rotation" : 0,
+        "sampling" : "High quality",
+        "size" : [
+          128,
+          96
+        ]
+      }
+    }
+  ],
+  "version" : 8,
+  "width" : 128
+}

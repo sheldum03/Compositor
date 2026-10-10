@@ -1,0 +1,73 @@
+{
+  "archive": {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-report-r7-evidence/s05-report-r7-20260923-115151.zip",
+    "bytes": 12479556,
+    "sha256": "3a5b0b5b16f125758b2a5361ae19eb08d2b147793f88cd5443c7cbf9b9db490d"
+  },
+  "launch": {
+    "sourceCommit": "9f7e6428b026e2b5b1be3b48715a6daf2a2315fe",
+    "dllSha256": "4EC66EDD0FB8946853C2B0F88695BFDC0A984E474583212C998BB2E6E42BD75F",
+    "pid": 35660,
+    "utc": "2026-09-23T03:51:51.3889133Z",
+    "os": {
+      "Caption": "Microsoft Windows 11 \u4e13\u4e1a\u7248",
+      "Version": "10.0.26200",
+      "BuildNumber": "26200"
+    }
+  },
+  "execution": {
+    "nativeExit": 0,
+    "reviewExit": 0,
+    "utc": "2026-09-23T03:58:47.7255206Z"
+  },
+  "files": {
+    "execution.json": "79736b46a68d32148a6c32fc5ee8c144f927d74c4174f11f8dd825c04dbe80ed",
+    "exit-code.txt": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "launch.json": "09d4cd4cc93e9f59f62a92e354a22b90299276640a2f92b49e36badb1f835958",
+    "review-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review.json": "05151bf2b9136f08a2c8a4645222848828eed54564baa524a7b5eca54d338b12",
+    "run/report.json": "1355042707962cee6dc67e6752e1a0ed296e38bc886aa785cf4eaee0f419c8a9",
+    "run/round-0/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-0/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-0/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-0/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-1/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-1/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-1/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-1/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-2/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-2/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-2/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-2/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-3/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-3/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-3/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-3/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-4/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-4/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-4/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-4/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-5/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-5/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-5/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-5/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-6/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-6/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-6/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-6/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-7/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-7/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-7/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-7/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-8/brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-8/brush.comp/manifest.json": "69bb5da2c3857d118b5ba96f8213b4294cc43e317e0c04b3d280815a5bdea6c1",
+    "run/round-8/final.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "run/round-8/reopened.png": "e157fe946bc0eb5a9a50a597ef325fa83a513a06c973fefe0a1de44daf914252",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "independentReviewMatched": true,
+  "pixelsExact": true,
+  "remoteArchiveSha256Observed": "3a5b0b5b16f125758b2a5361ae19eb08d2b147793f88cd5443c7cbf9b9db490d",
+  "remoteLocalArchiveHashMatched": true
+}

@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "referenceCases": 3,
+  "imageWidth": 259,
+  "imageHeight": 257,
+  "provisionalAndFinalExact": true,
+  "pointerStroke": "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
+  "viewport": "zoom anchor, middle-button and Space plus left-button pan in logical coordinates",
+  "limits": "Headless input; no native Windows/DPI/pressure or S02 performance claim."
+}

@@ -1,0 +1,2 @@
+PASS: 32 repeated tail updates allocated 24024 bytes (budget 4 MiB)
+PASS: 65536 coverage pairs across 9 span lengths; 264 transient/committed rasters; undo/redo/cancel; 4 diameters, 3 opacities, empty/existing layers

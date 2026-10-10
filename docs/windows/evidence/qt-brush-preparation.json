@@ -1,0 +1,234 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "97892a6",
+  "scope": "W-007 fixed 4K soft brush preparation on Mac; not Windows execution, S02/S05 or M1 acceptance",
+  "toolchain": {
+    "qt": "6.11.2",
+    "cmake": "3.31.6",
+    "compiler": "AppleClang 21",
+    "architecture": "arm64",
+    "configuration": "Release"
+  },
+  "releaseBuild": {
+    "exitCode": 0,
+    "cppWarningsAsErrors": true,
+    "nativeContractTestsPassed": 1
+  },
+  "releaseRun": {
+    "exitCode": 0,
+    "output": "compositor-qt-brush-02",
+    "widgetUpdates": 242,
+    "sharedUnchangedTiles": 56,
+    "fullRasterExportsBeforeSecondCommit": 0,
+    "previewExportExact": 2,
+    "sessionChecks": "one history entry; unchanged source; undo/redo identity; cancel preserves redo; branch replaces redo; empty commit; stable flush; finished/active state guards; no-tail oracle; opacity cap; export/readback",
+    "strokes": [
+      {
+        "appendP95": 9.0835,
+        "commitCopiedBytes": 24117248,
+        "commitMilliseconds": 7.155042,
+        "explicitPreviewPixelCopyBytes": 0,
+        "previewP95": 0.839834,
+        "publishedPixelBytes": 545336064,
+        "storedTiles": 92,
+        "stroke": 0,
+        "tailBackupBytes": 130023424,
+        "touchedTiles": 92,
+        "updateAndPreviewP95": 9.740917000000001
+      },
+      {
+        "appendP95": 9.119458,
+        "commitCopiedBytes": 27787264,
+        "commitMilliseconds": 8.219416,
+        "explicitPreviewPixelCopyBytes": 0,
+        "previewP95": 1.689375,
+        "publishedPixelBytes": 561024044,
+        "storedTiles": 162,
+        "stroke": 1,
+        "tailBackupBytes": 133496832,
+        "touchedTiles": 106,
+        "updateAndPreviewP95": 10.735667
+      }
+    ]
+  },
+  "avaloniaComparison": {
+    "output": "compositor-avalonia-brush-02",
+    "encoding": "PNG decoded to straight RGBA8 then rounded RGB*alpha/255; canonical row-major premultiplied RGBA8",
+    "results": [
+      {
+        "file": "first.png",
+        "differentPixels": 0,
+        "maximumChannelError": 0,
+        "premultipliedRGBA8Sha256": "a4a5df1d6eb28511630bb8b17ad897dfff1a28dfa77ec2ba91ee62961f4e141c"
+      },
+      {
+        "file": "final.png",
+        "differentPixels": 0,
+        "maximumChannelError": 0,
+        "premultipliedRGBA8Sha256": "1bbce74fcadd6aaf22bf4ba8702fbe0137be1d21d949c6fdf3c6e957f4639816"
+      }
+    ]
+  },
+  "macReferenceComparisons": [
+    {
+      "cpuReference": {
+        "DifferentPixels": 1122405,
+        "MaximumAlphaError": 3,
+        "MaximumChannelError": 3,
+        "MeanAbsoluteChannelError": 0.02829665625,
+        "PixelsWithErrorAbove1": 28962
+      },
+      "metalReference": {
+        "DifferentPixels": 1340829,
+        "MaximumAlphaError": 7,
+        "MaximumChannelError": 7,
+        "MeanAbsoluteChannelError": 0.070138671875,
+        "PixelsWithErrorAbove1": 313672
+      },
+      "stage": "first"
+    },
+    {
+      "cpuReference": {
+        "DifferentPixels": 1875766,
+        "MaximumAlphaError": 4,
+        "MaximumChannelError": 4,
+        "MeanAbsoluteChannelError": 0.046540328125,
+        "PixelsWithErrorAbove1": 47834
+      },
+      "metalReference": {
+        "DifferentPixels": 2269671,
+        "MaximumAlphaError": 7,
+        "MaximumChannelError": 7,
+        "MeanAbsoluteChannelError": 0.114699703125,
+        "PixelsWithErrorAbove1": 514996
+      },
+      "stage": "final"
+    }
+  ],
+  "referenceToleranceAccepted": false,
+  "sanitizers": {
+    "asan": true,
+    "ubsan": true,
+    "instrumented": "own C++ and native C; prebuilt Qt uninstrumented",
+    "leakDetection": false,
+    "runExitCode": 0,
+    "pngAndPackageFilesByteEqualToRelease": 9
+  },
+  "macReadback": {
+    "suite": "WindowsBrushFixtureTests",
+    "selectedTests": [
+      "qtBrushPackageReopensWithExportedPixels",
+      "avaloniaBrushPackageReopensWithExportedPixels"
+    ],
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "testExecutionSeconds": 1.138,
+    "qtInput": "compositor-qt-brush-01",
+    "finalPngAndPackageFilesByteEqualToTestInput": 9,
+    "fullMacSuiteRerun": false
+  },
+  "existingCompositorRegression": {
+    "passed": 20,
+    "reportEqualToFrozenEvidenceExceptTimings": true
+  },
+  "wholeProcessMacResourceObservation": {
+    "source": "/usr/bin/time -l",
+    "wallSeconds": 7.29,
+    "maximumResidentSetSizeBytes": 452689920,
+    "scope": "includes updates, correctness replays, full exports, decodes, difference images and project reread; not comparable to Avalonia update-only working-set sample; not Windows private RAM/VRAM or S05"
+  },
+  "fixedCorpusHashesVerified": {
+    "base": 91,
+    "brush": 9,
+    "extended": 47,
+    "fonts": 11,
+    "invalid": 84
+  },
+  "visualInspection": {
+    "artifact": "qt-brush-contact-sheet.png",
+    "result": "soft falloff difference bands; no apparent grid seams or stale tails; model inspection only"
+  },
+  "outputDigest": {
+    "algorithm": "SHA-256 of UTF-8 compact JSON array of sorted {path,bytes,sha256} entries",
+    "files": 10,
+    "bytes": 7822462,
+    "sha256": "61a28e334b186aeab337f6947ffaa39601cf29f2cb39c98b1692821293cb37e7"
+  },
+  "outputArtifacts": [
+    {
+      "path": "brush.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png",
+      "bytes": 1187709,
+      "sha256": "e0297a4e89bf829aac792941791a95b66de011101df8d080021747dd5cd96341"
+    },
+    {
+      "path": "brush.comp/manifest.json",
+      "bytes": 957,
+      "sha256": "6fad00d316a6912d6b839a922795e64d8e80971c3432ae2a7e38aab0cbe8a10a"
+    },
+    {
+      "path": "final-cpu-diff.png",
+      "bytes": 1368645,
+      "sha256": "d4c2d671c1a98b695e69d2f0e9a535bcb3fee49e7f7062ac52e0dc626edf25a3"
+    },
+    {
+      "path": "final-preview.png",
+      "bytes": 1187709,
+      "sha256": "e0297a4e89bf829aac792941791a95b66de011101df8d080021747dd5cd96341"
+    },
+    {
+      "path": "final.png",
+      "bytes": 1187709,
+      "sha256": "e0297a4e89bf829aac792941791a95b66de011101df8d080021747dd5cd96341"
+    },
+    {
+      "path": "first-cpu-diff.png",
+      "bytes": 708926,
+      "sha256": "99db5de6f30a564bc379fa1d56b048e3eabd5590fa23d8c030c1b4dd0325369b"
+    },
+    {
+      "path": "first-preview.png",
+      "bytes": 488668,
+      "sha256": "5b4d31eddb77a0f078ab3dca657f4eccbbfd8acd04fc1fae0d3e8897b2e51b38"
+    },
+    {
+      "path": "first.png",
+      "bytes": 488668,
+      "sha256": "5b4d31eddb77a0f078ab3dca657f4eccbbfd8acd04fc1fae0d3e8897b2e51b38"
+    },
+    {
+      "path": "reopened.png",
+      "bytes": 1187709,
+      "sha256": "e0297a4e89bf829aac792941791a95b66de011101df8d080021747dd5cd96341"
+    }
+  ],
+  "sha256": {
+    "CompositorTests/WindowsBrushFixtureTests.swift": "c96b1d258b799c040a98c536d6f9d260eed59ef4e91397d76f8691423c4f1ea7",
+    "docs/windows/evidence/qt-brush-contact-sheet.png": "9f4970b10be067d63a9f87f09cac0a21c6de8210719cecbdf4cf520bdaa7e8f9",
+    "docs/windows/evidence/qt-brush-macos.json": "63d57dba8ae2498354872610e5ad1e1e46faef70cebc607c79fb4b15ab2ba50b",
+    "docs/windows/evidence/qt-brush-summary.json": "26aad25cc4cd999f45bdb2978c5f2e1fb0b23d7c7342e3b3bd4d36cff97fe561",
+    "experiments/windows/qt/.gitignore": "181314065df2f2fdaf920b1a8b5311daa216a2d6489a06ada5b49cc514d89417",
+    "experiments/windows/qt/BRUSH.md": "a90f5d0541ec6253e30efeae978add2e4441b7ac52a93026d1c05760becd3775",
+    "experiments/windows/qt/CMakeLists.txt": "bc375cf544144cd2f40352c7486dafb349d0486bb705623d71f112b50a64e8c3",
+    "experiments/windows/qt/README.md": "a9f7430b936f09b22363b0231686ed631a13294f72a2174b29ffa846b30faa7f",
+    "experiments/windows/qt/brush.cpp": "aae1eebef5bf439edd3a4e1c640e4217264a0d465671d3bc96a2caec1d402d46",
+    "experiments/windows/qt/brush.hpp": "c0ae49caf2b126f1398cd7c3227f9b655efeca455f14a61ba5c7db6bd0326458",
+    "experiments/windows/qt/brush_probe.cpp": "3698ba59e99502830f91cfd8ca6374176438e81d2f55646f55e7f84e5b9ce34d",
+    "experiments/windows/qt/composite.cpp": "243884dd7067d3ee8b3237ef7b7e9f93b486e4bec1f2fb06cd400aab8a12607f",
+    "experiments/windows/qt/installer-requirements.txt": "308a284a1274371cabdf9ff1c2bcd601a0a579b63715c09950b1032f93e98ef3",
+    "experiments/windows/qt/probe.cpp": "5b07218487f9b8854ec754dd1943614c70ef393cc44f0c96b29c4dfb038822a6",
+    "experiments/windows/qt/scene.cpp": "4a90aeb7419c096e22de015d1cd52dc3968eb832297d80e7fab320d8e3e52f65",
+    "experiments/windows/qt/scene.hpp": "4fc765f86ec1c1e0c5da7303a24625aa31ca1f84a44428488b6d92e08ea816af",
+    "scripts/windows/render-probe-contact-sheet.py": "40d682c483e0bc02ae3f0d5984fa67563b45e6510b9c622be93f9819bc83787c"
+  },
+  "windowsExecuted": false,
+  "macProductionCodeChanged": false,
+  "nativeCChanged": false,
+  "M1Passed": false,
+  "remaining": [
+    "Qt transformed text/shared layout/native IME",
+    "Windows matched performance/resource/input/deployment validation",
+    "Full brush modes/transforms/history budgets and S02/S05",
+    "Remaining M0 decisions and M2-M7 PRD/release gates"
+  ]
+}

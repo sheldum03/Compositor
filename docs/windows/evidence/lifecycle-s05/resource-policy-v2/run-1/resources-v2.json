@@ -1,0 +1,64 @@
+{
+  "policy": "S05-resource-proposal-v2",
+  "candidateChecksPassed": true,
+  "resourceAccepted": false,
+  "checks": {
+    "sampledPrivateAtMost1GiB": true,
+    "postWarmupHandleEnvelopeGrowthAtMost8": true,
+    "idlePrivateGrowthAtMost32MiB": true,
+    "noRetainedDocumentsAfterDiagnosticGc": true,
+    "diagnosticManagedAtMost64MiB": true,
+    "postWarmupPrivateFloorGrowthAtMost32MiB": true,
+    "newPrivateHighWaterGrowthAtMost32MiB": true
+  },
+  "sampledPrivatePeakBytes": 621027328,
+  "postCloseBlocks": [
+    {
+      "PrivateBytes": {
+        "min": 257642496,
+        "max": 556740608
+      },
+      "Handles": {
+        "min": 555,
+        "max": 567
+      }
+    },
+    {
+      "PrivateBytes": {
+        "min": 299204608,
+        "max": 604643328
+      },
+      "Handles": {
+        "min": 558,
+        "max": 574
+      }
+    },
+    {
+      "PrivateBytes": {
+        "min": 289169408,
+        "max": 548757504
+      },
+      "Handles": {
+        "min": 557,
+        "max": 563
+      }
+    }
+  ],
+  "postWarmupEnvelopeDelta": {
+    "PrivateBytes": {
+      "min": -10035200,
+      "max": -55885824
+    },
+    "Handles": {
+      "min": -1,
+      "max": -11
+    }
+  },
+  "scope": "Calibration only. Requires correctness review and prospective Windows runs; not continuous peak, VRAM, other workloads or release acceptance.",
+  "v1EnvelopeCheckPassed": true,
+  "priorPostCloseHighWaterBytes": 604643328,
+  "newPostCloseHighWaterGrowthBytes": -55885824,
+  "reportSha256": "a24ac1eaeffc387b976c2a73f2200e35256a63104ea69c8af1b9a01ab9141642",
+  "v1EvaluatorSha256": "bdafbf412e0004beb1b9f80f6ea24a83a783fe83d632923b651290b94261bfee",
+  "evaluatorSha256": "a4d6f40d8c5ca494a5e2e175d8d8d23b2c6feac3dd373e9de79c9efcffb2e8c5"
+}

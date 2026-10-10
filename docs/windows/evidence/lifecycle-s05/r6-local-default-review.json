@@ -1,0 +1,45 @@
+{
+  "correctnessPassed": true,
+  "windowsExecuted": false,
+  "nativeWindow": false,
+  "diagnosticOnly": false,
+  "rounds": 3,
+  "gcDiagnosticsChecked": true,
+  "idleSamples": [],
+  "edits": 300,
+  "undoChecks": 300,
+  "redoChecks": 300,
+  "previewCallbacks": 6300,
+  "elapsedMilliseconds": 22724.9553,
+  "postClosePrivateBytes": [
+    null,
+    null,
+    null
+  ],
+  "postCloseHandles": [
+    null,
+    null,
+    null
+  ],
+  "monotonicPrivateGrowthObserved": null,
+  "finalDiagnosticCollection": {
+    "PrivateBytes": null,
+    "WorkingSetBytes": 532250624,
+    "ManagedBytes": 11298312,
+    "LastGcCommittedBytes": 170049536,
+    "LastGcFragmentedBytes": 147642248,
+    "Handles": null,
+    "TotalAllocatedBytesEstimate": 1622658088,
+    "Gen0Collections": 38,
+    "Gen1Collections": 21,
+    "Gen2Collections": 15,
+    "LastGcIndex": 38,
+    "LastGcGeneration": 2,
+    "LastGcHeapSizeBytes": 157368776,
+    "LastGcPromotedBytes": 9726456,
+    "LastGcLohSizeAfterBytes": 155780640
+  },
+  "retainedDocumentsAfterCollection": 0,
+  "resourceAccepted": false,
+  "scope": "Correctness complete. Resource stability needs separate review; managed reachability alone does not prove no native leak. No physical input or VRAM acceptance."
+}

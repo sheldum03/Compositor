@@ -1,0 +1,137 @@
+{
+  "scope": "Fixed F11 corpus yellow smiling emoji; color-region presence is diagnostic, not general glyph correctness. Contact-sheet inspection shows missing-glyph rectangles in Server Qt.",
+  "results": [
+    {
+      "fixture": "F11-300-box-center",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 4032,
+        "alphaMass": 2366.5803921568627
+      }
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 4030,
+        "alphaMass": 2365.2313725490194
+      }
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 4029,
+        "alphaMass": 2363.721568627451
+      }
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 4034,
+        "alphaMass": 2364.8039215686276
+      }
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 4035,
+        "alphaMass": 2365.6117647058823
+      }
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 4035,
+        "alphaMass": 2366.1176470588234
+      }
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 355,
+        "alphaMass": 182.58823529411765
+      }
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 359,
+        "alphaMass": 182.54117647058823
+      }
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 354,
+        "alphaMass": 182.5607843137255
+      }
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 359,
+        "alphaMass": 182.92549019607844
+      }
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 359,
+        "alphaMass": 182.81960784313725
+      }
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "windowsServer": {
+        "pixels": 0,
+        "alphaMass": 0.0
+      },
+      "macReference": {
+        "pixels": 354,
+        "alphaMass": 182.5607843137255
+      }
+    }
+  ]
+}

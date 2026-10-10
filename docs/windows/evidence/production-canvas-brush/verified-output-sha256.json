@@ -1,0 +1,15 @@
+{
+  "verified-output/brush-export.png": "757182f8b673f8519d11ce234998e794c5dbdfda2138f67479aba07902543106",
+  "verified-output/export.jpg": "776d4b6595f2f366bfa4a04fdc5b8ed4d8a146f603906ba1a70a989e8f9fb692",
+  "verified-output/export.png": "153225b44db11a4545298a174865e8d62682749ec74f5c7bbf69df4257eb7c82",
+  "verified-output/results.json": "17b6fe862b7b67cc6fd24d662297e2400862077ced51d8bfcb5243d388cbbeb2",
+  "verified-output/brush-window.png": "78c5f589e134172f1f45e847d185c03309ed63cfc64988c931132c8f73b5773a",
+  "verified-output/window.png": "dc4edf6128654393e14e0f0c77185c934e92bb95c096671426738c4ead1d6ecf",
+  "verified-output/canvas-results.json": "90940e06b4d2bb6471094472b1a22bcca7bba44e45c779f56cfb4d179da37b91",
+  "verified-output/Brush.comp/manifest.json": "86fecf096fb59b75b837c40adbe405d81fe717389024e751b595616476237202",
+  "verified-output/Brush.comp/images/4C50F9AF-BDF6-45FD-BDD3-E27C2DD1325F.png": "153225b44db11a4545298a174865e8d62682749ec74f5c7bbf69df4257eb7c82",
+  "verified-output/Brush.comp/images/A54A61CE-0394-4EBB-AA91-49E39C7E2DA8.png": "c8fe0ee41af0043558ac9e1fd271ae7a45251dcda97d27ae7953aee545286a8b",
+  "verified-output/Source.comp/manifest.json": "345ce73faa8d8a6895e3619aa015e64b07e8dd9a2788918c5dc51a15418c5126",
+  "verified-output/Source.comp/images/4C50F9AF-BDF6-45FD-BDD3-E27C2DD1325F.png": "153225b44db11a4545298a174865e8d62682749ec74f5c7bbf69df4257eb7c82",
+  "verified-output/Source.comp/images/A54A61CE-0394-4EBB-AA91-49E39C7E2DA8.png": "153225b44db11a4545298a174865e8d62682749ec74f5c7bbf69df4257eb7c82"
+}

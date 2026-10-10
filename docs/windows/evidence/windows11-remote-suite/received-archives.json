@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/remote-s02-20260921-183729.zip",
+    "bytes": 3056991,
+    "sha256": "0f54006d64af74c1637217125437cf4be6b67b46bae3590a9e11b8f5f98e4d6d",
+    "crcVerified": true,
+    "remoteHashReadbackPending": false,
+    "remoteHashMatches": true
+  },
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/remote-batch-20260921-183510.zip",
+    "bytes": 12359126,
+    "sha256": "1837f1cbc9c054d2bb380f347a66fc370b1367a4fa10403d735f2d9e7066bc73",
+    "crcVerified": true,
+    "remoteHashReadbackPending": false,
+    "remoteHashMatches": true
+  },
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/remote-qt-20260921-184528.zip",
+    "bytes": 15340776,
+    "sha256": "5a6f4b57fb1377d7b32d52b5b0b0b120648a1816e08572139227aaa8e58d76a4",
+    "crcVerified": true,
+    "remoteHashReadbackPending": false,
+    "remoteHashMatches": true
+  },
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/s02-visible-20260921-190545.zip",
+    "bytes": 3055819,
+    "sha256": "176d5868fe5a228bef26ec804723dd0c16d481b8dc5692c85f320e3dc75c3597",
+    "crcVerified": true,
+    "remoteHashReadbackPending": false,
+    "remoteHashMatches": true
+  },
+  {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/window-visible-20260921-191109.zip",
+    "bytes": 809276,
+    "sha256": "fafdbc1704168c1b52215fd45c07063bff432d14eec855fccf8b4dd1064c0cc8",
+    "crcVerified": true,
+    "remoteHashReadbackPending": false,
+    "remoteHashMatches": true
+  }
+]

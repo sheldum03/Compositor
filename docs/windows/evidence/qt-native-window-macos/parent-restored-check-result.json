@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/tmp/compositor-qt-window-parent/build-mac/qt_probe",
+    "--window-check",
+    "/Users/admin/.codex/visualizations/2026/09/20/01a0beb1-da38-7b00-9183-d65bff121d78/qt-windows-cross-build/CompositorQtProbe/fixtures",
+    "/tmp/compositor-qt-window-parent/check-restored"
+  ],
+  "exitCode": 0
+}

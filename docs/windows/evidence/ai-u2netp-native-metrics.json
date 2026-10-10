@@ -1,0 +1,12 @@
+{
+  "onnxruntime": "1.30.0",
+  "execution": "CPU default; one intra/inter-op thread; sequential",
+  "sessionLoadMilliseconds": 45.439125,
+  "inferenceMilliseconds": [160.08875, 163.463125, 102.949459],
+  "outputMinimum": 1.19209289551e-07,
+  "outputMaximum": 0.999999523163,
+  "repeatedPredictionsExact": true,
+  "preTerminatedRunRejected": true,
+  "sessionRecovered": true,
+  "activeInferenceCancellationTested": false
+}

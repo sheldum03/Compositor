@@ -1,0 +1,54 @@
+[
+  {
+    "case": "first",
+    "scenario": "empty",
+    "p95": {
+      "AppendMilliseconds": 18.4226,
+      "ChecksToCallbackMilliseconds": 1.6344999999999992,
+      "PaintMilliseconds": 5.5878,
+      "RequestToPaintMilliseconds": 0.9836,
+      "UpdateToFrameCallbackMilliseconds": 25.2633,
+      "UpdateToPainterReleasedMilliseconds": 23.9813,
+      "ViewportCheckMilliseconds": 0.0002000000000030866
+    }
+  },
+  {
+    "case": "first",
+    "scenario": "existing",
+    "p95": {
+      "AppendMilliseconds": 18.5487,
+      "ChecksToCallbackMilliseconds": 1.6157000000000004,
+      "PaintMilliseconds": 7.7177,
+      "RequestToPaintMilliseconds": 0.9313,
+      "UpdateToFrameCallbackMilliseconds": 27.5309,
+      "UpdateToPainterReleasedMilliseconds": 26.1901,
+      "ViewportCheckMilliseconds": 0.0002999999999993008
+    }
+  },
+  {
+    "case": "repeat",
+    "scenario": "empty",
+    "p95": {
+      "AppendMilliseconds": 18.8639,
+      "ChecksToCallbackMilliseconds": 1.6127000000000002,
+      "PaintMilliseconds": 5.5713,
+      "RequestToPaintMilliseconds": 0.9526,
+      "UpdateToFrameCallbackMilliseconds": 25.7781,
+      "UpdateToPainterReleasedMilliseconds": 24.4633,
+      "ViewportCheckMilliseconds": 0.0002000000000030866
+    }
+  },
+  {
+    "case": "repeat",
+    "scenario": "existing",
+    "p95": {
+      "AppendMilliseconds": 18.4337,
+      "ChecksToCallbackMilliseconds": 1.5531999999999968,
+      "PaintMilliseconds": 7.7017,
+      "RequestToPaintMilliseconds": 0.9057,
+      "UpdateToFrameCallbackMilliseconds": 27.2503,
+      "UpdateToPainterReleasedMilliseconds": 25.8976,
+      "ViewportCheckMilliseconds": 0.0002000000000030866
+    }
+  }
+]

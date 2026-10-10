@@ -1,0 +1,9 @@
+{
+  "result": "Passed",
+  "passedTests": 2,
+  "failedTests": 0,
+  "skippedTests": 0,
+  "totalTestCount": 2,
+  "macOS": "26.5.1 arm64",
+  "source": "xcrun xcresulttool get test-results summary; original xcresult retained"
+}

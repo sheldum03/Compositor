@@ -1,0 +1,84 @@
+{
+  "archive": {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/qt-s02-windows-evidence/qt-s02-r1-20260923-144840.zip",
+    "bytes": 8275894,
+    "sha256": "bfbf53eadf3fea41e92b795f060e32f904223a2fc49880639997e8721248004d"
+  },
+  "execution": {
+    "launch": {
+      "sourceCommit": "406c239de656f83f9290fe6c04398f3adaeea8cd",
+      "exeSha256": "5b143d515b60981d25fbb7ae44a600528e190be37c76061c25549f098975f075",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "machine": "AMD64",
+      "fixtureManifestSha256": "a2938d83302d2ed18d59903476ec4d0e47f58c218c2b462c2b3853c9b9d00e60",
+      "qt": "6.11.2",
+      "toolchain": "LLVM-MinGW (not MSVC)",
+      "utc": "2026-09-23T06:48:40.998462+00:00"
+    },
+    "failure": null,
+    "results": [
+      {
+        "stage": "native-contract",
+        "pid": 44344,
+        "exitCode": 0
+      },
+      {
+        "stage": "lifecycle-checks",
+        "pid": 40760,
+        "exitCode": 0
+      },
+      {
+        "stage": "first",
+        "pid": 42308,
+        "exitCode": 0
+      },
+      {
+        "stage": "first-review",
+        "pid": 11412,
+        "exitCode": 1
+      },
+      {
+        "stage": "repeat",
+        "pid": 7864,
+        "exitCode": 0
+      },
+      {
+        "stage": "repeat-review",
+        "pid": 45488,
+        "exitCode": 1
+      }
+    ],
+    "scope": "Raw native Qt S02 evidence; framework selection and release remain unaccepted"
+  },
+  "files": {
+    "execution.json": "20151f9a3170be4f43a147f5fb15889e37622c86fe7f6f69a06bdfdc443ba646",
+    "first/empty-backing-preview.png": "a3bdcc43bba0eb39e7e82740bbbdea7f1e79d9c45e1f3e86f58109042761292d",
+    "first/empty-final.png": "2b53c7378234e0a777ddd097d4e4853b3359f21862e4bb6e46f16e99f52f866b",
+    "first/empty-reference-preview.png": "860db9a6edb479e375a668799ebab947c6191d9f64a07872b3a77bf5d9c970c5",
+    "first/existing-backing-preview.png": "d8af2df2ff04dd63561385ff1033425db0588b5ddf8f4a750b828f0eeb5f2475",
+    "first/existing-final.png": "57a22b0a013b275e4ef13fbc33a529e6b7ce1612f7f7eaa9fa8cd30e7adfa80c",
+    "first/existing-reference-preview.png": "9d14786a01a37b9331919da8631d936586af54c7660be6f64e02517a7c32bb58",
+    "first/report.json": "0f88d67ed394c9be9561c66aa10a3c59b40f0751123fa6f53a835631155f276a",
+    "first-review-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-review-stdout.log": "585cadff7d94cd2d566a3b2cef759946ce8ddc60a72c411347841be188ffa44e",
+    "first-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "launch.json": "bb72684c25b550070430f24447275d9d60bd6de7cc3246cbfcc3c7ea769fdc5f",
+    "lifecycle-checks-stderr.log": "9d0dbf1b7084a923757aa5ec1e8feb5d184e749bfd6b3566a86cad4153708e4e",
+    "lifecycle-checks-stdout.log": "41d7638caf9e8bdb04c8db6d66d042f2416401b80cae7c755a297aa6fbd570f6",
+    "native-contract-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-contract-stdout.log": "1f9f3c1f51716deb387012f75ec18e9e582ed8d300e726f6e727ae68df8cdea6",
+    "repeat/empty-backing-preview.png": "a3bdcc43bba0eb39e7e82740bbbdea7f1e79d9c45e1f3e86f58109042761292d",
+    "repeat/empty-final.png": "2b53c7378234e0a777ddd097d4e4853b3359f21862e4bb6e46f16e99f52f866b",
+    "repeat/empty-reference-preview.png": "860db9a6edb479e375a668799ebab947c6191d9f64a07872b3a77bf5d9c970c5",
+    "repeat/existing-backing-preview.png": "d8af2df2ff04dd63561385ff1033425db0588b5ddf8f4a750b828f0eeb5f2475",
+    "repeat/existing-final.png": "57a22b0a013b275e4ef13fbc33a529e6b7ce1612f7f7eaa9fa8cd30e7adfa80c",
+    "repeat/existing-reference-preview.png": "9d14786a01a37b9331919da8631d936586af54c7660be6f64e02517a7c32bb58",
+    "repeat/report.json": "dbf8229a9002caf1a0ebcf5b8476e40ecf9c4ff13d46b99f2b2f35d8c7ccc6db",
+    "repeat-review-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat-review-stdout.log": "d07c81f5086791b99aad192464d8cddbd972a40556ae9ba28473565947d969ba",
+    "repeat-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat-stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "independentReviewsMatched": true
+}

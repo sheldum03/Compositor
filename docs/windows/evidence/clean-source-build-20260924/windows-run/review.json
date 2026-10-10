@@ -1,0 +1,62 @@
+{
+  "windowsExecuted": true,
+  "completed": true,
+  "archive": {
+    "name": "clean-source-build-20260924-103752.zip",
+    "bytes": 8333896,
+    "sha256": "211a5520445b27e2797f812bd283552c455f2496b8cb284a27b71f16ea2f0fb4",
+    "matchesRemoteGetFileHash": true,
+    "crcVerified": true,
+    "fileHashesVerified": 230
+  },
+  "steps": [
+    {
+      "name": "sdk-info",
+      "exitCode": 0
+    },
+    {
+      "name": "restore",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "exitCode": 0
+    },
+    {
+      "name": "composite",
+      "exitCode": 0
+    },
+    {
+      "name": "brush",
+      "exitCode": 0
+    },
+    {
+      "name": "text",
+      "exitCode": 0
+    }
+  ],
+  "lockedDependenciesUnchanged": true,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "compositeSamples": 20,
+  "textSamples": 12,
+  "independentImagePairs": 67,
+  "independentImageMismatches": 0,
+  "priorWindowsTextAndBrushImages": 67,
+  "priorWindowsMismatches": 0,
+  "brushSessionChecks": 13,
+  "brushUpdateAndPreviewP95": [
+    7.606199999999999,
+    9.5614
+  ],
+  "nativeImeExecuted": false,
+  "macReadback": {
+    "exitCode": 0,
+    "passedTests": 2,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "logSha256": "7d61c0d9b204353fc8b6c60fa78593531883392c657c6b288379e86af293cb94",
+    "resultBundle": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows-clean-build-20260924/mac-readback.xcresult"
+  },
+  "scope": "Pinned Avalonia managed source build and headless regressions; not native C rebuild, S02, IME, M1 or release acceptance"
+}

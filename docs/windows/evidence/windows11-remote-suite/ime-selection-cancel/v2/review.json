@@ -1,0 +1,64 @@
+{
+  "status": "v2 local and Windows related regressions passed; native tab-cancel retest passed by user report",
+  "previousNativeTabCancel": "failed; user confirmed original text disappeared",
+  "reproductionBeforeFix": {
+    "command": "dotnet run --project experiments/windows/text-selection-regression/Regression.csproj -- --ime-tabs",
+    "exitCode": 1,
+    "preserved": false,
+    "actual": ""
+  },
+  "cause": "IMM32 HandleCompositionStart clears preedit then synthesizes Delete for a nonempty exposed selection, before the adapter sees preedit",
+  "backend": "Avalonia.Win32 11.3.22 Imm32InputMethod",
+  "backendDllSha256": "60849b34f83b36679f77b431af056306f20ba4d82aecfe2a2fae50a4798b9487",
+  "source": "https://github.com/AvaloniaUI/Avalonia/blob/11.3.22/src/Windows/Avalonia.Win32/Input/Imm32InputMethod.cs#L273",
+  "capabilityChange": "SelectionPreservingImeClient.SupportsSurroundingText false; preedit and cursor reporting retained; surrounding-text editing/reconversion not accepted",
+  "localImm32ReplayCases": 24,
+  "localImeCases": 40,
+  "localSelectionCases": 48,
+  "existingPngsCompared": 60,
+  "changedPngs": 0,
+  "nativeRetest": "passed by user report",
+  "nativeRetestEvidence": {
+    "feedback": "测试没问题，通过这部分测试；列出详细的后续任务",
+    "steps": [
+      "on v2 switch to brush tab then return to text tab",
+      "select all text; Microsoft Pinyin ceshi; candidate panel appears",
+      "Esc without choosing candidate; original text remains"
+    ],
+    "independentlyReplayed": false,
+    "postCancelPixelsCompared": false,
+    "scope": "this tab-return cancellation sequence only; not full IME or Windows 1.0 acceptance"
+  },
+  "fixCommit": "c570953",
+  "windows": {
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ime-v2-20260921-234137",
+    "imm32ReplayCases": 24,
+    "imm32ReplayExit": 0,
+    "imeCases": 40,
+    "imeExit": 0,
+    "selectionCases": 48,
+    "selectionExit": 0,
+    "probeSha256": "86d237ac1e9babc425b0ac24de1c7f73e61baf910cc61515d26a45af73838d12",
+    "evidence": "windows-regression.png",
+    "rawLogs": "retrieved and CRC/hash verified; windows-*.jsonl and native-window-report.json",
+    "nativeWindowPid": 34948
+  },
+  "archive": {
+    "name": "ime-v2-evidence-20260922.zip",
+    "sha256": "aa7ae651edbabae5c3eb5e9d7ece6672f0fc7b6eda436b35c05b0d0c4573ae11",
+    "bytes": 538900,
+    "entries": 105,
+    "crcPassed": true,
+    "remoteHashMatched": true
+  },
+  "archiveReview": {
+    "nativePreeditChanges": 0,
+    "textInputEvents": 0,
+    "injectedInputMethodCalls": 0,
+    "nativeClosedEvent": true,
+    "stderrEmpty": true,
+    "previewExportExact": true,
+    "nontransparentPixels": 12291,
+    "limitation": "User-reported cancellation pass retained. Retrieved v2 log contains no native IME events, so this archive does not independently corroborate the cancellation sequence or establish which window received it. Screenshot/export collected later after a zoom-button click; no before/after cancel pixel comparison. execution.json pending is the original pre-retest state and remains unchanged."
+  }
+}

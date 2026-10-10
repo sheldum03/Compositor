@@ -1,0 +1,44 @@
+{
+  "windowsExecuted": false,
+  "os": "Unix 26.5.1",
+  "powershell": "7.6.0",
+  "invocations": [],
+  "runtimeFiles": [
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/MSVCP140.dll",
+      "found": false,
+      "name": "MSVCP140.dll"
+    },
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/MSVCP140_1.dll",
+      "found": false,
+      "name": "MSVCP140_1.dll"
+    },
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/VCRUNTIME140.dll",
+      "found": false,
+      "name": "VCRUNTIME140.dll"
+    },
+    {
+      "checkedLocation": "/tmp/compositor-ai-mac-runtime-not-applicable/VCRUNTIME140_1.dll",
+      "found": false,
+      "name": "VCRUNTIME140_1.dll"
+    }
+  ],
+  "completed": false,
+  "weightsRedistributionApproved": false,
+  "native": null,
+  "modelQualityAccepted": false,
+  "preprocessing": "frozen Mac-derived tensor, no Windows image preprocessing/postprocessing in this runner",
+  "error": "Downloaded model identity mismatch",
+  "productAccepted": false,
+  "download": {
+    "receivedBytes": 4574861,
+    "elapsedSeconds": 0.1299582,
+    "exitCode": 0,
+    "maximumSeconds": 120
+  },
+  "failureChecks": [],
+  "activeInferenceCancellationTested": false,
+  "unicode": null
+}

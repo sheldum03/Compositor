@@ -1,0 +1,313 @@
+{
+  "s02-first": {
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "measuredFrames": 3600,
+        "updateP95": 19.9141,
+        "commitP95": 11.6361,
+        "updatePassed": false,
+        "commitPassed": true,
+        "AppendMillisecondsP95": 1.442,
+        "PaintMillisecondsP95": 1.7252,
+        "RequestToRenderMillisecondsP95": 15.8345,
+        "CanvasAcquireMillisecondsP95": 0.0024,
+        "CanvasReleaseMillisecondsP95": 0.0017,
+        "RequestToSceneMillisecondsP95": 0.0641,
+        "SceneToRenderMillisecondsP95": 15.7934
+      },
+      {
+        "scenario": "existing",
+        "measuredFrames": 3600,
+        "updateP95": 19.3063,
+        "commitP95": 14.0142,
+        "updatePassed": false,
+        "commitPassed": true,
+        "AppendMillisecondsP95": 2.5015,
+        "PaintMillisecondsP95": 2.0917,
+        "RequestToRenderMillisecondsP95": 15.4744,
+        "CanvasAcquireMillisecondsP95": 0.0022,
+        "CanvasReleaseMillisecondsP95": 0.0017,
+        "RequestToSceneMillisecondsP95": 0.0641,
+        "SceneToRenderMillisecondsP95": 15.4304
+      }
+    ],
+    "sampledPrivatePeak": 701734912,
+    "proposedS02GatesPassed": false,
+    "viewportChecks": [
+      {
+        "Scenario": "empty",
+        "Width": 1500,
+        "Height": 1500,
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0
+      },
+      {
+        "Scenario": "existing",
+        "Width": 1500,
+        "Height": 1500,
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0
+      }
+    ],
+    "scope": "Nearest rank; excludes warmup and pointer-down. Native canvas lease release, not physical presentation. Unobscured viewport and image comparisons require separate evidence."
+  },
+  "s02-repeat": {
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "measuredFrames": 3600,
+        "updateP95": 13.8939,
+        "commitP95": 9.9157,
+        "updatePassed": true,
+        "commitPassed": true,
+        "AppendMillisecondsP95": 1.4207,
+        "PaintMillisecondsP95": 1.7214,
+        "RequestToRenderMillisecondsP95": 11.7718,
+        "CanvasAcquireMillisecondsP95": 0.002,
+        "CanvasReleaseMillisecondsP95": 0.002,
+        "RequestToSceneMillisecondsP95": 0.0662,
+        "SceneToRenderMillisecondsP95": 11.732
+      },
+      {
+        "scenario": "existing",
+        "measuredFrames": 3600,
+        "updateP95": 19.5135,
+        "commitP95": 10.8819,
+        "updatePassed": false,
+        "commitPassed": true,
+        "AppendMillisecondsP95": 2.4547,
+        "PaintMillisecondsP95": 2.0703,
+        "RequestToRenderMillisecondsP95": 16.0622,
+        "CanvasAcquireMillisecondsP95": 0.0017,
+        "CanvasReleaseMillisecondsP95": 0.002,
+        "RequestToSceneMillisecondsP95": 0.0664,
+        "SceneToRenderMillisecondsP95": 16.0139
+      }
+    ],
+    "sampledPrivatePeak": 717910016,
+    "proposedS02GatesPassed": false,
+    "viewportChecks": [
+      {
+        "Scenario": "empty",
+        "Width": 1500,
+        "Height": 1500,
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0
+      },
+      {
+        "Scenario": "existing",
+        "Width": 1500,
+        "Height": 1500,
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0
+      }
+    ],
+    "scope": "Nearest rank; excludes warmup and pointer-down. Native canvas lease release, not physical presentation. Unobscured viewport and image comparisons require separate evidence."
+  },
+  "s05-idle": {
+    "correctnessPassed": true,
+    "windowsExecuted": true,
+    "nativeWindow": true,
+    "diagnosticOnly": true,
+    "rounds": 9,
+    "gcDiagnosticsChecked": true,
+    "idleSamples": [
+      {
+        "ElapsedMilliseconds": 0,
+        "Resources": {
+          "PrivateBytes": 535302144,
+          "WorkingSetBytes": 595820544,
+          "ManagedBytes": 162154096,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513410128,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      },
+      {
+        "ElapsedMilliseconds": 10004.0893,
+        "Resources": {
+          "PrivateBytes": 534179840,
+          "WorkingSetBytes": 594497536,
+          "ManagedBytes": 162162320,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513418328,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      },
+      {
+        "ElapsedMilliseconds": 20016.4397,
+        "Resources": {
+          "PrivateBytes": 534241280,
+          "WorkingSetBytes": 594522112,
+          "ManagedBytes": 162170544,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513426528,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      },
+      {
+        "ElapsedMilliseconds": 30035.7919,
+        "Resources": {
+          "PrivateBytes": 534241280,
+          "WorkingSetBytes": 594522112,
+          "ManagedBytes": 162178768,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513434728,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      },
+      {
+        "ElapsedMilliseconds": 40044.4313,
+        "Resources": {
+          "PrivateBytes": 534302720,
+          "WorkingSetBytes": 594579456,
+          "ManagedBytes": 162186992,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513442928,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      },
+      {
+        "ElapsedMilliseconds": 50065.2582,
+        "Resources": {
+          "PrivateBytes": 534302720,
+          "WorkingSetBytes": 594579456,
+          "ManagedBytes": 162195216,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513451128,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      },
+      {
+        "ElapsedMilliseconds": 60073.8919,
+        "Resources": {
+          "PrivateBytes": 534302720,
+          "WorkingSetBytes": 594579456,
+          "ManagedBytes": 162203440,
+          "LastGcCommittedBytes": 397258752,
+          "LastGcFragmentedBytes": 4090672,
+          "Handles": 541,
+          "TotalAllocatedBytesEstimate": 2513459328,
+          "Gen0Collections": 59,
+          "Gen1Collections": 31,
+          "Gen2Collections": 24,
+          "LastGcIndex": 59,
+          "LastGcGeneration": 0,
+          "LastGcHeapSizeBytes": 123959632,
+          "LastGcPromotedBytes": 1138248,
+          "LastGcLohSizeAfterBytes": 119595064
+        },
+        "RetainedDocuments": 1
+      }
+    ],
+    "edits": 900,
+    "undoChecks": 900,
+    "redoChecks": 900,
+    "previewCallbacks": 18900,
+    "elapsedMilliseconds": 416323.9061,
+    "postClosePrivateBytes": [
+      268267520,
+      313430016,
+      324231168,
+      331530240,
+      377786368,
+      429547520,
+      458432512,
+      539934720,
+      535302144
+    ],
+    "postCloseHandles": [
+      544,
+      549,
+      541,
+      540,
+      538,
+      538,
+      540,
+      543,
+      541
+    ],
+    "monotonicPrivateGrowthObserved": false,
+    "finalDiagnosticCollection": {
+      "PrivateBytes": 444620800,
+      "WorkingSetBytes": 505077760,
+      "ManagedBytes": 3369320,
+      "LastGcCommittedBytes": 397717504,
+      "LastGcFragmentedBytes": 171336,
+      "Handles": 541,
+      "TotalAllocatedBytesEstimate": 2513466856,
+      "Gen0Collections": 61,
+      "Gen1Collections": 33,
+      "Gen2Collections": 26,
+      "LastGcIndex": 61,
+      "LastGcGeneration": 2,
+      "LastGcHeapSizeBytes": 3524208,
+      "LastGcPromotedBytes": 3352920,
+      "LastGcLohSizeAfterBytes": 0
+    },
+    "retainedDocumentsAfterCollection": 0,
+    "resourceAccepted": false,
+    "scope": "Correctness complete. Resource stability needs separate review; managed reachability alone does not prove no native leak. No physical input or VRAM acceptance."
+  }
+}

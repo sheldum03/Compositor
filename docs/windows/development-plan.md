@@ -1,0 +1,280 @@
+# Windows 版详细开发计划
+
+更新日期：**2026-10-10**。本轮继续实现 W-028：形状参数与栅格重绘之外，已补每项目独立前景/背景色、RGB/HEX/HSB 拾色器，以及平面栅格/蒙版的线性和径向渐变预览、文档起止点、透明端点、反向、选区限制、变换映射、应用和取消。像素修改同步移除失效形状/渐变参数，避免后续重绘覆盖编辑。此前参数渐变图层为 Windows 扩展，不作为 Mac 栅格渐变基线的完成证据。W-029 已接通多层变换、仿制、修复、局部模糊、涂抹、液化、内容填充与自由扭曲/吸附的代码切片。按用户要求，本轮暂缓编译、测试、校验和验收，完整开发范围保持进行中。
+
+当前已确定 **Avalonia 为唯一生产路线，M2 工程核心与 M3 内部窗口并行推进**。受限平面多层工程已接通逐层像素、改名/显隐/排序、增删复制、临时预览、矩形/椭圆/套索/魔棒选区、从图层 Alpha 载入、原位剪贴、选中像素移动、历史及选择性安全保存；新建纯内存画布与空工程可保存重开。已有 100 步/256 MiB 历史预算、平面 Normal/Gray8 蒙版合成和原生魔棒接口；本轮又接通全画布 Gray8 栅格蒙版的可编辑、启停、选区显示/隐藏、蒙版笔刷显示/隐藏、压力传递、蒙版历史、保存重开及尺寸/90°旋转同步、受限平面剪贴蒙版合成、剪贴关系 UI、浮动选区事务、受限缓存组蒙版预览以及 v8 pass-through 组蒙版的可编辑加载/切换/替换/撤销/保存重开；受限连续剪贴栈合并已接入：同级、连续、Normal、未变换且剪贴源/目标完整选中的栈可合成为单一平面层，并保留可见结果与历史；剪贴栈整体移动会保持源/目标连续和关系完整；完整连续平面剪贴栈现可跨工程复制，并重映射栈内 ID、像素、蒙版资产和剪贴关系；连续同级根图层的组子树可按正式合成结果合并为单一平面层，并保留内部剪贴关系的可见结果；恒等同父组内的完整连续（含多级）剪贴栈现可按可见结果复制为同父组平面兄弟，插入原栈之后并保留原 `maskSourceID` 与父组蒙版；同父组间断剪贴链现沿显式 `maskSourceID` 链复制并忽略无关兄弟；非恒等祖先组内的栅格层现按完整可见结果复制为根级平面层，避免再次应用祖先变换；Windows 原生 DLL 的发布接线已在 Windows CI runner 上真实构建并随 `win-x64` self-contained 包发布，实际腾讯云 Windows 实机启动与验收仍待完成。合成及多层元数据工程通过真实 Mac 检查，逐层像素/结构/新建核心及原有 14 个保存进程终止场景通过 macOS 本地检查。唯一生产窗口已接通新建、文件、图层结构、缩放/平移、100%/像素网格、软笔/硬笔、矩形/椭圆/套索/魔棒选区组合、从图层 Alpha 载入、魔棒参数/轮廓、原位剪贴、选中像素移动及其选区状态撤销、关闭保护、平面图层透明度/13 模式控件以及蒙版按钮/笔刷，并通过固定源码 Headless 检查；13 模式真实 Mac 对照为 5/13 exact，8 个模式仍各有最大 RGB 差 1。**补充完成：Windows 端打开 v1–v7 且语义与当前编辑器兼容的工程时，先在内存升级到 v8；保存才写回升级后的 manifest，旧工程在未保存前保持原包不变。版本门槛现在按 v2 组、v3 外观、v4 图层蒙版、v5 剪贴、v6 组蒙版、v7 调整层、v8 文字逐级校验，不再把所有旧版本一律锁成只读。** 新版 Windows 实机/应用验收尚未完成，Windows CI 已暴露并记录 F05/F06 的 Skia 平台舍入差异；M2 尚未整体通过，M3a 最小内部链路和 M3b 受限蒙版/组蒙版切片已在 macOS Headless 通过，完整 M3b/Alpha 与 Windows 1.0 均未交付。M0 设备矩阵、原型遗留项及 M4–M7 继续按原范围追踪。
+
+2026-10-09 继续收口：兼容的 v1–v6 旧工程现在由冒烟和工作流入口覆盖打开不改原包、内存升级到 v8、显式保存后写回 v8，并保留图层身份与原始像素。字体 catalog 恢复路径同时拒绝词法路径穿越、根目录/文件符号链接和外部目标；调整层透明度已经走混合渲染，非法透明度报告为数据错误。验证、编译和 Windows 实机验收按当前阶段要求暂缓。
+
+实施分支：`codex/windows-implementation`；本次核对的功能代码基线为 `33a38c8`，最新功能提交为 `09f6373`；`5cad6c8` 开放根组复杂 Alpha 可见结果的选区复制为根级平面层，`855d4f7` 又开放嵌套组沿祖先蒙版/外观/变换的可见结果复制为根级平面层，`fd47f40` 再开放恒等同父组内完整连续剪贴栈的可见结果复制并把复制层插入原栈之后，`0aa9196` 开放非恒等祖先组内栅格层可见结果复制并把复制层提升到根级，`8be1251` 开放同父组连续多级剪贴链的可见结果复制并保持链关系，`f58d227` 又开放同父组间断剪贴链沿显式 `maskSourceID` 的可见结果复制并忽略无关兄弟，`2b35c54` 放开跨工程平面/同父组间断剪贴链复制；`3d8087c` 补齐正式窗口 `Ctrl+C/Ctrl+X/Ctrl+V` 中的 `Ctrl+X`，并验证选区像素清除、Undo 恢复和保存状态回退，证据见[Ctrl+X 快捷键证据](evidence/production-shortcut-cut-m3a-20261006.md)；`bbaf60b` 接通 `Ctrl+Shift+Z` 重做和 `Ctrl+Shift+S` 另存为入口，Headless 覆盖剪切历史重做，原生另存为文件夹对话框仍待 Windows 实机验收，证据见[快捷键证据](evidence/production-shortcut-undo-saveas-m3a-20261006.md)；`a25f771` 开放受限跨父组栅格剪贴可见结果复制，根级插入并保留原关系；后续切片又支持外部源祖先组的非恒等变换、启用蒙版、透明度和混合模式，并在 `35c38e6` 验证两级外部栅格剪贴链，再由 `66d164f` 验证三层外部栅格剪贴链，随后由 `55896db` 验证四层外部栅格剪贴链，再由 `aa0480a` 验证五层外部栅格剪贴链，并由 `d5c12aa` 验证六层外部栅格剪贴链，再由 `0f73ab1` 验证七层外部栅格剪贴链，再由 `a96566b` 验证八层外部栅格剪贴链，再由 `a305e20` 验证九层外部栅格剪贴链，最后由 `09f6373` 验证十层外部栅格剪贴链，证据见[跨父组复制证据](evidence/production-cross-parent-grouped-copy-m3g-20261006.md)；`3819246` 接通 Skia TTC face 枚举、明确可取消的 face-index 选择对话框和所选 token 写回，`0bd53f0` 修正 App 回归使用仓库 TTC fixture，`53ba7ba` 暴露失效字体 catalog 的恢复诊断并在正式窗口启动状态显示；此前以 `5672b47` 增加了缺失图层蒙版资源时禁用可见结果复制的边界保护、以 `e7ad710` 支持 Normal 平面层的非破坏变换复制、以 `8a5d85d` 支持非 Normal 平面层复制且不烘焙源外观；`fca74ca` 进一步让受限连续剪贴栈的预览和合并共用 Alpha 保真的渲染路径，恢复剪贴源透明度，避免合并后半透明边缘被二次衰减；`ff8e405` 接通同窗跨工程的受限图层拖放复制，保留像素、蒙版、变换和外观元数据，并把目标复制作为独立历史步骤；`336cd57` 放开同级、连续、未变换平面层的非 Normal/透明度可见结果合并，并统一输出为默认 Normal 层；`2eb2337` 补上非 Normal 连续剪贴栈的混合模式/透明度合并回归；`996cc57` 将跨工程图层拖放扩展到完整连续平面剪贴栈，验证 ID/关系重映射、像素、蒙版资产和保存重开；`e865e48` 放开同级连续平面层的非恒等变换合并，并归一化合并层 transform；`344a5fe` 覆盖同一源下多个连续剪贴目标的混合模式/透明度合并、关系清理与保存重开；`90b99ef`/`3c68c54`/`7d9ca2f`/`c195ea2f`/`ebfaaee` 扩展根组子树跨工程复制、正式窗口拖放以及平面层插入已有目标组，保留父子关系、组 transform、组蒙版、组内剪贴关系和子层像素；`813d53e` 让跨工程选区粘贴先按文档坐标归一非恒等源变换；`ba17b48` 接通连续同级根图层的组子树合并、正式窗口按钮和保存重开回归；在 `0be6f8c` 受限缓存组预览之上加入 v8 pass-through 组的编辑加载、组蒙版内存资产、蒙版切换/替换/撤销/保存重开、组显隐/透明度历史、组蒙版笔刷边界、连续根级图层建组/嵌套组建组与解组、无剪贴栈带组蒙版解组、带剪贴栈组蒙版解组、缓存组非恒等变换预览、可编辑组水平/垂直翻转/移动/缩放/90°旋转、启用组蒙版随组变换、多选建组 UI、禁用组蒙版解组、变换组显式烘焙解组、平面图层非破坏移动/翻转/缩放/90°旋转、任意角度旋转 API、15°快捷按钮、数值角度输入、变换图层选区/笔刷/蒙版坐标映射、覆盖插值、同一变换快照浮动选区与显式烘焙、图像和 Gray8 蒙版面积下采样、蒙版反相/填充/模糊、选区羽化、Normal 平面层向下合并、连续多选平面层合并、受限连续剪贴栈合并与剪贴栈整体移动、选区复制为新图层、受限蒙版/剪贴可见结果复制、同窗跨工程选区粘贴、系统剪贴板位图复制/粘贴为居中新图层、画布指针定位粘贴、图层列表拖放排序、Ctrl+C/Ctrl+X/Ctrl+V、Ctrl+Shift+Z/Ctrl+Shift+S、受限跨父组剪贴可见结果复制、Shift 约束直线笔划、同窗多项目标签切换/关闭、结构操作拒绝保护及窗口按钮保护；平面层的选区复制现可先解析蒙版/剪贴关系与非破坏变换，且不把源 opacity/blendMode 烘焙进新像素层；选中组时不再暴露需要像素资产的复制/剪切/粘贴/Alpha 命令；此前提交仍包括全画布 Gray8 蒙版编辑、受限平面剪贴蒙版、剪贴关系 UI、浮动选区事务、基础画布/软笔、新建/图层、选区、M3a 工作流和双线性放大/混合轴缩放。各证据保留实际执行的固定提交和范围，不能当作当前全部代码回归。r4 包仍固定 `1e41027`，不含上述后续功能。9 月 29 日的[路线决定](m1-route-decision-20260929.md)放行 W-010 起的生产工作：Avalonia 11.3.22、.NET SDK 10.0.401 / net10.0、Skia 软件绘制、现有 C 算法 DLL。Qt 保留为技术对照，不进入生产构建。原规划分支为 `windows-part`。
+
+产品范围保持：Windows 11 x64、v8 `.comp` 文件夹工程；原字体可用时缩放重绘，缺字体保留缓存画面与文字元数据并提示选择字体，禁止静默替换。完整目标仍按 [PRD](product-requirements.md)、[技术设计](technical-design.md)、[验证与发布](validation-release.md)及下文 W-001–040 验收。
+
+### 本轮进度核对（2026-10-06，最新）
+
+**可审查状态快照**：实现分支 `codex/windows-implementation` 的功能基线为 `09f6373`，包含 `3819246` 的 TTC face-index 选择、`53ba7ba` 的失效字体恢复诊断、`5cad6c8` 的根组可见结果选区复制、`855d4f7` 的嵌套组可见结果选区复制、`fd47f40` 的组内连续剪贴栈可见结果复制、`0aa9196` 的非恒等祖先组内可见结果复制和 `8be1251` 的同父组连续多级剪贴链可见结果复制，`f58d227` 又开放同父组间断剪贴链并忽略无关兄弟，`2b35c54` 放开跨工程平面/同父组间断剪贴链复制；`3d8087c` 补齐正式窗口 `Ctrl+X` 并通过选区像素清除与 Undo 恢复检查；`bbaf60b` 接通 `Ctrl+Shift+Z` 重做和 `Ctrl+Shift+S` 另存为入口，见[快捷键证据](evidence/production-shortcut-undo-saveas-m3a-20261006.md)；其 push [run 37456705175](https://github.com/sheldum03/Compositor/actions/runs/37456705175) 与 PR [run 37456708965](https://github.com/sheldum03/Compositor/actions/runs/37456708965) 五项全部通过；`057107a` 在 `a25f771` 的受限跨父组栅格剪贴可见结果复制之上，增加外部源组变换/蒙版/透明度/混合模式的文档坐标合成；`35c38e6` 又验证两级外部栅格剪贴链；`66d164f` 将三层链链接入 Workflow 与正式 App Headless，`55896db` 将四层链链接入 Workflow 与正式 App Headless，`aa0480a` 又将五层链链接入 Workflow 与正式 App Headless，`d5c12aa` 再将六层链链接入 Workflow 与正式 App Headless，`0f73ab1` 再将七层链链接入 Workflow 与正式 App Headless，`a96566b` 又扩展到八层，`a305e20` 扩展到九层，`09f6373` 扩展到十层；外部组外观、四层链、五层链、六层链、七层链、八层链、九层链和十层链的 Workflow/App 检查、选区裁切、关系及保存重开回归通过，见[跨父组复制证据](evidence/production-cross-parent-grouped-copy-m3g-20261006.md)；本轮四层链代码与证据的 push [run 37470370779](https://github.com/sheldum03/Compositor/actions/runs/37470370779) 与 PR [run 37470375823](https://github.com/sheldum03/Compositor/actions/runs/37470375823) 五项全部通过；五层链提交 `aa0480a` 的 push [run 37475254792](https://github.com/sheldum03/Compositor/actions/runs/37475254792) 与 PR [run 37475263657](https://github.com/sheldum03/Compositor/actions/runs/37475263657) 五项全部通过；六层链提交 `d5c12aa` 的 push [run 37478569374](https://github.com/sheldum03/Compositor/actions/runs/37478569374) 五项全部通过；七层链提交 `0f73ab1` 的 push [run 37480103438](https://github.com/sheldum03/Compositor/actions/runs/37480103438) 与 PR [run 37480113279](https://github.com/sheldum03/Compositor/actions/runs/37480113279) 五项全部通过；八层链提交 `a96566b` 的 push [run 37484605599](https://github.com/sheldum03/Compositor/actions/runs/37484605599) 与 PR [run 37484613560](https://github.com/sheldum03/Compositor/actions/runs/37484613560) 五项全部通过；九层链提交 `a305e20` 的 push [run 37488864014](https://github.com/sheldum03/Compositor/actions/runs/37488864014) 五项全部通过；十层链提交 `09f6373` 的 push [run 37491421286](https://github.com/sheldum03/Compositor/actions/runs/37491421286) 与 PR [run 37491431254](https://github.com/sheldum03/Compositor/actions/runs/37491431254) 五项全部通过；打包实现提交为 `24188d9`。字体恢复证据见[恢复诊断证据](evidence/production-font-recovery-diagnostics-20261006.md)，组复制证据见[根组与嵌套组可见结果复制证据](evidence/production-group-visible-copy-m3g-20261006.md)和[组内连续剪贴栈复制证据](evidence/production-grouped-clipping-stack-via-copy-m3g.md)和[非恒等组内复制证据](evidence/production-transformed-grouped-leaf-via-copy-m3g.md)和[多级组内剪贴链复制证据](evidence/production-nested-grouped-clipping-stack-via-copy-m3g.md)和[同父组间断剪贴链复制证据](evidence/production-discontinuous-grouped-clipping-stack-via-copy-m3g.md)和[跨工程间断剪贴链复制证据](evidence/production-cross-project-discontinuous-clipping-copy-m3f.md)；Windows production core 五项矩阵（Smoke、Imaging、Workflow、SaveCrash、App）已在本轮 `8be1251` 的 push [run 37449036031](https://github.com/sheldum03/Compositor/actions/runs/37449036031) 和配对 PR [run 37449040610](https://github.com/sheldum03/Compositor/actions/runs/37449040610) 全部通过；`f58d227` 的间断剪贴链 push [run 37452219188](https://github.com/sheldum03/Compositor/actions/runs/37452219188) 与 PR [run 37452224610](https://github.com/sheldum03/Compositor/actions/runs/37452224610) 五项也全部通过；`3d8087c` 的 Ctrl+X push [run 37455131950](https://github.com/sheldum03/Compositor/actions/runs/37455131950) 与 PR [run 37455126315](https://github.com/sheldum03/Compositor/actions/runs/37455126315) 五项全部通过；随后计划同步提交的 [run 37455511270](https://github.com/sheldum03/Compositor/actions/runs/37455511270) 也通过五项矩阵；此前 `0aa9196` 的 [37447080531](https://github.com/sheldum03/Compositor/actions/runs/37447080531) / [37447088217](https://github.com/sheldum03/Compositor/actions/runs/37447088217) 也保持通过；此前 `fd47f40` 的 [run 37445449482](https://github.com/sheldum03/Compositor/actions/runs/37445449482) / [run 37445457425](https://github.com/sheldum03/Compositor/actions/runs/37445457425) 与嵌套组基线的 [run 37438016040](https://github.com/sheldum03/Compositor/actions/runs/37438016040) 与 [run 37438022988](https://github.com/sheldum03/Compositor/actions/runs/37438022988) 也保持通过，计划文档同步提交的最新 PR [run 37440796603](https://github.com/sheldum03/Compositor/actions/runs/37440796603) 也全部通过；计划文档提交 `5e8c3db` 的 PR [run 37445812266](https://github.com/sheldum03/Compositor/actions/runs/37445812266) 也通过五项矩阵；此前字体恢复回归的 [run 37430507670](https://github.com/sheldum03/Compositor/actions/runs/37430507670) 与 [run 37430512440](https://github.com/sheldum03/Compositor/actions/runs/37430512440) 也保持通过。Smoke 还在同一 run 中以 Windows runner 的 CMake/MSVC 产物发布了包含 `Compositor.App.exe` 与 `compositor_native.dll` 的 224 文件 `win-x64` self-contained 包，入口与 DLL 哈希见[原生 DLL 发布证据](evidence/production-native-dll-publish-hook.md)；CMake/MSVC、DLL/ctypes、C# P/Invoke、Avalonia corpus/brush/text 及 Qt 对照检查已在 [native/framework probe run 37407903694](https://github.com/sheldum03/Compositor/actions/runs/37407903694) 全部通过。对应的集成入口是 [Draft PR #1](https://github.com/sheldum03/Compositor/pull/1)。本轮进度快照的 push/PR 文档检查 [run 37477608652](https://github.com/sheldum03/Compositor/actions/runs/37477608652) 五项全部通过；六层链实现验证的 push/PR 矩阵 [run 37478569374](https://github.com/sheldum03/Compositor/actions/runs/37478569374) 与七层链实现验证的 push [run 37480103438](https://github.com/sheldum03/Compositor/actions/runs/37480103438) / PR [run 37480113279](https://github.com/sheldum03/Compositor/actions/runs/37480113279) 五项全部通过；开发计划和七层链证据已同步到 `windows-part`。以上结果关闭了 CI 构建、原生 DLL 发布与桥接检查门槛，但不关闭腾讯云 Windows 实机启动、文件对话框、DPI/多显示器、IME、系统剪贴板、性能、干净机安装或 M3b/M4–M7 交付门槛。
+
+- **代码基线**：功能代码基线为 `33a38c8`、最新功能提交为 `09f6373`、关系边界回归提交为 `920a379`；`5cad6c8` 增加根组可见结果的选区复制和根级插入边界，`855d4f7` 增加嵌套组沿祖先蒙版/外观/变换的可见结果复制，`fd47f40` 增加恒等同父组内完整连续剪贴栈的可见结果复制和栈尾插入，`0aa9196` 增加非恒等祖先组内栅格层可见结果复制和根级插入，`8be1251` 增加同父组连续多级剪贴链可见结果复制，`f58d227` 增加同父组间断剪贴链可见结果复制，`2b35c54` 增加跨工程间断剪贴链复制回归；`3d8087c` 增加正式窗口 `Ctrl+X` 剪切快捷键及撤销像素回归；`bbaf60b` 增加 `Ctrl+Shift+Z` 重做和 `Ctrl+Shift+S` 另存为快捷入口；`a25f771` 增加受限跨父组剪贴可见结果复制和根级插入；`057107a` 增加外部源组变换、组蒙版、透明度和混合模式的可见结果合成，`35c38e6` 增加两级外部栅格剪贴链并补充 Workflow 回归，`66d164f` 增加三层外部栅格剪贴链并补充 Workflow/App Headless 回归，`55896db` 增加四层外部栅格剪贴链并补充 Workflow/App Headless 回归，`aa0480a` 增加五层外部栅格剪贴链并补充 Workflow/App Headless 回归，`d5c12aa` 增加六层链验证，`0f73ab1` 增加七层链验证，`a96566b` 增加八层链验证，`a305e20` 增加九层链验证，`09f6373` 增加十层链验证；`5672b47` 增加缺失图层蒙版资源保护，`e7ad710` 支持 Normal 平面层非恒等变换复制，`8a5d85d` 支持非 Normal 平面层复制且不烘焙源外观，`fca74ca` 让受限连续剪贴栈预览与合并共用 Alpha 保真路径，恢复剪贴源透明度并覆盖半透明边缘回归，`ff8e405` 接通受限跨工程图层拖放复制并验证像素/蒙版/变换/外观元数据，`336cd57` 接通受限非 Normal/透明度平面层合并，`2eb2337` 补上非 Normal 连续剪贴栈合并回归；`996cc57` 扩展完整连续平面剪贴栈的跨工程拖放复制，`e865e48` 放开非恒等变换平面层合并并覆盖保存重开，`344a5fe` 增加多子层剪贴栈回归，`90b99ef`/`3c68c54`/`7d9ca2f` 增加根组子树 API、窗口拖放和组内剪贴关系重映射回归，`c195ea2f`/`ebfaaee` 增加平面层插入已有目标组的 API 与正式窗口回归，`813d53e` 增加跨工程变换选区粘贴回归，`ba17b48` 增加组根子树合并回归，`81d6f39` 增加恒等祖先组内平面层跨工程复制及保存重开回归，`6e47154` 扩展为完整连续组内剪贴栈复制，`172b6b7` 增加组子树复制到嵌套目标组的父级与保存重开回归，`c8ef0e8` 增加启用组蒙版整体复制的渲染与保存重开回归，`699ed63` 补齐平面层自身缩放/旋转/翻转的跨工程拖放与保存重开回归，`9ca2d6e` 补齐组蒙版与剪贴栈及组级外观/变换组合的合并回归，`6ad615f` 增加内部 3-lobe Lanczos RGBA/Gray8 缩放路径与固定像素回归；此前还包含 `90d596d` 的非破坏平面图层变换、`2cc4f79` 的任意角度旋转 API、`da97123` 的窗口数值角度输入和线程安全修正、`865deac` 的变换图层选区/笔刷/蒙版坐标映射、`6f4cdf8` 的覆盖插值、`796ab73` 的同一变换快照浮动选区、`7f218d1` 的图像/蒙版面积下采样、`59c233d` 的蒙版命令和 Shift 直线笔划、`b8c6db0` 的同窗多项目标签、蒙版模糊，以及 `36d9cf8` 的选区羽化、`26bd21e` 的受限图层合并、`cf237fb` 的合并元数据修正、`ca489fa` 的连续多选平面层合并、`33a38c8` 的受限连续剪贴栈合并、`9d37b32` 的剪贴栈移动、`9779dee` 的按钮边界保护和 `bbca347` 的选区复制为新图层、`bc8ba5c` 的羽化选区 Alpha 覆盖、`d720166` 的同窗跨工程选区粘贴及 `c25fd08` 的系统剪贴板位图复制/粘贴；计划文档与本轮 M3b/M3d/M3e/M3f 跨工程粘贴、系统剪贴板位图、可见结果复制、图层拖放、画布指针定位、变换/非 Normal 复制、剪贴栈 Alpha、跨工程图层拖放、跨工程变换选区粘贴及非 Normal 合并证据已提交到实施分支，并已同步到 `windows-part`。
+- **当前仓库状态**：实施分支最近功能提交为 `09f6373`，关系边界回归提交为 `920a379`（正式 App Headless 覆盖十层外部栅格剪贴链，前序 `d5c12aa` 覆盖六层链验证；此前 `35c38e6` 已支持 Workflow 两级链；此前 `057107a` 已支持外部源组变换、蒙版、透明度和混合模式；此前包含正式窗口 `Ctrl+X` 剪切快捷键；同父组连续多级剪贴链可见结果复制；前序包含非恒等祖先组内可见结果复制；前序包含组内连续剪贴栈、嵌套组与组内平面层可见结果复制；计划文档与本轮证据已同步到 `windows-part`；最新集成提交为 `24188d9`，已在 Windows CI 生成并验证含原生 DLL 的便携包；前序 `447baad` 固定字节哈希、`1611362` 修复 Qt/MSVC C4458、`7d06d7a`/`22ec925` 接通 VS18/CMake 4.2.3；`2b75715` 统一缓存预览与可编辑组蒙版的 Windows F06 平台参考；`ce27e39` 记录 F05/F06 基线；`6ad615f` 增加内部 3-lobe Lanczos RGBA/Gray8 缩放路径与固定像素回归），可运行功能基线包含 `33a38c8` 的合并实现、`9779dee` 的剪贴栈移动和 `bbca347` 的选区复制为新图层、`bc8ba5c` 的羽化选区 Alpha 覆盖、`d720166` 的同窗跨工程选区粘贴、`c25fd08` 的系统剪贴板位图转换/粘贴、`88d270a` 的受限蒙版/剪贴可见结果复制、`976ede5` 的图层列表拖放排序、`4aa142b` 的画布指针定位粘贴、`5672b47` 的缺失蒙版拒绝保护、`e7ad710` 的 Normal 变换图层可见结果复制、`8a5d85d` 的非 Normal 平面层复制、`fca74ca` 的受限剪贴栈 Alpha 保真合并、`ff8e405` 的受限跨工程图层拖放复制、`996cc57` 的完整连续剪贴栈拖放复制、`e865e48` 的变换平面层合并、`344a5fe` 的多子层剪贴栈回归、`90b99ef`/`3c68c54`/`7d9ca2f` 的根组子树跨工程复制、`c195ea2f`/`ebfaaee` 的已有目标组内插入、`813d53e` 的跨工程变换选区粘贴以及 `336cd57`/`2eb2337` 的受限非 Normal/透明度及剪贴栈合并；`ba17b48` 又加入连续同级根图层的组子树合并；因此 W-017 已关闭连续同级平面层、半透明边缘保真的受限连续剪贴栈合并、非恒等变换平面层合并、多子层剪贴栈合并、受限图层列表拖放排序、受限非 Normal 外观合并和非 Normal 剪贴栈合并切片，W-018 已增加受限 Layer via Copy、同窗跨工程选区粘贴、系统剪贴板位图作为居中新图层、受限蒙版/剪贴可见结果复制、画布指针定位粘贴、缺失蒙版拒绝、Normal 非恒等变换复制、非 Normal 复制、受限跨工程图层拖放、根组和嵌套组可见结果复制、恒等组内平面层选区复制、组内完整连续剪贴栈拖放/可见结果复制和非恒等祖先组内栅格层可见结果复制切片，见[组内剪贴栈拖放证据](evidence/production-grouped-clipping-stack-drag-m3f.md)、[嵌套目标组拖放证据](evidence/production-nested-target-group-drag-m3f.md)、[启用组蒙版复制证据](evidence/production-enabled-group-mask-copy-m3f.md)、[根组与嵌套组可见结果复制证据](evidence/production-group-visible-copy-m3g-20261006.md)、[组内平面层选区复制证据](evidence/production-grouped-leaf-via-copy-m3g.md)和[非恒等平面层拖放证据](evidence/production-transformed-layer-drag-m3f.md)和[同父组间断剪贴链复制证据](evidence/production-discontinuous-grouped-clipping-stack-via-copy-m3g.md)和[跨工程间断剪贴链复制证据](evidence/production-cross-project-discontinuous-clipping-copy-m3f.md)；已补[组蒙版与剪贴栈复杂 Alpha 证据](evidence/production-complex-alpha-m3g.md)、[内部 Lanczos 缩放证据](evidence/production-lanczos-resize-m3g.md)和[Windows F05/F06 Skia 平台基线](evidence/production-windows-f05-skia-m3g.md)，十一层以上跨父级剪贴源链及复杂关系、复杂剪贴栈合并、复杂目标组层级/跨变换快照图层拖放、其他复杂 Alpha 组合和 Windows 实机验收仍保持未完成。
+- **本地验证**：固定 SDK 10.0.401、Avalonia Headless 的 Workflow/App Checks（无原生选择库）在本轮实现上 Release 顺序构建成功、均为 0 警告/0 错误；App 新增 `Ctrl+X`/`Ctrl+Shift+Z` 选区剪切历史并通过；Workflow/App 新增受限跨父组剪贴复制、外部源组变换/蒙版/透明度/混合模式、根级插入和保存重开并通过；Workflow/App 又通过四层、五层、六层、七层、八层、九层和十层外部栅格剪贴链的 Alpha、按钮、关系、选区裁切和保存重开；Workflow 还通过缺失源与循环 `maskSourceID` 的打开拒绝回归；Workflow 通过根组与嵌套组在祖先蒙版、组级外观和非恒等变换下的逐像素可见结果复制，并新增组内平面层、完整连续剪贴栈和非恒等祖先组内栅格层在启用父组蒙版下的复制、栈尾或根级插入与保存重开，并新增同父组连续多级剪贴链的链关系、栈尾插入和保存重开；Workflow/App 还通过同父组间断剪贴链的显式关系解析、目标插入、选区裁切和保存重开；App 还通过跨工程平面/组内间断剪贴链的关系重映射和保存重开；App 通过根组与嵌套组按钮状态、最外层组子树之后的根级插入位置，以及组内平面层/剪贴栈/非恒等组内复制的按钮状态、同父组栈尾或根级插入、选区内外像素和保存重开。此前跨工程图层拖放、组内剪贴栈、复杂 Alpha、非 Normal 合并和内部 Lanczos 回归仍保持。Windows production core 的四层基线 push/PR 全量矩阵见 [run 37470370779](https://github.com/sheldum03/Compositor/actions/runs/37470370779) / [run 37470375823](https://github.com/sheldum03/Compositor/actions/runs/37470375823)，五层链最新 push/PR 全量矩阵见 [run 37475254792](https://github.com/sheldum03/Compositor/actions/runs/37475254792) / [run 37475263657](https://github.com/sheldum03/Compositor/actions/runs/37475263657)，八层链 push/PR 全量矩阵见 [run 37484605599](https://github.com/sheldum03/Compositor/actions/runs/37484605599) / [run 37484613560](https://github.com/sheldum03/Compositor/actions/runs/37484613560)，十层链 push/PR 全量矩阵见 [run 37491421286](https://github.com/sheldum03/Compositor/actions/runs/37491421286) / [run 37491431254](https://github.com/sheldum03/Compositor/actions/runs/37491431254)；此前 `bbaf60b` 快捷键矩阵见 [run 37456705175](https://github.com/sheldum03/Compositor/actions/runs/37456705175) / [run 37456708965](https://github.com/sheldum03/Compositor/actions/runs/37456708965)，`fd47f40` 矩阵见 [37445449482](https://github.com/sheldum03/Compositor/actions/runs/37445449482) / [37445457425](https://github.com/sheldum03/Compositor/actions/runs/37445457425)，计划文档同步 PR 见 [run 37445812266](https://github.com/sheldum03/Compositor/actions/runs/37445812266)；此前基线矩阵见 `37438016040`/`37438022988`。
+- **已推进**：M3a 最小内部链路（新建→编辑→尺寸/旋转→保存→重开→PNG 导出）已在 macOS Headless 通过；M3b 第一条全画布 Gray8 栅格蒙版切片已接入载入、启停、选区显示/隐藏、蒙版笔刷显示/隐藏、蒙版历史、保存重开、尺寸/90°旋转及图层翻转/位移同步；缓存预览已接通受限 pass-through 组、组蒙版和连续剪贴栈，v8 pass-through 组蒙版现可在受限工程中编辑并保存重开，带剪贴栈组蒙版也可解组并在保存重开后保持预览，变换组可通过显式烘焙解组保持预览并保存重开，见[缓存组蒙版证据](evidence/production-cached-group-mask-m3b.md)与[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)；带缺失字体/文字变换工程仍能只读预览并导出，保存与编辑会被禁用；不支持的缓存语义会明确拒绝。
+- **仍未验证**：上述结果均不是 Windows 实机证据。2026-10-06 已通过腾讯云 OrcaTerm 登录 `Windows Server-aqVN`（`119.45.93.179`），进入管理员 PowerShell；该机当前 `Get-Command` 找不到 `dotnet`、`cmake`、`msbuild`、`cl` 和 `winget`，因此尚未启动新版 `Compositor.App.exe`，也未完成 Windows 原生 DLL、文件对话框、DPI/多显示器、IME、性能或干净机部署验收。详细探测见[腾讯云 Windows 实机基线证据](evidence/tencent-windows-server-baseline-20261006.md)。不得把 CI runner、历史 r4 包准备记录或 macOS 交叉发布当作新版 Windows 运行证据。
+- **下一道闸门**：先在已登录腾讯云主机固定并安装/确认 .NET SDK 10.0.401、CMake 4.2.3 和可用 MSVC Build Tools，记录版本、generator、编译器与 OS/架构；再以当前实现分支 `09f6373` 和现有发布接线 `24188d9` 生成完整包，完成 Windows 实机启动与 Core/Imaging/Workflow 检查，并用真实 Windows 剪贴板验证 Ctrl+C/Ctrl+V 和指针定位；随后继续 M3b 的十一层以上跨父级剪贴源链、复杂关系、剩余完整 Alpha 组合、复杂剪贴栈语义和真实压感回归；工具链与应用验收完成前不把 M3a 或便携包标为 Alpha。
+
+## 1. 当前进度
+
+### 阶段状态
+
+| 阶段 / 任务 | 当前状态 | 证据与剩余条件 |
+| --- | --- | --- |
+| 前期研究与规划 | 已完成 | 开源候选、真实耦合审计、产品目标、PRD、技术设计及开发计划已形成 |
+| M0 / W-001–003 | 基线、样本与关键产品决定已形成 | Mac 整合回归 327 passed / 0 failed / 3 个明确跳过诊断；242 个固定文件与 33 个 HEIC 样本；D-01/04/11 已确认，不等于 Windows 全功能验收 |
+| M0 / W-004 | 环境矩阵未齐 | Windows 11 实体机、Server 节点已有；干净普通用户、常见集显、双屏及输入设备覆盖仍有缺口 |
+| M1 / W-005–008 | 原型证据已支撑路线决定 | Avalonia 合成/工程、输入、S02 与限定 S05 通过项已归档；Qt 候选栏换行定位仍失败。真实源码空缓存离线构建已有 Windows 证据；正式应用仍须重新验收 |
+| M1 / W-009 | 单一生产路线已决定 | 2026-09-29 选定 Avalonia 并放行 M2；设备覆盖、原型性能波动及发行依赖保留为后续明确条件，不能写成全项关闭 |
+| M2 / W-010 | 生产入口及构建/检查入口已有 | Avalonia App/App.Checks 与依赖锁已建立，五项 CI 矩阵源码已提交；本地窗口按钮/预览/未保存保护检查通过；`63215b7` 已接通按 RuntimeIdentifier 选择并复制 `compositor_native.dll` 的发布接线，缺 DLL 时仍能生成受限包；远程 Windows CI 的五项 production core 与 native/framework probe 已通过，Smoke 已额外验证真实 CMake/MSVC DLL 注入 224 文件便携包；原生 Windows 窗口启动、真实机器交互及干净部署仍未验收 |
+| M2 / W-011 | 受限多层像素/结构/新建/平面外观/选区事务已提交、本地通过 | 新建在首次保存前始终未保存；选层不加历史；GUID 像素/元数据、增删复制、空工程、透明度、13 模式及会话内矩形/椭圆/套索/魔棒选区共用正式编辑流程；100 步/256 MiB 预算通过。组结构、完整选区交互、Windows 长时间验证未完成 |
+| M2 / W-012 | 栅格与原生边界部分实现 | 同一合成器已支持临时单层像素覆盖；平面 Normal 与 Gray8 两场景各经真实 Mac 比较 360,000 通道零差异；原生魔棒/轮廓边界检查通过。Windows、组/剪贴/变换、脏区与正式笔刷性能待完成 |
+| M2 / W-013 | 简单 v1/v8 与受限 v8 多层像素/结构/非默认平面外观可编辑 | 原始 Mac 多层输出已在 .NET 中继续像素/元数据编辑并保存重开；新增/复制/空工程及 v8 非默认透明度/模式本地通过。新输出的真实 Mac 再读回、完整 v1–8 语义及 Windows 未完成；v1 非默认外观和蒙版仍只读 |
+| M2 / W-014 | 逐层选择性保存及空工程保存本地通过 | 只编码改变的 PNG；保存删除后撤销恢复可再次保存。原有 14 个强杀场景仍通过（8 单层、6 多层元数据）；多层像素编码/结构/空工程中断、断电、恢复 UI 与 Windows 验证待补 |
+| M2 / W-015 | PNG/JPEG 工作流本地通过 | 导入、EXIF、像素编辑、保存重开与 PNG/JPEG 导出已接通；12 组参考、2 组 JPEG 背景、23 条拒绝路径通过；Windows、真实图像覆盖和剩余 IO 边界未验收 |
+| M3 / W-016 | 内部窗口与基础画布及多项目标签切片已接通、本地通过，完整任务未完成 | 新建/取消/尺寸校验、文件/关闭保护、缩放锚点、两种平移、透明背景、100%视图、像素网格、外观控件和同窗多工作区标签创建/切换/关闭、项目历史隔离已有固定源码 Headless 证据；受限跨工程图层拖放复制、完整连续剪贴栈复制、根组子树复制及已有目标组内插入已接通。原生文件对话框、完整快捷键、Windows DPI/多屏和完整跨项目拖放语义仍未完成；受限系统剪贴板位图复制/粘贴已接通 |
+| M3 / W-017 | 平面图层按钮、透明度、13 模式、拖放排序及受限合并切片已接通，本地通过，完整任务未完成 | 实际增删复制/排序/显隐/选层、外观撤销/重做及保存重开通过；无组/无剪贴/无变换的 Normal 与非 Normal/透明度平面层向下合并、连续多选层合并，以及同级连续剪贴源/目标完整选中的受限剪贴栈合并、非恒等变换平面层合并、剪贴栈整体移动、图层列表拖放排序以及连续同级根图层的组子树合并，均通过 Undo/Redo 和保存重开；`fca74ca` 让受限剪贴栈预览与合并共用 Alpha 保真路径，`336cd57` 让非 Normal/透明度合并按正式渲染器写入可见结果并归一化元数据，半透明剪贴源边缘和非 Normal 外观的合并前后像素保持一致，见[组级合并证据](evidence/production-group-merge-m3g.md)、[组蒙版与剪贴栈复杂 Alpha 证据](evidence/production-complex-alpha-m3g.md)、[图层合并证据](evidence/production-layer-merge-m3d.md)、[变换平面层合并证据](evidence/production-transformed-layer-merge-m3g.md)、[多子层剪贴栈合并证据](evidence/production-multi-child-clipping-merge-m3g.md)、[非 Normal 合并证据](evidence/production-nonnormal-merge-m3g.md)、[图层列表拖放证据](evidence/production-layer-drag-m3e.md)和[剪贴栈 Alpha 证据](evidence/production-clipping-stack-alpha-m3e.md)。跳层选择、外部剪贴关系和不满足条件的选择在窗口中禁用；复制层独立绘画。真实 Mac 对照仅 5/13 exact，8 个模式最大 RGB 差 1；复杂剪贴栈合并和 Windows 未完成 |
+| M3 / W-018 | 基础选区/原位剪贴/像素移动及全画布 Gray8 蒙版编辑切片本地通过，完整任务未完成 | 全选、反选、矩形/椭圆/魔棒/套索替换、加选、减选、清除、从图层 Alpha 载入、当前层复制/合并复制/剪切/粘贴、正反向拖动像素移动、画布边框和软笔裁剪、魔棒点/3×3/5×5 取样、容差/连续选项及 `wand_trace` 轮廓通过且不标脏或可撤销；全画布 Gray8 蒙版可编辑、启停、选区显示/隐藏、蒙版笔刷显示/隐藏、选区裁剪、保存重开和蒙版历史通过，见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)；缓存组蒙版预览及 v8 pass-through 组蒙版的编辑加载、启停、替换、撤销、保存重开、组显隐/透明度历史、连续根级与嵌套组建组/无组蒙版解组、无剪贴栈带组蒙版解组和组结构操作拒绝已通过，见[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)；多项目标签的历史隔离、受限 Layer via Copy、同窗跨工程选区粘贴、跨工程单层/完整连续剪贴栈/根组子树/已有目标组内插入/恒等祖先组内平面层和完整连续剪贴栈拖放复制和系统剪贴板位图切片已通过：平面层可按选区复制为新图层，带受限全画布蒙版或连续剪贴源的当前层会先解析可见结果，非恒等变换会先按文档坐标渲染，非 Normal 源的 opacity/blendMode 不烘焙进新像素层，兼容项目可共享选区快照，外部位图可转换为预乘 RGBA 并按默认居中或画布指针坐标作为新图层，按钮/快捷键、像素范围、Undo/Redo、保存重开均有固定 Headless 证据；新增受限组内平面层选区复制：源/祖先组变换恒等、无剪贴关系时，复制作为同父组平面兄弟插入，启用祖先组蒙版继续生效，见[组内平面层选区复制证据](evidence/production-grouped-leaf-via-copy-m3g.md)；新增组内连续剪贴栈可见结果复制：单层、连续、同父级栈按可见结果渲染，复制层插入原栈之后并保留父组蒙版及原 `maskSourceID`，见[组内连续剪贴栈复制证据](evidence/production-grouped-clipping-stack-via-copy-m3g.md)；新增同父组连续多级栅格剪贴链可见结果复制：沿前置 `maskSourceID` 链解析，复制层插入完整链之后并保存重开，见[多级组内剪贴链复制证据](evidence/production-nested-grouped-clipping-stack-via-copy-m3g.md)；其余复杂目标组层级/跨变换快照图层拖放、十一层以上跨父级多级剪贴源链及复杂关系、其余复杂 Alpha 组合仍未接通；循环/缺失 `maskSourceID` 已由 `ProjectStore.Open` 回归拒绝；浮动选区事务（含同一变换快照映射）、受限平面剪贴蒙版合成及剪贴关系 UI 已通过 |
+| M3 / W-019 | 基础软/硬笔与蒙版笔刷同步切片本地通过，完整任务未完成 | 259×257 三组 M1 临时/最终软笔像素 exact；硬圆笔中心/边缘覆盖、实际提交单步历史、Esc/捕获丢失/关闭取消、旧快照/其他层保持和保存导出通过；Shift 约束直线笔划已接入正式画布；蒙版笔刷支持显示/隐藏、选区裁剪、临时预览和单步 Undo/Redo，蒙版反相/填白/填黑/模糊已接入并共享历史事务，选区羽化已接入会话选区历史，受限 Normal 平面层向下合并、连续多选平面层合并与连续剪贴栈合并已接入工程历史，平面和受限组蒙版都可使用画布尺寸笔刷边界，画布尺寸和 90° 文档旋转会同步全画布蒙版。完整颜色、真实压感设备/笔划、Windows 及 S02/S05 待完成 |
+| M3 / W-020 | 平面与组的受限变换切片本地通过，完整任务未完成 | 活动平面图层的非破坏移动、水平/垂直翻转、中心缩放、90° 旋转和任意角度旋转写入 manifest，窗口同时提供 15° 快捷按钮和数值角度输入；平移/90° 旋转后的选区、软笔和全画布蒙版编辑会映射回源栅格，缩放边界使用双线性覆盖采样，同一变换快照下逐层复制/剪切/粘贴保持文档坐标，跨变换快照仍要求先烘焙；渲染与保存重开保持原始 PNG；显式烘焙同步处理可编辑蒙版并可撤销/重做；画布裁剪/扩展、图像上采样/混合轴双线性缩放、双向 90° 文档旋转及窗口回归通过；图像和 Gray8 蒙版同时缩小时已使用分离水平/垂直面积覆盖并有像素回归；内部 3-lobe Lanczos 已增加 RGBA/Gray8 固定像素回归，但尚未接入窗口滤波器选择；复杂缩放性能和跨变换快照浮动选区仍明确拒绝；组变换及变换组显式烘焙解组已有受限切片 |
+| M3 / W-021 | M3a 最小内部工作流和 M3b 蒙版/变换/标签切片本地通过，完整任务未完成 | 新建→笔刷/图层编辑→尺寸/旋转→保存→重开→PNG 导出已在固定 Avalonia Headless 检查串联，见[M3a 工作流证据](evidence/production-m3a-workflow.md)；蒙版编辑/启停/反相/填充/模糊/选区羽化/笔刷显示隐藏/压力传递/受限剪贴蒙版/受限剪贴栈合并/缓存组预览/平面图层非破坏变换与显式烘焙/连续多选平面层合并/项目标签历史隔离/组蒙版编辑保存重开/根级与嵌套组建组解组/无剪贴栈带组蒙版解组/变换组烘焙解组/同窗多项目标签切换见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)、[剪贴蒙版证据](evidence/production-clipping-mask-m3b.md)、[缓存组蒙版证据](evidence/production-cached-group-mask-m3b.md)、[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)、[浮动选区证据](evidence/production-floating-selection-m3c.md)、[画笔与蒙版增强证据](evidence/production-brush-mask-m3d.md)、[蒙版模糊证据](evidence/production-mask-blur-m3d.md)、[选区羽化证据](evidence/production-selection-feather-m3d.md)、[图层合并证据](evidence/production-layer-merge-m3d.md)和[多项目标签证据](evidence/production-project-tabs-m3d.md)；Windows 原生 DLL、文件对话框/DPI/IME、完整 Alpha 组合及真实文件打开/导入标签流程仍未验证 |
+| M3 / W-022 | 未完成 | Windows CI 已生成含原生 DLL 的便携包，但 Alpha 验收、真实 Windows 验收、支持/禁用项和已知缺陷清单未交付 |
+| M4 / W-023–025 | 文字缓存、可用字体重绘、受限文字编辑、字体导入、TTC face-index 选择及失效字体恢复诊断切片已通过，完整任务未完成 | 缺失字体工程保留缓存 PNG 和文字元数据；字体 catalog 的缺失文件、哈希不匹配、损坏字体面会被清理并以文件名/原因/数量显示，见[恢复诊断证据](evidence/production-font-recovery-diagnostics-20261006.md)；IME、完整重新排版、v8 写回、完整用户字体持久化和 Windows DPI/字体验收仍未完成 |
+| M5 / W-026–030 | 未完成 | 高级工具与生产 S01–S05 未验收，原型性能证据不能直接沿用为生产通过 |
+| M6 / W-031–035 | 未完成 | 完整兼容、图像 IO、AI 产品流程与 Beta 未交付 |
+| M7 / W-036–040 | 未完成 | 正式安装器、代码签名、更新、卸载、最终设备矩阵和发布未完成 |
+
+### M2 已有实现与测试边界
+
+当前源码位于 [Windows 生产工程](../../windows/README.md)。[图像工程工作流](evidence/production-workflow-m2.md)已将“PNG/JPEG 导入→单图层 v8 工程→像素与名称编辑→撤销/重做→安全保存/另存→重开→PNG/JPEG 导出”接入同一会话；多层现已支持限定像素、元数据和结构编辑及保存。[唯一 Avalonia 生产入口](../../windows/Compositor.App/README.md)已验证新建/图层按钮/视图与软笔初次集成；完整编辑器行为和原生 Windows 验收仍未齐备。
+
+- **唯一生产窗口**：`467a209` 新增 App 与独立 App.Checks，固定 Avalonia 11.3.22、软件绘制及字体资源；接通工程打开、PNG/JPEG 导入、图层改名/显隐/排序/历史、保存/另存、导出及共享核心预览。以固定 `275588f` 加窗口源码锁定构建并执行 Headless 检查，实际按钮、跨瓦片预览字节、取消/保存/不保存关闭与保存失败保留文档均通过，见[窗口集成证据](evidence/production-app-integration.md)。原生文件对话框、Windows 输入法/DPI、性能和安装产物未验证；不能据此关闭 M3a/Alpha。
+- **事务与像素保存**：`1e41027` 将名称和不可变瓦片快照纳入同一历史；检查覆盖保存前后撤销/重做与脏状态、撤销后分叉、旧像素重新保存、未保存像素导出及导出不改变保存点。源 PNG 的外部变化不污染内存快照，保存仍拒绝覆盖已变化资产。可编辑打开经 Imaging 完整解码；底层 Core reader 的 PNG 检查仍限于头部、尺寸及身份，不能单独当作完整像素验证。
+- **历史容量边界**：`6bc1968` / `6f739b7` 增加最多 100 步撤销及 256 MiB 历史独占瓦片预算，按瓦片对象身份去重；裁掉旧保存点后仍正确标脏。105 次改名、共享瓦片及 18 张 2048×2048 全幅快照检查通过。该预算不是进程总内存上限，Windows 长时间编辑仍待验证，见[历史预算](evidence/production-history-bound-m2.md)。
+- **合成与蒙版**：`b26d34a` 支持受限 v8 平面 Normal 多层渲染；`86c3cea` 用真实 Mac reader/exporter 对照两层 300×300 工程，360,000 通道最大误差 0，整套 4 次 case 执行无失败/跳过，见[真实 Mac 合成对照](evidence/production-flat-normal-mac-readback.md)。`67d8b3a` 增加同画布默认位置 Gray8 蒙版及启停，本地检查覆盖 0/128/255、错误类型/尺寸和导出回读，见[Gray8 蒙版](evidence/production-gray-mask-m2.md)。`822c7c8` 进一步完成[真实 Mac 蒙版对照](evidence/production-gray-mask-mac-readback.md)，360,000 通道最大误差 0，连同原用例共 5 次 case 执行无失败/跳过。无蒙版平面多层已按下项开放元数据编辑；蒙版仍只读，以上新增路径均无 Windows 实机结论。
+- **多层元数据与真实 Mac 往返**：`24eff19` 支持平面全画布 Normal 无蒙版工程的 GUID 改名、显隐、排序、历史及全资产安全保存，见[多层编辑证据](evidence/production-flat-edit-m2.md)。`2e9bf74` 由真实 Mac 打开已改名/隐藏/重排的工程，再改名/显示、撤销两步回保存点、重做并保存重开；层 ID/顺序/活动层和全部像素保持，整套 6 次 case 执行无失败/跳过，见[多层真实 Mac 往返](evidence/production-flat-edit-mac-readback.md)。Mac 原始输出反向再编辑已在下面的逐层像素切片中通过；新像素/结构输出的真实 Mac 再读回仍待完成。
+- **逐层像素与临时预览**：`e1d717d` 按 GUID 读写不可变像素快照，未编辑层与旧历史保持；只重新编码改变的 PNG。真实 Mac 多层输出在 .NET 中继续像素、名称、显隐和排序编辑，撤销/重做、保存重开、导出及 105 次像素编辑后的 100 步裁剪检查通过。Workflow/Core/Imaging/原有 14 场景 SaveCrash/原窗口 Headless 均在 macOS arm64 Release 退出 0。`29469e1` 临时覆盖目标层像素并沿用同一合成器，不修改历史；单/多层、隐藏层、取消后原合成、非法 ID/尺寸与只读保护检查通过。见[逐层像素与预览证据](evidence/production-layer-pixels-m2.md)。新输出的真实 Mac 再读回、Windows 及正式笔刷性能未执行。
+- **图层增删复制与空工程**：`7a1c08b` 新增平面 v8 的空层、复制、删除和活动层 API；每次结构操作一步历史，复制层独立改像素。保存只保留当前引用资产；删除并保存后仍可撤销恢复像素并再次保存；删除最后一层得到真正空透明工程，可保存重开、导出并重新新增。含真实 Mac 输入的 Workflow、Core 历史/原生回归及原有 14 场景 SaveCrash 在 macOS arm64 Release 退出 0，见[图层结构证据](evidence/production-layer-structure-m2.md)。窗口按钮已按下面记录接通并本地通过；v1 结构修改拒绝，真实 Mac 新样本读回、结构/空工程强杀、Windows 和组层均未验证或实现。
+- **纯内存新建与正式窗口**：`08817a6` 创建透明新文档，不借助临时 PNG；首次成功保存前保持未保存，校验宽高/DPI/100 MP，保存失败不建立来源，选层不加历史且可保存。Workflow/Core/原有 14 场景 SaveCrash 本地通过，见[新建核心](evidence/production-new-canvas-m2.md)。`cde7578` 接通实际新建/取消/无效尺寸对话框、选层与增删复制按钮；固定 `c9ede9a` 加五个文件的 Headless 检查通过，复制独立绘画、保存空工程后撤销并重建资产及原窗口/软笔回归均退出 0，构建无警告/错误，见[新建窗口](evidence/production-new-window.md)。原生首次保存文件夹选择、Windows 和新输出的真实 Mac 验收仍待执行。
+- **图层透明度与混合模式窗口**：`cfc40ee` 增加平面 v8 的 0–1 透明度、13 个模式、Skia 合成映射和属性事务；本地 Workflow/保存/重开/历史检查通过。`d473a20` 将数值框、模式下拉框和应用按钮接入正式窗口，固定源码复建与窗口检查通过，见[外观窗口](evidence/production-appearance-window.md)。真实 Mac 对照 5/13 exact，Normal、Difference、Color Dodge、Color Burn、Hue、Saturation、Color、Luminosity 仍各有最大 RGB 差 1；尚无获准的非零容差，不能关闭跨平台合成门槛。
+- **100%与像素网格视图**：`d848be5` 增加独立的 100% 画布命令和像素网格开关；网格在 4 倍以上缩放绘制，视图操作不改变工程像素、历史或脏状态。固定窗口检查在 6 倍缩放下比较开关前后截图像素并通过；Windows DPI 与真实显示器仍待验收。
+- **基础矩形/椭圆/魔棒/套索选区、Alpha 载入、原位剪贴与像素移动**：`4c8d28c` 增加会话内矩形替换/清除、选区边框和软笔裁剪；`3bc631a` 增加椭圆形选区及替换/加选/减选组合；`25d03c1` 将已有原生魔棒 mask 接入当前合成预览、会话选区和缺库保护；`ec8570c` 增加指针路径套索和偶奇多边形填充；`7fdb6e6` 增加会话内原位复制、剪切、粘贴和像素历史；`44e2366` 增加正反向拖动的选中像素与蒙版移动、画布越界裁剪；`33faf6c` 增加从当前图层 Alpha 载入非持久化选区；`402a0f1` 增加魔棒点/3×3/5×5 取样、容差/连续控件和原生轮廓绘制；`d773746` 让移动像素的撤销/重做同步恢复选区状态；`71e1135` 增加无像素事务时的会话选区 Undo/Redo；当前切片接入合并可见结果复制、全选、反选和选区羽化，沿用选区原位剪贴和非脏状态。选区不写 manifest、不标脏，剪切/粘贴/像素移动可撤销；带原生库和无原生库的固定窗口检查均通过，见[矩形/椭圆/魔棒/套索选区](evidence/production-rectangle-selection-m3.md)和[选区羽化证据](evidence/production-selection-feather-m3d.md)。这是 W-018/P-07 的基础选区切片；浮动选区事务、外部位图按默认或指针定位粘贴和受限跨工程图层拖放已通过，跨图层拖放和完整工具集仍未交付。
+- **选区复制为图层**：`bbca347` 增加正式窗口的“选区复制为图层”命令及 `ProjectSession.AddRasterLayer` 原位插入 API，`bc8ba5c` 让羽化选区按 Gray8 覆盖率缩放预乘 RGBA，后续切片让平面层先解析受限蒙版/剪贴可见结果并按非破坏变换渲染到文档坐标后再复制；非 Normal 源的 opacity/blendMode 保持为源外观语义，不烘焙进新默认 Normal 像素层；真实指针选区只把选中像素写入当前图层上方的新平面层，清除会话选区并产生一个工程历史步骤，Undo/Redo 与保存重开通过。源图层有组时按钮禁用并明确拒绝；选区完成后图层按钮会立即刷新状态。见[选区复制为图层证据](evidence/production-layer-via-copy-m3e.md)、[变换图层复制证据](evidence/production-layer-via-copy-transform-m3e.md)和[跨工程变换选区粘贴证据](evidence/production-cross-project-transformed-paste-m3f.md)。受限跨工程图层拖放和变换源选区粘贴已通过，其余复杂 Alpha 组合、复杂目标组层级和跨变换快照图层拖放仍待完成；带蒙版/剪贴关系的当前层复制已有受限 Headless 证据，仍需 Windows 实机和更复杂语义验收。
+- **同窗跨工程选区粘贴**：`d720166` 在窗口级剪贴来源上接通工程标签间的复制/粘贴；相同画布尺寸、目标未变换平面层时，粘贴以浮动选区开始，目标像素在提交前不变，取消不标脏；有效平面源的非恒等变换现会先按文档坐标归一，组源、失效变换快照、目标变换和尺寸不一致会禁用按钮并拒绝。见[同窗跨工程选区粘贴证据](evidence/production-cross-project-paste-m3e.md)和[跨工程变换选区粘贴证据](evidence/production-cross-project-transformed-paste-m3f.md)。系统剪贴板图片、图层列表拖放和指针定位粘贴已有受限切片，真实 Windows 剪贴板仍待验收。
+- **工程蒙版切片**：带全画布 Gray8 图层蒙版的 v8 平面工程现可通过正式窗口打开并编辑；支持蒙版启停、选区显示/隐藏、蒙版笔刷显示/隐藏、选区裁剪、反相、填白、填黑、模糊、受限平面剪贴蒙版合成、蒙版历史、保存重开及基础尺寸/90°旋转/图层翻转/位移同步，见[可编辑蒙版证据](evidence/production-editable-mask-m3b.md)、[剪贴蒙版证据](evidence/production-clipping-mask-m3b.md)、[画笔与蒙版增强证据](evidence/production-brush-mask-m3d.md)和[蒙版模糊证据](evidence/production-mask-blur-m3d.md)。`maskSourceID` 受限平面合成及剪贴关系 UI 已支持；浮动选区事务已接通；缓存预览以及 v8 pass-through 组工程已支持组蒙版加载、启停、替换、撤销和保存重开，受限缓存组支持水平翻转预览，可编辑组支持水平/垂直翻转、移动、以中心为基准缩放、90°旋转及启用组蒙版随组变换，多选列表支持连续同级建组，禁用组蒙版和带剪贴栈组蒙版可安全解组，变换组可通过显式烘焙解组，见[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)；调整层现支持独立栅格蒙版的启停、编辑和合成，剪贴关系、任意未覆盖复杂排序仍明确拒绝或未实现；笔刷压感输入链路已接通，但真实压感设备和平台行为仍待验收；复杂缓存工程继续沿用[只读蒙版预览证据](evidence/production-readonly-mask-m3.md)中的保护边界。
+- **缓存文字/变换只读预览**：带文字元数据、缓存 PNG、缺失字体名和基础旋转/镜像变换的工程可打开为只读缓存画面，导出保持文档尺寸，不静默替换字体；点/框文字编辑、字体选择/导入、IME、重新排版与工程写回仍未实现，见[缓存文字预览证据](evidence/production-cached-preview-m4.md)。
+- **画布与软/硬笔**：`869372f` 将 M1 CPU 软笔接入正式瓦片与临时合成，实际指针松开一步提交，取消不留历史；`77f6669` 增加硬圆笔模式并保留软笔默认行为；`59c233d` 增加真实指针 Shift 约束直线笔划。三组软笔临时/最终像素 exact，硬笔中心/边缘像素检查、旧快照/其他层、保存导出和约束直线回归保持。固定源码 Release/Headless 通过，见[画布与软笔](evidence/production-canvas-brush.md)和[画笔与蒙版增强证据](evidence/production-brush-mask-m3d.md)。样本实际为 259×257；`c9ede9a` 纠正早期 300×300 标注并加入尺寸断言，保留原始错误记录。当前完整合成/位图更新没有 S02/S05 结论，完整颜色、真实压感/新笔划、选区/蒙版/Windows 仍待验收。
+- **受限图层移动与翻转**：当前正式窗口对活动平面图层提供写入 manifest 的非破坏整数 X/Y 位移和水平/垂直翻转，中心缩放与 90° 旋转也沿用同一 transform；原始 PNG 与可编辑蒙版保持不变，选区/笔刷/蒙版会按 transform 映射回源栅格，缩放边界使用双线性覆盖采样，显式烘焙后才物化新像素并恢复像素工具，撤销/重做和保存重开通过，见[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)。图像/蒙版双轴下采样已加入面积覆盖，内部 3-lobe Lanczos 已有固定像素证据，但窗口滤波器选择、复杂缩放性能、Windows 输入仍待完成。
+- **受限文档尺寸与旋转**：正式窗口提供画布尺寸、图像尺寸以及顺/逆时针 90° 旋转命令；画布按左上原点裁剪/扩展，图像在上采样或混合轴缩放时按 RGBA 双线性、双轴缩小时按分离面积覆盖，旋转交换文档宽高并同步旋转所有已加载平面图层；三者均是单步像素事务并可撤销，见[受限平面文档尺寸](evidence/production-document-resize-m3.md)和[面积下采样证据](evidence/production-area-downsample-m3c.md)。窗口 Lanczos 选择、DPI 策略、Windows 输入和性能仍待完成。
+- **M3a 最小工作流**：`NewDocumentChecks` 已将新建、实际指针笔刷、图层结构/外观、画布和图像尺寸、顺/逆时针旋转、保存、重开及 PNG 导出串联；旋转后的 257×259 工程重开和导出尺寸均核对通过，见[M3a 工作流证据](evidence/production-m3a-workflow.md)。这是内部集成门，不关闭 Windows、组/蒙版、浮动选区、性能或 Alpha 交付条件。
+- **原生魔棒接口**：`9acf285` 接入现有 C 颜色选择与轮廓，使用固定宽度桥接及同 DLL 释放。10 个选择案例、5 个非法输入、孔洞/角接触轮廓及过密轮廓拒绝检查通过，见[原生选区边界](evidence/production-native-selection-m2.md)。尚未接入编辑器选区历史/组合/交互，也没有新增 Windows 实机结果。
+- **图像 IO 与损坏输入**：继 `2ddf1f6` 的 sRGB 预乘 RGBA、EXIF 1–8、透明 PNG 与显式背景 JPEG 后，`665d22d` 增加 PNG 块顺序、CRC 与文件尾完整性核验。15 个损坏容器反例由修复前 8 个错误接受变为全部拒绝；当前共 12 组参考输入、2 组 JPEG 背景、23 条拒绝路径通过。独立 Pillow 复核 PNG 最大差 0、JPEG 背景最大差 1，见[图像 IO](evidence/production-imaging-m2.md)及[PNG 完整性证据](evidence/production-imaging-png-integrity.md)。完整 ICC/CMYK/高位深、真实大图及平台覆盖仍待补。
+- **真实 Mac 应用往返**：`ed868d8` 使用实际 Mac reader、渲染器与编辑会话读回原像素、已编辑像素及 EXIF 6 三个工程，改名/撤销/重做/保存重开后逐像素与身份检查通过，Swift Testing 为 1 个参数化测试、3 个 case、0 失败/跳过。反向检查曾发现 Mac 补写默认字段导致三个工程只读；`1e41027` 已接受语义等价默认值并保留字段，对三份原始 Mac 输出再编辑像素/名称、保存、重开及导出通过，非默认混合/透明度与组层仍只读。见[真实 Mac 读回](evidence/production-workflow-mac-readback.md)及[反向工作流](evidence/production-workflow-m2.md)。**两个方向均在 macOS 执行，不是 Windows 实机往返结论。**
+- **安全保存**：`64f903c` 已拒绝打开后被外部改动的源 PNG，并保护尺寸不一致的受限工程。`f705bd6` / `94ec810` 修复损坏备份先移动、清理失败错误回滚、首次保存失败留下未校验正式目录三类缺陷；提交前三阶段故障及清理失败本地检查通过，见[保存故障测试](evidence/production-core-m2-save-faults.md)。`8bd7892` 新增 `SaveCrash.Checks`，在固定源码上终止 8 个真实保存子进程，父进程退出 0；逐瓦片检查旧版/新版恢复、临时目录与备份布局，源工程摘要保持不变，见[进程终止证据](evidence/production-save-process-kill-m2.md)。`4179c54` 在固定 `2e9bf74` 上增加六个多层元数据中断场景，合计 14 个子进程实际终止并通过；恢复同时核对层顺序/显隐/身份、合成及隐藏层资产摘要，见[多层保存中断](evidence/production-multilayer-save-crash.md)。这些检查仅在 macOS 执行，不证明多层像素编码中断、断电或持久化保证；底层写入、回滚本身失败、并发外部修改、恢复 UI 与 Windows 验证仍待完成。
+- **Windows 交叉发布**：`813d53e` 在 macOS arm64 用固定 SDK 生成 `win-x64` self-contained 便携目录并发布成功；2026-10-06 复核为 224 文件，入口 SHA-256 `e1bee01cef59a4cc0d1993ed322c8008abecc647ede0ae8c73772b9ddd4b30c4`，目录 `/tmp/compositor-win-x64-cross-transform-813d53e`。重复发布的 apphost 入口哈希可能变化，因此该哈希仅用于本次产物追踪，不是独立的可复现性门禁。目录不含 `compositor_native.dll`；未在 Windows 启动，不能当作 Windows 实机证据。
+- **已有 Windows 结果**：[r2](evidence/production-core-windows-r2/README.md) 受限读写链路已实跑。首次脚本因缺少 SDK 误报 PASS，失败原始日志保留，运行脚本已修正；随后固定 SDK 构建/运行成功，但取回转储未捕获原生标准输出、完整输出目录尚未取回。[r3](evidence/production-core-windows-r3/README.md) 未在 Windows 执行，且不含当前整合代码，后续统一使用 r4，不将 r2 结果外推到新版。
+- **r4 测试包已备好**：[统一 r4 源码包](evidence/production-core-windows-r4/README.md)固定 `1e41027`，130 文件、487030 字节，含三个检查项目、固定样本及 C 源码。全新解压后 macOS arm64 锁定恢复与三个 Release 构建均 0 警告/错误，三项检查和从包内 C 源编译的原生像素冒烟均退出 0。包的 SHA-256 和范围已归档；**已传输并在 Windows 核验包和脚本 SHA-256、解压至新目录；构建、运行及日志/产物取回待执行确认**。包准备就绪不代表 Windows 验收或 Alpha 交付。后续历史预算、多层/蒙版及进程终止检查须另固定版本进行 Windows 验证，不能由 r4 结果覆盖。
+
+### 当前正在实施的切片
+
+13 混合模式与图层透明度核心及正式窗口控件已提交，保持同一预览/导出规则并比较真实 Mac reader/export。M0 组/缩放样本须明确适配成受限平面样本，不能拿适配通过当作组/变换语义已支持。当前 13 case 中 5 个逐通道 exact，8 个 alpha 相同但最大 RGB 差 1；尚无批准的逐操作非零通道容差，需继续校准 premultiplied sRGB 混合与平台舍入，或取得模式特定容差决策，不得擅自放宽阈值。选区切片已扩展为矩形/椭圆/魔棒/套索替换、加选、减选、清除、从图层 Alpha 载入、原位剪贴和选中像素移动；全画布 Gray8 蒙版现已接入编辑、启停、选区显示/隐藏、蒙版笔刷显示/隐藏、压力传递、受限平面剪贴蒙版合成、保存重开和基础蒙版历史；v8 pass-through 组蒙版已接入受限编辑加载、启停、替换、撤销和保存重开，受限缓存组已接入水平翻转预览，可编辑平面图层已接入非破坏移动/翻转/中心缩放/90°旋转/任意角度旋转、选区/笔刷/蒙版坐标映射、缩放边界覆盖插值、同一变换快照浮动选区、蒙版同步和显式烘焙，可编辑组已接入水平/垂直翻转、移动、中心缩放、90°旋转、任意角度旋转和启用组蒙版随组变换，多选列表已接入连续同级建组，带剪贴栈组蒙版解组已通过保存重开回归，见[可编辑组蒙版证据](evidence/production-editable-group-mask-m3c.md)。下一步是剩余完整 Alpha 组合、复杂剪贴栈语义、真实压感设备及跨位置历史，再做 Windows 真机验收。
+
+软笔及新建/图层窗口的编译错误已修正，固定源码检查已通过；历史上使用旧二进制的 `attempt1` 仍被排除，不用它代替新证据。生产 S02/S05、设备与完整 M3a/Alpha 条件继续保留。
+
+### 原型验收中可沿用的证据
+
+| 路径 | 已有结果 | 不能据此关闭的项 |
+| --- | --- | --- |
+| 合成与工程 | Avalonia/Qt 同机各 20 合成样本及真实 Mac reader 读回已有通过记录 | 完整生产 v1–8 语义与编辑往返 |
+| Avalonia 原生输入 | 微软拼音、取消/提交/历史、反向选区、焦点、变换与系统 DPI 多轮独立复核；旧 v2 仅人工反馈的缺口已有后续直接记录 | 第二输入法、物理设备完整矩阵及正式应用输入验收 |
+| Qt 原生输入 | 选区取消丢文修复已复测；真实换行候选栏仍偏离，雅黑对照无输入事件 | 不能用“全部正常”的笼统人工反馈宣布 Qt 问题修复；Qt 不作为生产路线 |
+| AI | BiRefNet 候选已有 Windows 单图原生执行、活动取消/恢复及真实 Mac 工程读回 | 最终模型质量、权重分发、完整产品流程与性能预算 |
+| HEIC | Windows 解码原型已有可行性证据 | 完整真实照片/ICC/HDR、差分容差与发行处置 |
+| 部署及依赖 | 原型离线源码构建与身份核验已有 Windows 记录 | 生产锁文件、实际发布资产、MicroCom 来源对应、模型/HEIC 分发及干净机安装 |
+
+依据：[路线决定](m1-route-decision-20260929.md)、[输入及框架对照](m1-selection-review.md)、[9 月 29 日人工反馈边界](evidence/manual-round-20260929.md)、[生产依赖与发行阻断](m1-dependencies-20260929.md)。历史记录中的“尚未选型”按其记录日期理解，以 9 月 29 日决定为当前状态。
+
+### S02 / S05 最新有效结论
+
+更新 P95 ≤16.7 ms、提交 P95 ≤100 ms、专用内存目标 ≤2 GiB 的 S02 门槛未降低。早期直接绘制版本的 11.2461/25.1137 ms 是历史结果，已不是当前性能进度。
+
+| Windows 11 同机交替复测 | 空层更新 P95 | 已有层更新 P95 | 空层 / 已有层提交 P95 | 专用内存采样最大值 |
+| --- | --- | --- | --- | --- |
+| R9 首次 | 10.7406 ms | 11.2115 ms | 9.5076 / 11.8895 ms | 726,081,536 B |
+| R8 对照 | 10.7937 ms | 12.4174 ms | 9.3096 / 11.7944 ms | 874,749,952 B |
+| R9 再次 | 10.8541 ms | 10.9164 ms | 10.3401 / 9.7616 ms | 706,138,112 B |
+
+三轮固定重放数值与图像复核通过，见 [R9→R8→R9 证据](evidence/lifecycle-s05/r9-s02-aba-followup.md)。此前 R9 两轮超时保留，间歇性等待原因尚未确认。计时止于 canvas lease 释放，不是物理输入至屏幕呈现；采样高水位不等于连续峰值。此前 GPU 对照性能/像素不通过，实验代码已撤回，未改变 CPU 生产路线。
+
+[S05 v2 两轮前瞻复核](evidence/lifecycle-s05/resource-policy-v2/README.md)共 5,400 次编辑、108 张图像及两组七项资源检查通过；采样专用内存最大 592.26/544.53 MiB，最终旧文档弱引用为零。v2 修正判定参照区间，不能称为应用优化或泄漏修复。此结论只覆盖固定原型路径；正式应用须重做性能、资源和设备验收。
+
+### 接下来按顺序推进
+
+1. **取得 r4 Windows 实机证据（W-005/010–015）**：源码包/脚本已传输并核对 SHA-256，SDK 10.0.401 与离线依赖已确认；完成本轮执行确认后，锁定恢复、Release 构建、执行 Core/Imaging/Workflow 三项检查及 Windows 原生 DLL 冒烟。验收须包含退出码、完整原始日志、工程/图片输出及独立像素复核，不能沿用 r2 或本地 Mac 结果。
+2. **补齐 M2 核心与保存保证（W-011–015）**：逐层像素、预览、结构、新建/选层及平面外观事务已提交并本地通过；v8 pass-through 组蒙版的受限编辑加载已接通。下一步由真实 Mac 打开新像素、复制、空工程、新建、笔刷和非默认外观输出，核对身份、活动层、像素、DPI、历史及保存重开；继续校准 8 个非 exact 模式，保留 exact 门槛。扩展多层像素编码、结构、空工程和未保存新文档的保存中断检查，验证仅有完整旧版或新版可恢复。随后补组结构/变换、完整 Alpha 组合及 v1–8 语义、剩余保存故障、恢复 UI、真实图像与内存压力，并另固定新版做 Windows 验证。受限组编辑是过渡范围，不是完整兼容目标。
+3. **继续 M3 工具与正式 Windows 集成（W-016–022）**：基础新建/图层/视图/软/硬笔、100%/像素网格、矩形/椭圆/魔棒/套索选区组合、从图层 Alpha 载入、魔棒参数/轮廓、原位剪贴、选中像素移动及其选区状态撤销窗口检查，以及 M3a 新建→编辑→保存→重开→导出链路已通过本地检查；平面图层非破坏变换、选区/笔刷/蒙版坐标映射、面积下采样和显式烘焙已通过本地窗口回归；补组结构编辑边界、完整颜色与真实压感设备验收、跨变换快照剪贴策略、窗口 Lanczos 选择、复杂缩放性能、标签及完整核心工作流。每项以真实指针/按钮、取消/单步历史和工程往返验证；在正式应用重测 Windows 输入/DPI、首次保存/文件对话框、S02/S05，并把 13 模式对照扩展到 Windows 运行环境。下一步按原定 Alpha 范围完成 M3b/W-022；本地功能检查不能关闭 Windows 或性能门槛。
+4. **按原范围完成 M4–M7**：文字/字体、高级工具、完整 IO/AI/Beta、安装签名更新；补齐设备、差分及[发行阻断](m1-dependencies-20260929.md)。全量验收通过才宣告 Windows 1.0 完成。
+
+下文 M0–M7 与 W-001–040 保持完整。早期[后续任务清单](windows11-next-tasks.md)中“尚未选型”等历史状态以本节和路线决定为准，不据原型完成项计算产品完成百分比。
+
+## 2. 阶段总览
+
+| 阶段 | 可演示交付物 | 进入条件 | 退出条件 |
+| --- | --- | --- | --- |
+| M0 | 可运行的 Mac 回归、功能/状态/合成规则、真实 v1–8 样本和参考导出 | 当前源码、Mac 参考环境 | 测试目标可编译且相关回归通过；D-01/D-04/D-11 已记录，Windows 参考环境可用 |
+| M1 | Qt 和 Avalonia 同场景原型、选型报告 | M0 的数据与参考机 | 至少一个方案通过四条代表路径，D-02/D-03 可行性/D-05/D-06/D-07 记录完毕；模型/HEIC 无未处置的可行性阻断 |
+| M2 | 无 UI 也能加载、处理、保存、导出的核心 | 生产路线选定 | 基础格式、安全保存和像素路径测试通过；未支持语义有明确拒绝策略 |
+| M3 | M3a 内部集成版 → M3b 核心合成 Alpha | M2 | 核心 PRD 功能可用，受限工程不能误保存；V-01/02/03/04/05/07/08/10 的 Alpha 项通过 |
+| M4 | 文本编辑、中文输入、字体导入 | M3；文本可行性已在 M1 验证 | P-12/13 与 V-06 通过；v8 文字往返不丢元数据 |
+| M5 | 修饰、调色、滤镜、形状及性能结果 | M3，可与 M4 的独立任务交错 | P-06/07/08/09/10/11 全量完成，V-03/04/05/08 通过；D-03 已决定 |
+| M6 | 基线完整的 Beta 候选安装包 | M4/M5 | P-01 至 P-17、P-19 完整通过，P-18 基础安装通过；V-09 和完整工程互读通过 |
+| M7 | 签名安装包、更新通道、用户说明与发布记录 | Beta 功能冻结 | V-01 至 V-12 发布项全部通过，阻断缺陷为零 |
+
+推荐串行主路径：M0 → M1 → M2 → M3 → M4 → M5 → M6 → M7。有足够人员时可交错处理 M4 与 M5，或者提前准备模型样本和许可证清单；不能跳过依赖的验收。
+
+## 3. M0：冻结基线与样本
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-001 | 先修 LayerTests/SmartEditTests 的两类接口漂移并跑相关 Mac 回归；再盘点工具/菜单/格式，登记合成规则、资产身份和编辑状态转换表，明确 v8 文本缩放/栅格化 | 无；已有审计证据 | P-01–19；测试编译通过且无跳过冒充成功；源码/测试/样本相互可定位，D-11 所需行为证据与差异表齐备 |
+| W-002 | 制作有来源说明的工程样本和 Mac 参考 PNG；覆盖版本、13 混合、组/剪贴/调整/形状/文本；旧版本样本必须符合其 schema | W-001 | V-01/03/06；不能只把 v8 manifest.version 改小冒充旧版本 |
+| W-003 | 确认首发 OS/架构、工程容器与 Alpha/Beta 范围；登记许可偏好、语言经验、签名资源等未知项，决定文本缩放重绘/缺字体策略 | W-001 | D-01/D-04/D-11；其他决定有负责人和最晚阶段，无需一开始确定全部 |
+| W-004 | 准备 Windows 参考机及干净虚拟机，记录硬件/OS/驱动；建立性能场景与报告模板 | W-003 | V-08/10/11；能复现同一 Release 条件，虚拟机不充当 GPU 性能证明 |
+
+交付：基线回归记录、功能/状态/合成规则清单、固定样本目录、参考输出、决策记录、设备清单。当前版本读取测试的空文档样本不能替代历史功能样本；旧性能文档的通过数不能替代本提交测试结果。若暂时没有 Windows 设备，样本和文档可继续，Windows 原型与性能验收标为未执行，不以 Mac 交叉编译代替。
+
+## 4. M1：最小技术原型与选型
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-005 | 建立仅供比较的构建目录与固定版本清单，明确 Qt/SDK、.NET/包及 C 编译环境；记录干净机器步骤 | W-004 | V-11；两个原型可从零构建，无生产目录大规模铺设 |
+| W-006 | Windows 编译/链接 8 个 C 文件；分别验证 C++ linkage 与 DLL/PInvoke、导出和分配方释放；逐函数验证 packed coverage/stride、预乘 RGBA、long/size_t | W-002/005 | V-03/04；两类桥接实际运行，确定性样本与 Mac 比较；不把已完成的 Mac C 编译记为本项通过 |
+| W-007 | Qt 原型：小型半透明/剪贴/调整合成；完整软笔→局部提交→下一笔→undo/导出；变换框文字/IME/共享布局；真实 JSON/PNG 最小修改往返 | W-002/005/006 | V-01/03/04/05/06/08/10；四条路径有输出/内存/耗时记录，展示与离屏规则一致；不铺全量 UI |
+| W-008 | Avalonia 原型：与 W-007 相同四条路径；额外记录 PInvoke、像素所有权/释放、GC 与绘制/文本线程关系 | W-002/005/006 | V-01/03/04/05/06/08/10；同机同样本同参考算法比较，不用不同设置制造优势 |
+| W-009 | 对照必需能力、延迟、内存、部署和维护成本选型；确定笔刷参考语义及 CPU/GPU 可行性、性能/文字策略；筛查一条真实 AI 模型推理和 HEIC 解码/分发路径 | W-007/008；可行性筛查可与原型交错 | D-02/03/05/06/07；必需路径失败则不能放行；筛查不冒充 W-031/032 全量完成 |
+
+范围约束：不做完整工具栏、全部滤镜、漂亮主题或正式安装器；不提前引入第二个 GPU 后端。M1 结束时只有一个生产方向。CPU 路径若不满足冻结门槛，先验证一个 GPU 路径或明确范围/门槛变更，再通过选型；不把底座是否可行拖到 M5。AI/HEIC 筛查只证明候选路径存在且可用，质量/性能与最终包验收保留在 M6。
+
+## 5. M2：文档、栅格与读写基础
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-010 | 建立选中路线的 Windows 生产入口、依赖锁定和 Release CI；保留 Mac 工程结构 | W-009 | V-11；干净构建产出可执行文件，公共文件变更触发对应 Mac 检查 |
+| W-011 | 实现文档、图层 ID/层级、不可变资产身份、编辑事务、保存点和撤销/重做；依状态表迁移行为，UI 状态与文档状态分开 | W-010 | P-01/05/15；V-01/05；取消无历史，修改后脏状态正确 |
+| W-012 | 实现 RGBA/Gray 缓冲、瓦片快照与延迟物化、共享离屏/画布合成与脏区；验证 M1 的剪贴/调整顺序，接入 C 算法 | W-006/011 | P-04/05/08；V-03/04；历史不受新笔划修改，格式转换有测试 |
+| W-013 | 实现 manifest/资源 reader，v1–8 分派与校验；记录当前不支持的语义并阻止其编辑保存 | W-002/011 | P-03；V-01；缺失资源/循环层级/未来版本失败不破坏当前文档 |
+| W-014 | 实现快照保存、同卷临时目录、替换失败恢复；首版保存时阻止重叠编辑并正确设置保存点 | W-013 | P-03/15/19；V-02；逐阶段中断后旧版或完整新版可恢复 |
+| W-015 | 实现 PNG/JPEG 导入、EXIF/透明度基础处理和 PNG/JPEG 导出，明确 ICC 待补部分 | W-012/014 | P-02/16；V-03/07；导出不标记工程已保存，错误不留下半成品正式文件 |
+
+交付：可用无窗口测试入口复现加载、合成、保存和导出；不是只启动一个空白窗口。此阶段新增核心，不能按“接入已有跨平台核心”估时；将 M1 的最小 Mac↔Windows 往返实验扩展为生产路径，后续阶段持续增加覆盖。
+
+## 6. M3：核心工作流与 Alpha
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-016 | 主窗口、项目标签、工具区、图层区、状态区、对话框、快捷键与 DPI 坐标 | W-011/015 | P-01/04/17/19；V-05/10；输入框不触发工具单键，切换项目无污染 |
+| W-017 | 图层/组增删复制排序、显隐、透明度、13 混合模式与合并；预留的功能直接按实际需求实现 | W-012/016 | P-05；V-03/05；组合样本对照，不只验证普通模式 |
+| W-018 | 矩形/椭圆选区、套索、魔棒、浮动选区与像素复制移动；先迁移已有行为 | W-006/016/017 | P-07；V-04/05；坐标/目标图层/取消/撤销正确 |
+| W-019 | 像素笔刷、软硬覆盖、笔尾、局部瓦片提交；图层/组/剪贴蒙版、蒙版启停与基本编辑 | W-012/017/018 | P-08；V-03/04/05；软笔交叉无接缝，提交后立即下一笔与撤销正确 |
+| W-020 | 基础移动/缩放/旋转/翻转、裁剪、画布/图像尺寸；补齐对选区和蒙版的影响 | W-017/018/019 | P-06；V-03/04/05；非破坏变换不重采样原图，尺寸变化可撤销 |
+| W-021 | 串联新建→编辑→保存→重开→导出；统一活跃操作提交/取消及 Alpha 不支持内容的保护 | W-016–020 | P-01–08/15–17/19 的 Alpha 项；V-01/02/05；不能从不完整渲染覆盖原工程 |
+| W-022 | 打 Alpha 便携包，执行 Alpha 验收；列出实际支持、禁用项和已知缺陷 | W-021 | 记录 V-01/02/03/04/05/07/08/10；核心数据丢失或崩溃未解决不通过 |
+
+阶段内部拆分（不改变 Alpha 产品范围）：M3a 先串联已完成工具的最小编辑/历史/读写路径，作为内部集成检查；M3b 完成 W-016–021 原定 Alpha 行为及组合回归后，才执行 W-022。M3a 不对外宣称 Alpha 已完成。
+
+Alpha 可演示场景：两张素材、一个组、一个蒙版、软笔修饰、变换、工程重开和 PNG/JPEG 导出。它不宣称完整 v8 功能等价。
+
+## 7. M4：文本与字体
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-023 | 基于 M1 与 D-11 实现统一文本编辑/布局/栅格；点/框文本、样式、IME、缩放重绘策略与旋转/镜像命中 | W-009/021 | P-12；V-06；复现 TextLayoutTests/TextToolTests 的关键意图 |
+| W-024 | 接入内置思源字体，用户字体目录、OTF/TTF/TTC 导入、去重/冲突/损坏校验和重启恢复 | W-023 | P-13；V-06/12；保留许可证，无管理员权限可用 |
+| W-025 | v8 文本读写、缓存保真、缺失字体提示、明确替换、栅格化与撤销；检查文字层效果合成 | W-023/024/014 | P-03/12/13/15；V-01/03/05/06；打开不自动换字形，提交后导出一致 |
+
+交付：中英混排、Emoji、框文本、字体缺失和导入字体各一份录制流程与工程往返记录。跨平台重新排版差异必须记录，不能通过栅格化删除元数据来“消除差异”。
+
+### M4 / W-024 增量（2026-10-06）
+
+`FontLibrary.EnumerateFaces` 通过 Skia 的 face index 逐项枚举 TTC/字体文件；正式窗口在多 face 文件上显示明确的 face-index 选择对话框，导入前可取消，所选 index 才会进入既有校验、冲突、损坏和去重路径，并以 `family / face N` token 写回文字字体身份。Workflow 检查覆盖索引 0/1、token 和保存重开；App Headless 覆盖取消不改变字体库、选择 face 1 和 catalog token。Windows production core 的 [run 37427881406](https://github.com/sheldum03/Compositor/actions/runs/37427881406) 与 PR run [37427886072](https://github.com/sheldum03/Compositor/actions/runs/37427886072) 五项均通过。真实 Windows 实机文件对话框、IME、候选窗、DPI 和完整用户字体重启验收仍未完成。
+
+`FontLibrary.Restore` 现在返回 `FontRecoveryReport`；失效 catalog entry 会继续清理，同时按文件名和稳定原因报告文件缺失、哈希不匹配、字体面不可用或重复条目。正式窗口在干净启动时保持原文案，有恢复问题时显示清理数量和逐项诊断。Workflow 覆盖缺失/损坏/哈希不匹配，App 覆盖启动状态文字；Windows production core 的 [run 37430507670](https://github.com/sheldum03/Compositor/actions/runs/37430507670) 与 PR run [37430512440](https://github.com/sheldum03/Compositor/actions/runs/37430512440) 五项均通过。真实 Windows 实机、IME、候选窗和完整重新排版仍未完成。
+
+`5cad6c8` 开放根组可见结果的选区复制，`855d4f7` 又开放嵌套组沿祖先蒙版/外观/变换的可见结果复制：渲染复用正式缓存组路径，复制结果作为根级平面层插入最外层组子树之后。Workflow/App Headless 分别覆盖逐像素渲染、保存重开和正式窗口按钮/选区裁切；证据见[根组与嵌套组可见结果复制证据](evidence/production-group-visible-copy-m3g-20261006.md)；对应 push/PR production core 为 [37438016040](https://github.com/sheldum03/Compositor/actions/runs/37438016040) / [37438022988](https://github.com/sheldum03/Compositor/actions/runs/37438022988)。组内单层/剪贴栈、跨父级复杂关系、真实 Windows 实机、IME、完整文字重排与 M5–M7 仍未完成。
+
+`ImageProjectWorkflow` 与正式窗口现允许受限组内平面层“选区复制为图层”：在父组及祖先组变换恒等、源层自身变换恒等且不属于剪贴栈时，复制像素作为同父组兄弟插入；源层栅格蒙版会解析为像素，启用祖先组蒙版、组透明度和组混合模式继续由原层级应用。Workflow/App Headless 已覆盖启用组蒙版、按钮状态、选区内外像素、父级、保存重开；证据见[组内平面层选区复制证据](evidence/production-grouped-leaf-via-copy-m3g.md)。受限跨父级栅格剪贴可见结果复制、外部源组外观、四层、五层、六层、七层、八层、九层及十层外部栅格剪贴链已通过 Workflow/App Headless；循环/缺失 `maskSourceID` 已由 `920a379` 的 Workflow reader 回归拒绝；十一层以上剪贴源链、复杂关系和真实 Windows 交互仍未完成。
+
+`2b35c54` 将跨工程复制扩展到平面与恒等同父组的间断栅格剪贴链：复制时忽略无关兄弟，重映射复制栈内 ID 与 `maskSourceID`，并在保存重开后保持像素和关系；证据见[跨工程间断剪贴链复制证据](evidence/production-cross-project-discontinuous-clipping-copy-m3f.md)。`3d8087c` 补齐正式窗口 `Ctrl+X`，`bbaf60b` 补齐 `Ctrl+Shift+Z` 重做和 `Ctrl+Shift+S` 另存为入口；`a25f771` 补齐受限跨父组栅格剪贴可见结果复制，`057107a` 又补齐外部源组变换、组蒙版、透明度和混合模式的文档坐标合成，`35c38e6` 再验证两级外部栅格剪贴链，`66d164f` 补三层外部栅格剪贴链的正式 App Headless 覆盖，`55896db` 补四层外部栅格剪贴链的 Workflow/App Headless 覆盖，`aa0480a` 补五层外部栅格剪贴链的 Workflow/App Headless 覆盖，`d5c12aa` 补六层外部栅格剪贴链验证，`0f73ab1` 补七层外部栅格剪贴链验证；`a96566b` 补八层外部栅格剪贴链验证；`a305e20` 补九层外部栅格剪贴链验证；`09f6373` 补十层外部栅格剪贴链验证；`920a379` 补缺失源和循环 `maskSourceID` 的 Workflow reader 拒绝回归；Workflow/App Headless 检查覆盖按钮启用、根级插入、关系、选区像素和保存重开，见[快捷键证据](evidence/production-shortcut-undo-saveas-m3a-20261006.md)与[跨父组复制证据](evidence/production-cross-parent-grouped-copy-m3g-20261006.md)。十一层以上跨父级剪贴源链、复杂跨父组关系、复杂剪贴栈合并和 Windows 实机仍未完成。
+
+`8be1251` 将组内可见结果复制扩展到同一父组的连续多级栅格剪贴链：沿 `maskSourceID` 向前解析源链，要求源位于前置层且所有节点连续、同父、无缺失资产；复制层插入完整链之后，原链的关系和父组蒙版保持 live。Workflow/App Headless 均覆盖三层链、透明度/混合模式、选区裁切、链关系、栈尾插入和保存重开；证据见[多级组内剪贴链复制证据](evidence/production-nested-grouped-clipping-stack-via-copy-m3g.md)，实现 push [run 37449036031](https://github.com/sheldum03/Compositor/actions/runs/37449036031) 与 PR [run 37449040610](https://github.com/sheldum03/Compositor/actions/runs/37449040610) 五项均通过。十一层以上跨父级剪贴源链、复杂跨父组关系和复杂 Alpha 仍保持拒绝. 间断链证据见[同父组间断剪贴链复制证据](evidence/production-discontinuous-grouped-clipping-stack-via-copy-m3g.md)，实现 push [run 37452219188](https://github.com/sheldum03/Compositor/actions/runs/37452219188) 与 PR [run 37452224610](https://github.com/sheldum03/Compositor/actions/runs/37452224610) 五项均通过。
+
+## 8. M5：高级编辑与性能
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-026 | 调整层、色相饱和度、色阶/自动色阶、曲线、曝光、渐变映射、颗粒和反相 | W-017/019 | P-10；V-03/05；预览取消/提交和剪贴组合规则正确 |
+| W-027 | 高斯/运动模糊、噪声、镜头校正；区域扩展与全分辨率导出 | W-012/026 | P-10；V-03/07；透明边缘、模糊半径和选区行为校准 |
+| W-028 | 渐变、形状参数/缓存、调色板和吸管；形状元数据与重绘 | W-017/020 | P-11；V-01/03/05；变换/保存后形状仍保留可编辑参数 |
+| W-029 | 修复/仿制、模糊/涂抹/液化、内容填充；分别补齐自由扭曲、多层变换、吸附、独立蒙版、选区和跨项目拖放 | W-018–020 | P-05–09；V-03/04/05；逐项关闭 W-001 功能差异，不新增基线外工具 |
+| W-030 | 沿 M1 已验证的数据通路重放全量性能场景、定位瓶颈；必要时完善已选 GPU coverage，按算法契约比较结果 | W-022/026–029 | D-03；V-03/04/08；含上传/同步/回读，不以 kernel 数据替代交互性能 |
+
+W-029 是四组独立验收包：①修复/仿制/内容填充；②模糊/涂抹/液化；③变换/选区/独立蒙版；④跨项目复制/拖放。它们不等长，不可合称一个小任务估时。
+
+如果 CPU 已满足门槛，可不引入独立 GPU 框架；记录测量依据。若不满足且优化未通过，则阶段未完成，不能因功能按钮齐全结束性能工作。
+
+## 9. M6：完整兼容、IO、AI 与 Beta
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-031 | TIFF/HEIC 导入、ICC 与完整 EXIF/DPI、JPEG 预览；裁剪依赖并记录分发许可 | W-015/027 | P-02/16；V-07/12；干净机实际解码成功，色彩样本通过 |
+| W-032 | 对比候选模型；记录权重许可/hash、预后处理、效果、内存和首推/热推时间，决定模型/CPU/GPU EP | W-002/004 | D-08；V-09/12；可先行做研究，但选用依赖实机证据 |
+| W-033 | 去背景蒙版、缓存、细化参数、模型安装/下载/校验、进度和取消；不上传图片 | W-019/032 | P-14/19；V-05/09；取消不改文档，模型装好后离线可用 |
+| W-034 | 全功能 v1–8 双向工程往返；复核文字/形状/蒙版/调整层、未知版本和限额；消除 Alpha 编辑限制 | W-025/026–029/031/033 | P-03；V-01/02/03/06/07；允许编辑前必须具备全部基线语义 |
+| W-035 | 选择发行/更新工具，制作 Beta 候选安装包；完整用户流程和基础安装测试，冻结功能 | W-030/034 | D-09；P-01–19 的 Beta 项；V-01–10/12，V-11 基础项 |
+
+Beta 退出条件包括真实 Windows 上完成目标用户流程以及 Mac 重开 Windows 保存工程。模型或 HEIC 缺项不能无说明地从基线验收表删除。
+
+## 10. M7：稳定化、安装与更新发布
+
+| 任务 | 工作与产出 | 依赖 | 验证/关联 |
+| --- | --- | --- | --- |
+| W-036 | 干净系统安装器、用户权限/路径、运行库、图标/版本、卸载与用户数据保留 | W-035 | P-18；V-11；无开发工具环境可运行、离线安装依赖齐备 |
+| W-037 | 实现唯一更新通路、包校验、正在编辑时的处理、失败恢复和测试更新源 | W-036 | P-18/19；V-02/11；旧→新成功，坏包/断网/文件锁定不破坏可启动版本 |
+| W-038 | 执行最终设备矩阵、连续编辑、内存/显存、DPI/IME/数位笔基础输入、打开损坏工程与保存中断测试 | W-036/037 | V-01–11；关键缺陷有复现、修复和回归证据 |
+| W-039 | 用户入门/快捷键/工程迁移/字体模型说明、第三方清单、版本说明；准备代码签名和发布配置 | W-035/036 | V-12；核对实际包中的 DLL/字体/模型，签名材料不入仓库 |
+| W-040 | 对候选提交重新构建、签名、安装/更新冒烟；核对发布门槛并发布 1.0 | W-038/039 | V-01–12；包 hash、提交、依赖、测试记录一致；发布动作届时按实际授权执行 |
+
+## 11. 任务顺序与可并行范围
+
+必须优先：W-001 的 Mac 测试修复/回归 → W-001 规则固化 → W-002/003 → W-004 → W-005/006 → W-007/008 → W-009。没有选型报告就不开始大面积 UI 改写；没有安全保存就不交付给真实用户编辑重要工程。
+
+若人手允许，W-007 与 W-008 可分别实现；W-023–025 与 W-026–029 可在共同 Editor/Raster 接口冻结后交错；W-032 的样本研究可提前。此处是人员安排建议，不表示当前已启动并行研发或自动创建任务。
+
+## 12. 角色、估算与风险
+
+角色建议：产品负责人维护范围与体验；桌面负责人维护 UI/输入/安装；图像负责人维护合成/算法/性能；验证负责人维护样本和发布证据。一个人可以兼任多个角色，当前未指定人员。
+
+M1 前不承诺日期。M1 后用四条代表路径的实测成本分别估算数据/文件、渲染/像素、交互/事务、文本/字体、发行/依赖五类剩余任务，记录预计人日、负责人、依赖、风险缓冲与里程碑日期；每周只用可运行产物和测试通过情况汇报进度，不用文件数或代码行数计算完成比例。
+
+| 风险 | 触发信号 | 应对与验收 |
+| --- | --- | --- |
+| Mac 参考不可信 | 测试目标编译失败、旧通过数与当前提交不符 | W-001 先恢复基线；记录修复提交再生成参考图 |
+| UI 选型不适合文本/笔刷 | IME、布局或交互门槛失败 | M1 暴露并复测，先决定框架再铺 UI |
+| 跨平台结果不一致 | 蒙版边缘/混合/调整层差异 | 保存参考图和分项 diff，校准算子顺序及颜色/alpha |
+| 文件格式漂移 | Mac 新增字段或版本 | 固定基线；每次同步有差异表和往返测试，不自动追随主线 |
+| 字体重排破坏外观 | 打开即变化，或缩放时缺字体 fallback 覆盖缓存 | 打开使用保存栅格；缩放规则由 D-11 决定，明确编辑/栅格化可撤销 |
+| GPU 数据交接过重 | kernel 快但交互仍慢 | 测整条通路，优先减少复制；允许 CPU 路线通过验收 |
+| AI 权重或算子不可用 | 授权不明、CPU 内存过大、GPU fallback | 换经验证的权重/导出方式，保留可解释的 CPU 路径 |
+| 发布依赖不齐 | 开发机正常、干净机启动/解码失败 | Beta 即打包验证，M7 才做最终签名发行 |
+
+## 13. 每项任务的完成定义
+
+任务只有在代码、对应需求行为、必要测试和构建都通过后才标完成。记录：W 编号、P 编号、提交、测试命令/环境、V 编号结果、性能数据（适用时）和剩余限制。文档任务以内容/链接/基线一致性检查为准，不为 Markdown 新建无意义测试框架。
+
+每个 PR 控制在一个可审查目标；不顺手整理 Mac 代码或改无关格式。公共 C、格式和字体变更必须验证两端，未具备一端环境时明确列为未验证，不能假定通过。

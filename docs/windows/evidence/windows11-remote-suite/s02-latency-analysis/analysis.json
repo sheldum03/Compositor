@@ -1,0 +1,116 @@
+{
+  "source": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/s02-visible-20260921-190545/results/report.json",
+  "sourceSha256": "d858c477eaf7289921d15d34a00f11774dde927f871750750a0ecf5ac3628c76",
+  "method": "nearest-rank percentiles; warmup and pointer-down excluded; no new benchmark",
+  "scope": "CPU append and paint are wall-clock sections, not sampled CPU stacks. Residual includes scheduling, canvas acquisition/release and other uninstrumented elapsed time; not pure queue time. Individual P95 values must not be summed.",
+  "performanceAccepted": false,
+  "scenarios": [
+    {
+      "name": "empty",
+      "frames": 3600,
+      "appendMilliseconds": {
+        "mean": 9.553394277777778,
+        "p50": 9.1617,
+        "p95": 12.2344,
+        "p99": 12.7741,
+        "maximum": 15.8562
+      },
+      "paintMilliseconds": {
+        "mean": 4.9007264444444445,
+        "p50": 4.8885,
+        "p95": 6.2553,
+        "p99": 6.9392,
+        "maximum": 9.3798
+      },
+      "appendPlusPaintMilliseconds": {
+        "mean": 14.454120722222223,
+        "p50": 14.2268,
+        "p95": 17.8912,
+        "p99": 18.8456,
+        "maximum": 21.3367
+      },
+      "totalMilliseconds": {
+        "mean": 25.39031561111111,
+        "p50": 25.1337,
+        "p95": 26.9577,
+        "p99": 40.8284,
+        "maximum": 43.4728
+      },
+      "residualMilliseconds": {
+        "mean": 10.936194888888888,
+        "p50": 10.869900000000001,
+        "p95": 13.904899999999998,
+        "p99": 26.652900000000002,
+        "maximum": 30.5861
+      },
+      "framesOver16_7Milliseconds": 3570,
+      "appendPlusPaintOver16_7Milliseconds": 429,
+      "meanNativePixelCopyMiBPerFrame": 15.85,
+      "gcCollectionsAcrossMeasuredTrials": [
+        253,
+        70,
+        27
+      ],
+      "renderThreadIds": [
+        5,
+        7,
+        10,
+        11
+      ]
+    },
+    {
+      "name": "existing",
+      "frames": 3600,
+      "appendMilliseconds": {
+        "mean": 9.583742027777777,
+        "p50": 9.154,
+        "p95": 12.2656,
+        "p99": 12.8945,
+        "maximum": 14.5982
+      },
+      "paintMilliseconds": {
+        "mean": 7.417774722222222,
+        "p50": 7.4629,
+        "p95": 8.3527,
+        "p99": 9.0356,
+        "maximum": 12.6202
+      },
+      "appendPlusPaintMilliseconds": {
+        "mean": 17.00151675,
+        "p50": 16.6918,
+        "p95": 19.9529,
+        "p99": 20.7555,
+        "maximum": 26.5183
+      },
+      "totalMilliseconds": {
+        "mean": 25.608474333333334,
+        "p50": 25.1575,
+        "p95": 27.4426,
+        "p99": 40.6931,
+        "maximum": 42.9831
+      },
+      "residualMilliseconds": {
+        "mean": 8.606957583333333,
+        "p50": 8.421499999999998,
+        "p95": 12.564699999999998,
+        "p99": 24.182399999999998,
+        "maximum": 27.782099999999996
+      },
+      "framesOver16_7Milliseconds": 3598,
+      "appendPlusPaintOver16_7Milliseconds": 1780,
+      "meanNativePixelCopyMiBPerFrame": 36.975,
+      "gcCollectionsAcrossMeasuredTrials": [
+        254,
+        71,
+        25
+      ],
+      "renderThreadIds": [
+        3,
+        5,
+        7,
+        10,
+        11
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "sourceCommit": "a869a69a02dd4c78c483a31dc0165412d273e5c9",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "utc": "2026-09-23T10:59:14.837867+00:00",
+  "manifestSha256": "e0d706f49237009d5b1ad340c9101bcf822cb89d35189910c5614a9cad379134",
+  "processes": [
+    {
+      "name": "runtime",
+      "pid": 47528,
+      "arguments": [
+        "--info"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "window-check",
+      "pid": 40744,
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\app\\Regression.dll",
+        "--window-matrix",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\remote-suite\\fixtures",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\window-check",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947\\compositor_native.dll"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "selection",
+      "pid": 2580,
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\app\\Regression.dll",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\selection"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "ime-cancel",
+      "pid": 41280,
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\app\\Regression.dll",
+        "--ime-cancel"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "ime-tabs",
+      "pid": 41484,
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\app\\Regression.dll",
+        "--ime-tabs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "native",
+      "pid": 40532,
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\app\\Compositor.AvaloniaProbe.dll",
+        "--window",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\remote-suite\\fixtures",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-185914\\native-20260923-185914",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947\\compositor_native.dll"
+      ],
+      "exitCode": null
+    }
+  ],
+  "nativeImeAccepted": false,
+  "systemDpiAccepted": false,
+  "dllSha256": "55909cba56a66a4a2d38eafa28351d2739a3882aadcd39c747d473a6e970aa1a"
+}

@@ -1,0 +1,53 @@
+{
+  "R6": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-idle-r6-evidence/raw/run/report.json",
+    "elapsedMilliseconds": 415455.2785,
+    "runtime": ".NET 10.0.12",
+    "serverGc": false,
+    "renderScaling": 1.5,
+    "postClosePrivateMiB": [
+      412.67578125,
+      420.7578125,
+      369.0625,
+      879.78515625,
+      1112.6171875,
+      451.5390625,
+      377.8828125,
+      1003.6875,
+      1077.375
+    ],
+    "idleInitialPrivateMiB": 1077.375,
+    "idleFinalPrivateMiB": 1075.4921875,
+    "finalPrivateMiB": 967.5,
+    "finalManagedMiB": 3.239898681640625,
+    "finalCommittedMiB": 698.16796875,
+    "totalAllocatedBeforeLastTwoReports": 6063086552,
+    "retainedDocuments": 0
+  },
+  "R7": {
+    "sourceReport": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-report-r7-evidence/raw/run/report.json",
+    "elapsedMilliseconds": 414991.919,
+    "runtime": ".NET 10.0.12",
+    "serverGc": false,
+    "renderScaling": 1.5,
+    "postClosePrivateMiB": [
+      386.3125,
+      336.98828125,
+      768.05859375,
+      1187.04296875,
+      354.25,
+      770.73828125,
+      1189.11328125,
+      353.80078125,
+      770.9375
+    ],
+    "idleInitialPrivateMiB": 770.9375,
+    "idleFinalPrivateMiB": 768.52734375,
+    "finalPrivateMiB": 676.48828125,
+    "finalManagedMiB": 3.2146987915039062,
+    "finalCommittedMiB": 380.9453125,
+    "totalAllocatedBeforeLastTwoReports": 4586354672,
+    "retainedDocuments": 0
+  },
+  "scope": "Same Windows machine and nine-round + 60-second idle workload; one run per version. Probe report allocation change, no production resource acceptance."
+}

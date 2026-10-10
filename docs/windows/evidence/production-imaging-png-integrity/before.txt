@@ -1,0 +1,3 @@
+Unhandled exception. System.InvalidOperationException: Damaged PNG accepted: missing-iend.png, truncated-iend.png, extra-tail.png, bad-ancillary-crc.png, invalid-chunk-name.png, nonempty-iend.png, invalid-plte.png, late-plte.png
+   at PngIntegrityChecks.Run(String fixtures, String output) in /Users/admin/.codex/worktrees/192b/Compositor/windows/Compositor.Imaging.Checks/PngIntegrityChecks.cs:line 21
+   at Program.<Main>$(String[] args) in /Users/admin/.codex/worktrees/192b/Compositor/windows/Compositor.Imaging.Checks/Program.cs:line 35

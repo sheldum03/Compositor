@@ -1,0 +1,9 @@
+PASS: replace-Encoding
+PASS: replace-Prepared
+PASS: replace-OldMoved
+PASS: replace-NewMoved
+PASS: replace-BackupCleanup
+PASS: first-Encoding
+PASS: first-Prepared
+PASS: first-NewMoved
+PASS: eight real child-process save interruptions, pixel recovery, backup protection and source integrity

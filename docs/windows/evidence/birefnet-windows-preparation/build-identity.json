@@ -1,0 +1,19 @@
+{
+  "sourceCommit": "3286cd8145e4bf5049368619d5c5efedb97dd74b",
+  "windowsExecuted": false,
+  "crossBuildPassed": true,
+  "compiler": "clang version 23.1.1 (https://github.com/llvm/llvm-project.git 6dfe1677ab8dffbc6ec13d53a1e0215d75147689)\nTarget: x86_64-w64-windows-gnu\nThread model: posix\nInstalledDir: /Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-windows-preparation-20260924/llvm-mingw-20260908-ucrt-macos-universal/bin\nConfiguration file: /Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-windows-preparation-20260924/llvm-mingw-20260908-ucrt-macos-universal/bin/x86_64-w64-windows-gnu.cfg",
+  "cmake": "3.31.10",
+  "sdkArchiveSha256": "c6ba983baf5681af108599675d2a89c2d145512d02de28aed0bff177cd0ba949",
+  "toolchainArchiveSha256": "d1dc5d1ecf3a3ced5ed5544c72f1acd0c8e84eb3024d520ecc6b143eec62a149",
+  "sourceSha256": {
+    "CMakeLists.txt": "80d58c1cfb1a713d81e3fe86812c84b93336253a088cc4261c316d2ab24bfb19",
+    "probe.cpp": "636be28f04a6cfb0c1d16f82e9cf6a33ebc112e4187af13815359cb839b2a48d",
+    "screen-birefnet.py": "7f2d2428f76526b8fae6f00c4299aba1308bb065ac6b0a5f8c1d84b0abf0ffe7",
+    "review-active-cancel.py": "089982aa372d786a71505fb5c5099376a625315b0088a49376c2b604842ebc0e"
+  },
+  "runnerSha256": "df1c0e20beaae80baaae42d640b1092653d9ab389a0d4ba7d823efe43b2ad555",
+  "modelBytes": 224005088,
+  "modelSha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+  "modelIncluded": false
+}

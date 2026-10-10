@@ -1,0 +1,38 @@
+{
+  "sourceCommit": "4a12ca0",
+  "scope": "Fixture file identity only; not a Windows behavior result",
+  "groups": [
+    {
+      "manifest": "docs/windows/fixtures/checksums.json",
+      "files": 91,
+      "bytes": 73625,
+      "result": "passed"
+    },
+    {
+      "manifest": "docs/windows/fixtures/brush/checksums.json",
+      "files": 9,
+      "bytes": 9619101,
+      "result": "passed"
+    },
+    {
+      "manifest": "docs/windows/fixtures/extended/checksums.json",
+      "files": 47,
+      "bytes": 1191640,
+      "result": "passed"
+    },
+    {
+      "manifest": "docs/windows/fixtures/fonts/checksums.json",
+      "files": 11,
+      "bytes": 11006,
+      "result": "passed"
+    },
+    {
+      "manifest": "docs/windows/fixtures/invalid/checksums.json",
+      "files": 84,
+      "bytes": 112706,
+      "result": "passed"
+    }
+  ],
+  "totalFiles": 242,
+  "totalBytes": 11008078
+}

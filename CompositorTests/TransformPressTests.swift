@@ -26,10 +26,11 @@ struct TransformPressTests {
     private func drag(_ session: EditorSession, _ view: CanvasView, in window: NSWindow, from start: CGPoint, to end: CGPoint,
                       flags: NSEvent.ModifierFlags = []) throws {
         let size = try #require(session.document?.size)
+        // Control disables snapping so these tests measure the pointer delta alone.
         func event(_ type: NSEvent.EventType, at point: CGPoint) throws -> NSEvent {
             let spot = session.viewport.viewPoint(from: point, documentSize: size)
             return try #require(NSEvent.mouseEvent(with: type, location: NSPoint(x: spot.x, y: view.bounds.height - spot.y),
-                modifierFlags: flags, timestamp: 0, windowNumber: window.windowNumber, context: nil,
+                modifierFlags: flags.union(.control), timestamp: 0, windowNumber: window.windowNumber, context: nil,
                 eventNumber: 0, clickCount: 1, pressure: 1))
         }
         view.mouseDown(with: try event(.leftMouseDown, at: start))

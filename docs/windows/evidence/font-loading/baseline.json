@@ -1,0 +1,51 @@
+{
+  "status": "failed",
+  "windowsExecuted": false,
+  "runtime": "10.0.12",
+  "results": [
+    {
+      "file": "fixture.ttf",
+      "index": 0,
+      "expectedWeight": 400,
+      "expectedAdvance": 60,
+      "loaded": true,
+      "family": "Compositor Fixture TTF",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "passed": true
+    },
+    {
+      "file": "fixture.otf",
+      "index": 0,
+      "expectedWeight": 400,
+      "expectedAdvance": 60,
+      "loaded": true,
+      "family": "Compositor Fixture OTF",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "passed": true
+    },
+    {
+      "file": "two-faces.ttc",
+      "index": 0,
+      "expectedWeight": 400,
+      "expectedAdvance": 60,
+      "loaded": true,
+      "family": "Compositor Fixture Collection",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "passed": true
+    },
+    {
+      "file": "two-faces.ttc",
+      "index": 1,
+      "expectedWeight": 700,
+      "expectedAdvance": 80,
+      "loaded": true,
+      "family": "Compositor Fixture Collection",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "passed": false
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "width": 259,
+  "height": 257,
+  "resolution": 300,
+  "dialogs": "new cancellation, invalid size/integer validation, creation and unsaved close/replacement cancellation",
+  "layers": "actual add/duplicate/delete/selection buttons, brush isolation, empty saved document and undo/resave restoration",
+  "limits": "Headless only; first chosen save path exercised through workspace SaveAs. Native first-save folder picker/IME/DPI and Windows not executed."
+}

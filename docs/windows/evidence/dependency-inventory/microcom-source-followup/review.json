@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-23",
+  "officialUrl": "https://api.nuget.org/v3-flatcontainer/microcom.runtime/0.11.0/microcom.runtime.0.11.0.nupkg",
+  "packageBytes": 28122,
+  "packageSha256": "55dc293f97ec725bcda89ba9a5a3afc04c2fda87e7008e594b3d95f9411d2c5d",
+  "cacheByteIdentical": true,
+  "nugetVerify": {
+    "sdk": "10.0.401",
+    "command": "dotnet nuget verify official.nupkg --all",
+    "platform": "macOS",
+    "exitCode": 0,
+    "signatureType": "Repository",
+    "repository": "NuGet.org Repository by Microsoft",
+    "certificateSha256": "5A2901D6ADA3D18260B9C6DFE2133C95D74B9EEF6AE0E5DC334C8454D1477DF4",
+    "contentHash": "MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA==",
+    "lockFileContentHashMatches": true
+  },
+  "candidateCommit": {
+    "sha": "7e773759cfc1012a5d080d4129c4718a662884b0",
+    "url": "https://github.com/kekekeks/MicroCom/commit/7e773759cfc1012a5d080d4129c4718a662884b0",
+    "versionChange": "0.10.5 -> 0.11.0",
+    "addsStrongName": true,
+    "binarySourceIdentityProven": false
+  },
+  "dllDebug": {
+    "format": "CodeView RSDS",
+    "pdbPath": "/home/kekekeks/Projects/MicroCom/src/MicroCom.Runtime/obj/Release/net5.0/MicroCom.Runtime.pdb",
+    "embeddedPortablePdbFound": false
+  },
+  "artifacts": {
+    "official.nupkg": "55dc293f97ec725bcda89ba9a5a3afc04c2fda87e7008e594b3d95f9411d2c5d",
+    "candidate-commit.json": "6015b1ab43495078ed02f4adcce0308ddc95588bee506ee5608ead0f8da7a235",
+    "commits.json": "eb4a62c174843fb1428713c5babbaf2d355ded7073b88b3251ed10dd12e177d7"
+  },
+  "d07Closed": false
+}

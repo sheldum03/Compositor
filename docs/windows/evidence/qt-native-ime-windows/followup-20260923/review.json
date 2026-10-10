@@ -1,0 +1,147 @@
+{
+  "archive": "qt-ime-followup-20260923-165415.zip",
+  "bytes": 599932,
+  "sha256": "514b0e2d1cfc7c0167036c30143a001f8919f2027cced144b76c1c497292af4b",
+  "crcPassed": true,
+  "fileHashesVerified": 37,
+  "windowsReportPresent": true,
+  "nativeImeAccepted": false,
+  "selectedPreeditCancel": "failed in transformed and plain states",
+  "reports": [
+    {
+      "export": "001-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+      "previewExportExact": true,
+      "preeditEvents": 8,
+      "commitEvents": 0
+    },
+    {
+      "export": "002-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+      "previewExportExact": true,
+      "preeditEvents": 18,
+      "commitEvents": 1
+    },
+    {
+      "export": "003-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+      "previewExportExact": true,
+      "preeditEvents": 26,
+      "commitEvents": 1
+    },
+    {
+      "export": "004-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+      "previewExportExact": true,
+      "preeditEvents": 34,
+      "commitEvents": 2
+    },
+    {
+      "export": "005-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+      "previewExportExact": true,
+      "preeditEvents": 34,
+      "commitEvents": 2
+    },
+    {
+      "export": "006-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+      "previewExportExact": true,
+      "preeditEvents": 34,
+      "commitEvents": 2
+    },
+    {
+      "export": "007-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+      "previewExportExact": true,
+      "preeditEvents": 34,
+      "commitEvents": 2
+    },
+    {
+      "export": "008-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+      "previewExportExact": true,
+      "preeditEvents": 39,
+      "commitEvents": 2
+    },
+    {
+      "export": "009-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+      "previewExportExact": true,
+      "preeditEvents": 39,
+      "commitEvents": 2
+    },
+    {
+      "export": "010-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+      "previewExportExact": true,
+      "preeditEvents": 39,
+      "commitEvents": 2
+    },
+    {
+      "export": "011-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+      "previewExportExact": true,
+      "preeditEvents": 44,
+      "commitEvents": 2
+    },
+    {
+      "export": "012-text",
+      "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+      "previewExportExact": true,
+      "preeditEvents": 44,
+      "commitEvents": 2
+    }
+  ],
+  "pixelComparisons": [
+    {
+      "before": 2,
+      "after": 3,
+      "case": "unselected preedit cancel",
+      "exact": true,
+      "differentPixels": 0
+    },
+    {
+      "before": 2,
+      "after": 5,
+      "case": "commit then undo",
+      "exact": true,
+      "differentPixels": 0
+    },
+    {
+      "before": 4,
+      "after": 6,
+      "case": "redo",
+      "exact": true,
+      "differentPixels": 0
+    },
+    {
+      "before": 7,
+      "after": 8,
+      "case": "transformed selected cancel",
+      "exact": false,
+      "differentPixels": 1065
+    },
+    {
+      "before": 7,
+      "after": 9,
+      "case": "transformed recovery undo",
+      "exact": true,
+      "differentPixels": 0
+    },
+    {
+      "before": 10,
+      "after": 11,
+      "case": "plain selected cancel",
+      "exact": false,
+      "differentPixels": 693
+    },
+    {
+      "before": 10,
+      "after": 12,
+      "case": "plain recovery undo",
+      "exact": true,
+      "differentPixels": 0
+    }
+  ]
+}

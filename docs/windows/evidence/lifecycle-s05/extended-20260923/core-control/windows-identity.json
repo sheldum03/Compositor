@@ -1,0 +1,10 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "baseSourceCommit": "f1ac69a7657bc42245feeda6d494ba4f1cb19406",
+  "dllSha256": "71d5838e648d8ddb192c021245204886052bcca79a5c7c40af95f40d412bb5c6",
+  "priorNativeRun": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\s05-extended-20260923-180340",
+  "gcEnvironment": {},
+  "exitCode": 0,
+  "resourceAccepted": false,
+  "pid": 49836
+}

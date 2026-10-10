@@ -1,0 +1,9 @@
+-- Install configuration: "Release"
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/lib/libde265.dll.a
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/bin/libde265.dll
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/include/libde265/de265.h
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/include/libde265/de265-version.h
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/lib/cmake/libde265/libde265-config.cmake
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/lib/cmake/libde265/libde265-config-release.cmake
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/lib/cmake/libde265/libde265-config-version.cmake
+-- Installing: /tmp/compositor-parent-heic-windows/prefix/lib/pkgconfig/libde265.pc

@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "12986975c4cade3774ecb0b25d7f6c11b72720e0",
+  "command": [
+    "/tmp/compositor-qt-ime-wrap/build/ime_wrap",
+    "/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf"
+  ],
+  "exitCode": 0,
+  "earlierAttempt": {
+    "fontArgument": "Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf",
+    "exitCode": 2,
+    "scope": "Font load setup failed; no geometric verdict"
+  },
+  "fontSha256": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+  "windowsExecuted": false,
+  "scope": "Synthetic offscreen cursor geometry only; no Windows candidate panel acceptance",
+  "files": {
+    "CMakeLists.txt": "51f9bdd30fd5ac4215d201042f34599ab88f7b9174c633d2f1f6fd6239a9a786",
+    "build.log": "660b98b7de643c21fced50149b4d0c782cb2701eee8cabd84cbe2e858a4f55ec",
+    "configure.log": "1af4dad2a6b3103e8f0f2bf2ce90ac486c312b1c263b63161fac216acc004617",
+    "main.cpp": "625c42e877123ff6903280f2f30e922338d11b0624615ac792ba7371dffdf75c",
+    "result.json": "ef2fdbc5f7acb63a170cb8ba20e88d24e25a4251833d3b7dfd172ade3acfb63a",
+    "stderr.log": "05729cf6f39639f932d1a283aac07e1bb1ba1a33d077f411f3ce6b903a4d31de"
+  }
+}

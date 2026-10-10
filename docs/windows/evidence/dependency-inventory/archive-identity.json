@@ -1,0 +1,16 @@
+{
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/M1DependencyInventory-20260923.zip",
+  "bytes": 340484,
+  "sha256": "04ffb12ddb95894ccf7a6eba0d2cc07fa642156739d2f7b7285bf1e4b87aa656",
+  "scriptSha256": "583e205b8f872f5c240e876275a20ca7975532800d99d917b6265a2cc4a41206",
+  "packageCount": 24,
+  "packagesWithPublishedAssets": 17,
+  "matchedAssetCount": 28,
+  "noticeFiles": 20,
+  "checks": {
+    "existingOutputRefused": true,
+    "modifiedDependencyRefused": true
+  },
+  "windowsExecuted": false,
+  "releaseAccepted": false
+}

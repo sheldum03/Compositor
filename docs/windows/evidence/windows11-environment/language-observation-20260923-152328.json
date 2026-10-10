@@ -1,0 +1,14 @@
+﻿{
+    "utc":  "2026-09-23T07:23:28.2352287Z",
+    "scope":  "Read-only current-user language enumeration",
+    "collectionType":  "System.Collections.Generic.List`1[[Microsoft.InternationalSettings.Commands.WinUserLanguage, Microsoft.InternationalSettings.Commands, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]",
+    "count":  1,
+    "languages":  [
+                      {
+                          "languageTag":  "zh-Hans-CN",
+                          "inputMethodTips":  [
+                                                  "0804:{81D4E9C9-1D3B-41BC-9E6C-4B40BF79E35E}{FA550B04-5AD7-411F-A5AC-CA038EC515D7}"
+                                              ]
+                      }
+                  ]
+}

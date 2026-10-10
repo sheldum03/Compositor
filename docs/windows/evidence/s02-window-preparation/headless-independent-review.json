@@ -1,0 +1,28 @@
+{
+  "nativeWindow": false,
+  "windowsExecuted": false,
+  "completedCallbackCount": 484,
+  "sampledPrivatePeak": null,
+  "nominalS02TrialCount": false,
+  "performanceAccepted": false,
+  "scenarios": [
+    {
+      "scenario": "empty",
+      "measuredStrokes": 1,
+      "measuredUpdates": 120,
+      "appendP95": 20.7865,
+      "paintP95": 2.1115,
+      "updateToCanvasLeaseReleaseP95": 22.7306,
+      "commitP95": 16.9266
+    },
+    {
+      "scenario": "existing",
+      "measuredStrokes": 1,
+      "measuredUpdates": 120,
+      "appendP95": 18.9578,
+      "paintP95": 3.4025,
+      "updateToCanvasLeaseReleaseP95": 22.7189,
+      "commitP95": 13.6604
+    }
+  ]
+}

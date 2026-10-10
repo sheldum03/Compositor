@@ -1,0 +1,8 @@
+{
+  "commit": "a1716fb468784c9138304535690d00a8196dd22c",
+  "overlays": [
+    "windows/Compositor.Core/NativeSelections.cs",
+    "windows/Compositor.Smoke/NativeSelectionChecks.cs",
+    "windows/Compositor.Smoke/Program.cs"
+  ]
+}

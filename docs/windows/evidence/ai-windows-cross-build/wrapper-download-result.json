@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/tmp/compositor-powershell-7.6.0/pwsh",
+    "-NoLogo",
+    "-NoProfile",
+    "-File",
+    "/tmp/compositor-parent-ai-windows/runner-maccheck/run-ai.ps1"
+  ],
+  "exitCode": 0,
+  "platform": "Mac adapted wrapper; not Windows"
+}

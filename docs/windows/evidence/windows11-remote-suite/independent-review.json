@@ -1,0 +1,46 @@
+{
+  "scope": "Windows 11 independent raw review; preparation evidence, no product acceptance",
+  "selectionCasesPassed": 48,
+  "compositionPreviewExportExact": 20,
+  "textPreviewExportExact": 12,
+  "textCancelExact": 12,
+  "aiLocalModel": {
+    "passed": true,
+    "invocations": 8,
+    "maskSha256": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "nativeUnicodeExact": true,
+    "providers": {
+      "native\\cpu-profile_2026-09-21_18-36-40_340.json": {
+        "CPUExecutionProvider": 1460
+      },
+      "推理 结果 🚀\\cpu-profile_2026-09-21_18-36-42_224.json": {
+        "CPUExecutionProvider": 1460
+      }
+    },
+    "milliseconds": [
+      376.9947,
+      367.3617,
+      362.4882
+    ],
+    "modelQualityAccepted": false
+  },
+  "aiDownload": {
+    "passed": false,
+    "exitCode": 28,
+    "maximumSeconds": 120,
+    "receivedBytes": 0,
+    "elapsedSeconds": 20.100414699999998,
+    "error": "Model download failed: curl exit=28; inspect download.log"
+  },
+  "heic": {
+    "passed": true,
+    "samples": 16,
+    "invocations": 23,
+    "maximumMacPremultipliedRgbError": 1,
+    "alphaExact": true,
+    "toleranceAccepted": false,
+    "allRawEqualVerifiedServerOutput": true,
+    "allReportedMetricsRecomputed": true
+  },
+  "all60TextPngsEqualPreviousVerifiedWindowsRepair": true
+}

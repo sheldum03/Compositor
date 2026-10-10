@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BrushSourceDir Condition="'$(BrushSourceDir)' == ''">../avalonia</BrushSourceDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(BrushSourceDir)/SoftBrushStroke.cs" Link="SoftBrushStroke.cs" />
+    <Compile Include="$(BrushSourceDir)/TiledRaster.cs" Link="TiledRaster.cs" />
+    <Compile Include="../avalonia/TileImageCache.cs" Link="TileImageCache.cs" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+  </ItemGroup>
+</Project>

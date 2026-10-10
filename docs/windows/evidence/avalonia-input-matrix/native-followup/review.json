@@ -1,0 +1,52 @@
+{
+  "status": "recorded native follow-up checks passed; full M1 matrix remains open",
+  "windowsExecuted": true,
+  "nativeProcessId": 42996,
+  "nativeExitCode": 0,
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-native-followup-20260924/avalonia-ime-matrix-20260923-224035.zip",
+  "archiveBytes": 716069,
+  "archiveSha256": "56c1c08aa62822324fc5eab1bbbde1ffb29069ec97c7bdefbbaae120170ba36b",
+  "verifiedFiles": 63,
+  "nativePreviewExportPairsExact": 19,
+  "nativePreeditChanges": 36,
+  "textInputEvents": 2,
+  "injectedInputMethodCalls": 0,
+  "reversePrefixCancelCommitUndoRedo": [
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "tabReturnReverseSelectAllCancelAndExistingRedo": [
+    8,
+    9,
+    10,
+    11
+  ],
+  "otherWindowReturnReverseSuffixCancel": [
+    11,
+    12
+  ],
+  "smallScrolledViewportDoubleFlipStretchCancelCommitUndoRedo": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "restoredOriginalText": true,
+  "lastLiveRenderScaling": 1.5,
+  "viewportAndCandidateEvidence": "CUA screenshots in conversation; no independent geometry measurement",
+  "remoteDragAccepted": false,
+  "fullNativeMatrixAccepted": false,
+  "remaining": [
+    "Physical drag and pen",
+    "Second Chinese IME",
+    "Cross-monitor DPI",
+    "Full transform/DPI combinations",
+    "Additional device and clean-user release matrix"
+  ],
+  "reviewerSha256": "e9a0383f3b82828ade7e9152784f38a7b2aec1d27e55fc039d2fc4e4000bbad6"
+}

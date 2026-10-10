@@ -1,0 +1,122 @@
+{
+  "passed": true,
+  "pairs": [
+    {
+      "first": "s02-first/run/empty-native-preview.png",
+      "second": "s02-first/run/empty-reference-preview.png",
+      "size": [
+        1500,
+        1500
+      ],
+      "rgbaSha256": "75938f5b3fa6c5cfdbe803f05fc7ff05e05a2b7c4dcb4f5e26857ae9204d7eb9"
+    },
+    {
+      "first": "s02-first/run/existing-native-preview.png",
+      "second": "s02-first/run/existing-reference-preview.png",
+      "size": [
+        1500,
+        1500
+      ],
+      "rgbaSha256": "72f6388f4e87af9ba0ee9ec4b868908034733c041bec534d9875a1919b865359"
+    },
+    {
+      "first": "s02-repeat/run/empty-native-preview.png",
+      "second": "s02-repeat/run/empty-reference-preview.png",
+      "size": [
+        1500,
+        1500
+      ],
+      "rgbaSha256": "75938f5b3fa6c5cfdbe803f05fc7ff05e05a2b7c4dcb4f5e26857ae9204d7eb9"
+    },
+    {
+      "first": "s02-repeat/run/existing-native-preview.png",
+      "second": "s02-repeat/run/existing-reference-preview.png",
+      "size": [
+        1500,
+        1500
+      ],
+      "rgbaSha256": "72f6388f4e87af9ba0ee9ec4b868908034733c041bec534d9875a1919b865359"
+    },
+    {
+      "first": "s05-idle/run/round-0/final.png",
+      "second": "s05-idle/run/round-0/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-1/final.png",
+      "second": "s05-idle/run/round-1/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-2/final.png",
+      "second": "s05-idle/run/round-2/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-3/final.png",
+      "second": "s05-idle/run/round-3/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-4/final.png",
+      "second": "s05-idle/run/round-4/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-5/final.png",
+      "second": "s05-idle/run/round-5/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-6/final.png",
+      "second": "s05-idle/run/round-6/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-7/final.png",
+      "second": "s05-idle/run/round-7/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    },
+    {
+      "first": "s05-idle/run/round-8/final.png",
+      "second": "s05-idle/run/round-8/reopened.png",
+      "size": [
+        4000,
+        4000
+      ],
+      "rgbaSha256": "a8a62c6c48e71e2ce419ee56802d7160c0beaeded89c386d903ac60deba58a8e"
+    }
+  ]
+}

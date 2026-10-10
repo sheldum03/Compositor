@@ -1,0 +1,2 @@
+Unhandled exception. System.Exception: Brush transient/committed raster differs from frozen pre-optimization output
+   at Program.<Main>$(String[] args) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/brush-update-regression/Program.cs:line 103

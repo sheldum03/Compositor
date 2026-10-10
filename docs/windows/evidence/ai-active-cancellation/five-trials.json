@@ -1,0 +1,52 @@
+[
+  {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 3,
+    "recoveredRunKernelEvents": 336,
+    "cancelToJoinMilliseconds": 3.562625,
+    "recoveredPredictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 3,
+    "recoveredRunKernelEvents": 336,
+    "cancelToJoinMilliseconds": 4.309417,
+    "recoveredPredictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 3,
+    "recoveredRunKernelEvents": 336,
+    "cancelToJoinMilliseconds": 1.922875,
+    "recoveredPredictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 3,
+    "recoveredRunKernelEvents": 336,
+    "cancelToJoinMilliseconds": 4.330542,
+    "recoveredPredictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  },
+  {
+    "activeCancellationEvidencePassed": true,
+    "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "windowsExecuted": false,
+    "cancelledRunKernelEvents": 4,
+    "recoveredRunKernelEvents": 336,
+    "cancelToJoinMilliseconds": 0.669875,
+    "recoveredPredictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae",
+    "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+  }
+]

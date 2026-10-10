@@ -80,8 +80,9 @@ struct BrushIntersectionTests {
         #expect(memcmp(first.data!, second.data!, first.bytesPerRow * first.height) == 0)
     }
 
-    @Test func exportCrossingExample() async throws {
-        guard ProcessInfo.processInfo.environment["BRUSH_BENCHMARK"] == "1" else { return }
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["BRUSH_BENCHMARK"] == "1",
+                   "Set BRUSH_BENCHMARK=1 to export this diagnostic image."))
+    func exportCrossingExample() async throws {
         let session = EditorSession()
         session.createDocument(width: 4000, height: 4000)
         let black = try BrushRaster.context(width: 4000, height: 4000, mask: false)

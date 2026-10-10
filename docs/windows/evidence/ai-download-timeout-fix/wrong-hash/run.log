@@ -1,0 +1,7 @@
+{
+  "result": "/private/tmp/compositor-ai-download-integration-wrong-hash/ai-run-20260921-163026-7b5bac3f.zip",
+  "completed": false,
+  "error": "Downloaded model identity mismatch",
+  "sha256": "075a12c4379091f105200d6dcda8971d52a876f6299727e0b8bf3bd5f8b321d4",
+  "bytes": 702
+}

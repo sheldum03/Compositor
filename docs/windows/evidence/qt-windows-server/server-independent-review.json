@@ -1,0 +1,628 @@
+{
+  "windowsExecuted": true,
+  "node": "tencent-cpu-01 Windows Server2022",
+  "referenceComparisonCount": 36,
+  "independentComparisons": [
+    {
+      "fixture": "F01",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F02",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F03",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F04",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F05",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F06",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F07",
+      "macReference": {
+        "DifferentPixels": 256,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.040364583333333336,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B01",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0022786458333333335,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B02",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B03",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B04",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B05",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B06",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B07",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B08",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B09",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B10",
+      "macReference": {
+        "DifferentPixels": 1149,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.18587239583333334,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B11",
+      "macReference": {
+        "DifferentPixels": 1408,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.20865885416666666,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B12",
+      "macReference": {
+        "DifferentPixels": 1156,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.18701171875,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "B13",
+      "macReference": {
+        "DifferentPixels": 1408,
+        "MaximumChannelError": 1,
+        "MaximumAlphaError": 0,
+        "MeanAbsoluteChannelError": 0.18644205729166666,
+        "PixelsWithErrorAbove1": 0
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-300-box-center",
+      "macReference": {
+        "DifferentPixels": 49980,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 3.3582322241056293,
+        "PixelsWithErrorAbove1": 40425
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "macReference": {
+        "DifferentPixels": 49528,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 3.2729112766526898,
+        "PixelsWithErrorAbove1": 39595
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "macReference": {
+        "DifferentPixels": 50283,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 3.395292101585036,
+        "PixelsWithErrorAbove1": 40813
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "macReference": {
+        "DifferentPixels": 50978,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 3.064243267265023,
+        "PixelsWithErrorAbove1": 43562
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "macReference": {
+        "DifferentPixels": 51182,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 3.096324793994967,
+        "PixelsWithErrorAbove1": 43843
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "macReference": {
+        "DifferentPixels": 51243,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 3.1214003670780417,
+        "PixelsWithErrorAbove1": 44145
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "macReference": {
+        "DifferentPixels": 4942,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 1.503655899282889,
+        "PixelsWithErrorAbove1": 4779
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "macReference": {
+        "DifferentPixels": 4828,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 1.383069508312699,
+        "PixelsWithErrorAbove1": 4614
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "macReference": {
+        "DifferentPixels": 4895,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 1.4736148181496607,
+        "PixelsWithErrorAbove1": 4706
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "macReference": {
+        "DifferentPixels": 4942,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 1.9281883617193836,
+        "PixelsWithErrorAbove1": 4765
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "macReference": {
+        "DifferentPixels": 4704,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 1.5958586780210868,
+        "PixelsWithErrorAbove1": 4458
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "macReference": {
+        "DifferentPixels": 4937,
+        "MaximumChannelError": 166,
+        "MaximumAlphaError": 166,
+        "MeanAbsoluteChannelError": 1.8422470600162206,
+        "PixelsWithErrorAbove1": 4740
+      },
+      "previewExportExactRGBA": true
+    },
+    {
+      "fixture": "brush-first-cpu",
+      "DifferentPixels": 1122405,
+      "MaximumChannelError": 3,
+      "MaximumAlphaError": 3,
+      "MeanAbsoluteChannelError": 0.02829665625,
+      "PixelsWithErrorAbove1": 28962
+    },
+    {
+      "fixture": "brush-first-metal",
+      "DifferentPixels": 1340829,
+      "MaximumChannelError": 7,
+      "MaximumAlphaError": 7,
+      "MeanAbsoluteChannelError": 0.070138671875,
+      "PixelsWithErrorAbove1": 313672
+    },
+    {
+      "fixture": "brush-final-cpu",
+      "DifferentPixels": 1875766,
+      "MaximumChannelError": 4,
+      "MaximumAlphaError": 4,
+      "MeanAbsoluteChannelError": 0.046540328125,
+      "PixelsWithErrorAbove1": 47834
+    },
+    {
+      "fixture": "brush-final-metal",
+      "DifferentPixels": 2269671,
+      "MaximumChannelError": 7,
+      "MaximumAlphaError": 7,
+      "MeanAbsoluteChannelError": 0.114699703125,
+      "PixelsWithErrorAbove1": 514996
+    }
+  ],
+  "ordinaryTextInk": [
+    {
+      "fixture": "F11-300-box-center",
+      "ratio": 0.928115729332926,
+      "ordinaryInk": 12747.250980392157,
+      "referenceInk": 13734.549019607843,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "ratio": 0.9277747156843912,
+      "ordinaryInk": 12746.580392156862,
+      "referenceInk": 13738.874509803922,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "ratio": 0.9278125277418511,
+      "ordinaryInk": 12746.619607843137,
+      "referenceInk": 13738.356862745099,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "ratio": 0.8917686029493416,
+      "ordinaryInk": 12250.756862745098,
+      "referenceInk": 13737.596078431372,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "ratio": 0.8918014582036803,
+      "ordinaryInk": 12250.69411764706,
+      "referenceInk": 13737.019607843138,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "ratio": 0.8917943264942017,
+      "ordinaryInk": 12251.243137254902,
+      "referenceInk": 13737.745098039215,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "ratio": 0.9494766460827483,
+      "ordinaryInk": 836.3176470588236,
+      "referenceInk": 880.8196078431373,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "ratio": 0.9474224330952128,
+      "ordinaryInk": 836.3176470588236,
+      "referenceInk": 882.7294117647059,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "ratio": 0.9492357544087668,
+      "ordinaryInk": 836.3176470588236,
+      "referenceInk": 881.0431372549019,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "ratio": 0.9475555515901517,
+      "ordinaryInk": 832.9607843137255,
+      "referenceInk": 879.0627450980393,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "ratio": 0.9464409045338087,
+      "ordinaryInk": 832.9607843137255,
+      "referenceInk": 880.0980392156863,
+      "catastrophicLossGuardPassed": true
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "ratio": 0.9454256540820597,
+      "ordinaryInk": 832.9607843137255,
+      "referenceInk": 881.0431372549019,
+      "catastrophicLossGuardPassed": true
+    }
+  ],
+  "macQtComparisons": [
+    {
+      "fixture": "F01",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "F02",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "F03",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "F04",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "F05",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F06",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F07",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "B01",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B02",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B03",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B04",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B05",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B06",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B07",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B08",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B09",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B10",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B11",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B12",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "B13",
+      "macQtPixelsEqual": true
+    },
+    {
+      "fixture": "F11-300-box-center",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "brush-first",
+      "macQtPixelsEqual": false
+    },
+    {
+      "fixture": "brush-final",
+      "macQtPixelsEqual": false
+    }
+  ],
+  "brushTimings": [
+    {
+      "stroke": 0,
+      "updateAndPreviewP95": 53.6642,
+      "commitMilliseconds": 58.8498
+    },
+    {
+      "stroke": 1,
+      "updateAndPreviewP95": 61.553399999999996,
+      "commitMilliseconds": 69.4234
+    }
+  ],
+  "acceptance": false
+}

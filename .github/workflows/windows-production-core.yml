@@ -1,0 +1,134 @@
+name: Windows production core
+
+on:
+  push:
+    paths:
+      - .github/workflows/windows-production-core.yml
+      - windows/**
+      - Compositor/Rendering/**
+      - docs/windows/fixtures/**
+      - scripts/windows/**
+  pull_request:
+    paths:
+      - .github/workflows/windows-production-core.yml
+      - windows/**
+      - Compositor/Rendering/**
+      - docs/windows/fixtures/**
+      - scripts/windows/**
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: Compositor.Smoke
+            fixtures: ../docs/windows/fixtures
+          - project: Compositor.Imaging.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+          - project: Compositor.Workflow.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+          - project: Compositor.SaveCrash.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+          - project: Compositor.App.Checks
+            fixtures: Compositor.Imaging.Checks/fixtures
+    env:
+      CHECK_PROJECT: ${{ matrix.project }}
+      CHECK_FIXTURES: ${{ matrix.fixtures }}
+      EVIDENCE: ${{ github.workspace }}/build/production-evidence
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: windows/global.json
+      - name: Restore locked dependencies and build Release checks
+        working-directory: windows
+        run: |
+          New-Item -ItemType Directory -Path $env:EVIDENCE | Out-Null
+          dotnet --info 2>&1 | Tee-Object "$env:EVIDENCE/sdk.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" --runtime win-x64 --locked-mode 2>&1 | Tee-Object "$env:EVIDENCE/restore.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build "$env:CHECK_PROJECT/$env:CHECK_PROJECT.csproj" -c Release --no-restore 2>&1 | Tee-Object "$env:EVIDENCE/build.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build shared C algorithms
+        if: matrix.project == 'Compositor.Smoke'
+        run: |
+          cmake -S windows/native -B "$env:RUNNER_TEMP/compositor-native" -A x64 2>&1 | Tee-Object "$env:EVIDENCE/native-configure.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build "$env:RUNNER_TEMP/compositor-native" --config Release 2>&1 | Tee-Object "$env:EVIDENCE/native-build.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish Windows app with native DLL
+        if: matrix.project == 'Compositor.Smoke'
+        run: |
+          $package = Join-Path $env:EVIDENCE 'package'
+          $nativeDll = Join-Path $env:RUNNER_TEMP 'compositor-native/Release/compositor_native.dll'
+          New-Item -ItemType Directory -Force -Path $package | Out-Null
+          dotnet restore windows/Compositor.App/Compositor.App.csproj --runtime win-x64 --locked-mode 2>&1 |
+            Tee-Object (Join-Path $env:EVIDENCE 'app-restore.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet publish windows/Compositor.App/Compositor.App.csproj -c Release -r win-x64 --self-contained true --no-restore -o $package `
+            -p:CompositorNativeDll=$nativeDll 2>&1 |
+            Tee-Object (Join-Path $env:EVIDENCE 'app-publish.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $app = Join-Path $package 'Compositor.App.exe'
+          $packagedDll = Join-Path $package 'compositor_native.dll'
+          if (-not (Test-Path $app)) { throw 'Published apphost is missing.' }
+          if (-not (Test-Path $packagedDll)) { throw 'Published compositor_native.dll is missing.' }
+          $appHash = (Get-FileHash $app -Algorithm SHA256).Hash
+          $dllHash = (Get-FileHash $packagedDll -Algorithm SHA256).Hash
+          $version = "0.0.0-ci.$env:GITHUB_RUN_NUMBER"
+          pwsh -NoProfile -File scripts/windows/write-portable-manifest.ps1 `
+            -PackageRoot $package -Version $version -Commit $env:GITHUB_SHA `
+            -NativeDll 'compositor_native.dll' | Tee-Object (Join-Path $env:EVIDENCE 'manifest-write.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $archive = Join-Path $env:EVIDENCE 'Compositor-win-x64.zip'
+          Compress-Archive -Path (Join-Path $package '*') -DestinationPath $archive -CompressionLevel Optimal
+          $archiveHash = (Get-FileHash $archive -Algorithm SHA256).Hash
+          pwsh -NoProfile -File scripts/windows/windows-install-smoke.ps1 `
+            -PackagePath $archive -ExpectedSha256 $archiveHash `
+            -EvidencePath (Join-Path $env:EVIDENCE 'install-smoke.json') | Tee-Object (Join-Path $env:EVIDENCE 'install-smoke.log')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $manifest = Get-Content (Join-Path $package 'Compositor.Portable.json') -Raw | ConvertFrom-Json
+          $fileCount = [int]$manifest.fileCount
+          [ordered]@{
+            app = $app
+            appSha256 = $appHash
+            nativeDll = $packagedDll
+            nativeDllSha256 = $dllHash
+            version = $manifest.version
+            manifest = Join-Path $package 'Compositor.Portable.json'
+            archive = $archive
+            archiveSha256 = $archiveHash
+            nativeLibraries = @($manifest.nativeLibraries)
+            fileCount = $fileCount
+          } | ConvertTo-Json | Set-Content (Join-Path $env:EVIDENCE 'package.json')
+      - name: Run production checks and retain outputs
+        working-directory: windows
+        run: |
+          $arguments = @("$env:CHECK_PROJECT/bin/Release/net10.0/$env:CHECK_PROJECT.dll", $env:CHECK_FIXTURES, "$env:EVIDENCE/output")
+          if ($env:CHECK_PROJECT -eq 'Compositor.Smoke') {
+            $arguments += "$env:RUNNER_TEMP/compositor-native/Release/compositor_native.dll"
+          }
+          dotnet @arguments 2>&1 | Tee-Object "$env:EVIDENCE/run.log"
+          $code = $LASTEXITCODE
+          Set-Content -Path "$env:EVIDENCE/exit-code.txt" -Value $code
+          if ($code -ne 0) { exit $code }
+          if (-not (Select-String -Path "$env:EVIDENCE/run.log" -Pattern '^PASS:')) {
+            throw 'Check program did not report PASS.'
+          }
+      - name: Retain results and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-production-${{ matrix.project }}-${{ github.sha }}
+          path: ${{ env.EVIDENCE }}/
+          if-no-files-found: warn
+          retention-days: 14

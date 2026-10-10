@@ -1,0 +1,191 @@
+--- a/experiments/windows/avalonia/Program.cs
++++ b/experiments/windows/avalonia/Program.cs
+@@ -12,7 +12,8 @@
+     [STAThread]
+     private static void Main(string[] args)
+     {
+-        bool s02Window = args.Length == 4 && args[0] == "--s02-window";
++        bool s02Gpu = args.Length == 4 && args[0] == "--s02-gpu-window";
++        bool s02Window = s02Gpu || (args.Length == 4 && args[0] == "--s02-window");
+         bool s02Check = args.Length == 4 && args[0] == "--s02-check";
+         bool window = args.Length == 4 && args[0] == "--window";
+         bool brush = args.Length == 4 && args[0] == "--brush";
+@@ -20,7 +21,7 @@
+         bool verifyText = args.Length == 4 && args[0] == "--verify-text-output";
+         bool text = args.Length == 4 && (args[0] == "--text" || diagnostics);
+         if (brush || text || verifyText || window || s02Window || s02Check) args = args[1..];
+-        Check(args.Length == 3, "Usage: probe [--s02-window|--s02-check|--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
++        Check(args.Length == 3, "Usage: probe [--s02-gpu-window|--s02-window|--s02-check|--window|--brush|--text|--text-diagnostics|--verify-text-output] <fixed-fixtures-directory> <output-directory> <native-library-path>");
+         string fixtures = Path.GetFullPath(args[0]), output = Path.GetFullPath(args[1]);
+         string nativePath = Path.GetFullPath(args[2]);
+         var library = NativeLibrary.Load(nativePath);
+@@ -30,7 +31,7 @@
+         Check(!Path.Exists(output), "Output directory must not exist");
+         if (!brush && !text && !s02Window && !s02Check) VerifyCorpus(fixtures);
+         Directory.CreateDirectory(output);
+-        if (s02Window) { BrushPerformanceProbe.Window(fixtures, output); return; }
++        if (s02Window) { BrushPerformanceProbe.Window(fixtures, output, s02Gpu); return; }
+         if (window) { WindowProbe.Run(fixtures, output, nativePath); return; }
+         AppBuilder.Configure<Application>().UseSkia()
+             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
+--- a/experiments/windows/avalonia/SceneControl.cs
++++ b/experiments/windows/avalonia/SceneControl.cs
+@@ -15,6 +15,9 @@
+     private readonly Action? beforeRender = beforeRender;
+     private readonly Action? queued = queued;
+     public int DrawCalls { get; private set; }
++    public bool SynchronizeGpu { get; init; }
++    public Action<ISkiaSharpApiLease>? InspectLease { get; init; }
++    public int GpuSynchronizedDrawCalls { get; private set; }
+     public override void Render(DrawingContext context)
+     {
+         queued?.Invoke();
+@@ -32,7 +35,17 @@
+             owner.beforeRender?.Invoke();
+             var feature = context.TryGetFeature(typeof(ISkiaSharpApiLeaseFeature)) as ISkiaSharpApiLeaseFeature
+                 ?? throw new InvalidOperationException("A real Skia drawing context is required");
+-            using (var lease = feature.Lease()) owner.paint(lease.SkCanvas);
++            using (var lease = feature.Lease())
++            {
++                owner.paint(lease.SkCanvas);
++                owner.InspectLease?.Invoke(lease);
++                if (owner.SynchronizeGpu)
++                {
++                    var gpu = lease.GrContext ?? throw new InvalidOperationException("GPU diagnostic requires an actual GPU canvas");
++                    gpu.Flush(submit: true, synchronous: true);
++                    owner.GpuSynchronizedDrawCalls++;
++                }
++            }
+             owner.DrawCalls++;
+             owner.afterRender?.Invoke();
+         }
+--- a/experiments/windows/avalonia/BrushPerformanceProbe.cs
++++ b/experiments/windows/avalonia/BrushPerformanceProbe.cs
+@@ -7,25 +7,27 @@
+ using Avalonia.Controls.ApplicationLifetimes;
+ using Avalonia.Media.Imaging;
+ using Avalonia.Threading;
++using Avalonia.Skia;
+ using SkiaSharp;
+
+ // S02 workload only. Timings end after releasing the Skia canvas lease, not at physical presentation.
+ internal static class BrushPerformanceProbe
+ {
+-    internal static void Window(string fixtures, string output) => AppBuilder.Configure(() => new ProbeApp(fixtures, output))
++    internal static void Window(string fixtures, string output, bool gpu = false) => AppBuilder.Configure(() => new ProbeApp(fixtures, output, gpu))
+         .UsePlatformDetect()
+-        .With(new Win32PlatformOptions { RenderingMode = [Win32RenderingMode.Software], CompositionMode = [Win32CompositionMode.RedirectionSurface] })
++        .With(new Win32PlatformOptions { RenderingMode = [gpu ? Win32RenderingMode.AngleEgl : Win32RenderingMode.Software],
++            CompositionMode = [gpu ? Win32CompositionMode.LowLatencyDxgiSwapChain : Win32CompositionMode.RedirectionSurface] })
+         .With(new AvaloniaNativePlatformOptions { RenderingMode = [AvaloniaNativeRenderingMode.Software] })
+         .StartWithClassicDesktopLifetime([]);
+
+-    private sealed class ProbeApp(string fixtures, string output) : Application
++    private sealed class ProbeApp(string fixtures, string output, bool gpu) : Application
+     {
+         public override void OnFrameworkInitializationCompleted()
+         {
+             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+             {
+                 desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+-                var run = new Run(fixtures, output, true);
++                var run = new Run(fixtures, output, true, gpu);
+                 var window = new Window { Title = "Compositor S02 — running", Width = 1024, Height = 1040, Content = run.View, CanResize = false };
+                 window.Closed += (_, _) => run.Stop.Cancel();
+                 window.Opened += async (_, _) =>
+@@ -51,10 +53,12 @@
+     private sealed class Run
+     {
+         private readonly string fixtures, output;
+-        private readonly bool nativeWindow;
++        private readonly bool nativeWindow, gpu;
+         private readonly object gate = new();
+         private readonly TileImageCache images = new();
+-        private bool closed;
++        private bool closed, captureNative;
++        private string captureScenario = "";
++        private readonly List<object> nativeViewportChecks = [];
+         private readonly List<object> trials = [];
+         private readonly SoftBrushSettings settings = new(800, 1, [1, 0.3, 0.1]);
+         private BrushSession session = new(new TiledRaster(4000, 4000));
+@@ -70,11 +74,11 @@
+             double RequestToRenderMilliseconds, double CanvasAcquireMilliseconds, double CanvasReleaseMilliseconds,
+             double RequestToSceneMilliseconds, double SceneToRenderMilliseconds);
+
+-        internal Run(string fixtures, string output, bool nativeWindow)
+-        {
+-            this.fixtures = fixtures; this.output = output; this.nativeWindow = nativeWindow;
++        internal Run(string fixtures, string output, bool nativeWindow, bool gpu = false)
++        {
++            this.fixtures = fixtures; this.output = output; this.nativeWindow = nativeWindow; this.gpu = gpu;
+             View = new SceneControl(1000, 1000, Paint, Painted, () => { lock (gate) renderEnteredAt = Stopwatch.GetTimestamp(); },
+-                () => { lock (gate) queuedAt = Stopwatch.GetTimestamp(); }) { Width = 1000, Height = 1000 };
++                () => { lock (gate) queuedAt = Stopwatch.GetTimestamp(); }) { Width = 1000, Height = 1000, SynchronizeGpu = gpu, InspectLease = gpu || !nativeWindow ? InspectViewport : null };
+         }
+         private void Paint(SKCanvas canvas)
+         {
+@@ -88,6 +92,44 @@
+                 paintEndedAt = Stopwatch.GetTimestamp();
+                 paintMs = Stopwatch.GetElapsedTime(t, paintEndedAt).TotalMilliseconds;
+                 paintedSequence = sequence; paintedAt = t; renderThread = Environment.CurrentManagedThreadId;
++            }
++        }
++        private void InspectViewport(ISkiaSharpApiLease lease)
++        {
++            lock (gate)
++            {
++                if (!captureNative || sequence % 121 != 0) return;
++                captureNative = false;
++                var matrix = lease.SkCanvas.TotalMatrix;
++                var rect = matrix.MapRect(new SKRect(0, 0, 1000, 1000));
++                var bounds = SKRectI.Round(rect);
++                using var srgb = SKColorSpace.CreateSrgb();
++                var info = new SKImageInfo(bounds.Width, bounds.Height, SKColorType.Rgba8888, SKAlphaType.Premul, srgb);
++                using var actual = new SKBitmap(info);
++                if (lease.SkSurface is not { } native || !native.ReadPixels(info, actual.GetPixels(), actual.RowBytes, bounds.Left, bounds.Top))
++                    throw new InvalidOperationException("Native viewport readback failed");
++                using var reference = SKSurface.Create(info);
++                reference.Canvas.Clear(nativeWindow ? SKColors.White : SKColors.Transparent);
++                reference.Canvas.Translate(-bounds.Left, -bounds.Top);
++                reference.Canvas.Concat(ref matrix);
++                reference.Canvas.Scale(.25f);
++                session.Active!.Paint(reference.Canvas);
++                using var expectedImage = reference.Snapshot();
++                using var expected = SKBitmap.FromImage(expectedImage);
++                byte[] a = actual.Bytes, b = expected.Bytes;
++                int different = 0, maxError = 0;
++                for (int i = 0; i < a.Length; i += 4)
++                {
++                    bool changed = false;
++                    for (int c = 0; c < 4; c++) { int error = Math.Abs(a[i + c] - b[i + c]); changed |= error != 0; maxError = Math.Max(maxError, error); }
++                    if (changed) different++;
++                }
++                using var actualImage = SKImage.FromBitmap(actual);
++                using (var data = actualImage.Encode(SKEncodedImageFormat.Png, 100))
++                using (var file = File.Create(Path.Combine(output, captureScenario + "-native-preview.png"))) data.SaveTo(file);
++                using (var data = expectedImage.Encode(SKEncodedImageFormat.Png, 100))
++                using (var file = File.Create(Path.Combine(output, captureScenario + "-cpu-preview.png"))) data.SaveTo(file);
++                nativeViewportChecks.Add(new { scenario = captureScenario, bounds.Width, bounds.Height, differentPixels = different, maximumChannelError = maxError });
+             }
+         }
+         private void Painted()
+@@ -154,7 +196,8 @@
+                     Stop.Token.ThrowIfCancellationRequested();
+                     var source = scenario == 0 ? empty : existing;
+                     string sourceDigest = source.Digest();
+-                    lock (gate) { images.Clear(); session = new BrushSession(source); session.Begin(settings); }
++                    lock (gate) { images.Clear(); session = new BrushSession(source); session.Begin(settings);
++                        captureNative = (gpu || !nativeWindow) && trial == measuredCount; captureScenario = scenario == 0 ? "empty" : "existing"; }
+                     var frames = new List<Frame>(); var privateBytes = new List<long?>();
+                     var gcBefore = Enumerable.Range(0, 3).Select(GC.CollectionCount).ToArray();
+                     process.Refresh(); var cpuBefore = process.TotalProcessorTime;
+@@ -203,6 +246,9 @@
+         }
+         private void Save(string? error, long? sampledPrivatePeak, int measuredCount) => File.WriteAllText(Path.Combine(output, "report.json"),
+             JsonSerializer.Serialize(new { completed = Passed, error, nativeWindow, windowsExecuted = OperatingSystem.IsWindows(),
++                requestedRendering = gpu ? "ANGLE EGL / LowLatencyDxgiSwapChain; synchronous GPU flush" : "Software / RedirectionSurface",
++                gpuSynchronizedDrawCalls = View.GpuSynchronizedDrawCalls, nativeViewportChecks,
++                gpuNotes = "GPU diagnostic forces synchronous submit before lease release; final measured update in each scenario also includes readback/reference check. Physical display and VRAM are not measured.",
+                 platform = Environment.OSVersion.ToString(), processorCount = Environment.ProcessorCount,
+                 runtime = Environment.Version.ToString(), renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
+                 clientWidth = TopLevel.GetTopLevel(View)?.ClientSize.Width, clientHeight = TopLevel.GetTopLevel(View)?.ClientSize.Height, viewport = "1000x1000 logical; 4000x4000 document; scale .25", opacity = 1,

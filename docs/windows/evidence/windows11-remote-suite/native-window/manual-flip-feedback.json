@@ -1,0 +1,30 @@
+{
+  "scope": "User-reported native interaction; not inferred from automated tests",
+  "run": "window-flip-20260921-200520",
+  "case100": {
+    "zoom": 1,
+    "horizontalFlip": true,
+    "rotationDegrees": 0,
+    "requestedActions": [
+      "drag-select first-line 中文",
+      "replace selected two characters with 1",
+      "Ctrl+Z restores original"
+    ],
+    "userReply": "全部正常",
+    "result": "passed by user report"
+  },
+  "case50": {
+    "zoom": 0.5,
+    "horizontalFlip": true,
+    "rotationDegrees": 0,
+    "requestedActions": [
+      "switch to another Windows window and return",
+      "drag-select first-line 中文",
+      "replace selected two characters with 1",
+      "Ctrl+Z restores original"
+    ],
+    "result": "passed by user report",
+    "userReply": "全部正常"
+  },
+  "observation": "CUA screenshot when resuming showed larger unflipped text; the 100% flipped result is attributed to the explicit user reply, not claimed as independently captured. Agent then set and visually confirmed small mirrored text for the 50% test. UU displayed a high network latency warning."
+}

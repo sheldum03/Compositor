@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-02",
+  "method": "Computer Use UU native UI, session3; manually transcribed visible read-only command results",
+  "device": "PEIXU7-GY",
+  "directory": "C:/Users/Administrator/Desktop/CompositorTest",
+  "sourceZip": "CompositorProductionCore-r4.zip",
+  "sourceZipSha256": "0f8ba9c207d0210b6e087807fc92aa75055a9a4b1015a8041d0e631bf7ea9c0f",
+  "sourceDestination": "production-core-r4",
+  "destinationPreviouslyAbsent": true,
+  "extractionReturnedToPrompt": true,
+  "sdkVersion": "10.0.401",
+  "pythonVersion": "3.13.7",
+  "compilerFileObserved": "tools/llvm-mingw-20260908-ucrt-x86_64/bin/clang.exe",
+  "feedObserved": "clean-source-build-20260924-103752/feed",
+  "runner": "run-r4.py",
+  "runnerSha256": "0e8bec8cbc9145340fd14d604f4257a60099836a17bac8656fb322f71a2d2979",
+  "executionStatus": "not executed; awaiting at-action-time Computer Use confirmation",
+  "limits": "No Windows build/test results. Extraction is not a per-file integrity check; runner verifies all 130 source files before build."
+}

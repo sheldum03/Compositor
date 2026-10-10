@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "df3a903c9eba525df30e5a9316cbfe0c4cf6c630",
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/brush-source-r9-preparation/CompositorBrushSourceR9.zip",
+  "bytes": 13914915,
+  "sha256": "4e90fc669a30f36678d8867d36b0ecab4185744fdbcc9bd43d6c4d4f42ddf7cc",
+  "dllSha256": "176db1d51dce2b7291cf670536a09efd2b095b6ef8e2bc278af294275fb4fa62",
+  "baseDllSha256": "e8180a3af4bcfe63163f80b1b335774da10e031ff244c37a0f50df5565ac5986",
+  "checkedDependencies": 33,
+  "windowsExecuted": false
+}

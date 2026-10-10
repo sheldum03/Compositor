@@ -1,0 +1,31 @@
+{
+  "macAdaptation": "Platform guard changed to Unix, SystemDirectory inventory path changed to explicit unavailable directory, exe replaced with existing Mac native probe; manifests regenerated; Windows script unchanged in kit.",
+  "positive": {
+    "exitCode": 0,
+    "summary": "/tmp/compositor-parent-ai-windows/runner-maccheck/ai-run-20260921-152221-42e0cbe9/results/summary.json",
+    "invocations": 8,
+    "rawPredictionEqualExistingMac": true,
+    "profileKernelProviders": {
+      "CPUExecutionProvider": 1344
+    },
+    "unicodeExact": true
+  },
+  "negative": {
+    "exitCode": 1,
+    "summary": "/tmp/compositor-parent-ai-windows/runner-negativecheck/ai-run-20260921-152420-1cc8289f/results/summary.json",
+    "nativeExitCode": 1,
+    "error": "Native inference failed: exit=1; inspect native log and runtimeFiles",
+    "mutation": "input float0 = NaN, manifest updated to reach native finite-input check",
+    "archivePreserved": true
+  },
+  "allResultArchivesExcludeModels": true,
+  "windowsExecuted": false,
+  "networkModelDownloadTestedOnMac": true,
+  "networkModelDownloadTestedOnWindows": false,
+  "downloadRun": {
+    "summary": "/tmp/compositor-parent-ai-windows/runner-maccheck/ai-run-20260921-152626-41388b0c/results/summary.json",
+    "sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+    "bytes": 4574861,
+    "completed": true
+  }
+}

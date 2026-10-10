@@ -1,0 +1,10 @@
+{
+  "ExitCode": 134,
+  "WindowsExecuted": null,
+  "NativeImeExecuted": null,
+  "SampleCount": null,
+  "OrdinaryInkStatus": null,
+  "OrdinaryInkPassed": null,
+  "PreviewExportMismatches": null,
+  "Scope": "Grayscale text coverage fix; visual review and native IME acceptance remain separate"
+}

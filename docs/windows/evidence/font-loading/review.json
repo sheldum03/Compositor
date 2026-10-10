@@ -1,0 +1,63 @@
+{
+  "status": "local font feasibility passed with restricted TTC adapter; Windows pending",
+  "windowsExecuted": false,
+  "fonttools": "4.63.0",
+  "fontFaces": [
+    {
+      "file": "fixture.ttf",
+      "index": 0,
+      "postScriptName": "CompositorFixtureTTF-Regular",
+      "weight": 400,
+      "advanceAt100": 60.0,
+      "sha256": "4b3572badced01242316089f418678439e8a1658a8a54d304a652aef03dfda6b"
+    },
+    {
+      "file": "fixture.otf",
+      "index": 0,
+      "postScriptName": "CompositorFixtureOTF-Regular",
+      "weight": 400,
+      "advanceAt100": 60.0,
+      "sha256": "9c85d509d4db9bddfb3a314493e0f1a962f698ec05c2b6c3a10bdf5cc835ba12"
+    },
+    {
+      "file": "two-faces.ttc",
+      "index": 0,
+      "postScriptName": "CompositorFixtureCollection-Regular",
+      "weight": 400,
+      "advanceAt100": 60.0,
+      "sha256": "64371a0258c8e280c32cd8e7a1dbe78c4e7844aae5e6daa18f7a64d10760375f"
+    },
+    {
+      "file": "two-faces.ttc",
+      "index": 1,
+      "postScriptName": "CompositorFixtureCollection-Bold",
+      "weight": 700,
+      "advanceAt100": 80.0,
+      "sha256": "64371a0258c8e280c32cd8e7a1dbe78c4e7844aae5e6daa18f7a64d10760375f"
+    }
+  ],
+  "localReports": {
+    "baseline.json": "e4af4ed1d5bd5a2275882278d4b9210e4ed917deb3a77607f2bb4d412a40acfa",
+    "layout-adapted.json": "33523ec8f1987ed271eba7038919b4d33254294f246387d93795f24c3c86a1ec",
+    "layout-final.json": "ed9cdb3dc0a2f4a7a2adc1ac6fbb52c8c81e3493297537fe222f452bf085aeda",
+    "layout-final-raw.json": "73c519ed501f203f50c79db11ba16588f13310fb3b380339e0783dfbe9328bf9"
+  },
+  "localProbeDllSha256": "1722aedc9bca450d54ba4a6ed150fb97d155b61568310a8328e3468b920881fc",
+  "windowsPackage": {
+    "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/font-loading-20260923/FontLoadingKit.zip",
+    "bytes": 38823,
+    "sha256": "b616eb2321c2df5ef1572ad486bd2afb80179dc9e6b6161baae28b6175785729",
+    "sourceCommit": "075f2009104e28ff43fb111134976c2d4b6ff0c4",
+    "manifestSha256": "53b32e9da545289ae38127a3f0633ddff6b5ee8bcd9502f9cefd8faf2d6a6934",
+    "dllSha256": "13db945f54205f0949241cbef3196a3c33ba146a38dbd2ad1883969fc7afbd36",
+    "unchangedDependencies": 19,
+    "runtimeFileChecks": 193,
+    "executed": false
+  },
+  "limitations": [
+    "unstable Avalonia API opt-in",
+    "adapter only for unsigned TTC v1 fixture",
+    "no Windows execution",
+    "no PostScript-name resolution, persistence or UI import acceptance"
+  ]
+}

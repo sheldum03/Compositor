@@ -1,0 +1,193 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "6531bd5",
+  "scope": "W-009 native HEIC decoding/relocation preparation on Mac; not Windows clean-machine, full V07 or distribution acceptance",
+  "toolchain": {
+    "libheif": "1.23.4",
+    "libde265": "1.1.1",
+    "cmake": "3.31.6",
+    "compiler": "AppleClang 21",
+    "architecture": "arm64",
+    "macOS": "26.5.1",
+    "xcode": "26.6",
+    "python": "3.9.6",
+    "numpy": "2.0.2",
+    "Pillow": "11.3.0"
+  },
+  "sourceArchives": [
+    {
+      "tag": "v1.23.4",
+      "name": "libheif-1.23.4.tar.gz",
+      "url": "https://github.com/strukturag/libheif/releases/download/v1.23.4/libheif-1.23.4.tar.gz",
+      "bytes": 2217221,
+      "sha256": "d0c02b4b0e978f34a1974b6f3eea7975a537bf7a9195ffeea38e7242ff316fdd",
+      "publishedDigest": "sha256:d0c02b4b0e978f34a1974b6f3eea7975a537bf7a9195ffeea38e7242ff316fdd",
+      "licenseSha256": "fa81ce652315b013359d6e8e4744335f31a50c7c192907176d3632f78a3b4596",
+      "license": "LGPL-3.0-or-later in library source headers; complete COPYING recorded"
+    },
+    {
+      "tag": "v1.1.1",
+      "name": "libde265-1.1.1.tar.gz",
+      "url": "https://github.com/strukturag/libde265/releases/download/v1.1.1/libde265-1.1.1.tar.gz",
+      "bytes": 315566,
+      "sha256": "fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219",
+      "publishedDigest": "sha256:fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219",
+      "licenseSha256": "02cc1585a20677992e0ba578fa692635dc193735f2691dc81de924b51c4e8020",
+      "license": "LGPL-3.0-or-later in library source headers; complete COPYING recorded"
+    }
+  ],
+  "sourceChangesToDependencies": false,
+  "build": {
+    "probeWarningsAsErrors": true,
+    "releaseExitCode": 0,
+    "sanitizerExitCode": 0,
+    "dependencyDebugWarnings": "four upstream sprintf deprecation warnings; no patches/suppression",
+    "externalDecoder": "libde265",
+    "dynamicPluginLoading": false,
+    "externalEncoderCount": 0,
+    "builtinMaskEncoderPresent": true,
+    "unusedHeifioStaged": false
+  },
+  "run": {
+    "output": "compositor-heic-run-02",
+    "exitCode": 0,
+    "cases": 16,
+    "orientations": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "dimensionsCorrect": 16,
+    "alphaExact": 16,
+    "maxPremultipliedRgbError": 1,
+    "imageToleranceAccepted": false,
+    "nonAsciiPathPassedOnMac": true,
+    "decodeWarnings": 0,
+    "failureCasesRejected": 4,
+    "existingOutputPreserved": true,
+    "sourceIccBytesForAllFixtures": 0,
+    "generalIccHdrValidated": false
+  },
+  "relocation": {
+    "stageFiles": [
+      {
+        "path": "Licenses/libde265-COPYING",
+        "bytes": 44339,
+        "sha256": "02cc1585a20677992e0ba578fa692635dc193735f2691dc81de924b51c4e8020"
+      },
+      {
+        "path": "Licenses/libheif-COPYING",
+        "bytes": 44366,
+        "sha256": "fa81ce652315b013359d6e8e4744335f31a50c7c192907176d3632f78a3b4596"
+      },
+      {
+        "path": "heic_probe",
+        "bytes": 62720,
+        "sha256": "ab7de8197ce990562dba0b51a24cb759a5c2242817740c2e1e51f1e5610d40ac"
+      },
+      {
+        "path": "libde265.0.dylib",
+        "bytes": 463600,
+        "sha256": "e39c78fc2edffe9ba70d096a2af1db5613517a9b0aba4c426a99e5641d49056d"
+      },
+      {
+        "path": "libheif.1.dylib",
+        "bytes": 1910216,
+        "sha256": "58b817cc49d826fd6bd2f0a995415993420015b7cb6aaae3343f65151378afc5"
+      }
+    ],
+    "dynamicLinkage": {
+      "heic_probe": [
+        "\t@rpath/libheif.1.dylib (compatibility version 17.0.0, current version 1.23.4)",
+        "\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)",
+        "\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)"
+      ],
+      "libheif.1.dylib": [
+        "\t@rpath/libheif.1.dylib (compatibility version 17.0.0, current version 1.23.4)",
+        "\t@rpath/libde265.0.dylib (compatibility version 0.0.0, current version 0.2.1)",
+        "\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)",
+        "\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)"
+      ],
+      "libde265.0.dylib": [
+        "\t@rpath/libde265.0.dylib (compatibility version 0.0.0, current version 0.2.1)",
+        "\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)",
+        "\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)"
+      ]
+    },
+    "originalPrefixRemovedFromProbeRpath": true,
+    "replacementRpath": "@loader_path",
+    "localAdHocSignatureRefreshed": true,
+    "bothLibrariesLoadedFromRelocatedDirectory": true,
+    "loaderTraceSha256": "72420438a9f797a596446abb1a8dafbc9a5eea87ae15dddfea14d17846107206",
+    "fullHarnessPassedWithInvalidPluginPath": true,
+    "windowsProof": false
+  },
+  "sanitizers": {
+    "asan": true,
+    "ubsan": true,
+    "instrumented": "own C++ and both libheif/libde265 built from source; system libraries uninstrumented",
+    "leakDetection": false,
+    "fullHarnessExitCode": 0,
+    "rawAndPngFilesByteEqualToRelocatedRelease": 50
+  },
+  "nativeResourceObservation": {
+    "sample": "orientation-6-alpha; 64x96",
+    "source": "/usr/bin/time -l",
+    "wallSeconds": 0.06,
+    "maximumResidentSetSizeBytes": 3424256,
+    "readDecodeCopyMilliseconds": 0.458833,
+    "scope": "one tiny native decode; excludes Python/reference generation; not Windows private memory or large-image/long-run performance"
+  },
+  "fixedCorpusHashesVerified": {
+    "base": 91,
+    "brush": 9,
+    "extended": 47,
+    "fonts": 11,
+    "invalid": 84,
+    "heic": 33
+  },
+  "prior242FilesUnchanged": true,
+  "visualInspection": {
+    "artifact": "heic-contact-sheet.png",
+    "result": "all orientation/mirror variants and alpha bands align; one-unit color differences; model inspection only"
+  },
+  "stableArtifactDigest": {
+    "algorithm": "SHA-256 of UTF-8 compact JSON array of sorted {path,bytes,sha256} records",
+    "files": 50,
+    "sha256": "594ed780cb99f2616e408873dba2255695c64c0437a58d9d4b3f1a8b7065531f"
+  },
+  "sha256": {
+    "docs/windows/evidence/heic-contact-sheet.png": "06a302ca1c4a9db1d3d09ca8069ba5e1bb32e7ba88f317fb71f3bd5c32fe2550",
+    "docs/windows/evidence/heic-macos.json": "5e3616b0a752c34890993e7658a145d0a1e7479c5e7bcad9032d8d54e555d9d3",
+    "docs/windows/fixtures/heic/README.md": "d996d605de13f656ba5b0b2b0d514ef74b3b981ff58daac9a1b56c86f0e0e33b",
+    "docs/windows/fixtures/heic/checksums.json": "5fa143e0d9fb5b960224a383c2cd3ff66d6689872cf5be9d4e3c4950cd6eab4e",
+    "experiments/windows/heic/.gitignore": "181314065df2f2fdaf920b1a8b5311daa216a2d6489a06ada5b49cc514d89417",
+    "experiments/windows/heic/CMakeLists.txt": "c1fd24ce9fb4b38ba062773b85570e95f02f498c7698a683c0b85e683fd9e149",
+    "experiments/windows/heic/README.md": "5c87eb49117e619e6015a2cf2b038fe162d00fbe109e99093634341d2bb71d01",
+    "experiments/windows/heic/codecs.cmake": "4f1cee9c0b2d39f035d346bbe9539e9314fbd22778bb1d44f5217c52c3c2919e",
+    "experiments/windows/heic/generate.swift": "dcf143fc4e8040844b5708841a4290712e81c8a412007d89a57b0d39da19b66a",
+    "experiments/windows/heic/probe.cpp": "96cff543a51fe53621b4e5f3dbbfdf84567aa5dde2f4c62bdedf012a56939656",
+    "experiments/windows/heic/requirements.txt": "5f57b2dbce926c06e26a671f6ca513c96a1884da470977b670f7e2c0dd019dbf",
+    "experiments/windows/heic/screen.py": "9e095aa27d832811fa842e3c810e12bd0b5a6562b0f965de42e77a268be34df4"
+  },
+  "runtimeBinariesCommitted": false,
+  "windowsExecuted": false,
+  "macApplicationTestsRun": false,
+  "macProductionCodeChanged": false,
+  "legacyNativeCChanged": false,
+  "W009Passed": false,
+  "W031Passed": false,
+  "M1Passed": false,
+  "remaining": [
+    "Windows clean-machine build/runtime DLL and CRT inventory",
+    "D07 license/distribution and codec patent questions",
+    "Non-sRGB ICC, HDR, NCLX variants, EXIF-only orientation and DPI",
+    "Real tiled camera images, auxiliary images, multi-image/large/malformed corpus",
+    "Product import failure/transaction integration and full M2-M7/release gates"
+  ]
+}

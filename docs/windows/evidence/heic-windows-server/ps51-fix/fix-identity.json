@@ -1,0 +1,9 @@
+{
+  "bytes": 7211,
+  "sha256": "23f70a3bc929ede4bd57d22ad7b9a0d5e0d64781b0353545689cb0b3a5373209",
+  "powershell": "5.1.20348.3932",
+  "wrappedCount": 1,
+  "wrappedFirstType": "System.Object[]",
+  "directCount": 16,
+  "directFirstType": "System.Management.Automation.PSCustomObject"
+}

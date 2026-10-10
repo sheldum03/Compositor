@@ -1,0 +1,6 @@
+{
+  "commit": "2e9bf74723e576fccb5a8b470609ca60b25f118d",
+  "overlay": [
+    "windows/Compositor.SaveCrash.Checks/Program.cs"
+  ]
+}

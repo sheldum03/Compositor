@@ -1,0 +1,61 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 0,
+  "textInputEvents": 0,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1.5,
+  "events": [
+    {
+      "utc": "2026-09-21T07:47:26.0489962Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T07:47:26.59748Z",
+      "name": "native-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1.5
+      }
+    },
+    {
+      "utc": "2026-09-21T07:47:26.6130432Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T07:48:05.5950701Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T07:48:05.7943735Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    }
+  ]
+}

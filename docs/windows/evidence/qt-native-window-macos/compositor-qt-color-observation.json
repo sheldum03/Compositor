@@ -1,0 +1,10 @@
+{
+  "before": {
+    "bluePixels": 0,
+    "darkPixels": 4619
+  },
+  "after": {
+    "bluePixels": 4951,
+    "darkPixels": 0
+  }
+}

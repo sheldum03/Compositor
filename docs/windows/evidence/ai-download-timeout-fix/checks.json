@@ -1,0 +1,47 @@
+[
+  {
+    "case": "success",
+    "exitCode": 0,
+    "elapsedSeconds": 5.098797167000001,
+    "completed": true,
+    "error": null,
+    "download": {
+      "exitCode": 0,
+      "receivedBytes": 4574861,
+      "elapsedSeconds": 0.1326281,
+      "maximumSeconds": 120
+    },
+    "invocations": 8,
+    "windowsExecuted": false
+  },
+  {
+    "case": "timeout",
+    "exitCode": 1,
+    "elapsedSeconds": 2.9187231249999996,
+    "completed": false,
+    "error": "Model download failed: curl exit=28; inspect download.log",
+    "download": {
+      "receivedBytes": 1024,
+      "exitCode": 28,
+      "elapsedSeconds": 2.0920152,
+      "maximumSeconds": 2
+    },
+    "invocations": 0,
+    "windowsExecuted": false
+  },
+  {
+    "case": "wrong-hash",
+    "exitCode": 1,
+    "elapsedSeconds": 0.8986089580000005,
+    "completed": false,
+    "error": "Downloaded model identity mismatch",
+    "download": {
+      "receivedBytes": 4574861,
+      "elapsedSeconds": 0.1299582,
+      "exitCode": 0,
+      "maximumSeconds": 120
+    },
+    "invocations": 0,
+    "windowsExecuted": false
+  }
+]

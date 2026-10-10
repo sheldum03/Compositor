@@ -1,0 +1,207 @@
+{
+  "status": "headless preparation; not native IME or system DPI acceptance",
+  "processId": 40744,
+  "title": "Compositor \u2014 Windows \u539F\u578B\u9A8C\u8BC1 \u00B7 window-check",
+  "windowsExecuted": true,
+  "nativeWindow": false,
+  "requestedRendering": "Headless Skia",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 0,
+  "textInputEvents": 2,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1,
+  "textState": {
+    "text": "\u4E2D\u6587 English \uD83D\uDE42\n\u8BF7\u5207\u6362\u5FAE\u8F6F\u62FC\u97F3\uFF0C\u5728\u8FD9\u91CC\u8F93\u5165\u3001\u53D6\u6D88\u548C\u786E\u8BA4\u3002",
+    "selectedText": "",
+    "caretIndex": 0,
+    "selectionStart": 0,
+    "selectionEnd": 0,
+    "preedit": null,
+    "angle": 13,
+    "zoom": 1,
+    "flipX": true,
+    "flipY": true,
+    "stretchX": 0.75,
+    "renderScaling": 1,
+    "nativePreeditChanges": 0,
+    "textInputEvents": 2
+  },
+  "events": [
+    {
+      "utc": "2026-09-23T10:59:15.9924326Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:16.4625161Z",
+      "name": "headless-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:16.4770886Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T10:59:16.833603Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T10:59:16.8481739Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.0102395Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.1468331Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.2676579Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T10:59:17.3182851Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T10:59:17.3662107Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.376016Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T10:59:17.3795195Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.4408006Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T10:59:17.4747288Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.4841072Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T10:59:17.4869352Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:17.4951304Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T10:59:17.49988Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-23T10:59:17.5006143Z",
+      "name": "headless-window-closed",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    }
+  ]
+}

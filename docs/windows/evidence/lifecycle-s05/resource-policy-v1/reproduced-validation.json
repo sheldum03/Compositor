@@ -1,0 +1,69 @@
+{
+  "sourceReportSha256": "a725d94e92a13d2a26d6443d7e694499fc25fe329cc2339326ab6f8a6340724d",
+  "evaluatorSha256": "bdafbf412e0004beb1b9f80f6ea24a83a783fe83d632923b651290b94261bfee",
+  "controlsSha256": "ba0993a62a2c060666630305032d52b1d26ed05f4fb2026b6db2cd27c62b6359",
+  "calibrationExitCode": 0,
+  "resourceAccepted": false,
+  "cases": [
+    {
+      "case": "peak hidden in trial",
+      "rejected": true
+    },
+    {
+      "case": "warmup peak cannot be excluded",
+      "rejected": true
+    },
+    {
+      "case": "upper envelope growth",
+      "rejected": true
+    },
+    {
+      "case": "lower envelope growth",
+      "rejected": true
+    },
+    {
+      "case": "handle growth",
+      "rejected": true
+    },
+    {
+      "case": "delayed idle growth",
+      "rejected": true
+    },
+    {
+      "case": "retained document",
+      "rejected": true
+    },
+    {
+      "case": "managed survivor budget",
+      "rejected": true
+    },
+    {
+      "case": "missing private bytes",
+      "rejected": true
+    },
+    {
+      "case": "invalid boolean handles",
+      "rejected": true
+    },
+    {
+      "case": "inclusive budget boundaries",
+      "passed": true,
+      "resourceAccepted": false
+    },
+    {
+      "case": "not Windows",
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "case": "incomplete",
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "case": "early forced GC",
+      "exitCode": 1,
+      "rejected": true
+    }
+  ]
+}

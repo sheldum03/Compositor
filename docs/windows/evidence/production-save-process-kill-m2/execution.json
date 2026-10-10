@@ -1,0 +1,43 @@
+{
+  "baseCommit": "6f739b7f07f75317b91261e627cf4e26d24c3960",
+  "overlay": "new SaveCrash.Checks project and friend assembly",
+  "steps": [
+    {
+      "name": "restore",
+      "command": [
+        "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/dotnet-sdk-osx-arm64/dotnet",
+        "restore",
+        "Compositor.SaveCrash.Checks/Compositor.SaveCrash.Checks.csproj",
+        "--locked-mode",
+        "--source",
+        "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows-clean-build-20260924/local-source-preflight/feed",
+        "-p:NuGetAudit=false",
+        "-p:RestorePackagesPath=/tmp/compositor-nuget-packages"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "command": [
+        "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/dotnet-sdk-osx-arm64/dotnet",
+        "build",
+        "Compositor.SaveCrash.Checks/Compositor.SaveCrash.Checks.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "-p:RestorePackagesPath=/tmp/compositor-nuget-packages"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "run",
+      "command": [
+        "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/dotnet-sdk-osx-arm64/dotnet",
+        "Compositor.SaveCrash.Checks/bin/Release/net10.0/Compositor.SaveCrash.Checks.dll",
+        "Compositor.Imaging.Checks/fixtures",
+        "/Users/admin/.codex/visualizations/2026/10/02/production-save-process-kill/output"
+      ],
+      "exitCode": 0
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "localOnly": true,
+  "nativeWindowsFixAccepted": false,
+  "regressionBeforeFixExit": 1,
+  "minimalBeforeFixExit": 1,
+  "minimalRepeatedExit": 1,
+  "cursorAttributeVariantExit": 1,
+  "windowCheckAfterFixExit": 0,
+  "selectedCompositionCases": 4,
+  "selectedCancelCycles": 100,
+  "textExtendedExit": 0,
+  "addressAndUndefinedSanitizersWindowCheckExit": 0,
+  "invalidInitialTextFixtureInvocation": {
+    "exitCode": 1,
+    "message": "Extended corpus count",
+    "correction": "Use fixtures/extended"
+  },
+  "artifactDirectory": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/qt-ime-followup-20260923"
+}

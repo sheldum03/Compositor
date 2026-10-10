@@ -1,0 +1,53 @@
+{"suffix":" English","zoom":1,"flipped":false,"angle":0,"reverse":false,"selected":true,"replaced":true,"changed":1938,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1,"flipped":false,"angle":0,"reverse":true,"selected":true,"replaced":true,"changed":1938,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1,"flipped":false,"angle":13,"reverse":false,"selected":true,"replaced":true,"changed":2037,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1,"flipped":false,"angle":13,"reverse":true,"selected":true,"replaced":true,"changed":2037,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1,"flipped":true,"angle":0,"reverse":false,"selected":true,"replaced":true,"changed":1938,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1,"flipped":true,"angle":0,"reverse":true,"selected":true,"replaced":true,"changed":1938,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1,"flipped":true,"angle":13,"reverse":false,"selected":true,"replaced":true,"changed":2032,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1,"flipped":true,"angle":13,"reverse":true,"selected":true,"replaced":true,"changed":2032,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":0.5,"flipped":false,"angle":0,"reverse":false,"selected":true,"replaced":true,"changed":494,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":0.5,"flipped":false,"angle":0,"reverse":true,"selected":true,"replaced":true,"changed":494,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":0.5,"flipped":false,"angle":13,"reverse":false,"selected":true,"replaced":true,"changed":536,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":0.5,"flipped":false,"angle":13,"reverse":true,"selected":true,"replaced":true,"changed":536,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":0.5,"flipped":true,"angle":0,"reverse":false,"selected":true,"replaced":true,"changed":494,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":0.5,"flipped":true,"angle":0,"reverse":true,"selected":true,"replaced":true,"changed":494,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":0.5,"flipped":true,"angle":13,"reverse":false,"selected":true,"replaced":true,"changed":538,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":0.5,"flipped":true,"angle":13,"reverse":true,"selected":true,"replaced":true,"changed":538,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1.5,"flipped":false,"angle":0,"reverse":false,"selected":true,"replaced":true,"changed":4389,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1.5,"flipped":false,"angle":0,"reverse":true,"selected":true,"replaced":true,"changed":4389,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1.5,"flipped":false,"angle":13,"reverse":false,"selected":true,"replaced":true,"changed":4516,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1.5,"flipped":false,"angle":13,"reverse":true,"selected":true,"replaced":true,"changed":4516,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1.5,"flipped":true,"angle":0,"reverse":false,"selected":true,"replaced":true,"changed":4389,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1.5,"flipped":true,"angle":0,"reverse":true,"selected":true,"replaced":true,"changed":4389,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+{"suffix":" English","zoom":1.5,"flipped":true,"angle":13,"reverse":false,"selected":true,"replaced":true,"changed":4516,"selectedText":"\u6D4B\u8BD5","selectionStart":3,"selectionEnd":5}
+{"suffix":" English","zoom":1.5,"flipped":true,"angle":13,"reverse":true,"selected":true,"replaced":true,"changed":4516,"selectedText":"\u6D4B\u8BD5","selectionStart":5,"selectionEnd":3}
+Unhandled exception. System.ArgumentOutOfRangeException: startIndex ('5') must be less than or equal to '4'. (Parameter 'startIndex')
+Actual value was 5.
+   at System.ArgumentOutOfRangeException.ThrowGreater[T](T value, T other, String paramName)
+   at System.String.Insert(Int32 startIndex, String value)
+   at SpacedTextPresenter.CreateTextLayout() in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/SpacedTextPresenter.cs:line 15
+   at Avalonia.Controls.Presenters.TextPresenter.get_TextLayout()
+   at Avalonia.Controls.Presenters.TextPresenter.MoveCaretToTextPosition(Int32 textPosition, Boolean trailingEdge)
+   at Avalonia.Controls.TextBox.HandleTextInput(String input)
+   at Avalonia.Controls.TextBox.OnTextInput(TextInputEventArgs e)
+   at Avalonia.Input.InputElement.<>c.<.cctor>b__33_4(InputElement x, TextInputEventArgs e)
+   at Avalonia.Interactivity.RoutedEvent`1.<>c__DisplayClass1_0`1.<AddClassHandler>g__Adapter|0(Object sender, RoutedEventArgs e)
+   at Avalonia.Interactivity.RoutedEvent.<>c__DisplayClass23_0.<AddClassHandler>b__0(ValueTuple`2 args)
+   at Avalonia.Reactive.AnonymousObserver`1.OnNext(T value)
+   at Avalonia.Reactive.LightweightObservableBase`1.PublishNext(T value)
+   at Avalonia.Reactive.LightweightSubject`1.OnNext(T value)
+   at Avalonia.Interactivity.RoutedEvent.InvokeRaised(Object sender, RoutedEventArgs e)
+   at Avalonia.Interactivity.EventRoute.RaiseEventImpl(RoutedEventArgs e)
+   at Avalonia.Interactivity.EventRoute.RaiseEvent(Interactive source, RoutedEventArgs e)
+   at Avalonia.Interactivity.Interactive.RaiseEvent(RoutedEventArgs e)
+   at Avalonia.Input.KeyboardDevice.ProcessRawEvent(RawInputEventArgs e)
+   at Avalonia.Input.InputManager.ProcessInput(RawInputEventArgs e)
+   at Avalonia.Controls.TopLevel.<>c.<HandleInput>b__150_0(Object state)
+   at Avalonia.Threading.Dispatcher.Send(SendOrPostCallback action, Object arg, Nullable`1 priority)
+   at Avalonia.Controls.TopLevel.HandleInput(RawInputEventArgs e)
+   at Avalonia.Headless.HeadlessWindowImpl.Avalonia.Headless.IHeadlessWindow.TextInput(String text)
+   at Avalonia.Headless.HeadlessWindowExtensions.<>c__DisplayClass8_0.<KeyTextInput>b__0(IHeadlessWindow w)
+   at Avalonia.Headless.HeadlessWindowExtensions.RunJobsOnImpl(TopLevel topLevel, Action`1 action)
+   at Avalonia.Headless.HeadlessWindowExtensions.KeyTextInput(TopLevel topLevel, String text)
+   at Program.<Main>$(String[] args) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/text-selection-regression/Program.cs:line 47

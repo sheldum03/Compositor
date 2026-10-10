@@ -1,0 +1,426 @@
+{
+  "status": "preparation checks passed; Mac pixel differences are observations, not acceptance",
+  "platform": "macOS 26.5.1",
+  "architecture": "Arm64",
+  "runtime": ".NET 10.0.12",
+  "avalonia": "11.3.22.0",
+  "skiaSharp": "2.88.0.0",
+  "nativeLibrarySha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3",
+  "nativeRenderingFunctions": [
+    "layer_extract_alpha",
+    "layer_unpremultiply_opaque",
+    "layer_restore_alpha"
+  ],
+  "rendering": "CPU Skia; real Avalonia custom control at 96 dpi; explicit sRGB export",
+  "comparedFormat": "decoded sRGB, premultiplied RGBA8; error units 0\u2013255 per channel",
+  "windowsExecuted": false,
+  "corpusHashesVerified": 91,
+  "unsupportedFixturesRejected": 1,
+  "combinationChecks": [
+    "disabled layer mask",
+    "clipping preserves base alpha",
+    "adjustment preserves stack alpha",
+    "disabled group mask",
+    "group coverage applied once",
+    "identity saturation",
+    "zero adjustment opacity",
+    "opaque cube result",
+    "clip cycle rejected",
+    "unsupported adjustment rejected",
+    "RGBA mask rejected"
+  ],
+  "guardChecks": [
+    "hidden ancestor",
+    "duplicate ID",
+    "missing parent",
+    "asset escape",
+    "future version",
+    "invalid opacity",
+    "rotation unsupported",
+    "unknown optional field",
+    "truncated PNG",
+    "existing destination preserved"
+  ],
+  "results": [
+    {
+      "fixture": "F01",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "F02",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "F03",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "F04",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "F05",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "F06",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "F07",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 256,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.040364583333333336,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B01",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B02",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B03",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B04",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B05",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B06",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 14,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.0011393229166666667,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B07",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 1408,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.13736979166666666,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B08",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B09",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 266,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.042154947916666664,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B10",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 1135,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.18473307291666666,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B11",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 1408,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.24967447916666666,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B12",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 1408,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.22802734375,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "fixture": "B13",
+      "customControlDrawCalls": 1,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "renamedCopy": "passed",
+      "macReference": {
+        "DifferentPixels": 1408,
+        "MaximumChannelError": 1,
+        "MeanAbsoluteChannelError": 0.18644205729166666,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    }
+  ]
+}

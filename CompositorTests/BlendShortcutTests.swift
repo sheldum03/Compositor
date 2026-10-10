@@ -31,7 +31,7 @@ struct BlendShortcutTests {
         #expect(window.makeFirstResponder(nil))
         try press(forward: false)
         try press(forward: false)
-        #expect(mode() == .colorBurn) // back past Normal, wrapping to the last mode
+        #expect(mode() == .luminosity) // back past Normal, wrapping to the last of 13 modes
         session.undo()
         #expect(mode() == .normal)
         // Typing in a text field keeps its characters.

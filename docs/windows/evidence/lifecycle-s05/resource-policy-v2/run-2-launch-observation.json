@@ -1,0 +1,18 @@
+{
+  "policyCommit": "8a4d1d8",
+  "run": 2,
+  "windowsOutput": "C:/Users/Administrator/Desktop/CompositorTest/s05-extended-20260924-153229",
+  "pid": 49860,
+  "completed": false,
+  "resourceAccepted": false,
+  "observedReopenedImages": 9,
+  "processObservedResponding": true,
+  "lastObservedCpuSeconds": 238.59375,
+  "recordedUtc": "2026-09-24T07:40:07.033053+00:00",
+  "observations": [
+    "Started once in original UU session2 after run 1 archive and independent review completed",
+    "Independent session3 observed same native PID responding and round output count advancing 2, 5, 9",
+    "No additional heavy Windows workload started"
+  ],
+  "recovery": "Read the same PID, output and archive before considering any relaunch"
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "name": "future-version",
+    "failure": "version"
+  },
+  {
+    "name": "text-in-v7",
+    "failure": "invalid"
+  },
+  {
+    "name": "duplicate-id",
+    "failure": "invalid"
+  },
+  {
+    "name": "missing-parent",
+    "failure": "invalid"
+  },
+  {
+    "name": "group-cycle",
+    "failure": "invalid"
+  },
+  {
+    "name": "mask-cycle",
+    "failure": "invalid"
+  },
+  {
+    "name": "path-escape",
+    "failure": "invalid"
+  },
+  {
+    "name": "oversize-canvas",
+    "failure": "tooLarge"
+  },
+  {
+    "name": "unknown-blend",
+    "failure": "invalid"
+  },
+  {
+    "name": "invalid-opacity",
+    "failure": "invalid"
+  },
+  {
+    "name": "missing-image",
+    "failure": "fileMissing"
+  },
+  {
+    "name": "damaged-image",
+    "failure": "missingImage"
+  },
+  {
+    "name": "nonfinite-transform",
+    "failure": "invalid"
+  },
+  {
+    "name": "numeric-overflow",
+    "failure": "invalid"
+  }
+]

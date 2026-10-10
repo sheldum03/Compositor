@@ -1,0 +1,260 @@
+{
+  "sourceCommit": "cbc28f592ac80fbb5d13d76b90bd746bb058a2ce",
+  "configureExit": 0,
+  "buildExit": 0,
+  "windowsExecuted": false,
+  "files": [
+    {
+      "file": "build/qt_probe.exe",
+      "bytes": 17035776,
+      "sha256": "2453e01da55d24091f42126da91eb5c8fbcb7e70ad641dfa67e74129d4c03a93",
+      "machine": "x86_64"
+    },
+    {
+      "file": "build/native/libcompositor_native.dll",
+      "bytes": 83968,
+      "sha256": "17682b547ef55a6dbc0c67f668d885598db802d393bbc0d335db05866d8b7de9",
+      "machine": "x86_64"
+    },
+    {
+      "file": "build/native/native_contract_tests.exe",
+      "bytes": 86528,
+      "sha256": "4e0837c63aa62d70a9d1ab682b8680af67c32edd42a4115a5b7495fa108dcfc9",
+      "machine": "x86_64"
+    },
+    {
+      "file": "qt/bin/Qt6Core.dll",
+      "bytes": 10773304,
+      "sha256": "d672d0b5be99ffb5bd512e935c6b39429d2c569e430294f907d87da982cb0b55",
+      "machine": "x86_64"
+    },
+    {
+      "file": "qt/bin/Qt6Gui.dll",
+      "bytes": 10901304,
+      "sha256": "14373fdf8387b58db274381eabe277865ac6d0ded519e457ffd959cb15d1449a",
+      "machine": "x86_64"
+    },
+    {
+      "file": "qt/bin/Qt6Widgets.dll",
+      "bytes": 6884152,
+      "sha256": "d9b56253e8f029e23e5291c6d42eab2d74b88ecf5b23609a403198af8d776e04",
+      "machine": "x86_64"
+    },
+    {
+      "file": "qt/plugins/platforms/qoffscreen.dll",
+      "bytes": 118584,
+      "sha256": "676186aa2afec0abcd5a30eb7a1547b43283f7517a2fe3bcad2709ee4ee7a541",
+      "machine": "x86_64"
+    },
+    {
+      "file": "qt/plugins/platforms/qwindows.dll",
+      "bytes": 1267000,
+      "sha256": "7fb737c19f3c4273aa6ec5df41807ea498af7a5eff292975dc3650b5a505b42e",
+      "machine": "x86_64"
+    },
+    {
+      "file": "llvm-mingw-20260908-ucrt-macos-universal/x86_64-w64-mingw32/bin/libc++.dll",
+      "bytes": 2008576,
+      "sha256": "936a36ba1b1b0779067f15b77a92752a9ec29d073183969e76610c9caab4485f",
+      "machine": "x86_64"
+    },
+    {
+      "file": "llvm-mingw-20260908-ucrt-macos-universal/x86_64-w64-mingw32/bin/libunwind.dll",
+      "bytes": 190976,
+      "sha256": "fc8c676629fc5c0a1a1c0bace29f2538306a404a1e1dd15bf1707a3b948c7696",
+      "machine": "x86_64"
+    }
+  ],
+  "bundledSymbolChecks": [
+    {
+      "source": "qt_probe.exe",
+      "dependency": "qt6widgets.dll",
+      "symbols": 202,
+      "missing": []
+    },
+    {
+      "source": "qt_probe.exe",
+      "dependency": "libcompositor_native.dll",
+      "symbols": 3,
+      "missing": []
+    },
+    {
+      "source": "qt_probe.exe",
+      "dependency": "qt6gui.dll",
+      "symbols": 118,
+      "missing": []
+    },
+    {
+      "source": "qt_probe.exe",
+      "dependency": "qt6core.dll",
+      "symbols": 147,
+      "missing": []
+    },
+    {
+      "source": "qt_probe.exe",
+      "dependency": "libc++.dll",
+      "symbols": 40,
+      "missing": []
+    },
+    {
+      "source": "qt_probe.exe",
+      "dependency": "libunwind.dll",
+      "symbols": 1,
+      "missing": []
+    },
+    {
+      "source": "native_contract_tests.exe",
+      "dependency": "libcompositor_native.dll",
+      "symbols": 17,
+      "missing": []
+    },
+    {
+      "source": "native_contract_tests.exe",
+      "dependency": "libc++.dll",
+      "symbols": 11,
+      "missing": []
+    },
+    {
+      "source": "native_contract_tests.exe",
+      "dependency": "libunwind.dll",
+      "symbols": 1,
+      "missing": []
+    },
+    {
+      "source": "Qt6Core.dll",
+      "dependency": "libc++.dll",
+      "symbols": 72,
+      "missing": []
+    },
+    {
+      "source": "Qt6Core.dll",
+      "dependency": "libunwind.dll",
+      "symbols": 1,
+      "missing": []
+    },
+    {
+      "source": "Qt6Gui.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 1093,
+      "missing": []
+    },
+    {
+      "source": "Qt6Gui.dll",
+      "dependency": "libc++.dll",
+      "symbols": 30,
+      "missing": []
+    },
+    {
+      "source": "Qt6Widgets.dll",
+      "dependency": "qt6gui.dll",
+      "symbols": 1638,
+      "missing": []
+    },
+    {
+      "source": "Qt6Widgets.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 941,
+      "missing": []
+    },
+    {
+      "source": "Qt6Widgets.dll",
+      "dependency": "libc++.dll",
+      "symbols": 56,
+      "missing": []
+    },
+    {
+      "source": "qoffscreen.dll",
+      "dependency": "qt6gui.dll",
+      "symbols": 215,
+      "missing": []
+    },
+    {
+      "source": "qoffscreen.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 101,
+      "missing": []
+    },
+    {
+      "source": "qoffscreen.dll",
+      "dependency": "libc++.dll",
+      "symbols": 8,
+      "missing": []
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "qt6gui.dll",
+      "symbols": 751,
+      "missing": []
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 394,
+      "missing": []
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "libc++.dll",
+      "symbols": 22,
+      "missing": []
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "libunwind.dll",
+      "symbols": 1,
+      "missing": []
+    },
+    {
+      "source": "libc++.dll",
+      "dependency": "libunwind.dll",
+      "symbols": 9,
+      "missing": []
+    }
+  ],
+  "externalImports": [
+    "advapi32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
+    "api-ms-win-core-winrt-l1-1-0.dll",
+    "api-ms-win-core-winrt-string-l1-1-0.dll",
+    "api-ms-win-crt-convert-l1-1-0.dll",
+    "api-ms-win-crt-environment-l1-1-0.dll",
+    "api-ms-win-crt-filesystem-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "api-ms-win-crt-locale-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-multibyte-l1-1-0.dll",
+    "api-ms-win-crt-private-l1-1-0.dll",
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "api-ms-win-crt-time-l1-1-0.dll",
+    "api-ms-win-crt-utility-l1-1-0.dll",
+    "authz.dll",
+    "comdlg32.dll",
+    "d3d11.dll",
+    "d3d12.dll",
+    "d3d9.dll",
+    "dwmapi.dll",
+    "dwrite.dll",
+    "dxgi.dll",
+    "gdi32.dll",
+    "imm32.dll",
+    "kernel32.dll",
+    "mpr.dll",
+    "netapi32.dll",
+    "ntdll.dll",
+    "ole32.dll",
+    "oleaut32.dll",
+    "setupapi.dll",
+    "shcore.dll",
+    "shell32.dll",
+    "shlwapi.dll",
+    "user32.dll",
+    "userenv.dll",
+    "uxtheme.dll",
+    "version.dll",
+    "winmm.dll",
+    "ws2_32.dll",
+    "wtsapi32.dll"
+  ]
+}

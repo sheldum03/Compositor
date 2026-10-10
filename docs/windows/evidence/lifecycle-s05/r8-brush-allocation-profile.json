@@ -1,0 +1,13 @@
+{
+  "edits": 100,
+  "updates": 2100,
+  "beginBytes": 2807384,
+  "appendBytes": 256846608,
+  "commitBytes": 103166200,
+  "commitPixelCopies": 102236160,
+  "touchedTiles": 390,
+  "finalTileCount": 210,
+  "finalStoredBytes": 55050240,
+  "finalDigest": "9f82875d4ea2fef45bfb642e257fdab9683cd21124fb52e92ce99bb3b5b73af7",
+  "sourceScope": "Actual brush classes and same S05 input; no renderer, PNG comparison or report checkpoints; managed allocations only"
+}

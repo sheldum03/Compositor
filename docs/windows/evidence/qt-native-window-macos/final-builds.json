@@ -1,0 +1,38 @@
+{
+  "macBuildExitCode": 0,
+  "windowsConfigureExitCode": 0,
+  "windowsBuildExitCode": 0,
+  "windowsExecuted": false,
+  "files": [
+    {
+      "platform": "mac",
+      "name": "qt_probe",
+      "bytes": 17165768,
+      "sha256": "095cd081735ea8ac004146bdda425ddf8877399096807f49a083c34bc43226f3"
+    },
+    {
+      "platform": "mac",
+      "name": "libcompositor_native.dylib",
+      "bytes": 68168,
+      "sha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3"
+    },
+    {
+      "platform": "win-x64",
+      "name": "qt_probe.exe",
+      "bytes": 17139200,
+      "sha256": "21e81803a18366ca541f6f6d7a1f1ba652a2b6f8b3a76c500f1d2d2f2f0bb0e2"
+    },
+    {
+      "platform": "win-x64",
+      "name": "libcompositor_native.dll",
+      "bytes": 83968,
+      "sha256": "daec42a0802414b9f7c0789ccca562e0617419edc58dac44d5f02b3a09835333"
+    },
+    {
+      "platform": "win-x64",
+      "name": "native_contract_tests.exe",
+      "bytes": 86528,
+      "sha256": "6ec5f53752e636413d48e75067c9404a74aa72f64c807b7bea9687c300c7be20"
+    }
+  ]
+}

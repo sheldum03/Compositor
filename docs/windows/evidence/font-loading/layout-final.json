@@ -1,0 +1,82 @@
+{
+  "status": "passed",
+  "windowsExecuted": false,
+  "processId": 34338,
+  "runtime": "10.0.12",
+  "raw": false,
+  "results": [
+    {
+      "file": "fixture.ttf",
+      "index": 0,
+      "expectedWeight": 400,
+      "expectedAdvance": 60,
+      "loaded": true,
+      "family": "Compositor Fixture TTF",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "skiaIndexedWeight": 400,
+      "skiaIndexedAdvance": 60,
+      "layoutWidth": 120,
+      "exactFace": true,
+      "sourceUnchanged": true,
+      "sourceSha256": "4b3572badced01242316089f418678439e8a1658a8a54d304a652aef03dfda6b",
+      "passed": true
+    },
+    {
+      "file": "fixture.otf",
+      "index": 0,
+      "expectedWeight": 400,
+      "expectedAdvance": 60,
+      "loaded": true,
+      "family": "Compositor Fixture OTF",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "skiaIndexedWeight": 400,
+      "skiaIndexedAdvance": 60,
+      "layoutWidth": 120,
+      "exactFace": true,
+      "sourceUnchanged": true,
+      "sourceSha256": "9c85d509d4db9bddfb3a314493e0f1a962f698ec05c2b6c3a10bdf5cc835ba12",
+      "passed": true
+    },
+    {
+      "file": "two-faces.ttc",
+      "index": 0,
+      "expectedWeight": 400,
+      "expectedAdvance": 60,
+      "loaded": true,
+      "family": "Compositor Fixture Collection",
+      "actualWeight": 400,
+      "actualAdvance": 60,
+      "skiaIndexedWeight": 400,
+      "skiaIndexedAdvance": 60,
+      "layoutWidth": 120,
+      "exactFace": true,
+      "sourceUnchanged": true,
+      "sourceSha256": "64371a0258c8e280c32cd8e7a1dbe78c4e7844aae5e6daa18f7a64d10760375f",
+      "passed": true
+    },
+    {
+      "file": "two-faces.ttc",
+      "index": 1,
+      "expectedWeight": 700,
+      "expectedAdvance": 80,
+      "loaded": true,
+      "family": "Compositor Fixture Collection",
+      "actualWeight": 700,
+      "actualAdvance": 80,
+      "skiaIndexedWeight": null,
+      "skiaIndexedAdvance": -1,
+      "layoutWidth": 160,
+      "exactFace": true,
+      "sourceUnchanged": true,
+      "sourceSha256": "64371a0258c8e280c32cd8e7a1dbe78c4e7844aae5e6daa18f7a64d10760375f",
+      "passed": true
+    }
+  ],
+  "rejectedFiles": [
+    "empty.otf",
+    "damaged.ttf",
+    "truncated.ttc"
+  ]
+}

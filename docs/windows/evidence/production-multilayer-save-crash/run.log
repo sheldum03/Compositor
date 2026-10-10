@@ -1,0 +1,15 @@
+PASS: replace-Encoding
+PASS: replace-Prepared
+PASS: replace-OldMoved
+PASS: replace-NewMoved
+PASS: replace-BackupCleanup
+PASS: first-Encoding
+PASS: first-Prepared
+PASS: first-NewMoved
+PASS: multi-replace-Prepared
+PASS: multi-replace-OldMoved
+PASS: multi-replace-NewMoved
+PASS: multi-replace-BackupCleanup
+PASS: multi-first-Prepared
+PASS: multi-first-NewMoved
+PASS: fourteen real child-process save interruptions, single/multilayer recovery, backup protection and source integrity

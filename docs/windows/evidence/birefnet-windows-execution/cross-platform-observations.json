@@ -1,0 +1,10 @@
+{
+  "windowsVsMacObservationOnly": true,
+  "logitsDifferentValues": 903995,
+  "logitsMaxAbsolute": 0.000560760498046875,
+  "logitsMeanAbsolute": 5.404120523522238e-06,
+  "gray8DifferentPixels": 2,
+  "gray8MaxAbsolute": 1,
+  "gray8MeanAbsolute": 7.62939453125e-06,
+  "note": "Different CPU kernels and floating-point execution can differ; no cross-platform prediction tolerance or model quality acceptance"
+}

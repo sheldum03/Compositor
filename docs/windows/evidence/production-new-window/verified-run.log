@@ -1,0 +1,3 @@
+PASS: production soft brush matches fixed M1 pixels, real pointer commit/cancel, viewport and saved export
+PASS: actual new/cancel/invalid dialogs, layer structure/selection buttons, unsaved close and empty save/undo restoration
+PASS: Avalonia production window, layer commands, preview pixels and cancel/save/discard protection

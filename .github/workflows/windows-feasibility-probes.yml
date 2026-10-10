@@ -1,0 +1,161 @@
+name: Windows AI and HEIC feasibility probes
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/windows-implementation]
+    paths:
+      - .github/workflows/windows-feasibility-probes.yml
+      - experiments/windows/ai/**
+      - experiments/windows/heic/**
+      - docs/windows/fixtures/heic/**
+
+permissions:
+  contents: read
+
+jobs:
+  feasibility:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        probe: [ai, heic]
+    env:
+      PROBE_KIND: ${{ matrix.probe }}
+      LIBHEIF_PLUGIN_PATH: C:/compositor-no-plugins
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11.9'
+          architecture: x64
+      - name: Record the runner and install inspection tools
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          New-Item -ItemType Directory -Force build/evidence, build/assets | Out-Null
+          Get-ComputerInfo -Property WindowsProductName, WindowsVersion, OsBuildNumber, OsArchitecture |
+            ConvertTo-Json | Set-Content build/evidence/os.json
+          @("ImageOS=$env:ImageOS", "ImageVersion=$env:ImageVersion", "Commit=$env:GITHUB_SHA") |
+            Set-Content build/evidence/runner.txt
+          $PSVersionTable | Out-String | Set-Content build/evidence/powershell.txt
+          python --version 2>&1 | Tee-Object build/evidence/python.txt
+          python -m pip install --only-binary=:all: cmake==3.31.6 -r "experiments/windows/$env:PROBE_KIND/requirements.txt" 2>&1 |
+            Tee-Object build/evidence/pip-install.txt
+          python -m pip freeze | Set-Content build/evidence/python-packages.txt
+          cmake --version | Tee-Object build/evidence/cmake.txt
+      - name: Download and verify AI inputs and Windows runtime
+        if: matrix.probe == 'ai'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $manifest = Get-Content experiments/windows/ai/assets.json -Raw | ConvertFrom-Json
+          $sdk = $manifest.onnxruntime.windowsArchive
+          $downloads = @(
+            @{ name = 'onnxruntime.zip'; asset = $sdk; digest = $sdk.publishedSha256 },
+            @{ name = 'u2netp.onnx'; asset = $manifest.model; digest = $manifest.model.sha256 },
+            @{ name = 'astronaut.png'; asset = $manifest.sample; digest = $manifest.sample.sha256 }
+          )
+          foreach ($download in $downloads) {
+            $file = "build/assets/$($download.name)"
+            Invoke-WebRequest $download.asset.url -OutFile $file
+            if ((Get-Item $file).Length -ne $download.asset.bytes -or (Get-FileHash $file -Algorithm SHA256).Hash -ne $download.digest) {
+              throw "AI asset identity mismatch: $($download.name)"
+            }
+          }
+          Expand-Archive build/assets/onnxruntime.zip build/assets
+          $ort = "${PWD}/build/assets/onnxruntime-win-x64-1.30.0"
+          "$ort/lib" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          Copy-Item "$ort/LICENSE", "$ort/ThirdPartyNotices.txt", "$ort/Privacy.md" build/evidence/
+          Copy-Item experiments/windows/ai/assets.json build/evidence/assets.json
+      - name: Download and verify HEIC dependency sources
+        if: matrix.probe == 'heic'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $downloads = Get-Content experiments/windows/heic/assets.json -Raw | ConvertFrom-Json
+          foreach ($download in $downloads) {
+            $file = "build/assets/$($download.name)"
+            Invoke-WebRequest $download.url -OutFile $file
+            if ((Get-Item $file).Length -ne $download.bytes -or (Get-FileHash $file -Algorithm SHA256).Hash -ne $download.sha256) {
+              throw "HEIC source identity mismatch: $($download.name)"
+            }
+            tar -xzf $file -C build/assets
+          }
+          Copy-Item build/assets/libde265-1.1.1/COPYING build/evidence/libde265-COPYING
+          Copy-Item build/assets/libheif-1.23.4/COPYING build/evidence/libheif-COPYING
+          Copy-Item experiments/windows/heic/assets.json build/evidence/assets.json
+      - name: Build the AI probe
+        if: matrix.probe == 'ai'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          cmake -S experiments/windows/ai -B build/probe -G "Visual Studio 17 2022" -A x64 "-DORT_ROOT=${PWD}/build/assets/onnxruntime-win-x64-1.30.0" 2>&1 |
+            Tee-Object build/evidence/configure.txt
+          cmake --build build/probe --config Release --parallel 4 2>&1 | Tee-Object build/evidence/build.txt
+      - name: Build HEIC decoder dependencies and probe
+        if: matrix.probe == 'heic'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $prefix = "${PWD}/build/heic-prefix"
+          cmake -S build/assets/libde265-1.1.1 -B build/de265 -G "Visual Studio 17 2022" -A x64 "-DCMAKE_INSTALL_PREFIX=$prefix" -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON -DENABLE_DECODER=OFF -DENABLE_SDL=OFF -DENABLE_SHERLOCK265=OFF 2>&1 |
+            Tee-Object build/evidence/de265-configure.txt
+          cmake --build build/de265 --config Release --parallel 4 2>&1 | Tee-Object build/evidence/de265-build.txt
+          cmake --install build/de265 --config Release 2>&1 | Tee-Object build/evidence/de265-install.txt
+          cmake -S build/assets/libheif-1.23.4 -B build/heif -G "Visual Studio 17 2022" -A x64 -C experiments/windows/heic/codecs.cmake "-DCMAKE_INSTALL_PREFIX=$prefix" "-DCMAKE_PREFIX_PATH=$prefix" -DCMAKE_INSTALL_LIBDIR=lib 2>&1 |
+            Tee-Object build/evidence/heif-configure.txt
+          cmake --build build/heif --config Release --parallel 4 2>&1 | Tee-Object build/evidence/heif-build.txt
+          cmake --install build/heif --config Release 2>&1 | Tee-Object build/evidence/heif-install.txt
+          cmake -S experiments/windows/heic -B build/probe -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=$prefix" 2>&1 |
+            Tee-Object build/evidence/configure.txt
+          cmake --build build/probe --config Release --parallel 4 2>&1 | Tee-Object build/evidence/build.txt
+          "$prefix/bin" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Record DLL hashes and native dependencies
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $runtime = if ($env:PROBE_KIND -eq 'ai') { 'build/assets/onnxruntime-win-x64-1.30.0/lib' } else { 'build/heic-prefix/bin' }
+          Get-ChildItem $runtime -Filter *.dll | Get-FileHash -Algorithm SHA256 |
+            Select-Object Path, Hash | ConvertTo-Json | Set-Content build/evidence/runtime-files.json
+          $vs = & "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $dumpbin = Get-ChildItem "$vs/VC/Tools/MSVC/*/bin/Hostx64/x64/dumpbin.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          if (!$dumpbin) { throw "dumpbin.exe not found" }
+          & $dumpbin.FullName /DEPENDENTS "build/probe/Release/$($env:PROBE_KIND)_probe.exe" |
+            Tee-Object build/evidence/probe-dependencies.txt
+          foreach ($dll in Get-ChildItem $runtime -Filter *.dll) {
+            & $dumpbin.FullName /DEPENDENTS $dll.FullName | Out-File "build/evidence/$($dll.Name)-dependencies.txt"
+          }
+      - name: Run the complete fixed-input harness
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $inputs = if ($env:PROBE_KIND -eq 'ai') { 'build/assets' } else { 'docs/windows/fixtures/heic' }
+          python "experiments/windows/$env:PROBE_KIND/screen.py" $inputs "build/probe/Release/$($env:PROBE_KIND)_probe.exe" build/output 2>&1 |
+            Tee-Object build/evidence/screen.txt
+          $report = Get-Content build/output/screening.json -Raw | ConvertFrom-Json
+          if ($report.windowsExecuted -ne $true) { throw "Expected Windows execution evidence" }
+      - name: Check active AI cancellation and exact recovery
+        if: matrix.probe == 'ai'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          for ($trial = 1; $trial -le 5; $trial++) {
+            $output = "build/output/active-cancel-$trial"
+            & build/probe/Release/ai_probe.exe build/assets/u2netp.onnx build/output/input.f32 $output --active-cancel 2>&1 |
+              Tee-Object "build/evidence/active-cancel-$trial.log"
+            python experiments/windows/ai/review-active-cancel.py $output |
+              Set-Content "build/evidence/active-cancel-$trial-review.json"
+          }
+      - name: Retain diagnostics without model weights or runtime binaries
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-${{ matrix.probe }}-feasibility-${{ github.sha }}
+          path: |
+            build/evidence/
+            build/output/**/*.png
+            build/output/**/*.json
+            build/output/**/*.f32
+            build/output/**/*.bin
+            build/output/**/*.log
+            build/probe/CMakeCache.txt
+            build/de265/CMakeCache.txt
+            build/heif/CMakeCache.txt
+          retention-days: 14

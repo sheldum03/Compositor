@@ -1,0 +1,17 @@
+{
+  "name": "s02-queue-20260922-140121.zip",
+  "bytes": 3203184,
+  "sha256": "247dbfb7853c2885db10f3236ea7817b8ec91c6c687beb64de4ea5ea028578d9",
+  "entries": 5,
+  "crcPassed": true,
+  "pixelComparison": [
+    {
+      "name": "empty-final.png",
+      "differentPixels": 0
+    },
+    {
+      "name": "existing-final.png",
+      "differentPixels": 0
+    }
+  ]
+}

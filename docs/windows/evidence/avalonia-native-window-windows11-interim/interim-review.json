@@ -1,0 +1,16 @@
+{
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "windowsVersion": "10.0.26200",
+  "renderScaling": 1.5,
+  "baselinePreviewExportExact": true,
+  "baselineImageSize": [
+    760,
+    520
+  ],
+  "status": "Incomplete; native candidate appeared, subsequent remote input was not visibly effective; awaiting local-input comparison",
+  "nativeImeAccepted": false,
+  "brushTested": false,
+  "compositionTested": false,
+  "runStillOpen": true
+}

@@ -1,0 +1,10 @@
+{
+  "file": "CompositorQtProbe-cross-build.zip",
+  "bytes": 49731077,
+  "sha256": "9505207b2611da0dac226136a8b613f3b8b7551a7d567fbb8bf464352cba88c0",
+  "manifestFiles": 350,
+  "zipCrcVerified": true,
+  "manifestEntriesVerified": true,
+  "windowsExecuted": false,
+  "powershellParser": "7.6.0 passed; Windows PowerShell 5.1 execution untested"
+}

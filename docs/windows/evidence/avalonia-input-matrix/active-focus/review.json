@@ -1,0 +1,52 @@
+{
+  "status": "fixed active-composition observations verified; full M1 remains open",
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-active-focus-20260927/avalonia-ime-matrix-20260924-174404.zip",
+  "archiveBytes": 642137,
+  "archiveSha256": "a9e6f0f3e4cbbe6860101d86882d1112e3b26cd1145defc7deb3ac6d390902ea",
+  "verifiedFiles": 51,
+  "nativeProcessId": 23668,
+  "nativeExitCode": 0,
+  "windowsExecuted": true,
+  "nativePreviewExportPairsExact": 15,
+  "nativePreeditChanges": 42,
+  "textInputEvents": 2,
+  "injectedInputMethodCalls": 0,
+  "tabCancelThenCommitUndo": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "systemRunLiteralPinyinCommitUndoRedoRestore": [
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "exportCancelExistingRedoRestore": [
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "delayedRemoteTabCancelExistingRedoRestore": [
+    12,
+    13,
+    14,
+    15
+  ],
+  "lastLiveRenderScaling": 1.5,
+  "postCloseRenderScaling": 1,
+  "restoredOriginalText": true,
+  "fullNativeMatrixAccepted": false,
+  "limitations": [
+    "Actions/candidates observed in conversation screenshots, no independent video.",
+    "First export follows an unbaselined cancellation.",
+    "Last tab case includes an extra Esc cancel and delayed input; preedit selection direction is not accepted.",
+    "Idle interval is not a continuous editing or resource test.",
+    "Physical drag, pen, second IME, cross-monitor and full device/release matrix remain open."
+  ],
+  "reviewerSha256": "383e040a93f8234d49b0bbd738b4ac6272aabd0ceb76f33cbdae56b81fcea649"
+}

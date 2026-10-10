@@ -1,0 +1,8 @@
+{
+  "inputs/composite-csharp.png": "a3d75fc39f6c84fe39e928d20ce402c602f8248abb73150e936712ac70db08f4",
+  "inputs/Flat.comp/manifest.json": "989a618b375d2d3c128ad2e5871a7195b4b31f5a85437359ae3fd0c817826deb",
+  "inputs/Flat.comp/images/C60FCE42-D4A0-494B-98DF-65497DE1026F.png": "34fe6297da4acdb820a97f86d9393d633aae6b9df5bdae8752708a69e267d488",
+  "inputs/Flat.comp/images/B5E0E146-7ECF-405D-90EC-C64E833E0119.png": "747a3d75599de86f9a8d67e04517fefaf11caf2e6b6dd0e95594a0cc79afe462",
+  "outputs/mac-render.png": "8ae24b1290edc0c59008230ca47b7efbb14947497793cded12a5db3d0a0dc40c",
+  "outputs/comparison.json": "7383cd88a8b4ace85f396017258b776a177b5bca26d3bc89b190840884bdd193"
+}

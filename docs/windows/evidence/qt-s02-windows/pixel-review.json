@@ -1,0 +1,58 @@
+{
+  "nativeBackingPairsExact": true,
+  "finalsStableAcrossRuns": true,
+  "pixels": [
+    {
+      "case": "first",
+      "scenario": "empty",
+      "viewportShape": [
+        1500,
+        1500,
+        4
+      ],
+      "viewportExact": true,
+      "finalRgbaSha256": "441e21463f0ad194232f19c1a97def0ed33c0f6bea3d85a333d5355363f12669",
+      "localReferenceDifferentPixels": 69022,
+      "localReferenceMaximumChannelDifference": 1
+    },
+    {
+      "case": "first",
+      "scenario": "existing",
+      "viewportShape": [
+        1500,
+        1500,
+        4
+      ],
+      "viewportExact": true,
+      "finalRgbaSha256": "8dda8214330d32e02080f06d05cbc37800c9eccb79bbe6eefe886e59eb048fe4",
+      "localReferenceDifferentPixels": 129384,
+      "localReferenceMaximumChannelDifference": 1
+    },
+    {
+      "case": "repeat",
+      "scenario": "empty",
+      "viewportShape": [
+        1500,
+        1500,
+        4
+      ],
+      "viewportExact": true,
+      "finalRgbaSha256": "441e21463f0ad194232f19c1a97def0ed33c0f6bea3d85a333d5355363f12669",
+      "localReferenceDifferentPixels": 69022,
+      "localReferenceMaximumChannelDifference": 1
+    },
+    {
+      "case": "repeat",
+      "scenario": "existing",
+      "viewportShape": [
+        1500,
+        1500,
+        4
+      ],
+      "viewportExact": true,
+      "finalRgbaSha256": "8dda8214330d32e02080f06d05cbc37800c9eccb79bbe6eefe886e59eb048fe4",
+      "localReferenceDifferentPixels": 129384,
+      "localReferenceMaximumChannelDifference": 1
+    }
+  ]
+}

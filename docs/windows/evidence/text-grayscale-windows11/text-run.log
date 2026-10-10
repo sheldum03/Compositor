@@ -1,0 +1,669 @@
+﻿{
+  "status": "local preparation only; synthetic input is not Windows IME acceptance",
+  "platform": "Microsoft Windows 10.0.26200",
+  "architecture": "X64",
+  "runtime": ".NET 10.0.12",
+  "avalonia": "11.3.22.0",
+  "windowsExecuted": true,
+  "nativeImeExecuted": false,
+  "font": "Source Han Sans SC",
+  "fontSha256": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+  "corpusHashesVerified": 47,
+  "spacingChecks": "positive/negative additive spacing, tracking and layout invalidation passed",
+  "placement": "rerasterized layout fitted to each existing fixture rectangle; no cache or scale-policy change",
+  "results": [
+    {
+      "fixture": "F11-300-box-center",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 360,
+      "naturalHeight": 857.55107421875,
+      "lines": 7,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9783673826825411,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 357,
+        "maximumInverseError": 2.2737367544323206E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 139.89583333333331,
+          "Y": 121.1,
+          "Width": 0,
+          "Height": 121.1
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 47811,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.8313929283016623,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 37800
+      }
+    },
+    {
+      "fixture": "F11-300-box-left",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 360,
+      "naturalHeight": 857.55107421875,
+      "lines": 7,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9783673826825411,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 357,
+        "maximumInverseError": 2.2737367544323206E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 0,
+          "Y": 121.1,
+          "Width": 0,
+          "Height": 121.1
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 47404,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.714316992297856,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 36477
+      }
+    },
+    {
+      "fixture": "F11-300-box-right",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 360,
+      "naturalHeight": 857.55107421875,
+      "lines": 7,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9783673826825411,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 357,
+        "maximumInverseError": 2.2737367544323206E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 257.7833333333333,
+          "Y": 121.1,
+          "Width": 0,
+          "Height": 121.1
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 55809,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 4.357911797067833,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 50255
+      }
+    },
+    {
+      "fixture": "F11-300-point-center",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 1193,
+      "naturalHeight": 252.05107421875,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9932942162615256,
+      "scaleY": 0.9204483683281267,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 336,
+        "maximumInverseError": 3.765876499528531E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 482.71907552083337,
+          "Y": 0,
+          "Width": 0,
+          "Height": 130.95107421875
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 55034,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 3.706852656152614,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 50339
+      }
+    },
+    {
+      "fixture": "F11-300-point-left",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 1193,
+      "naturalHeight": 252.05107421875,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9932942162615256,
+      "scaleY": 0.9204483683281267,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 336,
+        "maximumInverseError": 3.765876499528531E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 320.8333333333333,
+          "Y": 0,
+          "Width": 0,
+          "Height": 130.95107421875
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 48983,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 2.6618250515396746,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 41043
+      }
+    },
+    {
+      "fixture": "F11-300-point-right",
+      "fontSizePixels": 75,
+      "letterSpacingPixels": 5.208333333333334,
+      "lineSpacingPixels": 12.5,
+      "naturalWidth": 1193,
+      "naturalHeight": 252.05107421875,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9932942162615256,
+      "scaleY": 0.9204483683281267,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 336,
+        "maximumInverseError": 3.765876499528531E-13,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 591.6353841145833,
+          "Y": 0,
+          "Width": 0,
+          "Height": 130.95107421875
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 54370,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 3.5631694472070228,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 49592
+      }
+    },
+    {
+      "fixture": "F11-72-box-center",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 360,
+      "naturalHeight": 60.4922578125,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9422693425772849,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 102,
+        "maximumInverseError": 7.105427357601002E-14,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 152.692578125,
+          "Y": 0,
+          "Width": 0,
+          "Height": 31.4282578125
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4900,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.484496092870695,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4770
+      }
+    },
+    {
+      "fixture": "F11-72-box-left",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 360,
+      "naturalHeight": 60.4922578125,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9422693425772849,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 102,
+        "maximumInverseError": 7.105427357601002E-14,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 77,
+          "Y": 0,
+          "Width": 0,
+          "Height": 31.4282578125
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4658,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.1768699553011543,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4459
+      }
+    },
+    {
+      "fixture": "F11-72-box-right",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 360,
+      "naturalHeight": 60.4922578125,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -1,
+      "scaleY": 0.9422693425772849,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 102,
+        "maximumInverseError": 7.105427357601002E-14,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": false,
+        "inverseM33": 1,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 215.6724921875,
+          "Y": 0,
+          "Width": 0,
+          "Height": 31.4282578125
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4700,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.299811878959385,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4538
+      }
+    },
+    {
+      "fixture": "F11-72-point-center",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 287,
+      "naturalHeight": 60.4922578125,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9930313588850174,
+      "scaleY": 0.9422693425772849,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 82,
+        "maximumInverseError": 4.028320312698952E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 116.19257812500001,
+          "Y": 0,
+          "Width": 0,
+          "Height": 31.4282578125
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4801,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.7728938564476886,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4639
+      }
+    },
+    {
+      "fixture": "F11-72-point-left",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 287,
+      "naturalHeight": 60.4922578125,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9930313588850174,
+      "scaleY": 0.9422693425772849,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 82,
+        "maximumInverseError": 4.028320312698952E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 77,
+          "Y": 0,
+          "Width": 0,
+          "Height": 31.4282578125
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4484,
+        "MaximumChannelError": 161,
+        "MeanAbsoluteChannelError": 1.3114405920519059,
+        "MaximumAlphaError": 161,
+        "PixelsWithErrorAbove1": 4278
+      }
+    },
+    {
+      "fixture": "F11-72-point-right",
+      "fontSizePixels": 18,
+      "letterSpacingPixels": 1.25,
+      "lineSpacingPixels": 3,
+      "naturalWidth": 287,
+      "naturalHeight": 60.4922578125,
+      "lines": 2,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ],
+      "scaleX": -0.9930313588850174,
+      "scaleY": 0.9422693425772849,
+      "previewExport": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      },
+      "transformedHits": {
+        "samples": 82,
+        "maximumInverseError": 4.028320312698952E-05,
+        "inverseTolerancePixels": 0.001,
+        "inverseHasPerspective": true,
+        "inverseM33": 0.9999999999999999,
+        "clusterBoundaryViolations": 0
+      },
+      "syntheticInput": {
+        "preeditCancelCommitUndoRedoSelection": "passed",
+        "cancelledPixelsExact": true,
+        "cursor": {
+          "X": 142.6724921875,
+          "Y": 0,
+          "Width": 0,
+          "Height": 31.4282578125
+        }
+      },
+      "macReference": {
+        "DifferentPixels": 4746,
+        "MaximumChannelError": 166,
+        "MeanAbsoluteChannelError": 1.718440794809408,
+        "MaximumAlphaError": 166,
+        "PixelsWithErrorAbove1": 4603
+      }
+    }
+  ]
+}
+{
+  "status": "passed",
+  "results": [
+    {
+      "Fixture": "F11-300-box-center",
+      "OrdinaryInk": 11843.152941176471,
+      "ReferenceInk": 13734.549019607843,
+      "Ratio": 0.8622891748588789,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-box-left",
+      "OrdinaryInk": 11842.807843137254,
+      "ReferenceInk": 13738.874509803922,
+      "Ratio": 0.8619925769528171,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-box-right",
+      "OrdinaryInk": 11842.839215686274,
+      "ReferenceInk": 13738.356862745099,
+      "Ratio": 0.8620273395140154,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-point-center",
+      "OrdinaryInk": 11062.443137254902,
+      "ReferenceInk": 13737.596078431372,
+      "Ratio": 0.8052677538411122,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-point-left",
+      "OrdinaryInk": 11062.654901960785,
+      "ReferenceInk": 13737.019607843138,
+      "Ratio": 0.8053169623230771,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-300-point-right",
+      "OrdinaryInk": 11062.69019607843,
+      "ReferenceInk": 13737.745098039215,
+      "Ratio": 0.805277002676182,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-box-center",
+      "OrdinaryInk": 749.5960784313726,
+      "ReferenceInk": 880.8196078431373,
+      "Ratio": 0.8510211077917625,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-box-left",
+      "OrdinaryInk": 749.5176470588235,
+      "ReferenceInk": 882.7294117647059,
+      "Ratio": 0.8490910544834204,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-box-right",
+      "OrdinaryInk": 749.4862745098039,
+      "ReferenceInk": 881.0431372549019,
+      "Ratio": 0.8506805658177028,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-point-center",
+      "OrdinaryInk": 744.3372549019608,
+      "ReferenceInk": 879.0627450980393,
+      "Ratio": 0.8467396201837072,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-point-left",
+      "OrdinaryInk": 744.1960784313726,
+      "ReferenceInk": 880.0980392156863,
+      "Ratio": 0.8455831569566671,
+      "Passed": true
+    },
+    {
+      "Fixture": "F11-72-point-right",
+      "OrdinaryInk": 744.2666666666667,
+      "ReferenceInk": 881.0431372549019,
+      "Ratio": 0.8447562158938158,
+      "Passed": true
+    }
+  ]
+}

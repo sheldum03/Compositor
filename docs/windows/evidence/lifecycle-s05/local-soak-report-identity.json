@@ -1,0 +1,8 @@
+{
+  "path": "/tmp/compositor-s05-soak-check-20260922/report.json",
+  "bytes": 9639742,
+  "sha256": "8c43ef4d02a1d76cfb2bf190d5b11171eda3cbcc5f7fa43f318aead2e1a3162c",
+  "platform": "macOS headless correctness diagnostic",
+  "independentlyEqualPngPairs": 9,
+  "windowsResourceAccepted": false
+}

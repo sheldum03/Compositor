@@ -1,0 +1,17 @@
+[
+  {
+    "name": "av_libglesv2.dll",
+    "machine": "AMD64 (0x8664)",
+    "sha256": "9b203e40323b49dad29546a52b8b67d200bba8ff4cab9709a79cede23ba847d4"
+  },
+  {
+    "name": "libHarfBuzzSharp.dll",
+    "machine": "AMD64 (0x8664)",
+    "sha256": "eb76238c9e8e41d44b5a5b18167c4c5b39ca5db4277af5dbe92d730f0fc14a7d"
+  },
+  {
+    "name": "libSkiaSharp.dll",
+    "machine": "AMD64 (0x8664)",
+    "sha256": "9a0d95e8caaa852c70d085af6a40a744242172ad9ea3fd6bc7599875a8a1dbcd"
+  }
+]

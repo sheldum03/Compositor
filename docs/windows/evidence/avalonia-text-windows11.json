@@ -1,0 +1,24 @@
+{
+  "evidenceSource": "Initially user-pasted summary; subsequently checked against the uploaded original archive. See artifactReview for independent PNG checks and Mac readback.",
+  "environmentEvidence": "native-probe-windows11.json",
+  "testPackageSha256": "d3dac08a54f8f34ae54019ea99a40d1b13faf8b5e70fdff734db75591edafef1",
+  "outputDirectory": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\text-run-20260921-114831",
+  "summary": {
+    "Status": "local preparation only; synthetic input is not Windows IME acceptance",
+    "WindowsExecuted": true,
+    "NativeImeExecuted": false,
+    "SampleCount": 12,
+    "PreviewExportMismatches": 0,
+    "SyntheticInputPassed": 12,
+    "CancelPixelMismatches": 0
+  },
+  "scope": "Existing headless CPU shared text-layout probe with synthetic input through the framework input client",
+  "limitations": [
+    "Uploaded PNGs fail visual correctness: Chinese/Latin glyphs largely missing or fragmented; shared preview/export equality and nonempty output did not detect this",
+    "Synthetic input does not exercise Microsoft Pinyin or any native OS input method",
+    "No native window, DPI, keyboard/focus lifecycle, GPU or performance acceptance",
+    "This text probe has no document save/reopen path",
+    "W-008 and M1 remain incomplete"
+  ],
+  "artifactReview": "windows11-artifact-review/review-summary.json"
+}

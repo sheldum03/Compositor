@@ -1,0 +1,89 @@
+{
+  "status": "local feasibility only; no Windows/quality/distribution acceptance",
+  "modelSha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+  "inputImageSha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+  "inputTensorSha256": "d085f68b79a2a856160a0ea207180658a3d58da7d77feaca7b1fffcca4136951",
+  "onnx": {
+    "irVersion": 6,
+    "producer": "pytorch",
+    "producerVersion": "1.9",
+    "opset": 11,
+    "nodeCount": 1055,
+    "operators": {
+      "Add": 11,
+      "Cast": 38,
+      "Concat": 127,
+      "Constant": 266,
+      "Conv": 119,
+      "Gather": 76,
+      "MaxPool": 33,
+      "Relu": 112,
+      "Resize": 38,
+      "Shape": 114,
+      "Sigmoid": 7,
+      "Slice": 38,
+      "Unsqueeze": 76
+    },
+    "externalData": false,
+    "customOperators": false
+  },
+  "profileKernelProviders": {
+    "CPUExecutionProvider": 1344
+  },
+  "inference": {
+    "onnxruntime": "1.30.0",
+    "execution": "CPU default; one intra/inter-op thread; sequential",
+    "sessionLoadMilliseconds": 58.276125,
+    "inferenceMilliseconds": [
+      225.460125,
+      152.61925,
+      103.972541
+    ],
+    "outputMinimum": 1.19209289551e-07,
+    "outputMaximum": 0.999999523163,
+    "repeatedPredictionsExact": true,
+    "preTerminatedRunRejected": true,
+    "sessionRecovered": true,
+    "activeInferenceCancellationTested": false
+  },
+  "mask": {
+    "mode": "L",
+    "size": [
+      512,
+      512
+    ],
+    "zeroPixels": 108712,
+    "fullPixels": 395,
+    "intermediatePixels": 153037,
+    "sha256": "e357796da5eb9713ef02ef4393fc37a42f619f6f6d2c2c57a8d721f93e1ac463",
+    "rawPredictionSha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+  },
+  "failureChecks": [
+    {
+      "case": "short-input",
+      "exitCode": 1,
+      "noMaskPublished": true
+    },
+    {
+      "case": "nan-input",
+      "exitCode": 1,
+      "noMaskPublished": true
+    },
+    {
+      "case": "missing-model",
+      "exitCode": 1,
+      "noMaskPublished": true
+    },
+    {
+      "case": "invalid-model",
+      "exitCode": 1,
+      "noMaskPublished": true
+    }
+  ],
+  "existingOutputRefusedAndPreserved": true,
+  "sourceFilesUnchanged": true,
+  "host": "macOS-26.5.1-arm64-arm-64bit",
+  "windowsExecuted": false,
+  "weightsRedistributionApproved": false,
+  "activeInferenceCancellationTested": false
+}

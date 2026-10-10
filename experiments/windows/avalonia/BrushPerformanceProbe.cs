@@ -1,0 +1,269 @@
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using Avalonia.Skia;
+using SkiaSharp;
+
+// Fixed S02 replay and S05 resource workload. Timings end after releasing the Skia canvas lease, not at physical presentation.
+internal static partial class BrushPerformanceProbe
+{
+    internal static void Window(string fixtures, string output, bool small = false, int resourceRounds = 0, bool resourceIdle = false) => AppBuilder.Configure(() => new ProbeApp(fixtures, output, small, resourceRounds, resourceIdle))
+        .UsePlatformDetect()
+        .With(new Win32PlatformOptions { RenderingMode = [Win32RenderingMode.Software], CompositionMode = [Win32CompositionMode.RedirectionSurface] })
+        .With(new AvaloniaNativePlatformOptions { RenderingMode = [AvaloniaNativeRenderingMode.Software] })
+        .StartWithClassicDesktopLifetime([]);
+
+    private sealed class ProbeApp(string fixtures, string output, bool small, int resourceRounds, bool resourceIdle) : Application
+    {
+        public override void OnFrameworkInitializationCompleted()
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                var run = new Run(fixtures, output, true);
+                var window = new Window { Title = resourceRounds > 0 ? $"Compositor S05 — {resourceRounds} rounds of 100 edits" : "Compositor S02 — running", Width = small ? 700 : 1024, Height = small ? 700 : 1040, Content = run.View, CanResize = false };
+                window.Closed += (_, _) => { run.WindowClosed = true; run.Stop.Cancel(); };
+                window.Opened += (_, _) => Dispatcher.UIThread.Post(async () =>
+                {
+                    if (resourceRounds > 0) await run.ExecuteLong(() => run.View.InvalidateVisual(), resourceRounds, resourceIdle);
+                    else await run.Execute(30, () => run.View.InvalidateVisual());
+                    desktop.Shutdown(run.Passed ? 0 : 1);
+                });
+                desktop.MainWindow = window;
+            }
+            base.OnFrameworkInitializationCompleted();
+        }
+    }
+
+    internal static void Check(string fixtures, string output, int resourceRounds = 0, bool resourceIdle = false)
+    {
+        var run = new Run(fixtures, output, false);
+        run.View.Measure(new Size(1000, 1000)); run.View.Arrange(new Rect(0, 0, 1000, 1000));
+        using var target = new RenderTargetBitmap(new PixelSize(1000, 1000), new Vector(96, 96));
+        (resourceRounds > 0 ? run.ExecuteLong(() => target.Render(run.View), resourceRounds, resourceIdle) : run.Execute(1, () => target.Render(run.View))).GetAwaiter().GetResult();
+        if (!run.Passed) throw new InvalidOperationException("Brush harness check failed; see report.json");
+    }
+
+    private sealed partial class Run
+    {
+        private readonly string fixtures, output;
+        private readonly bool nativeWindow;
+        private readonly object gate = new();
+        private readonly TileImageCache images = new();
+        private bool closed;
+        private bool captureViewport;
+        private string captureScenario = "";
+        private string? viewportError;
+        private sealed record ViewportCheck(string Scenario, int Width, int Height, int DifferentPixels, int MaximumChannelError);
+        private readonly List<ViewportCheck> viewportChecks = [];
+        private readonly List<object> trials = [];
+        private readonly SoftBrushSettings settings = new(800, 1, [1, 0.3, 0.1]);
+        private BrushSession session = new(new TiledRaster(4000, 4000));
+        private TaskCompletionSource<Frame>? pending;
+        private long started, requestedAt, queuedAt, renderEnteredAt, paintedAt, paintEndedAt, copied;
+        private double appendMs, paintMs;
+        private int sequence, paintedSequence, renderThread;
+        public SceneControl View { get; }
+        public CancellationTokenSource Stop { get; } = new();
+        public bool Passed { get; private set; }
+        public bool WindowClosed { get; set; }
+        private sealed record Frame(int Sequence, double AppendMilliseconds, double PaintMilliseconds,
+            double UpdateToCanvasLeaseReleasedMilliseconds, long NativePixelCopyBytes, int RenderThread,
+            double RequestToRenderMilliseconds, double CanvasAcquireMilliseconds, double CanvasReleaseMilliseconds,
+            double RequestToSceneMilliseconds, double SceneToRenderMilliseconds);
+
+        internal Run(string fixtures, string output, bool nativeWindow)
+        {
+            this.fixtures = fixtures; this.output = output; this.nativeWindow = nativeWindow;
+            View = new SceneControl(1000, 1000, Paint, Painted, () => { lock (gate) renderEnteredAt = Stopwatch.GetTimestamp(); },
+                () => { lock (gate) queuedAt = Stopwatch.GetTimestamp(); }, InspectViewport) { Width = 1000, Height = 1000 };
+        }
+        private void Paint(SKCanvas canvas)
+        {
+            lock (gate)
+            {
+                if (closed) return;
+                long t = Stopwatch.GetTimestamp();
+                canvas.Save(); canvas.Scale(0.25f);
+                copied = session.Active is { } stroke ? stroke.Paint(canvas, images) : session.Current.Paint(canvas, images: images);
+                canvas.Restore();
+                paintEndedAt = Stopwatch.GetTimestamp();
+                paintMs = Stopwatch.GetElapsedTime(t, paintEndedAt).TotalMilliseconds;
+                paintedSequence = sequence; paintedAt = t; renderThread = Environment.CurrentManagedThreadId;
+            }
+        }
+        private void InspectViewport(ISkiaSharpApiLease lease)
+        {
+            lock (gate)
+            {
+                if (!captureViewport || sequence % 121 != 0) return;
+                captureViewport = false;
+                try
+                {
+                    var matrix = lease.SkCanvas.TotalMatrix;
+                    var bounds = SKRectI.Round(matrix.MapRect(new SKRect(0, 0, 1000, 1000)));
+                    using var srgb = SKColorSpace.CreateSrgb();
+                    var info = new SKImageInfo(bounds.Width, bounds.Height, SKColorType.Rgba8888, SKAlphaType.Premul, srgb);
+                    using var actual = new SKBitmap(info);
+                    using var expected = new SKBitmap(info);
+                    if (lease.SkSurface is not { } native || !native.ReadPixels(info, actual.GetPixels(), actual.RowBytes, bounds.Left, bounds.Top))
+                        throw new InvalidOperationException("Native viewport readback failed");
+                    using var reference = SKSurface.Create(info);
+                    reference.Canvas.Clear(nativeWindow ? SKColors.White : SKColors.Transparent);
+                    reference.Canvas.Translate(-bounds.Left, -bounds.Top);
+                    reference.Canvas.Concat(ref matrix); reference.Canvas.Scale(.25f);
+                    session.Active!.Paint(reference.Canvas);
+                    if (!reference.ReadPixels(info, expected.GetPixels(), expected.RowBytes, 0, 0))
+                        throw new InvalidOperationException("Reference viewport readback failed");
+                    byte[] a = actual.Bytes, b = expected.Bytes;
+                    int different = 0, maxError = 0;
+                    for (int i = 0; i < a.Length; i += 4)
+                    {
+                        bool changed = false;
+                        for (int c = 0; c < 4; c++) { int error = Math.Abs(a[i + c] - b[i + c]); changed |= error != 0; maxError = Math.Max(maxError, error); }
+                        if (changed) different++;
+                    }
+                    foreach (var (name, bitmap) in new[] { ("native", actual), ("reference", expected) })
+                    {
+                        using var image = SKImage.FromBitmap(bitmap);
+                        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+                        using var file = File.Create(Path.Combine(output, captureScenario + "-" + name + "-preview.png")); data.SaveTo(file);
+                    }
+                    viewportChecks.Add(new(captureScenario, bounds.Width, bounds.Height, different, maxError));
+                }
+                catch (Exception e) { viewportError = e.ToString(); }
+            }
+        }
+        private void Painted()
+        {
+            lock (gate)
+            {
+                if (pending is not { } completion || paintedSequence != sequence || paintedAt < started) return;
+                var frame = new Frame(sequence, appendMs, paintMs, Stopwatch.GetElapsedTime(started).TotalMilliseconds, copied, renderThread,
+                    Stopwatch.GetElapsedTime(requestedAt, renderEnteredAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(renderEnteredAt, paintedAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(paintEndedAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(requestedAt, queuedAt).TotalMilliseconds,
+                    Stopwatch.GetElapsedTime(queuedAt, renderEnteredAt).TotalMilliseconds);
+                pending = null; completion.SetResult(frame);
+            }
+        }
+        private async Task<Frame> Update(BrushPoint point, Action render)
+        {
+            if (nativeWindow) Dispatcher.UIThread.VerifyAccess();
+            Task<Frame> frame;
+            lock (gate)
+            {
+                if (pending is not null) throw new InvalidOperationException("Previous frame was not consumed");
+                started = Stopwatch.GetTimestamp();
+                session.Active!.Append(point);
+                appendMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                sequence++;
+                pending = new(TaskCreationOptions.RunContinuationsAsynchronously); frame = pending.Task;
+                requestedAt = Stopwatch.GetTimestamp();
+            }
+            render();
+            return await frame.WaitAsync(TimeSpan.FromSeconds(10), Stop.Token);
+        }
+        internal async Task Execute(int measuredCount, Action render)
+        {
+            string? error = null; long? sampledPrivatePeak = null;
+            using var process = Process.GetCurrentProcess();
+            try
+            {
+                if (nativeWindow && (TopLevel.GetTopLevel(View) is not { } top ||
+                    top.ClientSize.Width < 1000 || top.ClientSize.Height < 1000 || !View.IsEffectivelyVisible))
+                    throw new InvalidOperationException("S02 needs a fully visible 1000x1000 logical viewport; current screen/DPI cannot provide it");
+                var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(fixtures, "checksums.json")))!.AsArray();
+                foreach (var item in manifest)
+                {
+                    string path = Path.Combine(fixtures, item!["path"]!.GetValue<string>());
+                    if (new FileInfo(path).Length != item["bytes"]!.GetValue<long>() ||
+                        Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant() != item["sha256"]!.GetValue<string>())
+                        throw new InvalidDataException("Frozen brush corpus identity changed");
+                }
+                var input = JsonNode.Parse(File.ReadAllText(Path.Combine(fixtures, "soft-crossing-4k.json")))!;
+                if (input["width"]!.GetValue<int>() != 4000 || input["height"]!.GetValue<int>() != 4000 ||
+                    input["diameter"]!.GetValue<int>() != 800 || input["hardness"]!.GetValue<double>() != 0)
+                    throw new InvalidDataException("S02 source workload mismatch");
+                var paths = input["strokes"]!.AsArray().Select(path => path!.AsArray().Select(p =>
+                    new BrushPoint(p![0]!.GetValue<double>(), p[1]!.GetValue<double>())).ToArray()).ToArray();
+                if (paths.Length != 2 || paths.Any(p => p.Length != 121)) throw new InvalidDataException("Expected pointer-down plus 120 updates");
+                var empty = new TiledRaster(4000, 4000);
+                var existing = SoftBrushStroke.ReplaySettled(empty, settings, paths[0]);
+                var expected = new[] { SoftBrushStroke.ReplaySettled(empty, settings, paths[1]), SoftBrushStroke.ReplaySettled(existing, settings, paths[1]) };
+                for (int scenario = 0; scenario < 2; scenario++)
+                for (int trial = 0; trial <= measuredCount; trial++)
+                {
+                    Stop.Token.ThrowIfCancellationRequested();
+                    var source = scenario == 0 ? empty : existing;
+                    string sourceDigest = source.Digest();
+                    lock (gate) { images.Clear(); session = new BrushSession(source); session.Begin(settings);
+                        captureViewport = trial == measuredCount; captureScenario = scenario == 0 ? "empty" : "existing"; }
+                    var frames = new List<Frame>(); var privateBytes = new List<long?>();
+                    var gcBefore = Enumerable.Range(0, 3).Select(GC.CollectionCount).ToArray();
+                    process.Refresh(); var cpuBefore = process.TotalProcessorTime;
+                    foreach (var point in paths[1])
+                    {
+                        frames.Add(await Update(point, render));
+                        process.Refresh();
+                        long? currentPrivate = process.PrivateMemorySize64 > 0 ? process.PrivateMemorySize64 : null;
+                        privateBytes.Add(currentPrivate);
+                        if (currentPrivate is { } bytes) sampledPrivatePeak = Math.Max(sampledPrivatePeak ?? 0, bytes);
+                    }
+                    Stop.Token.ThrowIfCancellationRequested();
+                    double commitMs;
+                    lock (gate)
+                    {
+                        long start = Stopwatch.GetTimestamp(); session.Commit();
+                        commitMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+                    }
+                    process.Refresh();
+                    if (process.PrivateMemorySize64 > 0) sampledPrivatePeak = Math.Max(sampledPrivatePeak ?? 0, process.PrivateMemorySize64);
+                    double cpuMs = (process.TotalProcessorTime - cpuBefore).TotalMilliseconds;
+                    var gcCollections = Enumerable.Range(0, 3).Select(i => GC.CollectionCount(i) - gcBefore[i]).ToArray();
+                    lock (gate)
+                    {
+                        if (session.UndoCount != 1 || !session.Current.HasSamePixels(expected[scenario]) || source.Digest() != sourceDigest)
+                            throw new InvalidDataException("Commit/oracle/source immutability failed");
+                        session.Undo(); if (!session.Current.HasSamePixels(source)) throw new InvalidDataException("Undo pixels changed");
+                        session.Redo(); if (!session.Current.HasSamePixels(expected[scenario])) throw new InvalidDataException("Redo pixels changed");
+                        if (trial == measuredCount) session.Current.Export(Path.Combine(output, scenario == 0 ? "empty-final.png" : "existing-final.png"));
+                    }
+                    trials.Add(new { scenario = scenario == 0 ? "empty" : "existing", trial, warmup = trial == 0,
+                        pointerDown = frames[0], updates = frames.Skip(1).ToArray(), commitMilliseconds = commitMs,
+                        cpuMilliseconds = cpuMs, privateBytes, gcCollections,
+                        correctness = "settled replay/immutable source/undo/redo exact", digest = session.Current.Digest() });
+                    Save(null, sampledPrivatePeak, measuredCount);
+                }
+                Stop.Token.ThrowIfCancellationRequested();
+                if (viewportError is not null || viewportChecks.Count != 2 || viewportChecks.Any(v => v.DifferentPixels != 0))
+                    throw new InvalidDataException("Viewport differs from uncached RGBA reference: " + viewportError);
+                Passed = true;
+            }
+            catch (Exception e) { error = e.ToString(); }
+            finally
+            {
+                lock (gate) { closed = true; images.Dispose(); }
+                Save(error, sampledPrivatePeak, measuredCount);
+            }
+        }
+        private void Save(string? error, long? sampledPrivatePeak, int measuredCount) => File.WriteAllText(Path.Combine(output, "report.json"),
+            JsonSerializer.Serialize(new { completed = Passed, error, nativeWindow, windowsExecuted = OperatingSystem.IsWindows(),
+                windowClosed = WindowClosed, updatesAttempted = sequence, viewportChecks, viewportError,
+                viewportNotes = "Final measured update per scenario also includes readback/reference/PNG validation; cost remains in timing. Both bitmaps use identical RGBA8 premultiplied sRGB, matrix and size. Not physical presentation.",
+                platform = Environment.OSVersion.ToString(), processorCount = Environment.ProcessorCount,
+                runtime = Environment.Version.ToString(), renderScaling = TopLevel.GetTopLevel(View)?.RenderScaling,
+                clientWidth = TopLevel.GetTopLevel(View)?.ClientSize.Width, clientHeight = TopLevel.GetTopLevel(View)?.ClientSize.Height, viewport = "1000x1000 logical; 4000x4000 document; scale .25", opacity = 1,
+                diameter = 800, hardness = 0, measuredCountPerScenario = measuredCount, sampledPrivatePeak,
+                memoryNotes = "PrivateMemorySize64 sampled after each frame and commit; null if unavailable; not a continuous peak measurement. Fresh one-stroke history per trial; S05 is separate.",
+                timingNotes = "Synthetic sequential updates wait for native canvas lease release; includes scheduling and append, not physical presentation, input-device latency, GPU timing, or VRAM. No S02 acceptance inferred automatically.",
+                performanceAccepted = false, trials }, new JsonSerializerOptions { WriteIndented = true }));
+    }
+}

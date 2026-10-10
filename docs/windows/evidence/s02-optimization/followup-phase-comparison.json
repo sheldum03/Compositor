@@ -1,0 +1,56 @@
+[
+  {
+    "run": "s02-queue-20260922-140121",
+    "scenario": "empty",
+    "cpuMillisecondsMean": 2359.375,
+    "updateP50": 9.865300000000001,
+    "withinBudget": 2843,
+    "measuredUpdates": 3600,
+    "privatePeak": 439021568
+  },
+  {
+    "run": "s02-queue-20260922-140121",
+    "scenario": "existing",
+    "cpuMillisecondsMean": 3126.0416666666665,
+    "updateP50": 24.749049999999997,
+    "withinBudget": 319,
+    "measuredUpdates": 3600,
+    "privatePeak": 439021568
+  },
+  {
+    "run": "s02-packed-20260922-140917",
+    "scenario": "empty",
+    "cpuMillisecondsMean": 2354.6875,
+    "updateP50": 9.77985,
+    "withinBudget": 2898,
+    "measuredUpdates": 3600,
+    "privatePeak": 446500864
+  },
+  {
+    "run": "s02-packed-20260922-140917",
+    "scenario": "existing",
+    "cpuMillisecondsMean": 2767.7083333333335,
+    "updateP50": 24.7389,
+    "withinBudget": 418,
+    "measuredUpdates": 3600,
+    "privatePeak": 446500864
+  },
+  {
+    "run": "s02-direct-20260922-141439",
+    "scenario": "empty",
+    "cpuMillisecondsMean": 2108.3333333333335,
+    "updateP50": 9.3988,
+    "withinBudget": 3464,
+    "measuredUpdates": 3600,
+    "privatePeak": 444841984
+  },
+  {
+    "run": "s02-direct-20260922-141439",
+    "scenario": "existing",
+    "cpuMillisecondsMean": 2375.5208333333335,
+    "updateP50": 9.7263,
+    "withinBudget": 2950,
+    "measuredUpdates": 3600,
+    "privatePeak": 444841984
+  }
+]

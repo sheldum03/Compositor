@@ -1,0 +1,1866 @@
+{
+  "passed": true,
+  "originalCommit": "e6bcc9f",
+  "r8Commit": "459f732",
+  "r9Commit": "df3a903",
+  "windowsVariantsExact": true,
+  "actualCachedRegressionMatchesOriginalWindows": true,
+  "imagesPerVariant": 264,
+  "macWindowsDifferentImages": 261,
+  "macWindowsTotalDifferentPixels": 5587196,
+  "scope": "Same-platform regression against pre-optimization source. Cross-platform differences remain observations, not accepted tolerance.",
+  "archive": {
+    "bytes": 36827475,
+    "sha256": "ebb1dee732b9067e9fa3ed24a57fbd1e215c72271e625b1538b65e3770a4389f"
+  },
+  "results": [
+    {
+      "key": "12/0.01/empty/update-0",
+      "differentPixelsMacWindows": 0,
+      "maximumStraightRgbaChannelDifference": 0,
+      "maximumAlphaDifference": 0,
+      "windowsPngSha256": "0cb396a5dd63bb72dec9de4172bcc0639b65b3396582d5f34fca632648df6b0d"
+    },
+    {
+      "key": "12/0.01/empty/update-1",
+      "differentPixelsMacWindows": 36,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "9f3b27a36d137e95995885d0bc1f9d61f854eed9076ef63aa415be22e505ed9a"
+    },
+    {
+      "key": "12/0.01/empty/update-2",
+      "differentPixelsMacWindows": 99,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "11a161ddf496a5d25b954feb5544ee7f22b9b6333d8ea11d115546529923b14d"
+    },
+    {
+      "key": "12/0.01/empty/update-3",
+      "differentPixelsMacWindows": 181,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "369fc8bb25f5aa602c3056b788e52b46eb12511a99e5b8745cd7177e91e472e0"
+    },
+    {
+      "key": "12/0.01/empty/update-4",
+      "differentPixelsMacWindows": 279,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "06abf78a37e95686174e9a5ec1ec4457d43abefe2f369b949452f87db4129416"
+    },
+    {
+      "key": "12/0.01/empty/update-5",
+      "differentPixelsMacWindows": 329,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "c6bb9b45f6576cd5365969d41bc61c6a590159ffaf07da663c506c4069b37217"
+    },
+    {
+      "key": "12/0.01/empty/update-6",
+      "differentPixelsMacWindows": 329,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "c6bb9b45f6576cd5365969d41bc61c6a590159ffaf07da663c506c4069b37217"
+    },
+    {
+      "key": "12/0.01/empty/update-7",
+      "differentPixelsMacWindows": 1000,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "8b269f56f62876604e968496d613d8b69fecd18bf540b7c82484e74518b0a8b9"
+    },
+    {
+      "key": "12/0.01/empty/update-8",
+      "differentPixelsMacWindows": 1557,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "8d1515ca7f39a8fb8954eac55e2dc0892609f032d3ed393f4b46c60010fa017c"
+    },
+    {
+      "key": "12/0.01/empty/update-9",
+      "differentPixelsMacWindows": 1649,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "528f4865421e71b9b6889b5e5539614dedb1886ebf424234ee287b7ee0641d3e"
+    },
+    {
+      "key": "12/0.01/empty/commit",
+      "differentPixelsMacWindows": 1604,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "e275ccec80392a6dc849510631f864648b0e0bc930a36600e819ee2abd4de929"
+    },
+    {
+      "key": "12/0.01/existing/update-0",
+      "differentPixelsMacWindows": 27858,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "39eec1e464d7d363da3b3455ecd867193339d7b154a9f7c52e3c033035e4b460"
+    },
+    {
+      "key": "12/0.01/existing/update-1",
+      "differentPixelsMacWindows": 27894,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "d879e3361245c2b38af804fa866ca534dcb34cc9f8d81f0a09264c4fed9f53bb"
+    },
+    {
+      "key": "12/0.01/existing/update-2",
+      "differentPixelsMacWindows": 27957,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "f3fd0450638c6ef393f6c03eb58b9cf2e71735fb75d8aca7c078ca1bc4553844"
+    },
+    {
+      "key": "12/0.01/existing/update-3",
+      "differentPixelsMacWindows": 28039,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "9ea7a556a9c912b9133eb9d66fa1f61b9e1cfe9ef4d8164f949aa7bef2611ed3"
+    },
+    {
+      "key": "12/0.01/existing/update-4",
+      "differentPixelsMacWindows": 28137,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "f8f2a0a1f21c38a09212700abe8ab02b3dfdd0acb8a46b21d4c8e85f6faf7859"
+    },
+    {
+      "key": "12/0.01/existing/update-5",
+      "differentPixelsMacWindows": 28187,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "9ef46f7a169efa7050b7f4d7339e2e5dba41ac7bc2941f7c6c0dd327c32494d3"
+    },
+    {
+      "key": "12/0.01/existing/update-6",
+      "differentPixelsMacWindows": 28187,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "9ef46f7a169efa7050b7f4d7339e2e5dba41ac7bc2941f7c6c0dd327c32494d3"
+    },
+    {
+      "key": "12/0.01/existing/update-7",
+      "differentPixelsMacWindows": 28858,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "1aea04cb4bd9ee02d8d98cf28735166b487a5b02284f1db4e2c50cca34dc76ad"
+    },
+    {
+      "key": "12/0.01/existing/update-8",
+      "differentPixelsMacWindows": 29415,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "5b586ca4e80e590fbde24987676d410532923d0c5ced0e6920dc1d904bc5b165"
+    },
+    {
+      "key": "12/0.01/existing/update-9",
+      "differentPixelsMacWindows": 29507,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "da2816a4720ffd8f37b171b35cc9daa6ab7e945b3abc6b6268dba23dcd6940d8"
+    },
+    {
+      "key": "12/0.01/existing/commit",
+      "differentPixelsMacWindows": 29462,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "e2c2a7925b7cccb434b146cbd9879c329edcb325649e8be3f42de6f747f3986c"
+    },
+    {
+      "key": "12/0.4/empty/update-0",
+      "differentPixelsMacWindows": 0,
+      "maximumStraightRgbaChannelDifference": 0,
+      "maximumAlphaDifference": 0,
+      "windowsPngSha256": "0cb396a5dd63bb72dec9de4172bcc0639b65b3396582d5f34fca632648df6b0d"
+    },
+    {
+      "key": "12/0.4/empty/update-1",
+      "differentPixelsMacWindows": 54,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 83,
+      "windowsPngSha256": "9606a11865e0d99630e405828026d9e5ae1153aa8986b8787b49b8838f18726d"
+    },
+    {
+      "key": "12/0.4/empty/update-2",
+      "differentPixelsMacWindows": 209,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 80,
+      "windowsPngSha256": "b41be1b6cae2c8ee40330f540d83340a13678854d228f5e4873468dc6386c23e"
+    },
+    {
+      "key": "12/0.4/empty/update-3",
+      "differentPixelsMacWindows": 529,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 80,
+      "windowsPngSha256": "4307e2899855a0d0c749af32df48493402796ad395dd79a0bec76953c5662887"
+    },
+    {
+      "key": "12/0.4/empty/update-4",
+      "differentPixelsMacWindows": 937,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 80,
+      "windowsPngSha256": "e1b0c987752b7e730830bc34a44d562ad64a1ef884c11a846ada013453174817"
+    },
+    {
+      "key": "12/0.4/empty/update-5",
+      "differentPixelsMacWindows": 1229,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 80,
+      "windowsPngSha256": "2d47182775375ca018e796fa613db5c90a8938c4b2629834633e0eea6af4b920"
+    },
+    {
+      "key": "12/0.4/empty/update-6",
+      "differentPixelsMacWindows": 1229,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 80,
+      "windowsPngSha256": "2d47182775375ca018e796fa613db5c90a8938c4b2629834633e0eea6af4b920"
+    },
+    {
+      "key": "12/0.4/empty/update-7",
+      "differentPixelsMacWindows": 1856,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 86,
+      "windowsPngSha256": "ca51d9454cfb8891f4a8070a39816c0f1dfeb02d01c4801439cd50005f573b26"
+    },
+    {
+      "key": "12/0.4/empty/update-8",
+      "differentPixelsMacWindows": 3124,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 88,
+      "windowsPngSha256": "54dc30112f03bce2a4defcf34858b94d8b57a115a142d13ff7f6a2fd105b3026"
+    },
+    {
+      "key": "12/0.4/empty/update-9",
+      "differentPixelsMacWindows": 3297,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 88,
+      "windowsPngSha256": "a9b4e95de3b3a2a5fa8ad43a9d17c7432387b13b9d3a5f3142460af81e0be27c"
+    },
+    {
+      "key": "12/0.4/empty/commit",
+      "differentPixelsMacWindows": 3284,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 88,
+      "windowsPngSha256": "12ea43be792e5c63efdd646df22f3a0b89d839ae5b8bc2a05df96bace6876684"
+    },
+    {
+      "key": "12/0.4/existing/update-0",
+      "differentPixelsMacWindows": 27858,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "39eec1e464d7d363da3b3455ecd867193339d7b154a9f7c52e3c033035e4b460"
+    },
+    {
+      "key": "12/0.4/existing/update-1",
+      "differentPixelsMacWindows": 27912,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 25,
+      "windowsPngSha256": "64af3e23f7b99d9a7fb5661ea7d645041665fdb04031b2db4f7c0c8012029e6b"
+    },
+    {
+      "key": "12/0.4/existing/update-2",
+      "differentPixelsMacWindows": 28067,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 23,
+      "windowsPngSha256": "3928a0b3877170459519c8ad7c9d1682cf969d723b1a20c0c95e4d6b7ace18d3"
+    },
+    {
+      "key": "12/0.4/existing/update-3",
+      "differentPixelsMacWindows": 28387,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 23,
+      "windowsPngSha256": "8381f05471112a4763d6a03f5f377a1d35e08bd2e943e56377dd5d153a1215cb"
+    },
+    {
+      "key": "12/0.4/existing/update-4",
+      "differentPixelsMacWindows": 28795,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 23,
+      "windowsPngSha256": "fa5a0222ef8d694cf3c82342e1479f02291f3cd00cb95dce0ba8116bf53eb122"
+    },
+    {
+      "key": "12/0.4/existing/update-5",
+      "differentPixelsMacWindows": 29087,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 23,
+      "windowsPngSha256": "def13fe47406b7ccda7a8151c00ce33197601fdae6b96bc6350d3a177ecbd2fa"
+    },
+    {
+      "key": "12/0.4/existing/update-6",
+      "differentPixelsMacWindows": 29087,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 23,
+      "windowsPngSha256": "def13fe47406b7ccda7a8151c00ce33197601fdae6b96bc6350d3a177ecbd2fa"
+    },
+    {
+      "key": "12/0.4/existing/update-7",
+      "differentPixelsMacWindows": 29714,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 26,
+      "windowsPngSha256": "a106ef5630acacec00fd494846fc2993b2efbc96590069379143f8be3427d203"
+    },
+    {
+      "key": "12/0.4/existing/update-8",
+      "differentPixelsMacWindows": 30982,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 27,
+      "windowsPngSha256": "e130ecc91f0e2105d7c57c977b7dc86e127035f5e48d6e9b78393f23a22bff4e"
+    },
+    {
+      "key": "12/0.4/existing/update-9",
+      "differentPixelsMacWindows": 31155,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 27,
+      "windowsPngSha256": "b0eead125218792f0956be209dfef4fecb7eb2cb17a33f2150e51dd2fac72317"
+    },
+    {
+      "key": "12/0.4/existing/commit",
+      "differentPixelsMacWindows": 31141,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 27,
+      "windowsPngSha256": "e7c3a5b08b001a9b843e8211d027adc39d0fdd2c31c0fd60f14e45a6baf9a97a"
+    },
+    {
+      "key": "12/1/empty/update-0",
+      "differentPixelsMacWindows": 0,
+      "maximumStraightRgbaChannelDifference": 0,
+      "maximumAlphaDifference": 0,
+      "windowsPngSha256": "0cb396a5dd63bb72dec9de4172bcc0639b65b3396582d5f34fca632648df6b0d"
+    },
+    {
+      "key": "12/1/empty/update-1",
+      "differentPixelsMacWindows": 61,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 207,
+      "windowsPngSha256": "889bceec3cc3b44df9e9456f65d94cb33eae491783e93c88497b1d3e53b1123b"
+    },
+    {
+      "key": "12/1/empty/update-2",
+      "differentPixelsMacWindows": 239,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 198,
+      "windowsPngSha256": "918e8c51fbf6f676a7b85f2020bd2ddf73b862523437386b8bd11ad2e1bdeb76"
+    },
+    {
+      "key": "12/1/empty/update-3",
+      "differentPixelsMacWindows": 600,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 198,
+      "windowsPngSha256": "0e592b9163318ec44a3f99c79d4da59a1d57943c44510e19fb3cf4dd520806c8"
+    },
+    {
+      "key": "12/1/empty/update-4",
+      "differentPixelsMacWindows": 1057,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 198,
+      "windowsPngSha256": "ca147c7857effbbbbf230a7d4341c74a5fc31d9a3a754c2c20a41c6cd8483ee1"
+    },
+    {
+      "key": "12/1/empty/update-5",
+      "differentPixelsMacWindows": 1391,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 198,
+      "windowsPngSha256": "9487d03da06cdc7918be396c90bd98c605ac90a057e3a38ab986c182edfa6da5"
+    },
+    {
+      "key": "12/1/empty/update-6",
+      "differentPixelsMacWindows": 1391,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 198,
+      "windowsPngSha256": "9487d03da06cdc7918be396c90bd98c605ac90a057e3a38ab986c182edfa6da5"
+    },
+    {
+      "key": "12/1/empty/update-7",
+      "differentPixelsMacWindows": 2107,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 215,
+      "windowsPngSha256": "530c385164aecd5d7236c45b04a19a83a36a37e9a8253eaeb58c9e5d710a5035"
+    },
+    {
+      "key": "12/1/empty/update-8",
+      "differentPixelsMacWindows": 3591,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 221,
+      "windowsPngSha256": "3d86ef4a2726778f5d58063d8ec38294cf601bc9a1e3bfae6f2a8de02520bd5e"
+    },
+    {
+      "key": "12/1/empty/update-9",
+      "differentPixelsMacWindows": 3766,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 221,
+      "windowsPngSha256": "574de3a455dcb3950634a8ccde16c689eae1c2792c6e89301d12d6ff9ac8af25"
+    },
+    {
+      "key": "12/1/empty/commit",
+      "differentPixelsMacWindows": 3771,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 221,
+      "windowsPngSha256": "a7c3d72ffe9cbb6447da8295d6d3c348a1cbe24a8a2a3af0968f644aedeb84cf"
+    },
+    {
+      "key": "12/1/existing/update-0",
+      "differentPixelsMacWindows": 27858,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "39eec1e464d7d363da3b3455ecd867193339d7b154a9f7c52e3c033035e4b460"
+    },
+    {
+      "key": "12/1/existing/update-1",
+      "differentPixelsMacWindows": 27919,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 62,
+      "windowsPngSha256": "4124a7e3fc239162d1d35553f0770315075463f7bd604f42c85d4ab7a48d8aa0"
+    },
+    {
+      "key": "12/1/existing/update-2",
+      "differentPixelsMacWindows": 28097,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 59,
+      "windowsPngSha256": "bfebc9db7a7a31e673749e2d2e149d60b93ebb95b523f8a36750e6b19e6bb33c"
+    },
+    {
+      "key": "12/1/existing/update-3",
+      "differentPixelsMacWindows": 28458,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 59,
+      "windowsPngSha256": "770d05775bf12885dfbad94dcae0f1bd601e4623d2e878894a5932459e394e16"
+    },
+    {
+      "key": "12/1/existing/update-4",
+      "differentPixelsMacWindows": 28915,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 59,
+      "windowsPngSha256": "aff5db882497c0444869d662138f9857d9b609b78b8bd2ff65cba96049e61483"
+    },
+    {
+      "key": "12/1/existing/update-5",
+      "differentPixelsMacWindows": 29249,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 59,
+      "windowsPngSha256": "1f76229955365fd30b34320795a4005262313877826b3becf48b9059baddc633"
+    },
+    {
+      "key": "12/1/existing/update-6",
+      "differentPixelsMacWindows": 29249,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 59,
+      "windowsPngSha256": "1f76229955365fd30b34320795a4005262313877826b3becf48b9059baddc633"
+    },
+    {
+      "key": "12/1/existing/update-7",
+      "differentPixelsMacWindows": 29965,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 64,
+      "windowsPngSha256": "992d0545731d03135126d853494ce1832403081cc885a518cd336e2a86b1336b"
+    },
+    {
+      "key": "12/1/existing/update-8",
+      "differentPixelsMacWindows": 31449,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 65,
+      "windowsPngSha256": "e58268858b6ee1324c7cdce3db6d1e8e009a5f9f334e68236c60e43ba58b73a7"
+    },
+    {
+      "key": "12/1/existing/update-9",
+      "differentPixelsMacWindows": 31624,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 65,
+      "windowsPngSha256": "25c78616996438e56de6b4bec4cbbf356dd4495729cb08cc64508e5086a30d20"
+    },
+    {
+      "key": "12/1/existing/commit",
+      "differentPixelsMacWindows": 31629,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 65,
+      "windowsPngSha256": "0a47ad60ec9dbb3d6b5a62aaddf6b30c77241ad04a2a9c49bf0c79dca5cb77dc"
+    },
+    {
+      "key": "40/0.01/empty/update-0",
+      "differentPixelsMacWindows": 4,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "27eed61e4be55e3f45d48f83535901b86b16c268d78e2128c6d8a7f3208dab4f"
+    },
+    {
+      "key": "40/0.01/empty/update-1",
+      "differentPixelsMacWindows": 69,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "487549ef1598deea26e3dd26bf79837341177a48602452c1b0c0e866ff9b6e64"
+    },
+    {
+      "key": "40/0.01/empty/update-2",
+      "differentPixelsMacWindows": 133,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "69976733f13a92deb7876417e6d9c7402d930c9cd38a061e7a38e46d16365b56"
+    },
+    {
+      "key": "40/0.01/empty/update-3",
+      "differentPixelsMacWindows": 220,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "b9a794ddebab09b22e0b830d27a3b5fb0e44f07b70c392e8068f5e8f6c2400e9"
+    },
+    {
+      "key": "40/0.01/empty/update-4",
+      "differentPixelsMacWindows": 322,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "c9286c442ed15959c8c01cfe49c17a177d1f705924dd73b54039a44a8d2ba805"
+    },
+    {
+      "key": "40/0.01/empty/update-5",
+      "differentPixelsMacWindows": 325,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "226ff49dfdb041e8822dc5f06d69dbbfb00980243f72ecbf726ab9da4eb8f06a"
+    },
+    {
+      "key": "40/0.01/empty/update-6",
+      "differentPixelsMacWindows": 325,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "226ff49dfdb041e8822dc5f06d69dbbfb00980243f72ecbf726ab9da4eb8f06a"
+    },
+    {
+      "key": "40/0.01/empty/update-7",
+      "differentPixelsMacWindows": 1321,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "1002005d4944f521b5138192db0734fc370326242746afa91f18316880961aff"
+    },
+    {
+      "key": "40/0.01/empty/update-8",
+      "differentPixelsMacWindows": 1867,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "2159aa7246967f11b57aa24c818722dca72ea7fc5f1d8109f362111d30d8c6e8"
+    },
+    {
+      "key": "40/0.01/empty/update-9",
+      "differentPixelsMacWindows": 1972,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "1e8ae4f5d8c5d50cf48c65726c48672cf49503ddf44e1fcfffccc63dddae17f8"
+    },
+    {
+      "key": "40/0.01/empty/commit",
+      "differentPixelsMacWindows": 1936,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "dd32e404ac5ed3e61a1d7a159984d616a99a6d1ecc745fa9615fd0d218aa01e3"
+    },
+    {
+      "key": "40/0.01/existing/update-0",
+      "differentPixelsMacWindows": 27862,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "1c0b4100285d61ee60c93d0936e773b96d1a9c22835cd39a208fcbd301b82e4b"
+    },
+    {
+      "key": "40/0.01/existing/update-1",
+      "differentPixelsMacWindows": 27927,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "487d9ceb7becaf5279877cc979e7536435175fc41aa81b1340e5f1f2e7f35a0d"
+    },
+    {
+      "key": "40/0.01/existing/update-2",
+      "differentPixelsMacWindows": 27991,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "8461ca327279243c9218f75d663c5f469d7f7819daafe95a5c0f395e71411d27"
+    },
+    {
+      "key": "40/0.01/existing/update-3",
+      "differentPixelsMacWindows": 28078,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "c6be0852c5121785292454f16340ee12e54b6e72e2b7d7db8c13a5c4dd983809"
+    },
+    {
+      "key": "40/0.01/existing/update-4",
+      "differentPixelsMacWindows": 28180,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "244d7cff62e30c3c119a55e1deb304e307a99cfcc5272fc34d5e35db55dd9468"
+    },
+    {
+      "key": "40/0.01/existing/update-5",
+      "differentPixelsMacWindows": 28183,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "13cdc791365f04866a014a3d09090f779610a0a1e2c48a37e0273e0673c12cde"
+    },
+    {
+      "key": "40/0.01/existing/update-6",
+      "differentPixelsMacWindows": 28183,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "13cdc791365f04866a014a3d09090f779610a0a1e2c48a37e0273e0673c12cde"
+    },
+    {
+      "key": "40/0.01/existing/update-7",
+      "differentPixelsMacWindows": 29179,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "4c1cf7b31149e9f0ab197b97edb92bfc35bfff968aafc66159da5d89d11aaa1b"
+    },
+    {
+      "key": "40/0.01/existing/update-8",
+      "differentPixelsMacWindows": 29725,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "b89bf5c4a24f64a078adacbc6a95f4116c91a371e56f7f2514102cf97c484da2"
+    },
+    {
+      "key": "40/0.01/existing/update-9",
+      "differentPixelsMacWindows": 29830,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "efa024be3db66da65705323748619096294f135a568cd505e0a6994f04f9d012"
+    },
+    {
+      "key": "40/0.01/existing/commit",
+      "differentPixelsMacWindows": 29794,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "9c7d5a04eacf93b1be7b8e0532ef2bc5d92e412036c2c589b992440fa70e0945"
+    },
+    {
+      "key": "40/0.4/empty/update-0",
+      "differentPixelsMacWindows": 44,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 8,
+      "windowsPngSha256": "91c734c6a883367ca4e1efe4a154a048c5abf89470f1407fb73fcc83913280e1"
+    },
+    {
+      "key": "40/0.4/empty/update-1",
+      "differentPixelsMacWindows": 220,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 35,
+      "windowsPngSha256": "1f988cff1211fb16a520d653fcd5ca9d0751945ecf26e1957a8125efc454fba8"
+    },
+    {
+      "key": "40/0.4/empty/update-2",
+      "differentPixelsMacWindows": 637,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 38,
+      "windowsPngSha256": "b7c31b9abe1c440b69c0c9c5610ee0b88361274ce0d26731d1f1e8fa4bfa9991"
+    },
+    {
+      "key": "40/0.4/empty/update-3",
+      "differentPixelsMacWindows": 1401,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 38,
+      "windowsPngSha256": "0224eca1e459a4c5aa4426caeae2467b9be8f4f34c71f00896b64e32c76f3878"
+    },
+    {
+      "key": "40/0.4/empty/update-4",
+      "differentPixelsMacWindows": 2387,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 38,
+      "windowsPngSha256": "0b26027b4cf6ccf89f128262fbf269c0edb6a5f527ab61127d35c8b5b14cf1a4"
+    },
+    {
+      "key": "40/0.4/empty/update-5",
+      "differentPixelsMacWindows": 2400,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 38,
+      "windowsPngSha256": "afc1ae4d5b76594e3112a79b93ae097685a483462c0ebb3087642b08a5bbcbe1"
+    },
+    {
+      "key": "40/0.4/empty/update-6",
+      "differentPixelsMacWindows": 2400,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 38,
+      "windowsPngSha256": "afc1ae4d5b76594e3112a79b93ae097685a483462c0ebb3087642b08a5bbcbe1"
+    },
+    {
+      "key": "40/0.4/empty/update-7",
+      "differentPixelsMacWindows": 4336,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 39,
+      "windowsPngSha256": "6e54f5286e53ae4dbffb1b907bf66cd1860ffd868c9ca4e8160ea5e39038c314"
+    },
+    {
+      "key": "40/0.4/empty/update-8",
+      "differentPixelsMacWindows": 7478,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 40,
+      "windowsPngSha256": "6f4dfcf3f9a145aa56b308d34b2e692c4987cdf71611c323104ffdb585d2b3b2"
+    },
+    {
+      "key": "40/0.4/empty/update-9",
+      "differentPixelsMacWindows": 7765,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 40,
+      "windowsPngSha256": "83031c3b6ad9f1ffafaf9a21d1f31d4f313d81120988e78951668f0f528f31e3"
+    },
+    {
+      "key": "40/0.4/empty/commit",
+      "differentPixelsMacWindows": 7716,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 40,
+      "windowsPngSha256": "bd85d677bc35f266a6e1bd0773a587adde6ae85de758b96cb5d28d1c54cc2698"
+    },
+    {
+      "key": "40/0.4/existing/update-0",
+      "differentPixelsMacWindows": 27901,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "62cf45892e72a13e211a1e1b128a063b11031844d9f0f8a14614e28b229a6acf"
+    },
+    {
+      "key": "40/0.4/existing/update-1",
+      "differentPixelsMacWindows": 28077,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 11,
+      "windowsPngSha256": "b3f542b2db985ab89b3f53d643570f3fcd73e2b7a92dcfbb5e81f541fd43338c"
+    },
+    {
+      "key": "40/0.4/existing/update-2",
+      "differentPixelsMacWindows": 28494,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 12,
+      "windowsPngSha256": "04c9321b25f74524cf43480237ff52221c8f52a22e9f93fa9dfda1160c4b3b9d"
+    },
+    {
+      "key": "40/0.4/existing/update-3",
+      "differentPixelsMacWindows": 29259,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 11,
+      "windowsPngSha256": "646a350c5891a0e93e297000def4bef8ee7c79deefddf66425ff63d8755b85f8"
+    },
+    {
+      "key": "40/0.4/existing/update-4",
+      "differentPixelsMacWindows": 30240,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 11,
+      "windowsPngSha256": "019122f5b3f96f5e0d0734430a45a5fbafe9fe277588dc00c86e2cf68191766b"
+    },
+    {
+      "key": "40/0.4/existing/update-5",
+      "differentPixelsMacWindows": 30249,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 11,
+      "windowsPngSha256": "71ebb78ddacd255b17a5adcd5e09ed779136c122bc23bbfcde7f613d725f583b"
+    },
+    {
+      "key": "40/0.4/existing/update-6",
+      "differentPixelsMacWindows": 30249,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 11,
+      "windowsPngSha256": "71ebb78ddacd255b17a5adcd5e09ed779136c122bc23bbfcde7f613d725f583b"
+    },
+    {
+      "key": "40/0.4/existing/update-7",
+      "differentPixelsMacWindows": 32184,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 12,
+      "windowsPngSha256": "589cda248c7bef879c5b8cd31fedabfd74addcb689899a2746c1fde0586b6350"
+    },
+    {
+      "key": "40/0.4/existing/update-8",
+      "differentPixelsMacWindows": 35327,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 12,
+      "windowsPngSha256": "445134595b7a6bc08299c4bb1110101cff5ede36ec55100cd9240d9840f29440"
+    },
+    {
+      "key": "40/0.4/existing/update-9",
+      "differentPixelsMacWindows": 35611,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 12,
+      "windowsPngSha256": "cdcbc85b73d03e0f1ff91c5e5f30f3c048803d62402452c95b7348da59abd7df"
+    },
+    {
+      "key": "40/0.4/existing/commit",
+      "differentPixelsMacWindows": 35560,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 12,
+      "windowsPngSha256": "35c73080e6caaabb78f92ede9d8b89f12f07d205d5093ca4503bc631ddfbe390"
+    },
+    {
+      "key": "40/1/empty/update-0",
+      "differentPixelsMacWindows": 45,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 18,
+      "windowsPngSha256": "fe5c89564959c420b7ace1c92aafcf43785d7afe5e6603d1f849368e4e89d0d9"
+    },
+    {
+      "key": "40/1/empty/update-1",
+      "differentPixelsMacWindows": 241,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 87,
+      "windowsPngSha256": "bdcd45e6a299ac4f0f1f6dc02a5c284a2392066a2648dcf65c8278fee56c253d"
+    },
+    {
+      "key": "40/1/empty/update-2",
+      "differentPixelsMacWindows": 719,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 96,
+      "windowsPngSha256": "67dfc151eb012761b4a295a43d3ec97e1311452ac8fb78a1df738d8cc2d09737"
+    },
+    {
+      "key": "40/1/empty/update-3",
+      "differentPixelsMacWindows": 1606,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 96,
+      "windowsPngSha256": "1dceb07fa809bca5ce858dc99f5235a305b286db888527ab20628e27717a3eaa"
+    },
+    {
+      "key": "40/1/empty/update-4",
+      "differentPixelsMacWindows": 2765,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 96,
+      "windowsPngSha256": "50da4ffd3581fa43f6c8fe373a6a92e5f1880fd42ca5d406a9267cd00c882a7d"
+    },
+    {
+      "key": "40/1/empty/update-5",
+      "differentPixelsMacWindows": 2792,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 96,
+      "windowsPngSha256": "ac757470ab6b0f0d7f480f697a280d0d02e4772ffd226a14c74b294201b550fe"
+    },
+    {
+      "key": "40/1/empty/update-6",
+      "differentPixelsMacWindows": 2792,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 96,
+      "windowsPngSha256": "ac757470ab6b0f0d7f480f697a280d0d02e4772ffd226a14c74b294201b550fe"
+    },
+    {
+      "key": "40/1/empty/update-7",
+      "differentPixelsMacWindows": 5101,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 96,
+      "windowsPngSha256": "26655b5975b5b814d3d95e2c232e032fe46a5438d5d05a1594a62dbfee867641"
+    },
+    {
+      "key": "40/1/empty/update-8",
+      "differentPixelsMacWindows": 8765,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 102,
+      "windowsPngSha256": "75bd3ba3b41512b3e6526d09a812464d7a26c7e9c1039df7aec72a5e6103d07e"
+    },
+    {
+      "key": "40/1/empty/update-9",
+      "differentPixelsMacWindows": 9081,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 102,
+      "windowsPngSha256": "c32473bfb9b1e14e22a869543c53ffbd58a6fe7520a03e9787f9c2fa2555c924"
+    },
+    {
+      "key": "40/1/empty/commit",
+      "differentPixelsMacWindows": 9037,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 102,
+      "windowsPngSha256": "ec9e133093786f615a2e92d2b4f5607f9ce16e93daf50ec71f5ab8958e1fc201"
+    },
+    {
+      "key": "40/1/existing/update-0",
+      "differentPixelsMacWindows": 27903,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "b54c3edb15f4d1e2fb9b77b4001c7b5880aa56bd88da07bc454bb3115d446e34"
+    },
+    {
+      "key": "40/1/existing/update-1",
+      "differentPixelsMacWindows": 28099,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 26,
+      "windowsPngSha256": "a57886df99b2b464f82bfe4865320a8a1286b9560c295523e169e4b8a3d08450"
+    },
+    {
+      "key": "40/1/existing/update-2",
+      "differentPixelsMacWindows": 28577,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 29,
+      "windowsPngSha256": "dc39598b2c3adb6ecc4df3a3b93716921648529833de3e8506e6ec49b82f55c3"
+    },
+    {
+      "key": "40/1/existing/update-3",
+      "differentPixelsMacWindows": 29464,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 29,
+      "windowsPngSha256": "09b956de0a87b049c0c21cedbe8beb820e1b86ea850a6a15b2e6452ab9a93182"
+    },
+    {
+      "key": "40/1/existing/update-4",
+      "differentPixelsMacWindows": 30619,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 29,
+      "windowsPngSha256": "f5fb257cf071dcff9afaf910f2f921231f7d027501599c166c34aaff69378145"
+    },
+    {
+      "key": "40/1/existing/update-5",
+      "differentPixelsMacWindows": 30643,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 29,
+      "windowsPngSha256": "36d5db4313b53489ce7d980ec165f85c6ac09f60fd2bd5c0ecc5ee30c0784542"
+    },
+    {
+      "key": "40/1/existing/update-6",
+      "differentPixelsMacWindows": 30643,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 29,
+      "windowsPngSha256": "36d5db4313b53489ce7d980ec165f85c6ac09f60fd2bd5c0ecc5ee30c0784542"
+    },
+    {
+      "key": "40/1/existing/update-7",
+      "differentPixelsMacWindows": 32955,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 29,
+      "windowsPngSha256": "c52ae0d498cf089fcd1cb15d1188ecb4b33cef763e4e20f8acfbf646efd88259"
+    },
+    {
+      "key": "40/1/existing/update-8",
+      "differentPixelsMacWindows": 36620,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 30,
+      "windowsPngSha256": "70554029e985597d77bc1706dc7fed1277da60f1ee2eff47ba9571ea81b0c69a"
+    },
+    {
+      "key": "40/1/existing/update-9",
+      "differentPixelsMacWindows": 36934,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 30,
+      "windowsPngSha256": "a52fcf8631d2154338166d12560e19666b1cc56e6049e157d6b3a08e8bf7b595"
+    },
+    {
+      "key": "40/1/existing/commit",
+      "differentPixelsMacWindows": 36888,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 30,
+      "windowsPngSha256": "5176e03ba1d362cb27e0c927785c25ee9dadd2ac36570e52c49bd0be1ca66922"
+    },
+    {
+      "key": "520/0.01/empty/update-0",
+      "differentPixelsMacWindows": 175,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "1bf479f4375f7278f9f050cbe175f795077567f2a52078dc8d546eaa5d505a16"
+    },
+    {
+      "key": "520/0.01/empty/update-1",
+      "differentPixelsMacWindows": 266,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "02b4d752a4bb4bd9c0966164f39d604248a369a582d7e87830214eec71182585"
+    },
+    {
+      "key": "520/0.01/empty/update-2",
+      "differentPixelsMacWindows": 384,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "dbf351f7ec2bb40117c8f5b3fac38e3d7c434530fc4438e848c430c8a69943af"
+    },
+    {
+      "key": "520/0.01/empty/update-3",
+      "differentPixelsMacWindows": 524,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "1ef7b15e0c3465f85b34c132109e3d4abf3437b0f16defe1378e7145254595c2"
+    },
+    {
+      "key": "520/0.01/empty/update-4",
+      "differentPixelsMacWindows": 628,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "79296043a0264e5fab7933f3a2367445ae7d6d2fb6e0f28368204493e0c80a6e"
+    },
+    {
+      "key": "520/0.01/empty/update-5",
+      "differentPixelsMacWindows": 636,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "8231162a00031672f2beac0aa20f314d96279bac9d25b586b8d696e27391e00f"
+    },
+    {
+      "key": "520/0.01/empty/update-6",
+      "differentPixelsMacWindows": 636,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "8231162a00031672f2beac0aa20f314d96279bac9d25b586b8d696e27391e00f"
+    },
+    {
+      "key": "520/0.01/empty/update-7",
+      "differentPixelsMacWindows": 985,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "17bb481564ee3f06b4a29fb7ce9b580df6f5b7cf8db5051dc8dfb60f3e0de850"
+    },
+    {
+      "key": "520/0.01/empty/update-8",
+      "differentPixelsMacWindows": 850,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "24c2ae37343bf6b5a259d689ba010f8874ff3ce23c87e51fbe132c791a2a056b"
+    },
+    {
+      "key": "520/0.01/empty/update-9",
+      "differentPixelsMacWindows": 985,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "4e98c89eb4bd68175f788a1318404090c536998f2e89347c952348ca2cae5a1f"
+    },
+    {
+      "key": "520/0.01/empty/commit",
+      "differentPixelsMacWindows": 975,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "5111230098c08bce2bf78838745b65a6cabe6fc90170422a0be7a6ddec3a4b9c"
+    },
+    {
+      "key": "520/0.01/existing/update-0",
+      "differentPixelsMacWindows": 28033,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "a9ef8c62fef20a9c5e1281d4d89e18db18cbca3c599ef562c8fb8bf6ebf68314"
+    },
+    {
+      "key": "520/0.01/existing/update-1",
+      "differentPixelsMacWindows": 28123,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "85acc0365f0595cd05504f0c1ce4f799ad9b7dab5ea9befb0dcdfcb4053f67b7"
+    },
+    {
+      "key": "520/0.01/existing/update-2",
+      "differentPixelsMacWindows": 28231,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "fa1e48d41d52556aab5d2efd423356698b57fe6b408f0a9a5abd99d3e1456809"
+    },
+    {
+      "key": "520/0.01/existing/update-3",
+      "differentPixelsMacWindows": 28359,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "bfc3dd812955b21d0402e03df9f59f712e4b912ca4414a07743ed9b308d354d5"
+    },
+    {
+      "key": "520/0.01/existing/update-4",
+      "differentPixelsMacWindows": 28209,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "d142832e6fbb422954c5f35e8f252e81b7ab85de73243730255ef121ba5c328d"
+    },
+    {
+      "key": "520/0.01/existing/update-5",
+      "differentPixelsMacWindows": 28164,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "23f14b0dc67ee26294f48db69edda59ee92fdcb9da6cb35fbb9cf6006e7d5d79"
+    },
+    {
+      "key": "520/0.01/existing/update-6",
+      "differentPixelsMacWindows": 28164,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "23f14b0dc67ee26294f48db69edda59ee92fdcb9da6cb35fbb9cf6006e7d5d79"
+    },
+    {
+      "key": "520/0.01/existing/update-7",
+      "differentPixelsMacWindows": 28507,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "05705a965db08afd33a20a715a34862695ce5272bfc35133884e4bf6e05da9e1"
+    },
+    {
+      "key": "520/0.01/existing/update-8",
+      "differentPixelsMacWindows": 28281,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "0602d46315d3629fa8a676ddb0963d0d327fb530ce2c04df524d5ab28c404d70"
+    },
+    {
+      "key": "520/0.01/existing/update-9",
+      "differentPixelsMacWindows": 28271,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "a250b9205d5e90845c5acfb4786e65893d2db637ecf41e480743869ed2855d9f"
+    },
+    {
+      "key": "520/0.01/existing/commit",
+      "differentPixelsMacWindows": 28265,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "19a62ba7c2564cee0a306a2dc8d1ca0013264c958eaf049ac14503f2d549bc83"
+    },
+    {
+      "key": "520/0.4/empty/update-0",
+      "differentPixelsMacWindows": 7083,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "aaeadcb3fb18f006935752f1988197f8a9a333382045c29cf7bb7cf6ba5e3cf3"
+    },
+    {
+      "key": "520/0.4/empty/update-1",
+      "differentPixelsMacWindows": 9326,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "8279119bf9b595164c06055645d3815853bef7ee972f302b38f81f7dfc540c14"
+    },
+    {
+      "key": "520/0.4/empty/update-2",
+      "differentPixelsMacWindows": 11624,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "eed8725f4e3a2e46d428d475f0ac366712dc50295bfcd3a76786ecdab64854a7"
+    },
+    {
+      "key": "520/0.4/empty/update-3",
+      "differentPixelsMacWindows": 15198,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "dc409babceaf3d8f33af752621f29fe07bf751a34a477a918230e6187a3f54ac"
+    },
+    {
+      "key": "520/0.4/empty/update-4",
+      "differentPixelsMacWindows": 18910,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "04b859edb93904b267a45ddfaa7d369a488e073ddc9d5f2047d24e86f0060522"
+    },
+    {
+      "key": "520/0.4/empty/update-5",
+      "differentPixelsMacWindows": 17253,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "82dfe0c0eb60c430d598c20374073cc11166b9341a23a6b7e0af1fdf0610e506"
+    },
+    {
+      "key": "520/0.4/empty/update-6",
+      "differentPixelsMacWindows": 17253,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "82dfe0c0eb60c430d598c20374073cc11166b9341a23a6b7e0af1fdf0610e506"
+    },
+    {
+      "key": "520/0.4/empty/update-7",
+      "differentPixelsMacWindows": 24009,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 5,
+      "windowsPngSha256": "2eaa48ef428a1bbf395de67e7f9d085107cba992c658eddc1d170ff7a7d007a4"
+    },
+    {
+      "key": "520/0.4/empty/update-8",
+      "differentPixelsMacWindows": 19740,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "aaa508167cfcabf9f6e655234785edea1006577d0f7db66e6b13b255e87c908d"
+    },
+    {
+      "key": "520/0.4/empty/update-9",
+      "differentPixelsMacWindows": 21779,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "30df47b4a58a7ce14ac4e82a39b67722de7f9882ffeb98050b74c0353d1cd4cc"
+    },
+    {
+      "key": "520/0.4/empty/commit",
+      "differentPixelsMacWindows": 21782,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "9789866720b2a5b41f2fdf308c4aad8cc180b90d38e073d66776cd5935df2205"
+    },
+    {
+      "key": "520/0.4/existing/update-0",
+      "differentPixelsMacWindows": 34308,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "3dac5e2e5b5855c8d9bf61a2e6899645e489d86277a2df274c8ef0886f3c21b4"
+    },
+    {
+      "key": "520/0.4/existing/update-1",
+      "differentPixelsMacWindows": 36448,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "f0ce0f1f3813420d052e4c8ae17c120625107a28fe3d0d939c9843c68396c9d2"
+    },
+    {
+      "key": "520/0.4/existing/update-2",
+      "differentPixelsMacWindows": 38589,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "a7c43bcfc77e02d96811ca48f1a94aeacb0c5c883296ed5d724384d0b600562c"
+    },
+    {
+      "key": "520/0.4/existing/update-3",
+      "differentPixelsMacWindows": 41464,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "9cc4b2b2b0e581696d69a97c39282d363fc9e239daaee8043fc5944d1d49cbc2"
+    },
+    {
+      "key": "520/0.4/existing/update-4",
+      "differentPixelsMacWindows": 36411,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "1b05d8464073c1031bb43fca196240ddd368219cd40068f06056af5070364a1d"
+    },
+    {
+      "key": "520/0.4/existing/update-5",
+      "differentPixelsMacWindows": 34546,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 8,
+      "windowsPngSha256": "4cafb468aff14010d84dd469a6ee6af0fca0bdb83bae5199f32fa5c3488e09e5"
+    },
+    {
+      "key": "520/0.4/existing/update-6",
+      "differentPixelsMacWindows": 34546,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 8,
+      "windowsPngSha256": "4cafb468aff14010d84dd469a6ee6af0fca0bdb83bae5199f32fa5c3488e09e5"
+    },
+    {
+      "key": "520/0.4/existing/update-7",
+      "differentPixelsMacWindows": 40916,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "636867a06b37b3e5407e32e1d5975b80b9b1c9c3ecb97c45981d61baf5c08805"
+    },
+    {
+      "key": "520/0.4/existing/update-8",
+      "differentPixelsMacWindows": 33525,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "8581dc2851af18cd0d95e2daa6947ea433bbab149432788d7614ea91567d93a7"
+    },
+    {
+      "key": "520/0.4/existing/update-9",
+      "differentPixelsMacWindows": 32040,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "3b00938538b0e13275f3e8b4eb3b3dc139db30b8108b1bdfd5ec19cd6e1a57dc"
+    },
+    {
+      "key": "520/0.4/existing/commit",
+      "differentPixelsMacWindows": 32047,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "e5e65034e3f2a46a9eb66181f1c50b5b80f80ef45ab9ca4b9c858e96cc347c0b"
+    },
+    {
+      "key": "520/1/empty/update-0",
+      "differentPixelsMacWindows": 12978,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "e81a229ae1d091bfc90b2755a06e704bd186cadbd0fe9ebcd57b9fc4e5265340"
+    },
+    {
+      "key": "520/1/empty/update-1",
+      "differentPixelsMacWindows": 12795,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 5,
+      "windowsPngSha256": "c097989c484e8a79b82940e97aed83055463dfaf67d2d8b4fd9ef43e7978ee9d"
+    },
+    {
+      "key": "520/1/empty/update-2",
+      "differentPixelsMacWindows": 15330,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 8,
+      "windowsPngSha256": "afe25ba2344992d76deef70039e704b48ca00987129d9b896c2d665a74c223f9"
+    },
+    {
+      "key": "520/1/empty/update-3",
+      "differentPixelsMacWindows": 21486,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "0d42989db309a071aa19885940eb912ad855a7b8750b87db49116340bc6d7bad"
+    },
+    {
+      "key": "520/1/empty/update-4",
+      "differentPixelsMacWindows": 28643,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "749a53ce3290e184f358fbf317bfe5d99a5e71c1552a88e8c5408d4fc5c9a7eb"
+    },
+    {
+      "key": "520/1/empty/update-5",
+      "differentPixelsMacWindows": 24805,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "34263f6b55945565793dde0e775e03a7918638b4e1149169b6a68d5f66a7026e"
+    },
+    {
+      "key": "520/1/empty/update-6",
+      "differentPixelsMacWindows": 24805,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "34263f6b55945565793dde0e775e03a7918638b4e1149169b6a68d5f66a7026e"
+    },
+    {
+      "key": "520/1/empty/update-7",
+      "differentPixelsMacWindows": 31773,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 12,
+      "windowsPngSha256": "da92812c902f74767ec46416f6cee1d5f809749778fbd0dd60c922cd49df2fa6"
+    },
+    {
+      "key": "520/1/empty/update-8",
+      "differentPixelsMacWindows": 29374,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "bcae33e4ce63b0e982934b692a64dce392c47ccb9265f8420a2117abf13fcb2c"
+    },
+    {
+      "key": "520/1/empty/update-9",
+      "differentPixelsMacWindows": 31661,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "2b3bfaaad8c0ced2602629f4e14c2469b6fc304a8a5a028d9b9fd1ec03f41e14"
+    },
+    {
+      "key": "520/1/empty/commit",
+      "differentPixelsMacWindows": 31652,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "314a7f2a55bd86d7074de2de148c8df100edf2e7931694670e857babffa16ad9"
+    },
+    {
+      "key": "520/1/existing/update-0",
+      "differentPixelsMacWindows": 40192,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "59a1525233752fb970c477004f5f499306360ece30b6a4816773446ea477161b"
+    },
+    {
+      "key": "520/1/existing/update-1",
+      "differentPixelsMacWindows": 40345,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "16c7705d9665dd6a327c6e7f6a97563aa22ccc32f592141ba33e402e3bb38805"
+    },
+    {
+      "key": "520/1/existing/update-2",
+      "differentPixelsMacWindows": 42568,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "0b52399682d0aff52d1d8e755f8f031b2083c0e6fbce17937c4686aa9ff42b52"
+    },
+    {
+      "key": "520/1/existing/update-3",
+      "differentPixelsMacWindows": 47346,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "2251905f91e1438832abc7d877680797fbf8d7bd74bc6b1bcde9d1954cf49741"
+    },
+    {
+      "key": "520/1/existing/update-4",
+      "differentPixelsMacWindows": 42697,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "18a2846176d86004414f2e168de0e1bfb3468c0e73d1b10448a6dd46edd8a98f"
+    },
+    {
+      "key": "520/1/existing/update-5",
+      "differentPixelsMacWindows": 38160,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 10,
+      "windowsPngSha256": "494ed46c12bbd84dce378e2d9ff9b6d0b9d578f86b5586037c8517fa655b39a3"
+    },
+    {
+      "key": "520/1/existing/update-6",
+      "differentPixelsMacWindows": 38160,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 10,
+      "windowsPngSha256": "494ed46c12bbd84dce378e2d9ff9b6d0b9d578f86b5586037c8517fa655b39a3"
+    },
+    {
+      "key": "520/1/existing/update-7",
+      "differentPixelsMacWindows": 44891,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 10,
+      "windowsPngSha256": "03de000f1697afc633ef6c2b2b369fb038f08ffab80adbc6bce8a2d22edbb7e0"
+    },
+    {
+      "key": "520/1/existing/update-8",
+      "differentPixelsMacWindows": 34647,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 10,
+      "windowsPngSha256": "cea43665ef525f56c8fdfd971a96f7846fc8e6da457b65febe0ba14e182b6715"
+    },
+    {
+      "key": "520/1/existing/update-9",
+      "differentPixelsMacWindows": 33110,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 10,
+      "windowsPngSha256": "bb72550dca5d9fe8d680089d09cc163073729c86e16aaebc0750cb964f5afe15"
+    },
+    {
+      "key": "520/1/existing/commit",
+      "differentPixelsMacWindows": 33103,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 10,
+      "windowsPngSha256": "7d30f745b0ea0d24059c1cf46bc9a25ef7069b99ca5cfe88ad1f775970327ef4"
+    },
+    {
+      "key": "800/0.01/empty/update-0",
+      "differentPixelsMacWindows": 264,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "4502d7de01d135f3314a5ce6abc81a58ec7b80ff8d6f550a50a86d8d020bfce3"
+    },
+    {
+      "key": "800/0.01/empty/update-1",
+      "differentPixelsMacWindows": 363,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "cc491359608cc0e923e18afab66a3d6a2feaf2072ccca767520c00367e1c80c3"
+    },
+    {
+      "key": "800/0.01/empty/update-2",
+      "differentPixelsMacWindows": 534,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "33c7ca236c40532bb6ddb601568d32356ac525cd26fe326da1867862e59e1720"
+    },
+    {
+      "key": "800/0.01/empty/update-3",
+      "differentPixelsMacWindows": 710,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "65b54fcdcaf136abfecd030c70cbb24150d3a4bbe89217d6138b220bba604b48"
+    },
+    {
+      "key": "800/0.01/empty/update-4",
+      "differentPixelsMacWindows": 831,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "2d6bcd528ee36dfe349d847b9c6cd0fff1bbe9a2130ebb33e034635d8551a728"
+    },
+    {
+      "key": "800/0.01/empty/update-5",
+      "differentPixelsMacWindows": 865,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "56d7f9fff32f7019ed16446c8d4bf552e7aa896ca6cade22872742c4e7a13248"
+    },
+    {
+      "key": "800/0.01/empty/update-6",
+      "differentPixelsMacWindows": 865,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "56d7f9fff32f7019ed16446c8d4bf552e7aa896ca6cade22872742c4e7a13248"
+    },
+    {
+      "key": "800/0.01/empty/update-7",
+      "differentPixelsMacWindows": 1115,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "c0a3c071a0b16e42f0e84a6e938f1cec7a62e365c020a0360e7ad998f11511ac"
+    },
+    {
+      "key": "800/0.01/empty/update-8",
+      "differentPixelsMacWindows": 524,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "014926665617fdd821d00b586e3be9669e0a50856c3186330dc078bf61651513"
+    },
+    {
+      "key": "800/0.01/empty/update-9",
+      "differentPixelsMacWindows": 536,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "aaa1110f0cb01b2784658943f783d2595e973829e5010b5639f6145d4267a8ba"
+    },
+    {
+      "key": "800/0.01/empty/commit",
+      "differentPixelsMacWindows": 534,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "1ff76c634a75c1d2850cf31ba88950ce57d1f7bf3c3540e0e9ada46f4e684ad2"
+    },
+    {
+      "key": "800/0.01/existing/update-0",
+      "differentPixelsMacWindows": 28113,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "945504bf4ea9f4e2e29f8300ac4e3f3eca453be5fd935aaa76520dca88025448"
+    },
+    {
+      "key": "800/0.01/existing/update-1",
+      "differentPixelsMacWindows": 28206,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "2fdbe15c486c35c774e01c2f1ad41c404034463ff8cca5d6bbbd6de1b279fe84"
+    },
+    {
+      "key": "800/0.01/existing/update-2",
+      "differentPixelsMacWindows": 28361,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "8044331715c86a5e40351bf01a73ac3c615c7f080c936677ecb25b6bc9f8bf96"
+    },
+    {
+      "key": "800/0.01/existing/update-3",
+      "differentPixelsMacWindows": 28527,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "084b636f6371eecd1ba1cd04d58496f7025bca25b4fbfa33915e0be37a2a29f8"
+    },
+    {
+      "key": "800/0.01/existing/update-4",
+      "differentPixelsMacWindows": 28484,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "e8d05f2d7661bce98d2c695045da1c53b9b5dd1e8f5d32591f441b4f7562a4f0"
+    },
+    {
+      "key": "800/0.01/existing/update-5",
+      "differentPixelsMacWindows": 28558,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "2a9a01893db46d0ae782de4525bc88d629a69dddb9575011dbb1d6daa3841315"
+    },
+    {
+      "key": "800/0.01/existing/update-6",
+      "differentPixelsMacWindows": 28558,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "2a9a01893db46d0ae782de4525bc88d629a69dddb9575011dbb1d6daa3841315"
+    },
+    {
+      "key": "800/0.01/existing/update-7",
+      "differentPixelsMacWindows": 28771,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "2e857292f9e4af6a84ae977d3317f23112446e1fc7db7559329c3812c26dc1d6"
+    },
+    {
+      "key": "800/0.01/existing/update-8",
+      "differentPixelsMacWindows": 28283,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "a91d96ccec934b4d279f039012bcc26980607583099a0bf9965f3c4c68418532"
+    },
+    {
+      "key": "800/0.01/existing/update-9",
+      "differentPixelsMacWindows": 28323,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "7a33056b913b43fde9a0c0d3efd547df5fc5e22f10fd71b310d7204622aa2e12"
+    },
+    {
+      "key": "800/0.01/existing/commit",
+      "differentPixelsMacWindows": 28321,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "bd587e6e450862e9a977569abd8b1b50d647c2921187ecfbe4c7da38a35e49ef"
+    },
+    {
+      "key": "800/0.4/empty/update-0",
+      "differentPixelsMacWindows": 10596,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 1,
+      "windowsPngSha256": "916072a533681ec15268c6b77e2aaa733fe7885d6b73419bace43367184f297d"
+    },
+    {
+      "key": "800/0.4/empty/update-1",
+      "differentPixelsMacWindows": 13591,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "7078a52a0680cc87056710e3ff21609b98dfa119a57e597635c5d7d6ff1482cd"
+    },
+    {
+      "key": "800/0.4/empty/update-2",
+      "differentPixelsMacWindows": 18011,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "e19157d73a389208ed98fe70837c62834edd1d328b4491b827522a57f32d6ac2"
+    },
+    {
+      "key": "800/0.4/empty/update-3",
+      "differentPixelsMacWindows": 23104,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "f1061c59f786173d782dfb518345a4e0c564889f2cfacb9fc50241be875fcb39"
+    },
+    {
+      "key": "800/0.4/empty/update-4",
+      "differentPixelsMacWindows": 26589,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "3e095a47980427f6e3b8eb737c4fa2fd38692c78beb31b61dbb5a5e1be24d841"
+    },
+    {
+      "key": "800/0.4/empty/update-5",
+      "differentPixelsMacWindows": 25724,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "d87fb2ea92f4e2f7268c24e6594019e472be9159bd16b1a2c3b1349c10b0bb55"
+    },
+    {
+      "key": "800/0.4/empty/update-6",
+      "differentPixelsMacWindows": 25724,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "d87fb2ea92f4e2f7268c24e6594019e472be9159bd16b1a2c3b1349c10b0bb55"
+    },
+    {
+      "key": "800/0.4/empty/update-7",
+      "differentPixelsMacWindows": 33564,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "eb5ddffabfa8eaa4538f1ed353449223c78626722565a55ff7fe442e691aceed"
+    },
+    {
+      "key": "800/0.4/empty/update-8",
+      "differentPixelsMacWindows": 14534,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "83f19b46cbf0d541a2d4283a40120eedce6f96d10efcb7564e50960f156ddc16"
+    },
+    {
+      "key": "800/0.4/empty/update-9",
+      "differentPixelsMacWindows": 14025,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "33af639a5b27b3d39b0a7f22aee20eab6486a6639e21651a51fe243a5a4823a4"
+    },
+    {
+      "key": "800/0.4/empty/commit",
+      "differentPixelsMacWindows": 14016,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "970c655dbc5cb623f78fa94ecb074d5754012f7d85464fd60d66743377eda80f"
+    },
+    {
+      "key": "800/0.4/existing/update-0",
+      "differentPixelsMacWindows": 37278,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "bcfcc175e9741d5eb3ce4eac783993f5ac73b18feb7986d99e35f35b0978a4da"
+    },
+    {
+      "key": "800/0.4/existing/update-1",
+      "differentPixelsMacWindows": 39797,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "1ca91d9e8b21b3c60d6b8792697ccf1612f303d839f1ddfcaa37801f18140f45"
+    },
+    {
+      "key": "800/0.4/existing/update-2",
+      "differentPixelsMacWindows": 43727,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "5b797215024e54641a5711af6c2a87638ce1c8d5f772dba1205e6bc37120bf09"
+    },
+    {
+      "key": "800/0.4/existing/update-3",
+      "differentPixelsMacWindows": 48242,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "2efa5afc62424cea2dae236d796b352c22621acdf99021f4680e27a2ccbc90e5"
+    },
+    {
+      "key": "800/0.4/existing/update-4",
+      "differentPixelsMacWindows": 47572,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "73a48d7ae9794f1655edc44284050d427374405279d6bcd70f208e97f63b78a7"
+    },
+    {
+      "key": "800/0.4/existing/update-5",
+      "differentPixelsMacWindows": 49452,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "bfeaaf8d102a79af905011ebbd8a483bd6f76282128c6ecd7a4a6fe2a00ced3c"
+    },
+    {
+      "key": "800/0.4/existing/update-6",
+      "differentPixelsMacWindows": 49452,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "bfeaaf8d102a79af905011ebbd8a483bd6f76282128c6ecd7a4a6fe2a00ced3c"
+    },
+    {
+      "key": "800/0.4/existing/update-7",
+      "differentPixelsMacWindows": 55970,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "3736d28238b79709150fabbab8bfe17d323be359e531f478b7b4bdc5a95ef63f"
+    },
+    {
+      "key": "800/0.4/existing/update-8",
+      "differentPixelsMacWindows": 40659,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "8b42ef0d552383ab47f1a4f964e5660771deb751eae5793b65d1150bee2ded1c"
+    },
+    {
+      "key": "800/0.4/existing/update-9",
+      "differentPixelsMacWindows": 40386,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "29c298ff66a1e3f338da6eb942ebe5e48fb238989f38b553698d1f2508a5755c"
+    },
+    {
+      "key": "800/0.4/existing/commit",
+      "differentPixelsMacWindows": 40373,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 4,
+      "windowsPngSha256": "4a1e16de6838001174390a8063bb2184d2ea69bf1fd274d68520a7224d8a2a61"
+    },
+    {
+      "key": "800/1/empty/update-0",
+      "differentPixelsMacWindows": 25091,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 2,
+      "windowsPngSha256": "cc5da85a3c0208963f4970d6a04cbfb272c9a6d4aaa957d24f5845a83b2d7c9f"
+    },
+    {
+      "key": "800/1/empty/update-1",
+      "differentPixelsMacWindows": 25946,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 3,
+      "windowsPngSha256": "25abb93a1bdaf1cc6c1c42c9280a38c089550bfe2693d4efac109f6bdd1518e9"
+    },
+    {
+      "key": "800/1/empty/update-2",
+      "differentPixelsMacWindows": 28195,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "096de28ede0774f6d795da9b051bd158560629f5db1fff0bc08fc91ef525e993"
+    },
+    {
+      "key": "800/1/empty/update-3",
+      "differentPixelsMacWindows": 37072,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "e6d7fee45cf35c077a028fd0d05bd03feda537e6c466ab6e5c56adca50188d2f"
+    },
+    {
+      "key": "800/1/empty/update-4",
+      "differentPixelsMacWindows": 44826,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "978b753a2af67035fecf9decdb9046639f10c3cba9b4d7afa24266bcdcedb031"
+    },
+    {
+      "key": "800/1/empty/update-5",
+      "differentPixelsMacWindows": 39290,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "c81e86f4d92ff29b96878729effe3617db9dbf930db1572123bebeadf10df0b2"
+    },
+    {
+      "key": "800/1/empty/update-6",
+      "differentPixelsMacWindows": 39290,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "c81e86f4d92ff29b96878729effe3617db9dbf930db1572123bebeadf10df0b2"
+    },
+    {
+      "key": "800/1/empty/update-7",
+      "differentPixelsMacWindows": 49381,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 9,
+      "windowsPngSha256": "87a62fc539c1ed86e39a5e5b0039fa87e433518c562ee4f5022635db2a9325ab"
+    },
+    {
+      "key": "800/1/empty/update-8",
+      "differentPixelsMacWindows": 24110,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "6f1523cdc57205be69ad3d1520e6b46e3298f9f9f3c01a7dc50a45e349a1da76"
+    },
+    {
+      "key": "800/1/empty/update-9",
+      "differentPixelsMacWindows": 23104,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "2e0eb6680887322567ed99084b51f1fc1541fcd8501820569156c34c7e81b53b"
+    },
+    {
+      "key": "800/1/empty/commit",
+      "differentPixelsMacWindows": 23118,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "a9f4a97c6747cf30fe061d501f22b4b8a678acf963dbab54fa1cb717d79d2486"
+    },
+    {
+      "key": "800/1/existing/update-0",
+      "differentPixelsMacWindows": 50836,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "8fdbb1f67611d8cec162323ae90443c57e1da0fdfaf2489ada770d9e1ed62058"
+    },
+    {
+      "key": "800/1/existing/update-1",
+      "differentPixelsMacWindows": 51958,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "3c107c4bc6218fe2da65b5b7da27f2dc8fb1fdf103ee45ad94bef0fbf9758a8a"
+    },
+    {
+      "key": "800/1/existing/update-2",
+      "differentPixelsMacWindows": 53735,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "0716bd3853200e17d432e22bd59a4531a88a0af990ce0b39d5355ec6e3c8e4c6"
+    },
+    {
+      "key": "800/1/existing/update-3",
+      "differentPixelsMacWindows": 60354,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 6,
+      "windowsPngSha256": "aa638d7a05ef02bc14f5b1c02202043d9830472bc2db08c6f4facce722ffebf0"
+    },
+    {
+      "key": "800/1/existing/update-4",
+      "differentPixelsMacWindows": 55468,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "d462e9f95f1597e6fad38d23d19ba6916de5af30d17d66ffaaa81d795ba80931"
+    },
+    {
+      "key": "800/1/existing/update-5",
+      "differentPixelsMacWindows": 49588,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "ee4d7711b60e97161df37ccb46d306b1360f745bce8766ffc25fee459652d868"
+    },
+    {
+      "key": "800/1/existing/update-6",
+      "differentPixelsMacWindows": 49588,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "ee4d7711b60e97161df37ccb46d306b1360f745bce8766ffc25fee459652d868"
+    },
+    {
+      "key": "800/1/existing/update-7",
+      "differentPixelsMacWindows": 57810,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "d424de35a3357fde3e1b16f57ea94ab2f34ef81b4539571cb1775c76ae10a1ff"
+    },
+    {
+      "key": "800/1/existing/update-8",
+      "differentPixelsMacWindows": 25092,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "eab3a2ce0c7106126e45d5994d2471be764b22abb5e4917b7eaa9c010acab0ee"
+    },
+    {
+      "key": "800/1/existing/update-9",
+      "differentPixelsMacWindows": 23898,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "2a4b7ecac04b99ed52faded3526dff7cf8e08a2195131ee41b73c701e669c78b"
+    },
+    {
+      "key": "800/1/existing/commit",
+      "differentPixelsMacWindows": 23912,
+      "maximumStraightRgbaChannelDifference": 255,
+      "maximumAlphaDifference": 7,
+      "windowsPngSha256": "4d730895974ef8754909452d178cadff4520f9fcb415f1ba8e08835500bcc617"
+    }
+  ]
+}

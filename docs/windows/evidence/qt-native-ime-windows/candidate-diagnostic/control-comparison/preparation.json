@@ -1,0 +1,191 @@
+{
+  "status": "cross-build and package checks passed; Windows execution pending",
+  "windowsExecuted": false,
+  "candidatePositionAccepted": false,
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/qt-ime-control-20260927/QtImeControl.zip",
+  "archiveBytes": 13908795,
+  "archiveSha256": "1e5232a12d7b9d87e12897e5c2191fc4d1ea8565d64058ad3191b94c143c5116",
+  "bundledSymbolChecks": [
+    {
+      "source": "qt6gui.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 1093
+    },
+    {
+      "source": "qt6gui.dll",
+      "dependency": "libc++.dll",
+      "symbols": 30
+    },
+    {
+      "source": "libc++.dll",
+      "dependency": "libunwind.dll",
+      "symbols": 9
+    },
+    {
+      "source": "qt6widgets.dll",
+      "dependency": "qt6gui.dll",
+      "symbols": 1638
+    },
+    {
+      "source": "qt6widgets.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 941
+    },
+    {
+      "source": "qt6widgets.dll",
+      "dependency": "libc++.dll",
+      "symbols": 56
+    },
+    {
+      "source": "qt6core.dll",
+      "dependency": "libc++.dll",
+      "symbols": 72
+    },
+    {
+      "source": "qt6core.dll",
+      "dependency": "libunwind.dll",
+      "symbols": 1
+    },
+    {
+      "source": "qoffscreen.dll",
+      "dependency": "qt6gui.dll",
+      "symbols": 215
+    },
+    {
+      "source": "qoffscreen.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 101
+    },
+    {
+      "source": "qoffscreen.dll",
+      "dependency": "libc++.dll",
+      "symbols": 8
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "qt6gui.dll",
+      "symbols": 751
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "qt6core.dll",
+      "symbols": 394
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "libc++.dll",
+      "symbols": 22
+    },
+    {
+      "source": "qwindows.dll",
+      "dependency": "libunwind.dll",
+      "symbols": 1
+    },
+    {
+      "source": "qt_ime_control.exe",
+      "dependency": "qt6widgets.dll",
+      "symbols": 224
+    },
+    {
+      "source": "qt_ime_control.exe",
+      "dependency": "libcompositor_native.dll",
+      "symbols": 3
+    },
+    {
+      "source": "qt_ime_control.exe",
+      "dependency": "qt6gui.dll",
+      "symbols": 133
+    },
+    {
+      "source": "qt_ime_control.exe",
+      "dependency": "qt6core.dll",
+      "symbols": 159
+    },
+    {
+      "source": "qt_ime_control.exe",
+      "dependency": "libc++.dll",
+      "symbols": 34
+    },
+    {
+      "source": "qt_ime_control.exe",
+      "dependency": "libunwind.dll",
+      "symbols": 1
+    }
+  ],
+  "externalLibraries": [
+    "advapi32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
+    "api-ms-win-core-winrt-l1-1-0.dll",
+    "api-ms-win-core-winrt-string-l1-1-0.dll",
+    "api-ms-win-crt-convert-l1-1-0.dll",
+    "api-ms-win-crt-environment-l1-1-0.dll",
+    "api-ms-win-crt-filesystem-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "api-ms-win-crt-locale-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-multibyte-l1-1-0.dll",
+    "api-ms-win-crt-private-l1-1-0.dll",
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "api-ms-win-crt-time-l1-1-0.dll",
+    "api-ms-win-crt-utility-l1-1-0.dll",
+    "authz.dll",
+    "comdlg32.dll",
+    "d3d11.dll",
+    "d3d12.dll",
+    "d3d9.dll",
+    "dwmapi.dll",
+    "dwrite.dll",
+    "dxgi.dll",
+    "gdi32.dll",
+    "imm32.dll",
+    "kernel32.dll",
+    "mpr.dll",
+    "netapi32.dll",
+    "ntdll.dll",
+    "ole32.dll",
+    "oleaut32.dll",
+    "setupapi.dll",
+    "shcore.dll",
+    "shell32.dll",
+    "shlwapi.dll",
+    "user32.dll",
+    "userenv.dll",
+    "uxtheme.dll",
+    "version.dll",
+    "winmm.dll",
+    "ws2_32.dll",
+    "wtsapi32.dll"
+  ],
+  "sourceManifest": {
+    "baseCommit": "8d6badda9713facf2c403e71327f88f7def103f7",
+    "sourceSha256": {
+      "experiments/windows/qt-ime-control/run.py": "ff2df7e0aded2afe7a4916c383610d7db337804aa967f8b79239be2d7cdc6f32",
+      "experiments/windows/qt-ime-control/CMakeLists.txt": "67310bbea6211ef7c664d618d024dbc133ecbd47b6e85d96652c31606b728cc6",
+      "experiments/windows/qt-ime-control/main.cpp": "f25fe3f2334ccc6eff72397a008e7a7efef20410c813c016e726836b7b92b683",
+      "experiments/windows/qt/text_probe.cpp": "0c79b4c4665ed907a1fa77be7296746f9bb7d0ff18fafcc4b3a2493f4e23205f",
+      "experiments/windows/qt/scene.cpp": "4a90aeb7419c096e22de015d1cd52dc3968eb832297d80e7fab320d8e3e52f65",
+      "experiments/windows/qt/composite.cpp": "243884dd7067d3ee8b3237ef7b7e9f93b486e4bec1f2fb06cd400aab8a12607f",
+      "experiments/windows/qt/window.hpp": "603ab21e8031d484a11eec5c8061ffbaf96c654fc09a4685302e77a9e9cc441d",
+      "experiments/windows/qt/scene.hpp": "4fc765f86ec1c1e0c5da7303a24625aa31ca1f84a44428488b6d92e08ea816af"
+    },
+    "dependencies": {
+      "Qt6Gui.dll": "14373fdf8387b58db274381eabe277865ac6d0ded519e457ffd959cb15d1449a",
+      "qt.conf": "d23e982f2910242a2bcdf7dabe68b036de9d2bb8ffad64fa9f86020c3ad118a4",
+      "libc++.dll": "936a36ba1b1b0779067f15b77a92752a9ec29d073183969e76610c9caab4485f",
+      "Qt6Widgets.dll": "d9b56253e8f029e23e5291c6d42eab2d74b88ecf5b23609a403198af8d776e04",
+      "libunwind.dll": "fc8c676629fc5c0a1a1c0bace29f2538306a404a1e1dd15bf1707a3b948c7696",
+      "Qt6Core.dll": "d672d0b5be99ffb5bd512e935c6b39429d2c569e430294f907d87da982cb0b55",
+      "platforms/qoffscreen.dll": "676186aa2afec0abcd5a30eb7a1547b43283f7517a2fe3bcad2709ee4ee7a541",
+      "platforms/qwindows.dll": "7fb737c19f3c4273aa6ec5df41807ea498af7a5eff292975dc3650b5a505b42e"
+    },
+    "payload": {
+      "run.py": "ff2df7e0aded2afe7a4916c383610d7db337804aa967f8b79239be2d7cdc6f32",
+      "libcompositor_native.dll": "962b7f785ce10e02d7f95d2101e64561957cd1052068a01560c433cb8106dde9",
+      "qt_ime_control.exe": "893b6b2b004bc68d98b5943ca21c1bfa2323dc1fb9ad9697e17303c4865a5a4a"
+    },
+    "scope": "Read-only IMM queries and native QTextEdit vs unchanged WindowText; no candidate position fix"
+  },
+  "buildLogSha256": "14f99ea0b2bc7b41441963c681da05991c6b893b385c81ecad57be14408e37b7"
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "target": "ai_probe",
+    "exitCode": 0,
+    "binarySha256": "81839ef1bd55a88e9e93571593b2a221ab4a1ad42f51433ffdb4946ee48fe2d2",
+    "predictionExactAgainstDirectClang": true,
+    "native": {
+      "onnxruntime": "1.30.0",
+      "execution": "CPU default; one intra/inter-op thread; sequential",
+      "imageSide": 320,
+      "outputCount": 7,
+      "outputSemantics": "sigmoid",
+      "sessionLoadMilliseconds": 32.785875,
+      "inferenceMilliseconds": [
+        165.071042,
+        152.88025,
+        136.246917
+      ],
+      "outputMinimum": 1.19209289551e-07,
+      "outputMaximum": 0.999999523163,
+      "repeatedPredictionsExact": true,
+      "preTerminatedRunRejected": true,
+      "sessionRecovered": true,
+      "activeInferenceCancellationTested": false
+    }
+  },
+  {
+    "target": "birefnet_probe",
+    "exitCode": 0,
+    "binarySha256": "3c5f8e12fcb8fea69d87d5fe2703701bc4bea73b80c2a5ad53096bd525f8a9f4",
+    "predictionExactAgainstDirectClang": true,
+    "native": {
+      "onnxruntime": "1.30.0",
+      "execution": "CPU default; one intra/inter-op thread; sequential",
+      "imageSide": 1024,
+      "outputCount": 1,
+      "outputSemantics": "logits",
+      "sessionLoadMilliseconds": 1210.245334,
+      "inferenceMilliseconds": [
+        7061.433375,
+        7738.919833,
+        6223.322167
+      ],
+      "outputMinimum": -19.4603481293,
+      "outputMaximum": 25.2114620209,
+      "repeatedPredictionsExact": true,
+      "preTerminatedRunRejected": true,
+      "sessionRecovered": true,
+      "activeInferenceCancellationTested": false
+    }
+  }
+]

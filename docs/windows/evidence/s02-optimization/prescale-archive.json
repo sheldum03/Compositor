@@ -1,0 +1,38 @@
+{
+  "name": "s02-prescale-20260922-154152.zip",
+  "bytes": 4127222,
+  "sha256": "a5b5e8d3b8c019a255f01b356bf2d0e174ed89b364dd2ac4bf2c9e6351bfd759",
+  "entries": 9,
+  "crcPassed": true,
+  "completed": true,
+  "trials": 62,
+  "renderScaling": 1.5,
+  "finalPixels": {
+    "empty": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    },
+    "existing": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    }
+  },
+  "nativePreview": {
+    "empty": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 1500,
+      "height": 1500
+    },
+    "existing": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 1500,
+      "height": 1500
+    }
+  }
+}

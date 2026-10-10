@@ -1,0 +1,21 @@
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite WindowsProductionWorkflowTests started.
+◇ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+◇ Test case passing 1 argument name → "Image" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Edited" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​◇ Test case passing 1 argument name → "Oriented" to productionV8PixelsAndHistorySurviveMacRoundTrip(_:) started.
+​✔ Test productionV8PixelsAndHistorySurviveMacRoundTrip(_:) with 3 test cases passed after 0.034 seconds.
+✔ Suite WindowsProductionWorkflowTests passed after 0.034 seconds.
+✔ Test run with 1 test in 1 suite passed after 0.034 seconds.
+2026-10-02 10:58:32.986 xcodebuild[55295:322502] [MT] IDETestOperationsObserverDebug: 1.430 elapsed -- Testing started completed.
+2026-10-02 10:58:32.986 xcodebuild[55295:322502] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-02 10:58:32.986 xcodebuild[55295:322502] [MT] IDETestOperationsObserverDebug: 1.430 sec, +1.430 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/admin/.codex/visualizations/2026/10/02/production-workflow-mac-readback/retained-readback.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

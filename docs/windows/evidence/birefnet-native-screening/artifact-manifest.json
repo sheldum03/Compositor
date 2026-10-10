@@ -1,0 +1,300 @@
+{
+  "root": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/birefnet-native-20260924",
+  "files": [
+    {
+      "path": "baseline-probe.cpp",
+      "bytes": 9671,
+      "sha256": "55452a2e8d179899f1643a69fb32408f96dc4c80d34435271e7f4e8e9092e3d8"
+    },
+    {
+      "path": "birefnet-rejects-u2net/cpu-profile_2026-09-24_11-20-29_914.json",
+      "bytes": 252,
+      "sha256": "69204114ff153c134a12ee951a2790277aa780fc6025abefe9ef951ef11625c7"
+    },
+    {
+      "path": "build/ai_probe",
+      "bytes": 113320,
+      "sha256": "d208e12ea057c59692f3500fedecba22e2291147fc0c9d0fffd44ca52fd402bf"
+    },
+    {
+      "path": "build/baseline-ai-probe",
+      "bytes": 113056,
+      "sha256": "8ed2bdda90b52a0a09e311520543637d91c9136c011ce4e09b969cbcd34501d8"
+    },
+    {
+      "path": "build/birefnet_probe",
+      "bytes": 113328,
+      "sha256": "28fb67b5aed7364314abfd4664a752d0a09391dca5c394db557be057313919a8"
+    },
+    {
+      "path": "cmake-ai_probe-run/cpu-profile_2026-09-24_11-25-17_838.json",
+      "bytes": 895465,
+      "sha256": "5ccde81b131e48377ca246df32a7a99d1e378ea93c75b8def90baf17e0e865ff"
+    },
+    {
+      "path": "cmake-ai_probe-run/inference.json",
+      "bytes": 494,
+      "sha256": "b0072132df75eee453719c053f656f19bf993d22410c4ba236f8c1531db24ca9"
+    },
+    {
+      "path": "cmake-ai_probe-run/mask.f32",
+      "bytes": 409600,
+      "sha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+    },
+    {
+      "path": "cmake-ai_probe-run.log",
+      "bytes": 109,
+      "sha256": "726c99cba3cf701abff168e65c97d50558b1c8d68b1beb423656912ca1272273"
+    },
+    {
+      "path": "cmake-birefnet_probe-run/cpu-profile_2026-09-24_11-25-18_541.json",
+      "bytes": 10983612,
+      "sha256": "c3a59c36eb12e16b10132ff448922ef69744af722e3533bd211be889065c411d"
+    },
+    {
+      "path": "cmake-birefnet_probe-run/inference.json",
+      "bytes": 496,
+      "sha256": "6a206f8a7afb118f507e7e263df5cf91d3245ef1abd7cdbd02dd8abc71c32cf5"
+    },
+    {
+      "path": "cmake-birefnet_probe-run/logits.f32",
+      "bytes": 4194304,
+      "sha256": "87c2556501859c509ec37ca50715d08493b9823f25fab0a98766bc3af3cfeb71"
+    },
+    {
+      "path": "cmake-birefnet_probe-run.log",
+      "bytes": 109,
+      "sha256": "726c99cba3cf701abff168e65c97d50558b1c8d68b1beb423656912ca1272273"
+    },
+    {
+      "path": "cmake-build-validation.json",
+      "bytes": 1581,
+      "sha256": "c8ba1e4cc06c4d3516dd9e8cb9bcb48e2b9661034e62c3b8d4c049e849952ba4"
+    },
+    {
+      "path": "cmake-build.log",
+      "bytes": 280,
+      "sha256": "9452cef1ba635004678781b605c953138e601d218fa07427b9ce701b60635df6"
+    },
+    {
+      "path": "cmake-configure.log",
+      "bytes": 682,
+      "sha256": "d5a8d0be877b4832ef248abb8e3cc532b32578cd6992ef962d0cfcda3328f347"
+    },
+    {
+      "path": "cmake-install.json",
+      "bytes": 7917,
+      "sha256": "d55471879f18977a2db110d3deb9d55f1e70811ff2844f98584d7f1b0c922559"
+    },
+    {
+      "path": "mac-readback.log",
+      "bytes": 32230,
+      "sha256": "062040974dc905d521a838839dae996bc03e49e1ad06742e54e8e3fa752785bf"
+    },
+    {
+      "path": "model-contract-controls.json",
+      "bytes": 279,
+      "sha256": "5c59f99f23a54cf0a009966c483453b5d8afe103762c4c6f3052614fded15457"
+    },
+    {
+      "path": "onnxruntime-osx-arm64-1.30.0.tgz",
+      "bytes": 42373116,
+      "sha256": "6ebb5062a934537c352937821f9fe9718e7de1a2db1122a93dd363ffd53a7012"
+    },
+    {
+      "path": "ort-release.json",
+      "bytes": 46555,
+      "sha256": "37d35185db54189541e58021bc85638ca7dbb16a47e1d24053c5129fa4979fc0"
+    },
+    {
+      "path": "screening/cancellation-review.json",
+      "bytes": 444,
+      "sha256": "013e4eb9127d070ae636d5c7164bbf528cfa9f321fee3c8cdb19053e92786530"
+    },
+    {
+      "path": "screening/cutout.png",
+      "bytes": 516626,
+      "sha256": "b642b12c97313779e78022004cb8ecbee80702e16eb087490c8a789dd0005970"
+    },
+    {
+      "path": "screening/input.f32",
+      "bytes": 12582912,
+      "sha256": "effc561159d2142bb0cc325e72d6fbc414f5691022305c00fd5da3b127dfadbe"
+    },
+    {
+      "path": "screening/invalid-model/cpu-profile_2026-09-24_11-20-03_586.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "screening/invalid.onnx",
+      "bytes": 17,
+      "sha256": "9e9a3c16adf669fef9c716cac085708ce9ce53da2af2f0a14fd16245d36434dd"
+    },
+    {
+      "path": "screening/mask.png",
+      "bytes": 7761,
+      "sha256": "174775d01503333ade587a37bdb1facd661ca7e50f9cdfaa70483373450b23fc"
+    },
+    {
+      "path": "screening/nan.f32",
+      "bytes": 12582912,
+      "sha256": "f895eb556a69a8819d8212a1a223e759e2b97a3162eed7fb3ddd7e339d7c4a3b"
+    },
+    {
+      "path": "screening/native/active-cancellation.json",
+      "bytes": 172,
+      "sha256": "8d0510b423432306b9581846516a9f3acaa372a82ac307615f5922e759da2749"
+    },
+    {
+      "path": "screening/native/active-profile_2026-09-24_11-19-50_677.json",
+      "bytes": 2747584,
+      "sha256": "2f8ef27ea168cda4b4014a386b29097a0ef7073cb124ad465655780b3b750569"
+    },
+    {
+      "path": "screening/native/active-recovered.f32",
+      "bytes": 4194304,
+      "sha256": "87c2556501859c509ec37ca50715d08493b9823f25fab0a98766bc3af3cfeb71"
+    },
+    {
+      "path": "screening/native/cpu-profile_2026-09-24_11-19-10_406.json",
+      "bytes": 10987371,
+      "sha256": "ca3508b6c3ae6fd7aefe0be20eabb19c08a1280a7c87577dc278666efa79d33a"
+    },
+    {
+      "path": "screening/native/inference.json",
+      "bytes": 496,
+      "sha256": "806b165c566e50817f762870e911d5aaab24e5d9aa86410705a1781d245836fa"
+    },
+    {
+      "path": "screening/native/logits.f32",
+      "bytes": 4194304,
+      "sha256": "87c2556501859c509ec37ca50715d08493b9823f25fab0a98766bc3af3cfeb71"
+    },
+    {
+      "path": "screening/native.log",
+      "bytes": 109,
+      "sha256": "726c99cba3cf701abff168e65c97d50558b1c8d68b1beb423656912ca1272273"
+    },
+    {
+      "path": "screening/screening.json",
+      "bytes": 2649,
+      "sha256": "7d74a2ff38583ef731955717d851113de54e5318cd13f279fbeed4c089b09963"
+    },
+    {
+      "path": "screening/short.f32",
+      "bytes": 5,
+      "sha256": "f9b0078b5df596d2ea19010c001bbd009e651de2c57e8fb7e355f31eb9d3f739"
+    },
+    {
+      "path": "screening/subject.comp/images/00000000-0000-4000-9000-000000000021.mask.png",
+      "bytes": 7761,
+      "sha256": "174775d01503333ade587a37bdb1facd661ca7e50f9cdfaa70483373450b23fc"
+    },
+    {
+      "path": "screening/subject.comp/images/00000000-0000-4000-9000-000000000021.png",
+      "bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5"
+    },
+    {
+      "path": "screening/subject.comp/manifest.json",
+      "bytes": 808,
+      "sha256": "2086b5cceae3770ed7956c87bfe033c5dbc1925d05d87f0af264370ae273be8b"
+    },
+    {
+      "path": "screening.log",
+      "bytes": 2649,
+      "sha256": "7d74a2ff38583ef731955717d851113de54e5318cd13f279fbeed4c089b09963"
+    },
+    {
+      "path": "u2net-after/active-cancellation.json",
+      "bytes": 171,
+      "sha256": "bbbd40d455e6263d4430e3dea01275d4790b4ef53961681d62cb5a296fdebde1"
+    },
+    {
+      "path": "u2net-after/active-profile_2026-09-24_11-19-12_979.json",
+      "bytes": 227581,
+      "sha256": "cfd171954cc93b51f8003c6308201da895d15ad0b6501f0fe9d8bc0576958009"
+    },
+    {
+      "path": "u2net-after/active-recovered.f32",
+      "bytes": 409600,
+      "sha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+    },
+    {
+      "path": "u2net-after/cpu-profile_2026-09-24_11-19-12_020.json",
+      "bytes": 895793,
+      "sha256": "835ee5f64d67e457e140b20c5c8ca08bfb64883eaa2af352f0126b88d6a7b0ec"
+    },
+    {
+      "path": "u2net-after/inference.json",
+      "bytes": 491,
+      "sha256": "02bbb1025fde2f425daeb2a073ecf98cf9933d5d2c9a5d6501c12d6e2a99fc69"
+    },
+    {
+      "path": "u2net-after/mask.f32",
+      "bytes": 409600,
+      "sha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+    },
+    {
+      "path": "u2net-after-review.json",
+      "bytes": 442,
+      "sha256": "8e4c04d9be679885b049f4c588beafc7f90e0792e85630dce6986866d181a6be"
+    },
+    {
+      "path": "u2net-after.log",
+      "bytes": 109,
+      "sha256": "726c99cba3cf701abff168e65c97d50558b1c8d68b1beb423656912ca1272273"
+    },
+    {
+      "path": "u2net-before/active-cancellation.json",
+      "bytes": 171,
+      "sha256": "c9b5051cfe95aca25806b6188247817b04c2def07424f19eaec78e7694d74953"
+    },
+    {
+      "path": "u2net-before/active-profile_2026-09-24_11-19-11_566.json",
+      "bytes": 227533,
+      "sha256": "8dc9cd28d9daaee8115fa4681cafdc4a53bdff21352508af333222ef910a6890"
+    },
+    {
+      "path": "u2net-before/active-recovered.f32",
+      "bytes": 409600,
+      "sha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+    },
+    {
+      "path": "u2net-before/cpu-profile_2026-09-24_11-19-10_907.json",
+      "bytes": 895525,
+      "sha256": "abfc7c611ec1e81afc3d57f0accfc64ca96a6ffc007701a632bc4601966c39aa"
+    },
+    {
+      "path": "u2net-before/inference.json",
+      "bytes": 422,
+      "sha256": "cb5fd66577fcc4766726ccbd453cfd3247aea3d767f6d2d605d8214ed89e3beb"
+    },
+    {
+      "path": "u2net-before/mask.f32",
+      "bytes": 409600,
+      "sha256": "bb24042cd87816ac64340e83aeb3ceb2620478906272bc35ae47abbd9fab7aae"
+    },
+    {
+      "path": "u2net-before-review.json",
+      "bytes": 442,
+      "sha256": "f5871808b0007e24bb1b136eb0eec2c7bb18dc5958731ee80a417366bf53668d"
+    },
+    {
+      "path": "u2net-before.log",
+      "bytes": 109,
+      "sha256": "726c99cba3cf701abff168e65c97d50558b1c8d68b1beb423656912ca1272273"
+    },
+    {
+      "path": "u2net-regression.json",
+      "bytes": 772,
+      "sha256": "f6e191b58f6638c12ffd9b27d05d856553854855884c3a4a37c2c7952ef53794"
+    },
+    {
+      "path": "u2net-rejects-birefnet/cpu-profile_2026-09-24_11-20-29_995.json",
+      "bytes": 256,
+      "sha256": "cbe8cc6c772b6f9f21b18c00c88a8b8960584388a49ee386a15e779e04e8be67"
+    }
+  ]
+}

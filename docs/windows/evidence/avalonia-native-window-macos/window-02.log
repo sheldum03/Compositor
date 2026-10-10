@@ -1,0 +1,2 @@
+2026-09-21 14:29:19.449 Compositor.AvaloniaProbe[2680:124679082] TSM AdjustCapsLockLEDForKeyTransitionHandling - _ISSetPhysicalKeyboardCapsLockLED Inhibit
+2026-09-21 14:29:19.473 Compositor.AvaloniaProbe[2680:124679082] error messaging the mach port for IMKCFRunLoopWakeUpReliable

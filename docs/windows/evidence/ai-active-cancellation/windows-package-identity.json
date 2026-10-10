@@ -1,0 +1,38 @@
+{
+  "utc": "2026-09-22T16:26:26.389469+00:00",
+  "sourceCommit": "3dc81bcca3d54a4a8f90a05ce362bb45ba6ba5c8",
+  "crossBuildPassed": true,
+  "windowsExecuted": false,
+  "productAccepted": false,
+  "compiler": "LLVM-MinGW 20260908; Clang 23.1.1",
+  "cmake": "3.31.6",
+  "configuration": "Release; -Wall -Wextra -Werror",
+  "exeSha256": "6b330c653b88ceaa00f0c4399fa0ce61657625a6d970b96bfc77a55d8668159d",
+  "toolchainArchiveSha256": "d1dc5d1ecf3a3ced5ed5544c72f1acd0c8e84eb3024d520ecc6b143eec62a149",
+  "onnxruntimeSdkArchiveSha256": "c6ba983baf5681af108599675d2a89c2d145512d02de28aed0bff177cd0ba949",
+  "bundledImportSymbolsResolved": 123,
+  "onnxruntimeOrdinal1": "OrtGetApiBase",
+  "powerShellInstructionsExecuted": false,
+  "externalMsvcRuntimeDependencies": [
+    "MSVCP140.dll",
+    "MSVCP140_1.dll",
+    "VCRUNTIME140.dll",
+    "VCRUNTIME140_1.dll"
+  ],
+  "modelIncluded": false,
+  "modelSha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+  "rawRoot": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/ai-active-cancellation-windows",
+  "sourceSha256": {
+    "CMakeLists.txt": "d705797a2c83dc788ab2337f03a275b7fa7b92791cff62ac1dbf31bd27c7a5db",
+    "probe.cpp": "55452a2e8d179899f1643a69fb32408f96dc4c80d34435271e7f4e8e9092e3d8",
+    "assets.json": "94b2e6877ea9464b195bc7d45805e6e0afbccf4fea657d7c21330c8be712e503"
+  },
+  "reviewerSha256": "7f2839c82392aa77d0ffa3e0502f97e4d41bd0bd8b8f3ed4608f2b79f54aaadf",
+  "package": {
+    "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/ai-active-cancellation-windows/CompositorAiActiveCancel.zip",
+    "bytes": 7331400,
+    "sha256": "c51297c2a6a614554ea10bab686e8bb7f8603d21024255bf40ab61a5c75e9203",
+    "files": 33,
+    "archiveCrcAndAllFileHashesVerified": true
+  }
+}

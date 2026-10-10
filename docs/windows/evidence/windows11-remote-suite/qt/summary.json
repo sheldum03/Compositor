@@ -1,0 +1,23 @@
+﻿{
+    "scope":  "Fixed probes and synthetic window controls; not real IME or user pointer acceptance",
+    "cases":  [
+                  {
+                      "name":  "reference",
+                      "exitCode":  0
+                  },
+                  {
+                      "name":  "font-diagnostic",
+                      "exitCode":  0
+                  },
+                  {
+                      "name":  "new-native",
+                      "exitCode":  0
+                  },
+                  {
+                      "name":  "native-platform-check",
+                      "exitCode":  0
+                  }
+              ],
+    "windowsExecuted":  true,
+    "nativeImeAccepted":  false
+}

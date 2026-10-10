@@ -1,0 +1,32 @@
+{
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-test-kit/CompositorTextDiagnostic.zip",
+  "bytes": 13819215,
+  "sha256": "ee658c6f7db590f2918b557f257ecf9ab370d777f4c557a59d7782780af30722",
+  "patch": [
+    {
+      "path": "patch/Compositor.AvaloniaProbe.deps.json",
+      "bytes": 13218,
+      "sha256": "7efbc24ebc73c46630eb98d418ba78449333ea67e2caf72d7b17df6c5dd83e61"
+    },
+    {
+      "path": "patch/Compositor.AvaloniaProbe.dll",
+      "bytes": 16670208,
+      "sha256": "5e6f9b830db9fba45e5646336ce19938811b09129ac34a4eef614e2d04277c6a"
+    },
+    {
+      "path": "patch/Compositor.AvaloniaProbe.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    }
+  ],
+  "status": "diagnostic build, no Windows fix claimed",
+  "windowsLiveDiagnosticsExecuted": false,
+  "regression": {
+    "capturedWindows": "12/12 rejected by ordinary-text ink guard; exit 134 on macOS .NET due expected unhandled InvalidDataException",
+    "macLive": "12/12 passed; 14 diagnostic variants rendered",
+    "minimumInkRatio": 0.5,
+    "meaning": "Catastrophic loss detector for fixed blue F11 text, excludes warm emoji; not acceptance of cross-platform tolerance",
+    "composition": "20 existing composition specimens passed after CLI integration"
+  },
+  "unresolved": "Actual Windows raster path must be rerun to discriminate hinting/subpixel/transform/font outline hypotheses; no font or rendering fix yet confirmed"
+}

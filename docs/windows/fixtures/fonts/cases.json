@@ -1,0 +1,41 @@
+{
+  "fixture.ttf": {
+    "faces": [
+      "CompositorFixtureTTF-Regular"
+    ],
+    "result": "import"
+  },
+  "fixture.otf": {
+    "faces": [
+      "CompositorFixtureOTF-Regular"
+    ],
+    "result": "import"
+  },
+  "two-faces.ttc": {
+    "faces": [
+      "CompositorFixtureCollection-Regular",
+      "CompositorFixtureCollection-Bold"
+    ],
+    "result": "import"
+  },
+  "duplicate.ttf": {
+    "after": "fixture.ttf",
+    "result": "deduplicate"
+  },
+  "conflict.ttf": {
+    "after": "fixture.ttf",
+    "result": "registration"
+  },
+  "wrong-extension.zip": {
+    "result": "unsupported"
+  },
+  "empty.otf": {
+    "result": "empty"
+  },
+  "damaged.ttf": {
+    "result": "damaged"
+  },
+  "truncated.ttc": {
+    "result": "damaged"
+  }
+}

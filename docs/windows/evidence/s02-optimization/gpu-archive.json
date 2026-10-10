@@ -1,0 +1,39 @@
+{
+  "name": "s02-gpucheck-20260922-143205.zip",
+  "bytes": 4172955,
+  "sha256": "90cd42fdc3e738fcf6aad349fbad8000338b19048ae4aa84c9de2fd700080aef",
+  "entries": 9,
+  "crcPassed": true,
+  "requestedRendering": "ANGLE EGL / LowLatencyDxgiSwapChain; synchronous GPU flush",
+  "gpuSynchronizedDrawCalls": 7503,
+  "nativeViewportChecks": [
+    {
+      "scenario": "empty",
+      "Width": 1500,
+      "Height": 1500,
+      "differentPixels": 449296,
+      "maximumChannelError": 229
+    },
+    {
+      "scenario": "existing",
+      "Width": 1500,
+      "Height": 1500,
+      "differentPixels": 940085,
+      "maximumChannelError": 230
+    }
+  ],
+  "independentPngComparison": [
+    {
+      "scenario": "empty",
+      "differentPixels": 54429,
+      "maximumChannelError": 7
+    },
+    {
+      "scenario": "existing",
+      "differentPixels": 102039,
+      "maximumChannelError": 8
+    }
+  ],
+  "accepted": false,
+  "comparisonNotes": "Raw bitmap comparison did not force equal reference/readback ColorType; raw counts are not treated as valid visual error. Independently decoded RGBA PNG differences are the usable comparison. Both timing and pixel acceptance failed."
+}

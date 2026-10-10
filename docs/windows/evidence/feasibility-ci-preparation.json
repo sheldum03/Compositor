@@ -1,0 +1,175 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "47b5d7d",
+  "scope": "Windows AI/HEIC CI preparation; runtime archive inspection on Mac only",
+  "actionlint": {
+    "version": "1.7.12",
+    "exitCode": 0,
+    "workflows": 2
+  },
+  "powershell": {
+    "version": "7.6.0",
+    "host": "macOS arm64",
+    "archiveUrl": "https://github.com/PowerShell/PowerShell/releases/download/v7.6.0/powershell-7.6.0-osx-arm64.tar.gz",
+    "publishedDigest": "sha256:bb52db90e964ee0b91e93f559b350878c6b27c12fd51830d8eca1793712b9639",
+    "actualSha256": "bb52db90e964ee0b91e93f559b350878c6b27c12fd51830d8eca1793712b9639",
+    "scriptsParsed": 22,
+    "parseExitCode": 0,
+    "nativePipelineResults": [
+      {
+        "nativeExitCode": 0,
+        "powershellExitCode": 0,
+        "downstreamReached": true
+      },
+      {
+        "nativeExitCode": 7,
+        "powershellExitCode": 1,
+        "downstreamReached": false
+      }
+    ],
+    "windowsCommandsExecuted": false
+  },
+  "setupPython": {
+    "actionTag": "v5",
+    "resolvedCommit": "a26af69be951a213d495a4c3e4e4022e16d87065",
+    "requestedVersion": "3.11.9",
+    "architecture": "x64",
+    "windowsInterpreterExecuted": false
+  },
+  "pythonWindowsWheels": [
+    {
+      "name": "cmake-3.31.6-py3-none-win_amd64.whl",
+      "bytes": 36396448,
+      "sha256": "bbaed969cef3c427f4f17591feb28db4ae595e3a4bbd45cb35522cee14df6a32"
+    },
+    {
+      "name": "numpy-2.0.2-cp311-cp311-win_amd64.whl",
+      "bytes": 15910230,
+      "sha256": "286cd40ce2b7d652a6f22efdfc6d1edf879440e53e76a75955bc0c826c7e64dc"
+    },
+    {
+      "name": "onnx-1.17.0-cp311-cp311-win_amd64.whl",
+      "bytes": 14529142,
+      "sha256": "95c03e38671785036bb704c30cd2e150825f6ab4763df3a4f1d249da48525957"
+    },
+    {
+      "name": "pillow-11.3.0-cp311-cp311-win_amd64.whl",
+      "bytes": 6986055,
+      "sha256": "1a992e86b0dd7aeb1f053cd506508c0999d710a8f07b4c791c63843fc6a807ac"
+    },
+    {
+      "name": "protobuf-6.33.6-cp310-abi3-win_amd64.whl",
+      "bytes": 437089,
+      "sha256": "0cd27b587afca21b7cfa59a74dcbd48a50f0a6400cfb59391340ad729d91d326"
+    }
+  ],
+  "onnxruntimeWindowsArchive": {
+    "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.30.0/onnxruntime-win-x64-1.30.0.zip",
+    "bytes": 82645522,
+    "publishedSha256": "c6ba983baf5681af108599675d2a89c2d145512d02de28aed0bff177cd0ba949",
+    "downloadedAndDigestVerified": true,
+    "executed": false
+  },
+  "onnxruntimeWindowsFiles": [
+    {
+      "path": "lib/onnxruntime.dll",
+      "bytes": 16462648,
+      "sha256": "7e39e2bdbba836d98071ef28620735ba36a47c554cf794585269aecc50fab0da",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "KERNEL32.dll",
+        "ADVAPI32.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "api-ms-win-core-path-l1-1-0.dll",
+        "dbghelp.dll",
+        "SETUPAPI.dll",
+        "dxgi.dll",
+        "VCRUNTIME140_1.dll",
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll"
+      ]
+    },
+    {
+      "path": "lib/onnxruntime_providers_shared.dll",
+      "bytes": 21816,
+      "sha256": "b9b7ab9e2a8b08ee7ae4a7ac1c8bfd44a741f17ad8d0f764953140a57de0b796",
+      "architecture": "coff-x86-64",
+      "imports": [
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "KERNEL32.dll"
+      ]
+    }
+  ],
+  "onnxruntimeWindowsNotices": {
+    "LICENSE": "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674",
+    "ThirdPartyNotices.txt": "c53a76501ef60db6f865f20599f220761201ac4057683acefdab37d861b86622",
+    "Privacy.md": "a1e6108942be2f56d9ea93c342462d5ec15fd0510603dae7a654f417e0d4e95f"
+  },
+  "heicSourceArchivesReverified": [
+    {
+      "name": "libde265-1.1.1.tar.gz",
+      "url": "https://github.com/strukturag/libde265/releases/download/v1.1.1/libde265-1.1.1.tar.gz",
+      "bytes": 315566,
+      "sha256": "fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219"
+    },
+    {
+      "name": "libheif-1.23.4.tar.gz",
+      "url": "https://github.com/strukturag/libheif/releases/download/v1.23.4/libheif-1.23.4.tar.gz",
+      "bytes": 2217221,
+      "sha256": "d0c02b4b0e978f34a1974b6f3eea7975a537bf7a9195ffeea38e7242ff316fdd"
+    }
+  ],
+  "workflow": {
+    "matrix": [
+      "ai",
+      "heic"
+    ],
+    "failFast": false,
+    "runtimeHashAndImportsRecorded": true,
+    "artifactOutputExtensions": [
+      ".png",
+      ".json",
+      ".f32",
+      ".bin",
+      ".log"
+    ],
+    "artifactModelWeightsIncluded": false,
+    "artifactRuntimeBinariesIncluded": false,
+    "artifactHostedUploadTested": false,
+    "requiresWindowsReport": true
+  },
+  "windowsExecuted": false,
+  "msvcBuildExecuted": false,
+  "remoteWorkflowTriggered": false,
+  "macApplicationTestsRun": false,
+  "nativeCodeChanged": false,
+  "W009Passed": false,
+  "W031Passed": false,
+  "M1Passed": false,
+  "sha256": {
+    ".github/workflows/windows-feasibility-probes.yml": "3c1f3dd2f8bf2bf3f6153e100babdca8056f376736a61fa40d472534b7e55a9d",
+    "experiments/windows/ai/assets.json": "94b2e6877ea9464b195bc7d45805e6e0afbccf4fea657d7c21330c8be712e503",
+    "experiments/windows/ai/README.md": "7a03ac4c4da757569596e4b2956c61462dd661fb8c8347d434d5f9c3a50168fa",
+    "experiments/windows/heic/assets.json": "b31b090df138dbed756dd5d48cc87acd0ae454b40cec392ee53ab50d44756351",
+    "experiments/windows/heic/README.md": "6acac7ed83351f90fbca0e904e499365251410c960226803e5004cc9a4ba4683",
+    "experiments/windows/ai/requirements.txt": "c279d6ca6270085399fe9bbeb3b6b4c06469c199b2207382e8cd6eacb09864a7",
+    "experiments/windows/heic/requirements.txt": "5f57b2dbce926c06e26a671f6ca513c96a1884da470977b670f7e2c0dd019dbf"
+  },
+  "localEvidenceSha256": {
+    "/tmp/compositor-feasibility-ci-preflight-01/powershell-parse.log": "685a902cb90a24acb0315fed2aaca914d063a9a67bfbcde780c936973906e39d",
+    "/tmp/compositor-feasibility-ci-preflight-01/powershell-pipeline-0.log": "3ec5d2c377dcd652f84831ab80270fb33cc2bda070f705ac7b9d03234385bed5",
+    "/tmp/compositor-feasibility-ci-preflight-01/powershell-pipeline-7.log": "bc9a26af2a779c55afd168fae028370cbfc675d46dd7f4fc79be2a354c28f35f",
+    "/tmp/compositor-feasibility-win-wheels.log": "885db8ec0c91e846ade5d4fc5cedf4c2a8206a40d5b827cbc5b8a7b413f2c37e",
+    "/tmp/compositor-feasibility-cmake-wheel.log": "f044c54d61d27cf4fac5b726c66766d0765b00ce0df803d601c0652b3858040c"
+  }
+}

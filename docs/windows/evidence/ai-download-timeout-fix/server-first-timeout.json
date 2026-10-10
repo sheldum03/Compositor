@@ -1,0 +1,20 @@
+{
+  "started": "2026-09-21 16:07:01",
+  "ended": "2026-09-21 16:11:02",
+  "tatExitCode": -1,
+  "tatStatus": "timeout",
+  "tatTimeoutSeconds": 240,
+  "output": "none shown",
+  "nativeExecution": "not yet known; requires process and filesystem diagnosis",
+  "invocationId": "inv-i8wukigmss",
+  "diagnosticTime": "2026-09-21T16:13:02.7206326+08:00",
+  "remainingProcesses": [],
+  "files": [
+    {
+      "path": "ai-run-20260921-160703-2dd31486/inputs/u2netp.onnx.part",
+      "bytes": 4058944
+    }
+  ],
+  "nativeExecutionReached": false,
+  "diagnosticSource": "Tencent TAT UI readback of Get-CimInstance and scoped Get-ChildItem; no raw archive generated before forced timeout"
+}

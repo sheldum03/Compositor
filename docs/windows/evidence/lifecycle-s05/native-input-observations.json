@@ -1,0 +1,30 @@
+{
+  "status": "Windows OS brush input independently passed; Qt IME incomplete",
+  "windowsExecuted": true,
+  "inputBoundary": "Windows SendInput, not physical hardware",
+  "root": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-input-20260922-175634",
+  "dllSha256": "40ad2fdb8b4279f1b98d68b0bb8d54a1b9b710392f9289240fe81fa05cf22813",
+  "diagnosticWindowPid": 42624,
+  "diagnosticWindowClosed": true,
+  "maximizedWindowPid": 29424,
+  "maximizedWindowStillOpen": false,
+  "observedBrushCommits": 2,
+  "observedBrushPointerUpdates": 68,
+  "lastSixSaveUndoCounts": [
+    0,
+    1,
+    1,
+    2,
+    1,
+    2
+  ],
+  "observedActionErrors": [],
+  "independentPixelReviewPassed": true,
+  "qtWindowPid": 15572,
+  "qtWindowStillOpen": true,
+  "qtImeExecuted": false,
+  "qtInputBlocker": "Current Qt HWND 91620222 is enabled/visible; SetForegroundWindow returned 0 and foreground remained Qt console PID 37208. UU clicks did not bring Qt forward; manual click requested. No IME injection accepted.",
+  "currentBlocker": "Mac locked again; UU automatic unlock failed while returning to Qt diagnostics after Windows nine-round S05 evidence was retrieved and independently verified",
+  "archiveSha256": "d370e0c7689b784c8231679d55a6f4bfd2e665da242fb3de857135d106542cd3",
+  "independentReview": "native-brush-review.json"
+}

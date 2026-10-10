@@ -1,0 +1,110 @@
+{
+  "archiveName": "AiActiveCancelEvidence-20260923.zip",
+  "archiveBytes": 2996827,
+  "archiveSha256": "e1d8e9fb2d5ce692ca854e08cfdc9cec8f649243d4d55f1cf26e4315843f0b23",
+  "archiveCrcPassed": true,
+  "archiveEntries": 58,
+  "windowsExecuted": true,
+  "independentLocalReviewPassed": true,
+  "rawRoot": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/ai-active-windows-evidence/raw",
+  "execution": {
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ai-active-results-20260923-094727",
+    "packageSha256": "C51297C2A6A614554EA10BAB686E8BB7F8603D21024255BF40AB61A5C75E9203",
+    "os": {
+      "Caption": "Microsoft Windows 11 专业版",
+      "Version": "10.0.26200",
+      "BuildNumber": "26200"
+    },
+    "error": null,
+    "modelSha256": "309C8469258DDA742793DCE0EBEA8E6DD393174F89934733ECC8B14C76F4DDD8",
+    "windowsExecuted": true,
+    "trials": [
+      {
+        "reviewExit": 0,
+        "trial": 1,
+        "nativeExit": 0
+      },
+      {
+        "reviewExit": 0,
+        "trial": 2,
+        "nativeExit": 0
+      },
+      {
+        "reviewExit": 0,
+        "trial": 3,
+        "nativeExit": 0
+      },
+      {
+        "reviewExit": 0,
+        "trial": 4,
+        "nativeExit": 0
+      },
+      {
+        "reviewExit": 0,
+        "trial": 5,
+        "nativeExit": 0
+      }
+    ]
+  },
+  "scope": "Native CPU in-flight cancellation and same-session recovery only; no UI transaction, model quality, M1 or release acceptance.",
+  "artifactSha256": {
+    "build-identity.json": "8cf9a961723f544b6487dc006873486c6828a90fa4f875a216f5e4884fd4d800",
+    "execution.json": "9d14e2f3dc18c229e1e8af8f21610a461e47fae4a2d60995c9f82063f3e03615",
+    "files.json": "67ea035a7788aab7d3e8045afc23a55a80e628615bbdf20df8de64301186c77b",
+    "native-1-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-1-exit.txt": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "native-1.log": "6949ea8ebaa629199b68a6a9f742a4085779cb335f674b37d83487d4716fc075",
+    "native-2-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-2-exit.txt": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "native-2.log": "6949ea8ebaa629199b68a6a9f742a4085779cb335f674b37d83487d4716fc075",
+    "native-3-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-3-exit.txt": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "native-3.log": "6949ea8ebaa629199b68a6a9f742a4085779cb335f674b37d83487d4716fc075",
+    "native-4-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-4-exit.txt": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "native-4.log": "6949ea8ebaa629199b68a6a9f742a4085779cb335f674b37d83487d4716fc075",
+    "native-5-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-5-exit.txt": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "native-5.log": "6949ea8ebaa629199b68a6a9f742a4085779cb335f674b37d83487d4716fc075",
+    "review-1-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review-1.json": "aaf6a6b294af842268afe038a9c5c65aba288d7b782599a7542bd764a81a3550",
+    "review-2-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review-2.json": "d46b4e3a7a18c2890e5f894610bb38f672d21390456d583249342baa230dce3d",
+    "review-3-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review-3.json": "b44ee2c1082d89c00ed120cfb6a6719ac1f16c7242f5a8772fd42a0924b08b08",
+    "review-4-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review-4.json": "191bbde583aa309c25edfc34733db390f71772996826865735a22c193f41bf03",
+    "review-5-error.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review-5.json": "47889750012f8401db49ca9ab8d2b543400976fb64d784983e89d9fe48c9a8ef",
+    "trial-1/active-cancellation.json": "613069b95a60c502ea7580520a3ff789c5b65995db882fedc6f5082e647efbf6",
+    "trial-1/active-profile_2026-09-23_09-47-29_401.json": "d58b088324000b365efc60e6a09bbdc03a464e9d4eabd613d04baffb4122a7b1",
+    "trial-1/active-recovered.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-1/cpu-profile_2026-09-23_09-47-27_891.json": "b34fabc678acb04193fbec9307eb78a109d4fdbb3bc4360a0d182853de4b875a",
+    "trial-1/inference.json": "7d9bfbe5244dd491731c5c678f0ee76a8616a81f830e3c1c7795cb52144d9342",
+    "trial-1/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-2/active-cancellation.json": "52240cf16f9224113b9969f2c0aafcf73080198c18f9e32d401383a38cc26edd",
+    "trial-2/active-profile_2026-09-23_09-47-31_707.json": "8595669b83e4e70af38acd604d8ddd467d1d1d1e35f07abcf445d4e31074304d",
+    "trial-2/active-recovered.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-2/cpu-profile_2026-09-23_09-47-30_171.json": "5f178600da08e5c5a9457aed8e2d84795e7763ab0460550555186965f64c978f",
+    "trial-2/inference.json": "49f5782ffe43b2bbda85ea4e5f0f21bc4d06bd9e92ef8c7a4b82aafb329cc8f1",
+    "trial-2/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-3/active-cancellation.json": "d189b15348fcd5952c6b1a16adb599bc438aa513603de1c6919e835d3ad7dde9",
+    "trial-3/active-profile_2026-09-23_09-47-33_924.json": "9db53bb84fadf4b341211277976d8270d5e4813a3dc3a93b037d37f162d8901a",
+    "trial-3/active-recovered.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-3/cpu-profile_2026-09-23_09-47-32_394.json": "cce083f9408d0afbe134ec9ecd58193740a35800603698fb56f11af141fe5c33",
+    "trial-3/inference.json": "7801ef7297ed78198d93324ec0be9f2b84597f00db46285fc1110aafe38e2b60",
+    "trial-3/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-4/active-cancellation.json": "d9c44ef47aca3d41ed3048e02e4dd71ae3a884df8a46e1ee2d1e4502e11e7793",
+    "trial-4/active-profile_2026-09-23_09-47-36_111.json": "589a78b81c95318d796aa94fde3c53a6626794eba73bfe2560bf62556dea52a8",
+    "trial-4/active-recovered.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-4/cpu-profile_2026-09-23_09-47-34_602.json": "7fa194731297a945c5cf46078b9a5a82e8b5198c164cc3d4220502abbde83855",
+    "trial-4/inference.json": "418d3adaef1097d0ba4891020498ac2776cbb200eef691594a02bb04ff92f588",
+    "trial-4/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-5/active-cancellation.json": "64d9c700a7d8c32726a6b9f8a9fb7118e2f2b7d4d313dabbeb51eaa990b93986",
+    "trial-5/active-profile_2026-09-23_09-47-38_300.json": "6823ce9f20e4e7c5de55ba13754b22d469c2729e63fa7244f546844bba98475e",
+    "trial-5/active-recovered.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5",
+    "trial-5/cpu-profile_2026-09-23_09-47-36_791.json": "a6190c411bb7ad09fa06a263b13bf1e5f87c99d5a5e7956ce084752694936e47",
+    "trial-5/inference.json": "a1150993793c1e95f69e96751350b6223b8aff82757523175b1026f6b25309e6",
+    "trial-5/mask.f32": "c3a085aa0b8bbce9edefef1adb6c7853c628837558b8e3ef9df7371a8993f8e5"
+  }
+}

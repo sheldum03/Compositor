@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "459f732ba91165ff749813da0c6f3fb4e440a9f9",
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-phases-r8-preparation/CompositorS05PixelsR8.zip",
+  "bytes": 13885821,
+  "sha256": "8c6c69ba7169d0ed8e954e2616b370f2130b27b3268d0a1f1f9766fac39cf5dc",
+  "dllSha256": "e8180a3af4bcfe63163f80b1b335774da10e031ff244c37a0f50df5565ac5986",
+  "baseDllSha256": "4ec66edd0fb8946853c2b0f88695bfdc0a984e474583212c998bb2e6e42bd75f",
+  "checkedDependencies": 29,
+  "windowsExecuted": false
+}

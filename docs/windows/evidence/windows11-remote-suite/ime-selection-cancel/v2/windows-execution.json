@@ -1,0 +1,10 @@
+﻿{
+    "windowsExecuted":  true,
+    "imm32ReplayExit":  0,
+    "imeExit":  0,
+    "selectionExit":  0,
+    "probeSha256":  "86D237AC1E9BABC425B0AC24DE1C7F73E61BAF910CC61515D26A45AF73838D12",
+    "patchSha256":  "BDC288F639725F38D2D30A7FD21DF02B3FA8C92DF0E8CE0470B4AAE84C58E2B6",
+    "nativeRetest":  "pending",
+    "output":  "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ime-v2-20260921-234137"
+}

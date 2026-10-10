@@ -1,0 +1,10 @@
+﻿{
+    "ExitCode":  0,
+    "WindowsExecuted":  true,
+    "NativeImeExecuted":  false,
+    "SampleCount":  12,
+    "OrdinaryInkStatus":  "passed",
+    "OrdinaryInkPassed":  12,
+    "PreviewExportMismatches":  0,
+    "Scope":  "Grayscale text coverage fix; visual review and native IME acceptance remain separate"
+}

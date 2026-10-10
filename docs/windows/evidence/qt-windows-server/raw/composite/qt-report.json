@@ -1,0 +1,441 @@
+{
+    "architecture": "x86_64",
+    "compositionChecks": "masks, clipping/adjustment alpha, group coverage once, identity/zero adjustment, hidden layers, copy-on-write, transparent nonseparable blends",
+    "corpusHashesVerified": 91,
+    "guardChecks": 11,
+    "nativeFunctions": [
+        "layer_extract_alpha",
+        "layer_unpremultiply_opaque",
+        "layer_restore_alpha"
+    ],
+    "nonseparableModes": "custom CPU W3C blend math; absent from QPainter composition modes",
+    "os": "Windows Server 2022 Version 21H2",
+    "platformPlugin": "offscreen",
+    "qt": "6.11.2",
+    "rendering": "QPainter CPU into owned premultiplied sRGB RGBA8; fresh render in QWidget paint event",
+    "results": [
+        {
+            "exportNanoseconds": 434200,
+            "fixture": "F01",
+            "macReference": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 200600,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 55500,
+            "fixture": "F02",
+            "macReference": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 97000,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 291200,
+            "fixture": "F03",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 334900,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 375800,
+            "fixture": "F04",
+            "macReference": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 459600,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 499100,
+            "fixture": "F05",
+            "macReference": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 322100,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 364400,
+            "fixture": "F06",
+            "macReference": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 398000,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 1067600,
+            "fixture": "F07",
+            "macReference": {
+                "DifferentPixels": 256,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.040364583333333336,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 1109600,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 183800,
+            "fixture": "B01",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0022786458333333335,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 188000,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 196900,
+            "fixture": "B02",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 197800,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 199200,
+            "fixture": "B03",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 205900,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 220700,
+            "fixture": "B04",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 222000,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 201700,
+            "fixture": "B05",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 218600,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 306100,
+            "fixture": "B06",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 322300,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 306500,
+            "fixture": "B07",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 322600,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 316700,
+            "fixture": "B08",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 362500,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 239400,
+            "fixture": "B09",
+            "macReference": {
+                "DifferentPixels": 14,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.0011393229166666667,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 233100,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 389500,
+            "fixture": "B10",
+            "macReference": {
+                "DifferentPixels": 1149,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.18587239583333334,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 601800,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 591500,
+            "fixture": "B11",
+            "macReference": {
+                "DifferentPixels": 1408,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.20865885416666666,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 663000,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 600600,
+            "fixture": "B12",
+            "macReference": {
+                "DifferentPixels": 1156,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.18701171875,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 640800,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        },
+        {
+            "exportNanoseconds": 585700,
+            "fixture": "B13",
+            "macReference": {
+                "DifferentPixels": 1408,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 1,
+                "MeanAbsoluteChannelError": 0.18644205729166666,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            },
+            "previewNanoseconds": 643100,
+            "renameReadback": "passed",
+            "widgetPaintCalls": 1
+        }
+    ],
+    "sampling": "Nearest maps to fast; Smooth and High quality both map to QPainter SmoothPixmapTransform",
+    "status": "local preparation checks passed; pixel differences are not acceptance",
+    "windowsExecuted": true
+}

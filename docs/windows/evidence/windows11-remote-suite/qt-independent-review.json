@@ -1,0 +1,118 @@
+{
+  "scope": "Independent decoded RGBA checks; native GUI IME and product acceptance remain pending",
+  "composition": {
+    "samples": 20,
+    "previewExportExact": true
+  },
+  "textRuns": {
+    "text": {
+      "samples": 12,
+      "decodedPairsExact": 36,
+      "resolvedFonts": [
+        "Source Han Sans SC"
+      ]
+    },
+    "default-fontdir": {
+      "samples": 12,
+      "decodedPairsExact": 36,
+      "resolvedFonts": [
+        "Source Han Sans SC"
+      ]
+    },
+    "system-fontdir": {
+      "samples": 12,
+      "decodedPairsExact": 36,
+      "resolvedFonts": [
+        "Segoe UI Emoji",
+        "Source Han Sans SC"
+      ]
+    }
+  },
+  "fontComparison": [
+    {
+      "file": "F11-72-point-center-export.png",
+      "differentPixels": 1698
+    },
+    {
+      "file": "F11-72-point-right-export.png",
+      "differentPixels": 1593
+    },
+    {
+      "file": "F11-72-box-center-export.png",
+      "differentPixels": 1736
+    },
+    {
+      "file": "F11-300-point-left-export.png",
+      "differentPixels": 6748
+    },
+    {
+      "file": "F11-300-point-right-export.png",
+      "differentPixels": 16605
+    },
+    {
+      "file": "F11-300-box-left-export.png",
+      "differentPixels": 6989
+    },
+    {
+      "file": "F11-72-box-left-export.png",
+      "differentPixels": 515
+    },
+    {
+      "file": "F11-300-box-right-export.png",
+      "differentPixels": 5273
+    },
+    {
+      "file": "F11-300-box-center-export.png",
+      "differentPixels": 6473
+    },
+    {
+      "file": "F11-72-box-right-export.png",
+      "differentPixels": 1516
+    },
+    {
+      "file": "F11-72-point-left-export.png",
+      "differentPixels": 512
+    },
+    {
+      "file": "F11-300-point-center-export.png",
+      "differentPixels": 19126
+    }
+  ],
+  "windowCheck": {
+    "platformPlugin": "windows",
+    "syntheticCheckMode": true,
+    "textPairsExact": 2,
+    "nativeImeAccepted": false,
+    "saves": 4,
+    "checks": {
+      "brush": {
+        "cancelReleaseUndoRedoDeactivate": "passed",
+        "nonopaqueWidgetPixels": 0,
+        "syntheticPointerEvents": true
+      },
+      "text": {
+        "cancelCommitUndoRedo": "passed",
+        "nativeImeAccepted": false,
+        "replaceAllColorPreserved": true,
+        "syntheticInput": true
+      }
+    }
+  },
+  "brush": {
+    "widgetUpdates": 242,
+    "sharedTiles": 56,
+    "reportedTimingObservation": [
+      {
+        "stroke": 0,
+        "updateAndPreviewP95": 17.6485,
+        "commitMilliseconds": 16.552
+      },
+      {
+        "stroke": 1,
+        "updateAndPreviewP95": 24.3206,
+        "commitMilliseconds": 30.3242
+      }
+    ]
+  },
+  "visualObservation": "Inspected F11-72-point-left export: default offscreen has a missing-glyph box, system-fontdir displays colored emoji. Native qwindows synthetic export also displays colored emoji. No real IME acceptance."
+}

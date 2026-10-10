@@ -1,0 +1,118 @@
+{
+  "status": "partial Windows resource; not Windows 11 or clean-machine acceptance",
+  "observedDate": "2026-09-21",
+  "nodeAlias": "tencent-cpu-01",
+  "access": "User-authorized Chrome native Computer Use; Tencent Lighthouse TAT PowerShell, System identity",
+  "os": {
+    "caption": "Windows Server 2022 Datacenter",
+    "version": "10.0.20348",
+    "architecture": "x64"
+  },
+  "hardware": {
+    "cpu": "Intel Xeon Platinum 8255C 2.50GHz",
+    "logicalProcessors": 4,
+    "memoryGiB": 4,
+    "cDriveTotalGiB": 39.9
+  },
+  "displayAdapters": [
+    "Microsoft Remote Display Adapter 10.0.20348.3451",
+    "Microsoft Basic Display Adapter 10.0.20348.1 / SeaBIOS VBE"
+  ],
+  "powershell": "5.1.20348.3932",
+  "readOnlyProbe": {
+    "utc": "2026-09-21T02:10:36.6803057Z",
+    "exitCode": 0,
+    "freeMemoryMiB": 1611,
+    "freeDiskGiB": 9.75,
+    "toolsOnPath": [
+      "python",
+      "node",
+      "git"
+    ],
+    "toolsNotOnPath": [
+      "cl",
+      "clang",
+      "clang-cl",
+      "gcc",
+      "g++",
+      "zig",
+      "cmake",
+      "dotnet"
+    ],
+    "defaultDotnetExists": false,
+    "vswhereExists": false
+  },
+  "limitations": [
+    "No proven GPU acceleration",
+    "Existing active administrator RDP session; not interrupted",
+    "Not a clean machine",
+    "No Windows 11 hardware acceptance",
+    "No production compiler or framework selection",
+    "No actual native build result yet"
+  ],
+  "privacy": "Public IP, account name and cloud instance identifiers omitted from repository evidence.",
+  "sourceTransfer": {
+    "method": "Tencent Lighthouse file management through Chrome native file picker",
+    "files": 21,
+    "archiveBytes": 24597,
+    "archiveSha256": "0039d367e3288a6cc50a4a828b72f79809bcf8bdd3d6050c2bc43bf7d143a6fd",
+    "serverVerificationUtc": "2026-09-21T02:25:52.0134209Z",
+    "serverVerificationExitCode": 0,
+    "allFileHashesMatched": true,
+    "manifest": {
+      "Compositor/Rendering/AdjustPixels.c": "c25f751ec85b44f79071986b871c65cc2f8cc2141279fec5f73bc9401354839b",
+      "Compositor/Rendering/AdjustPixels.h": "5c1cfe0512fc04ea045324cf0fb894c9b90130580ae807465b78ad95ef975c5b",
+      "Compositor/Rendering/BrushPixels.c": "edd380a97598f76bd20ce04c7d6fd204e85d7a75f96b854da6e686e3d8a6b377",
+      "Compositor/Rendering/BrushPixels.h": "41e1ae21ff29df40773fd31599c27f23c613b3f94ad71bafd6c99c2c9fb9eb45",
+      "Compositor/Rendering/ContentFill.c": "591a0c2203d8ec044c239a025ce97986d98929b67d2ed22afda60f173ea491d8",
+      "Compositor/Rendering/ContentFill.h": "0695190e82c22b36a1c8d454d6d3a2de3dff3408520018602318508e67c21ad5",
+      "Compositor/Rendering/HealPixels.c": "3798009ddd69cb4fa49730a22278b5d9c53d96dbb4dcef54df2e6330af6f5c62",
+      "Compositor/Rendering/HealPixels.h": "dad22ba4bd0b70524820a04f91b80ae1727f5b7aeea7eb74636b47968b6d8493",
+      "Compositor/Rendering/LensPixels.c": "06851d9d50f7d7a163cc97a5b889caba1ad0b44ef7b10accd8799405bae72d3c",
+      "Compositor/Rendering/LensPixels.h": "81d60f653de4f5d36d23cfe442b0c23ced1dfb500c7bbcb0c7fabed36904c73f",
+      "Compositor/Rendering/LevelsPixels.c": "e0f1251908dde36606e33e89191eb78c542c493c651b0cd31f89b1e0ed6b5053",
+      "Compositor/Rendering/LevelsPixels.h": "45171cb3a5f8f6f0d00482d7243941f1f1637b25bede3a09f8a55462651dc528",
+      "Compositor/Rendering/NoisePixels.c": "47a31cdc99fe875c5abb408d367f8e0cc23a2200f24797a421f82dbf2dcff5cb",
+      "Compositor/Rendering/NoisePixels.h": "2f5d478baaa15c3adbc5c8013378b9e763c1339c3a904411cd676c5a7b76613e",
+      "Compositor/Rendering/WandPixels.c": "e96aa626c6507a3743ed38876ab63f89b118c39c111585fa5ae89c92266e7f18",
+      "Compositor/Rendering/WandPixels.h": "6e76f3a56520d057db0a68497f194b09f113b726144a2abb5d58249c88ffe9e5",
+      "experiments/windows/native/bridge.c": "c3f4d8d68eefb3dda4b9c3e4e90e50c8a04fd8afa78b3de01fd1f1a5de4fbdb1",
+      "experiments/windows/native/bridge.h": "e0b8aba003422da64f32ac6f5b3d53f82e17124b6c483028d65d780ea43f2573",
+      "experiments/windows/native/contract_tests.cpp": "faf9ecc6cdc65f1b48e28369715190e3ebc442e7561e20b810bd3cf0e35012f1",
+      "experiments/windows/native/ffi_smoke.py": "740bf1d0babd82da73d2d00f91305199e7a6d87ef3c6d23c5fece0b7739e6188",
+      "experiments/windows/native/run-mingw.ps1": "280d9f30965b1f627fb2a418d6996dee9886c17fd58f3a4f86774e2c88efccf9"
+    }
+  },
+  "toolchainPreparation": {
+    "release": "LLVM-MinGW 20260908",
+    "officialUrl": "https://github.com/mstorsjo/llvm-mingw/releases/download/20260908/llvm-mingw-20260908-ucrt-x86_64.zip",
+    "archiveBytes": 190677197,
+    "archiveSha256": "1bcf74d06b724aeecaa6412ca85f5b26fb1da770e7cdcefa9263c9c5c3ad34b6",
+    "expandedBytes": 749497736,
+    "localArchiveVerified": true,
+    "serverInitialDownload": {
+      "startConsoleTime": "2026-09-21 10:17:13",
+      "timeoutSeconds": 900,
+      "result": "TAT command timeout",
+      "partialBytes": 16627762,
+      "inspectedUtc": "2026-09-21T02:32:56.4185218Z"
+    },
+    "consoleUpload": {
+      "result": "access deny",
+      "lastVisibleTransferred": "21.8 MB / 181.8 MB",
+      "fileAbsentFromTargetOnInspection": true,
+      "cause": "not established; no permissions or security policy changed"
+    },
+    "serverCurlResume": {
+      "startConsoleTime": "2026-09-21 10:34:17",
+      "downloadTimeoutSeconds": 120,
+      "tatTimeoutSeconds": 180,
+      "result": "not yet read; UI paused after user switched tabs and began typing"
+    },
+    "serverCompilerExecuted": false,
+    "buildScriptValidation": [
+      "PowerShell 7.6.0 parse succeeded on macOS",
+      "Non-Windows invocation rejected before creating output directory"
+    ]
+  }
+}

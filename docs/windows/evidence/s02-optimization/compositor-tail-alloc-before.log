@@ -1,0 +1,2 @@
+Unhandled exception. System.Exception: Repeated tail updates allocated 33590744 bytes (budget 4 MiB)
+   at Program.<Main>$(String[] args) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/brush-update-regression/Program.cs:line 38

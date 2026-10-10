@@ -1,0 +1,10 @@
+{
+  "activeCancellationEvidencePassed": true,
+  "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "windowsExecuted": false,
+  "cancelledRunKernelEvents": 23,
+  "recoveredRunKernelEvents": 3927,
+  "cancelToJoinMilliseconds": 4.747,
+  "recoveredPredictionSha256": "b8a1fc48ff8499780d9a1cc2b8b40b20768cf7e14f92c75f31f6a1d361290b3d",
+  "scope": "Native cooperative cancellation only; no UI transaction, Windows, quality or release acceptance."
+}

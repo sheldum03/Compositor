@@ -1,0 +1,26 @@
+{
+  "completed": true,
+  "nativeWindow": true,
+  "windowsExecuted": true,
+  "renderScaling": 1.5,
+  "sampledPrivatePeak": 452321280,
+  "accepted": false,
+  "reason": "Diagnostic run: terminal obscured part of viewport; file transfer occurred during this already-disqualified run. Clean visible rerun pending.",
+  "percentileMethod": "nearest rank ceil(.95*n), excluding warmup and pointer-down",
+  "scenarios": [
+    {
+      "name": "empty",
+      "measuredTrials": 30,
+      "updates": 3600,
+      "updateP95Milliseconds": 27.0772,
+      "commitP95Milliseconds": 14.3882
+    },
+    {
+      "name": "existing",
+      "measuredTrials": 30,
+      "updates": 3600,
+      "updateP95Milliseconds": 32.5546,
+      "commitP95Milliseconds": 13.6883
+    }
+  ]
+}

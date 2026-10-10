@@ -1,0 +1,14 @@
+{
+  "filename": "s05-extended-20260923-180340.zip",
+  "bytes": 37427017,
+  "sha256": "df1e374919f9c6a808accb7c086d94d7d05da61bf41c7a3c3b45ed8dabbaa6e8",
+  "nativeExit": 0,
+  "reviewExit": 0,
+  "source": "Observed Windows terminal output after original PID 40896 exited",
+  "transcriptionNote": "Corrected initial manual transcription of the wrapped terminal hash suffix from badbaa6e8 to the displayed dabbaa6e8 before extraction.",
+  "archiveCrcPassed": true,
+  "fileHashesVerified": 114,
+  "independentReviewMatchesWindows": true,
+  "decodedImagesExact": 54,
+  "stderrEmpty": true
+}

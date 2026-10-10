@@ -1,0 +1,9 @@
+{
+  "runnerSha256": "3155032ef094d0d0e5b08ad23341c97f5e8426a21c8921a07d13fd18a5e5c168",
+  "reportTestsOnlyCatchChange": true,
+  "rawLogsMatchSummary": true,
+  "normalCaseRemainsSuccessful": true,
+  "missingFontFieldNowFailsCompletionGate": true,
+  "windowsExecuted": false,
+  "originalServerPackageModified": false
+}

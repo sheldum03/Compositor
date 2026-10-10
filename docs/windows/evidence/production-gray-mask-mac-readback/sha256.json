@@ -1,0 +1,10 @@
+{
+  "inputs/Masked.comp/images/13B00E95-CDCB-4AFF-9579-E1033B1E9C5B.png": "34fe6297da4acdb820a97f86d9393d633aae6b9df5bdae8752708a69e267d488",
+  "inputs/Masked.comp/images/39411C85-C780-457A-93E6-D3169AD34D9B.mask.png": "1a3d27e0f0d11fdc9c9adca78592d7ecb8bebd6e391e052326674ef709c031b5",
+  "inputs/Masked.comp/images/39411C85-C780-457A-93E6-D3169AD34D9B.png": "747a3d75599de86f9a8d67e04517fefaf11caf2e6b6dd0e95594a0cc79afe462",
+  "inputs/Masked.comp/manifest.json": "cbcf686c7d605e455d9e6b00a3272122c95de8ab806ba7085d17657ca10a21a6",
+  "inputs/masked-composite-csharp.png": "b876a949a071b5fa508c1f383ff717917968df163cd9a0aa1f606d9e5ece9dc6",
+  "outputs/comparison.json": "7383cd88a8b4ace85f396017258b776a177b5bca26d3bc89b190840884bdd193",
+  "outputs/mac-render.png": "d9de42cc8ff4d7df478c299195565a22d1ef3af598b86350ee487f344c51a6bd",
+  "comparison-fixtures.zip": "12d192c32dd2388cebf829af3c3b6c4f9f75f8182abea9a8d36c573d9bc371a4"
+}

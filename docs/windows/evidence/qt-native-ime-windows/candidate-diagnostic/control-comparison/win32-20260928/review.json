@@ -1,0 +1,26 @@
+{
+  "status": "manual wrap check passed; normal exit and final original independently verified",
+  "windowsExecuted": true,
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/win32-ime-control-20260928/win32-ime-control-20260928-140419.zip",
+  "bytes": 1199,
+  "sha256": "a6419acbeb67f606babb2a05fb49394f1c5ce7ad62c8b3d3e45bd8758fb57116",
+  "remoteHashMatched": true,
+  "zipCrcPassed": true,
+  "memberHashesPassed": 2,
+  "pid": 29256,
+  "exitCode": 0,
+  "finalOriginalPreserved": true,
+  "sampleCount": 9,
+  "nonemptyPreeditSamples": 0,
+  "successfulCandidateQueries": 0,
+  "userFeedback": "已完成，没有问题，下一项",
+  "feedbackScope": "User explicitly confirmed automatic preedit wrap and candidate following the new-line caret",
+  "candidatePositionAccepted": true,
+  "limitations": [
+    "100 ms state-change sampling with IMM queries cannot prove no IME interaction occurred.",
+    "No directly observed candidate popup wrap in this run.",
+    "Agent English z and undo after user feedback excluded from IME acceptance."
+  ],
+  "userFollowup": "换行测试通过",
+  "candidatePositionEvidence": "user-confirmed manual observation; not independently captured popup geometry"
+}

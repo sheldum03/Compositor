@@ -1,0 +1,47 @@
+[
+  {
+    "path": "final-cpu.png",
+    "bytes": 2808905,
+    "sha256": "cd35a1afe63fa98828e4ad0a7af7bd721791b133e8e2e40781411335fad96e6c"
+  },
+  {
+    "path": "final-metal.png",
+    "bytes": 1004522,
+    "sha256": "0790a40985a2ec8219b0317331d989503d9579fc46d6819a8e0ae05c15503638"
+  },
+  {
+    "path": "first-cpu.png",
+    "bytes": 1610386,
+    "sha256": "462ad51b9b3a6f20084bcaecd59cdb1a15f5e6de65b56a78309759c65d568eb8"
+  },
+  {
+    "path": "first-metal.png",
+    "bytes": 615021,
+    "sha256": "87d91003367e23cfd144076ad275f766605b8a2995742e6a8c6f51acc7285dca"
+  },
+  {
+    "path": "soft-crossing-4k-cpu.comp/images/BF9EE975-02D0-471C-ABBD-310873EAF5C1.png",
+    "bytes": 2669231,
+    "sha256": "6cedd7329caf0fe3bc96378e73dbf879ecb397c6e1ab6ebc3bfb81ae0c4bdb7f"
+  },
+  {
+    "path": "soft-crossing-4k-cpu.comp/manifest.json",
+    "bytes": 797,
+    "sha256": "8fd621971a7015007826b0eecb2b1b37772e0ff00a8eb2e6ba33950091270953"
+  },
+  {
+    "path": "soft-crossing-4k-metal.comp/images/C4DB2F36-467F-448B-A358-0AAE908705E9.png",
+    "bytes": 898770,
+    "sha256": "05601d173887f0f81e2aff6a4654bdfc370df7211d0001b39cb2f0b1461f0d2b"
+  },
+  {
+    "path": "soft-crossing-4k-metal.comp/manifest.json",
+    "bytes": 797,
+    "sha256": "4a7e3359752a67155a5e325bfac1d92c4ddf1091962ccd9010ad4e1b7a2966fc"
+  },
+  {
+    "path": "soft-crossing-4k.json",
+    "bytes": 10672,
+    "sha256": "5269fadb99ff6e6982107ce07ac433aeb180ee524026b83660caacf6842d0697"
+  }
+]

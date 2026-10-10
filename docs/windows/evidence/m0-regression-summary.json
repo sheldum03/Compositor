@@ -1,0 +1,46 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceName": "My Mac",
+        "modelName": "MacBook Pro",
+        "osBuildNumber": "25F80",
+        "osVersion": "26.5.1",
+        "platform": "macOS"
+      },
+      "expectedFailures": 0,
+      "failedTests": 0,
+      "passedTests": 339,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "Compositor \u00b7 Built with macOS 26.5.1",
+  "expectedFailures": 0,
+  "failedTests": 0,
+  "finishTime": 1789919994.116,
+  "passedTests": 317,
+  "result": "Passed",
+  "skippedTests": 0,
+  "startTime": 1789919945.05,
+  "statistics": [
+    {
+      "subtitle": "31 test runs",
+      "title": "9 tests ran with dynamic parameters"
+    }
+  ],
+  "testFailures": [],
+  "title": "Test - Compositor",
+  "topInsights": [
+    {
+      "category": "Longest Test Runs",
+      "impact": "68% of duration",
+      "text": "8 longest test runs with outlier durations exceeding 2.24s (three standard deviations)"
+    }
+  ],
+  "totalTestCount": 317
+}

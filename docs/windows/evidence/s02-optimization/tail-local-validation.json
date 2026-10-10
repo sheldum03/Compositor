@@ -1,0 +1,40 @@
+{
+  "scope": "Local macOS correctness only; no Windows performance inference",
+  "baselineCommit": "9b624ce",
+  "frozenRasterCount": 264,
+  "cachedViewportComparisons": 960,
+  "scalarFallbackPassed": true,
+  "warmedTailAllocationsBeforeBytes": 33590744,
+  "warmedTailAllocationsAfterBytes": 24112,
+  "allocationBudgetBytes": 4194304,
+  "negativeControls": [
+    "Original clone-per-update allocation exceeds budget",
+    "Too-small dirty rectangle fails frozen raster hashes",
+    "Scaled cache without matrix identity fails 37.5% integer translation"
+  ],
+  "headlessCompleted": true,
+  "headlessViewportChecks": [
+    {
+      "Scenario": "empty",
+      "Width": 1000,
+      "Height": 1000,
+      "DifferentPixels": 0,
+      "MaximumChannelError": 0
+    },
+    {
+      "Scenario": "existing",
+      "Width": 1000,
+      "Height": 1000,
+      "DifferentPixels": 0,
+      "MaximumChannelError": 0
+    }
+  ],
+  "logs": [
+    "compositor-tail-alloc-before.log",
+    "compositor-prescale-final-regression.log",
+    "compositor-prescale-scalar.log",
+    "compositor-tailtrim-negative.log",
+    "compositor-prescale-translation-before.log",
+    "compositor-s02-prescale-build.log"
+  ]
+}

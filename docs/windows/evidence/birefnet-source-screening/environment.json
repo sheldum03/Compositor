@@ -1,0 +1,7 @@
+{
+  "python": "3.13.5 (main, Apr 12 2026, 00:20:41) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "executable": "/Users/admin/.pyenv/versions/3.13.5/bin/python3",
+  "pillow": "12.2.0",
+  "numpy": "2.3.5",
+  "onnxruntime": "1.23.2"
+}

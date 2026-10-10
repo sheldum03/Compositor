@@ -1,0 +1,108 @@
+{
+    "brushEvents": [
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 10.6988
+        },
+        {
+            "error": "",
+            "event": "append",
+            "milliseconds": 47.4143
+        },
+        {
+            "event": "cancel"
+        },
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 10.3911
+        },
+        {
+            "error": "",
+            "event": "append",
+            "milliseconds": 45.9373
+        },
+        {
+            "error": "",
+            "event": "release-commit",
+            "milliseconds": 96.1952
+        },
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 11.0234
+        },
+        {
+            "event": "cancel"
+        }
+    ],
+    "brushFailure": "",
+    "brushPaints": 1,
+    "checks": {
+        "brush": {
+            "cancelReleaseUndoRedoDeactivate": "passed",
+            "nonopaqueWidgetPixels": 0,
+            "syntheticPointerEvents": true
+        },
+        "text": {
+            "cancelCommitUndoRedo": "passed",
+            "nativeImeAccepted": false,
+            "replaceAllColorPreserved": true,
+            "syntheticInput": true
+        }
+    },
+    "errors": [
+    ],
+    "nativeImeAccepted": false,
+    "os": "Windows 11 Version 25H2",
+    "platformPlugin": "windows",
+    "previewBuffer": "one viewport-sized premultiplied image at device pixel ratio, SourceOver on white; no full 4K preview export",
+    "productAccepted": false,
+    "qt": "6.11.2",
+    "saves": [
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/remote-qt-20260921-184528/window-check/001-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/remote-qt-20260921-184528/window-check/002-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/remote-qt-20260921-184528/window-check/003-brush",
+            "kind": "brush",
+            "project": "C:/Users/Administrator/Desktop/CompositorTest/remote-qt-20260921-184528/window-check/003-brush/brush.comp",
+            "undoCount": 1
+        },
+        {
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/remote-qt-20260921-184528/window-check/004-F04",
+            "kind": "composition",
+            "project": "C:/Users/Administrator/Desktop/CompositorTest/remote-qt-20260921-184528/window-check/004-F04/F04.comp"
+        }
+    ],
+    "syntheticCheckMode": true,
+    "windowsExecuted": true
+}

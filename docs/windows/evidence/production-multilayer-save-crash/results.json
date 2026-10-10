@@ -1,0 +1,161 @@
+{
+  "platform": "macOS 26.5.1",
+  "passed": true,
+  "cases": [
+    {
+      "name": "replace-Encoding",
+      "layerCount": 1,
+      "killedPid": 38606,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-Prepared",
+      "layerCount": 1,
+      "killedPid": 38609,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-OldMoved",
+      "layerCount": 1,
+      "killedPid": 38615,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-NewMoved",
+      "layerCount": 1,
+      "killedPid": 38616,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "replace-BackupCleanup",
+      "layerCount": 1,
+      "killedPid": 38625,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "first-Encoding",
+      "layerCount": 1,
+      "killedPid": 38632,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "no-formal-target",
+      "preservedSource": true
+    },
+    {
+      "name": "first-Prepared",
+      "layerCount": 1,
+      "killedPid": 38644,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "no-formal-target",
+      "preservedSource": true
+    },
+    {
+      "name": "first-NewMoved",
+      "layerCount": 1,
+      "killedPid": 38677,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "multi-replace-Prepared",
+      "layerCount": 2,
+      "killedPid": 38708,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "multi-replace-OldMoved",
+      "layerCount": 2,
+      "killedPid": 38726,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 1,
+      "recovered": "complete-old",
+      "preservedSource": true
+    },
+    {
+      "name": "multi-replace-NewMoved",
+      "layerCount": 2,
+      "killedPid": 38741,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "multi-replace-BackupCleanup",
+      "layerCount": 2,
+      "killedPid": 38754,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": true,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    },
+    {
+      "name": "multi-first-Prepared",
+      "layerCount": 2,
+      "killedPid": 38782,
+      "childExitCode": 137,
+      "targetBeforeOpen": false,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 1,
+      "recovered": "no-formal-target",
+      "preservedSource": true
+    },
+    {
+      "name": "multi-first-NewMoved",
+      "layerCount": 2,
+      "killedPid": 38800,
+      "childExitCode": 137,
+      "targetBeforeOpen": true,
+      "backupBeforeOpen": false,
+      "temporaryDirectories": 0,
+      "recovered": "complete-new",
+      "preservedSource": true
+    }
+  ],
+  "limits": "Process termination at controlled boundaries only; not power-loss or Windows evidence unless executed on Windows."
+}

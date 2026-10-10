@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "24eff19",
+  "testOverlay": "WindowsProductionWorkflowTests.productionFlatEditsSurviveMacRoundTrip",
+  "initialBuildExitCode": 65,
+  "initialFailure": "Swift Testing macro allSatisfy keypath inferred throwing function; changed predicate to closure",
+  "retryExitCode": 0,
+  "functions": 4,
+  "cases": 6,
+  "failed": 0,
+  "skipped": 0,
+  "rawEvidenceRoot": "/Users/admin/.codex/visualizations/2026/10/02/production-flat-edit-mac-validation"
+}

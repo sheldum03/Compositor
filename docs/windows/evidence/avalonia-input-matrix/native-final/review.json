@@ -1,0 +1,223 @@
+{
+  "status": "10 executed native Pinyin cases passed within recorded scope; full M1 matrix remains open",
+  "sourceCommit": "a869a69a02dd4c78c483a31dc0165412d273e5c9",
+  "dllSha256": "55909cba56a66a4a2d38eafa28351d2739a3882aadcd39c747d473a6e970aa1a",
+  "windowsExecuted": true,
+  "nativeWindowExecuted": true,
+  "nativeExitCode": 0,
+  "nativeProcessId": 40532,
+  "nativePreeditChanges": 208,
+  "textInputEvents": 10,
+  "injectedInputMethodCalls": 0,
+  "nativePreviewExportPairsExact": 58,
+  "nativeCases": [
+    {
+      "name": "rotate13",
+      "baseline": 1,
+      "cancel": 2,
+      "commit": 3,
+      "undo": 4,
+      "redo": 5,
+      "transform": {
+        "angle": 13,
+        "zoom": 1,
+        "flipX": false,
+        "flipY": false,
+        "stretchX": 1,
+        "renderScaling": 1.5
+      },
+      "passed": true
+    },
+    {
+      "name": "rotate13-flipY-stretch75",
+      "baseline": 6,
+      "cancel": 7,
+      "commit": 8,
+      "undo": 9,
+      "redo": 10,
+      "transform": {
+        "angle": 13,
+        "zoom": 1,
+        "flipX": false,
+        "flipY": true,
+        "stretchX": 0.75,
+        "renderScaling": 1.5
+      },
+      "passed": true
+    },
+    {
+      "name": "rotate13-flipXY-stretch75-zoom150",
+      "baseline": 11,
+      "cancel": 12,
+      "commit": 13,
+      "undo": 14,
+      "redo": 15,
+      "transform": {
+        "angle": 13,
+        "zoom": 1.5,
+        "flipX": true,
+        "flipY": true,
+        "stretchX": 0.75,
+        "renderScaling": 1.5
+      },
+      "passed": true
+    },
+    {
+      "name": "rotate13-flipXY-stretch75-zoom50",
+      "baseline": 16,
+      "cancel": 17,
+      "commit": 18,
+      "undo": 19,
+      "redo": 20,
+      "transform": {
+        "angle": 13,
+        "zoom": 0.5,
+        "flipX": true,
+        "flipY": true,
+        "stretchX": 0.75,
+        "renderScaling": 1.5
+      },
+      "passed": true
+    },
+    {
+      "name": "identity",
+      "baseline": 21,
+      "cancel": 23,
+      "commit": 24,
+      "undo": 25,
+      "redo": 26,
+      "transform": {
+        "angle": 0,
+        "zoom": 1,
+        "flipX": false,
+        "flipY": false,
+        "stretchX": 1,
+        "renderScaling": 1.5
+      },
+      "passed": true
+    },
+    {
+      "name": "rotate13-flipX",
+      "baseline": 31,
+      "cancel": 33,
+      "commit": 34,
+      "undo": 35,
+      "redo": 36,
+      "transform": {
+        "angle": 13,
+        "zoom": 1,
+        "flipX": true,
+        "flipY": false,
+        "stretchX": 1,
+        "renderScaling": 1.5
+      },
+      "passed": true
+    },
+    {
+      "name": "system100-identity",
+      "baseline": 38,
+      "cancel": 39,
+      "commit": 40,
+      "undo": 41,
+      "redo": 42,
+      "transform": {
+        "angle": 0,
+        "zoom": 1,
+        "flipX": false,
+        "flipY": false,
+        "stretchX": 1,
+        "renderScaling": 1
+      },
+      "passed": true
+    },
+    {
+      "name": "system100-rotate13-flipXY-stretch75-zoom150",
+      "baseline": 43,
+      "cancel": 44,
+      "commit": 45,
+      "undo": 46,
+      "redo": 47,
+      "transform": {
+        "angle": 13,
+        "zoom": 1.5,
+        "flipX": true,
+        "flipY": true,
+        "stretchX": 0.75,
+        "renderScaling": 1
+      },
+      "passed": true
+    },
+    {
+      "name": "system200-identity",
+      "baseline": 48,
+      "cancel": 49,
+      "commit": 50,
+      "undo": 51,
+      "redo": 52,
+      "transform": {
+        "angle": 0,
+        "zoom": 1,
+        "flipX": false,
+        "flipY": false,
+        "stretchX": 1,
+        "renderScaling": 2
+      },
+      "passed": true
+    },
+    {
+      "name": "system200-rotate13-flipXY-stretch75-zoom50",
+      "baseline": 53,
+      "cancel": 54,
+      "commit": 55,
+      "undo": 56,
+      "redo": 57,
+      "transform": {
+        "angle": 13,
+        "zoom": 0.5,
+        "flipX": true,
+        "flipY": true,
+        "stretchX": 0.75,
+        "renderScaling": 2
+      },
+      "passed": true
+    }
+  ],
+  "tabReturnSelectAllCancelPreservedTextSelectionAndRedo": true,
+  "wrappedPreeditCancelPreservedTextAndPixels": [
+    30,
+    32
+  ],
+  "candidatePosition": "Observed near current input line in CUA conversation screenshots; no independently archived screen-video measurements",
+  "systemScalingEvents": [
+    1,
+    2,
+    1.5
+  ],
+  "lastLiveExportScaling": 1.5,
+  "postCloseReportScaling": 1,
+  "postCloseScalingCaveat": "Closed window reports 1; use last live export and scaling events for restored system DPI",
+  "remoteDragAttempt": {
+    "export": 22,
+    "selectedRange": [
+      0,
+      0
+    ],
+    "accepted": false,
+    "reason": "No selection highlight or selection range; delivery versus application cause not isolated"
+  },
+  "fullNativeMatrixAccepted": false,
+  "remaining": [
+    "Full transform-by-DPI Cartesian coverage not executed",
+    "Physical mouse/pen coverage",
+    "Cross-monitor DPI transition",
+    "Second Chinese IME",
+    "Additional device and clean-user deployment matrix"
+  ],
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-ime-matrix-20260923/avalonia-ime-matrix-20260923-185914.zip",
+  "archiveBytes": 3868609,
+  "archiveSha256": "2a4e476c2f7c42f451a99f2293ba4b6a2759cd6d3bb99af5e620c4b507ec3e8b",
+  "verifiedFiles": 579,
+  "restoredOriginalText": true,
+  "restoredSystemScaling150": true,
+  "reviewerSha256": "af29c07e7d0cd5017eec61f60b5137f388922ada6ae914ea1f068d6585ef1989"
+}

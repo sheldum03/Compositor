@@ -1,0 +1,273 @@
+{
+  "baseline": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-remote-suite/remote-batch-20260921-183510",
+  "checks": [
+    {
+      "path": "text/F11-300-box-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-center-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-center-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-center-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-center-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-left-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-left-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-left-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-left-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-right-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-right-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-right-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-box-right-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-center-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-center-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-center-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-center-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-left-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-left-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-left-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-left-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-right-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-right-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-right-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-300-point-right-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-center-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-center-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-center-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-center-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-left-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-left-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-left-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-left-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-right-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-right-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-right-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-box-right-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-center-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-center-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-center-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-center-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-left-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-left-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-left-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-left-preview.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-right-diff.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-right-export.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-right-preedit.png",
+      "equal": true
+    },
+    {
+      "path": "text/F11-72-point-right-preview.png",
+      "equal": true
+    },
+    {
+      "path": "brush/final-cpu-diff.png",
+      "equal": true
+    },
+    {
+      "path": "brush/final-preview.png",
+      "equal": true
+    },
+    {
+      "path": "brush/final.png",
+      "equal": true
+    },
+    {
+      "path": "brush/first-cpu-diff.png",
+      "equal": true
+    },
+    {
+      "path": "brush/first-preview.png",
+      "equal": true
+    },
+    {
+      "path": "brush/first.png",
+      "equal": true
+    },
+    {
+      "path": "brush/reopened.png",
+      "equal": true
+    }
+  ]
+}

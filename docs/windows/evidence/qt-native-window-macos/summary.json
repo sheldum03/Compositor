@@ -1,0 +1,33 @@
+{
+  "parentSourceThread": "01a0beb1-da38-7b00-9183-d65bff121d78",
+  "parentArtifact": "/Users/admin/.codex/visualizations/2026/09/20/01a0beb1-da38-7b00-9183-d65bff121d78/qt-native-window-preparation",
+  "integratedArtifact": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/qt-native-window-integrated",
+  "platformPlugin": "cocoa",
+  "nativeRuns": 2,
+  "nativeRunExitCodes": [
+    0,
+    0
+  ],
+  "nativeWindowWindowsExecuted": false,
+  "macNativeImeAccepted": false,
+  "windowsNativeImeAccepted": false,
+  "colorRegression": {
+    "beforeExitCode": 1,
+    "afterExitCode": 0,
+    "beforeBluePixels": 0,
+    "beforeDarkPixels": 4619,
+    "afterBluePixels": 4951,
+    "afterDarkPixels": 0
+  },
+  "originalTextPngsCompared": 72,
+  "originalTextPngsByteDifferent": 0,
+  "nativeBrushUndoRedoRestoresPngBytes": true,
+  "nativeTextCancelRestoresPngBytes": true,
+  "observations": [
+    "Paste tool clipboard handshake timed out; actual replacement observed before proceeding, no blind retry",
+    "AX stepper setValue did not change values; rotation and scale verified through real key actions",
+    "First attempt to launch updated binary in reused bundle exited137 before output; fresh private bundle launched and exited0; cause not established",
+    "Initial build attempt before cross-configure completed returned could not load cache; valid configured build is recorded separately",
+    "No server/browser actions and no Windows runtime or DPI acceptance"
+  ]
+}

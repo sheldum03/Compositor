@@ -1,0 +1,8 @@
+{
+  "windowsExecuted": false,
+  "adaptation": "Mac wrapper only; no Windows binary execution",
+  "wrongModelRejectedBeforeNative": true,
+  "errorArchivePreserved": true,
+  "exitCode": 1,
+  "archiveSha256": "22742c4354b589fc945157c40a0066d8f537efc0d5f5851e78a370c06b235299"
+}

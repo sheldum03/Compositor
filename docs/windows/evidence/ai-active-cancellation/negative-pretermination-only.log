@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/ai/review-active-cancel.py", line 13, in <module>
+    assert inference['activeInferenceCancellationTested'], 'Only pre-termination was tested'
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Only pre-termination was tested

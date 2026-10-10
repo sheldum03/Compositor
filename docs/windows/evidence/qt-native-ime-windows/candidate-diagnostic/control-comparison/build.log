@@ -1,0 +1,5 @@
+[ 52%] Built target compositor_native
+[ 63%] Built target native_contract_tests
+[ 68%] Building CXX object CMakeFiles/qt_ime_control.dir/main.cpp.obj
+[ 73%] Linking CXX executable qt_ime_control.exe
+[100%] Built target qt_ime_control

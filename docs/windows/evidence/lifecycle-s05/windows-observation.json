@@ -1,0 +1,26 @@
+{
+  "source": "s05-native-result.png; terminal summary only; raw report not yet downloaded",
+  "windowsRoot": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\lifecycle-s05-20260922-162054",
+  "dllSha256": "7c40d2232d5a7965a23c9a6fc4b19324f72dd80f98da11f0f288601c1bd6a9d2",
+  "reportedCompleted": true,
+  "reportedEdits": 300,
+  "postClosePrivateBytes": [
+    428789760,
+    538726400,
+    884883456
+  ],
+  "postCloseHandles": [
+    578,
+    572,
+    569
+  ],
+  "retainedDocuments": [
+    1,
+    1,
+    0
+  ],
+  "finalDiagnosticCollectionPrivateBytes": 761618432,
+  "independentRawReviewCompleted": false,
+  "resourceAccepted": false,
+  "blocker": "Mac locked; UU automatic unlock failed during R2 upload. R2 not deployed; native close and continuous input not completed."
+}

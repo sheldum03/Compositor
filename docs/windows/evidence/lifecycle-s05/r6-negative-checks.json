@@ -1,0 +1,26 @@
+[
+  {
+    "name": "short-idle",
+    "rejected": true,
+    "exit": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/review-s05.py\", line 40, in <module>\n    assert all(b - a >= 9900 for a, b in zip(times, times[1:])) and times[-1] >= 60000, 'Idle observation too short'\nAssertionError: Idle observation too short\n"
+  },
+  {
+    "name": "missing-sample",
+    "rejected": true,
+    "exit": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/review-s05.py\", line 37, in <module>\n    assert len(idle) == 7 and idle[0]['ElapsedMilliseconds'] == 0, 'Missing idle samples'\nAssertionError: Missing idle samples\n"
+  },
+  {
+    "name": "backwards-gc",
+    "rejected": true,
+    "exit": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/review-s05.py\", line 55, in <module>\n    assert all(a <= b for a, b in zip(values, values[1:])), key + ' decreased'\nAssertionError: Gen2Collections decreased\n"
+  },
+  {
+    "name": "local-as-windows",
+    "rejected": true,
+    "exit": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/review-s05.py\", line 19, in <module>\n    assert args.allow_local or (r['nativeWindow'] and r['windowsExecuted']), 'Requires native Windows evidence'\nAssertionError: Requires native Windows evidence\n"
+  }
+]

@@ -165,9 +165,8 @@ struct CursorTests {
         session.cancelTransform()
     }
 
-    /// In the layer list, Option over a thumbnail is for clipping masks; over the rest of a row it offers
-    /// to duplicate the layer by dragging.
-    @Test func optionOverALayerRowOffersDuplicatingExceptOverThumbnails() throws {
+    /// Option offers duplication above the row's bottom quarter, where it offers clipping instead.
+    @Test func optionOverALayerRowOffersDuplicatingExceptInTheClippingZone() throws {
         let session = EditorSession()
         session.createDocument(width: 400, height: 300)
         session.addBlankLayer()
@@ -192,7 +191,10 @@ struct CursorTests {
         #expect(thumbnail.frame.size == CGSize(width: 36, height: 27), "the thumbnail takes the 400 × 300 canvas's shape")
         let center = thumbnail.convert(NSPoint(x: thumbnail.bounds.midX, y: thumbnail.bounds.midY), to: nil)
         table.mouseMoved(with: mouse(at: center, flags: .option, in: window))
-        #expect(NSCursor.current !== CanvasView.duplicateCursor, "Option over a thumbnail is for clipping masks")
+        #expect(NSCursor.current === CanvasView.duplicateCursor, "an image thumbnail above the clipping zone duplicates")
+        let bottom = table.convert(NSPoint(x: table.visibleRect.midX, y: table.rect(ofRow: 0).maxY - 2), to: nil)
+        table.mouseMoved(with: mouse(at: bottom, flags: .option, in: window))
+        #expect(NSCursor.current !== CanvasView.duplicateCursor, "the bottom quarter offers clipping")
         table.mouseMoved(with: mouse(at: name, in: window))
         #expect(NSCursor.current === NSCursor.arrow)
     }

@@ -1,0 +1,36 @@
+﻿dotnet.exe : Unhandled exception. System.ArgumentOutOfRangeException: startIndex ('45') must be less than or equal to '
+42'. (Parameter 'startIndex')
+所在位置 C:\Users\Administrator\Desktop\CompositorTest\window-test\run-window.ps1:23 字符: 1
++ & $runtime (Join-Path $PSScriptRoot 'app\Compositor.AvaloniaProbe.dll ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Unhandled excep...r 'startIndex'):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Actual value was 45.
+   at System.ArgumentOutOfRangeException.ThrowGreater[T](T value, T other, String paramName)
+   at SpacedTextPresenter.CreateTextLayout()
+   at Avalonia.Controls.Presenters.TextPresenter.MoveCaretToTextPosition(Int32 textPosition, Boolean trailingEdge)
+   at Avalonia.Controls.TextBox.HandleTextInput(String input)
+   at Avalonia.Controls.TextBox.OnTextInput(TextInputEventArgs e)
+   at Avalonia.Input.InputElement.<>c.<.cctor>b__33_4(InputElement x, TextInputEventArgs e)
+   at Avalonia.Reactive.LightweightObservableBase`1.PublishNext(T value)
+   at Avalonia.Interactivity.EventRoute.RaiseEventImpl(RoutedEventArgs e)
+   at Avalonia.Interactivity.EventRoute.RaiseEvent(Interactive source, RoutedEventArgs e)
+   at Avalonia.Interactivity.Interactive.RaiseEvent(RoutedEventArgs e)
+   at Avalonia.Input.KeyboardDevice.ProcessRawEvent(RawInputEventArgs e)
+   at Avalonia.Controls.TopLevel.<>c.<HandleInput>b__150_0(Object state)
+   at Avalonia.Threading.Dispatcher.Send(SendOrPostCallback action, Object arg, Nullable`1 priority)
+   at Avalonia.Controls.TopLevel.HandleInput(RawInputEventArgs e)
+   at Avalonia.Win32.WindowImpl.AppWndProc(IntPtr hWnd, UInt32 msg, IntPtr wParam, IntPtr lParam)
+   at Avalonia.Win32.WindowImpl.WndProcMessageHandler(IntPtr hWnd, UInt32 msg, IntPtr wParam, IntPtr lParam)
+   at Avalonia.Win32.Interop.UnmanagedMethods.DispatchMessage(MSG& lpmsg)
+   at Avalonia.Win32.Win32DispatcherImpl.RunLoop(CancellationToken cancellationToken)
+   at Avalonia.Threading.DispatcherFrame.Run(IControlledDispatcherImpl impl)
+   at Avalonia.Threading.Dispatcher.PushFrame(DispatcherFrame frame)
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, Str
+ing[] args, Action`1 lifetimeBuilder)
+   at WindowProbe.Run(String fixtures, String output, String native)
+   at Program.Main(String[] args)

@@ -1,0 +1,218 @@
+{
+  "sourceCommit": "b9345e3116078b583d00a5f6e100af5bde817573",
+  "windowsExecuted": false,
+  "modelSha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+  "nativePackageSha256": "c51297c2a6a614554ea10bab686e8bb7f8603d21024255bf40ab61a5c75e9203",
+  "acquisition": [
+    {
+      "name": "numpy-2.0.2-cp311-cp311-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/eb/57/3a3f14d3a759dcf9bf6e9eda905794726b758819df4663f217d658a58695/numpy-2.0.2-cp311-cp311-win_amd64.whl",
+      "bytes": 15910230,
+      "sha256": "286cd40ce2b7d652a6f22efdfc6d1edf879440e53e76a75955bc0c826c7e64dc",
+      "pypiDigestMatched": true
+    },
+    {
+      "name": "onnx-1.17.0-cp311-cp311-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/51/a5/19b0dfcb567b62e7adf1a21b08b23224f0c2d13842aee4d0abc6f07f9cf5/onnx-1.17.0-cp311-cp311-win_amd64.whl",
+      "bytes": 14529142,
+      "sha256": "95c03e38671785036bb704c30cd2e150825f6ab4763df3a4f1d249da48525957",
+      "pypiDigestMatched": true
+    },
+    {
+      "name": "pillow-11.3.0-cp311-cp311-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/f1/cc/29c0f5d64ab8eae20f3232da8f8571660aa0ab4b8f1331da5c2f5f9a938e/pillow-11.3.0-cp311-cp311-win_amd64.whl",
+      "bytes": 6986055,
+      "sha256": "1a992e86b0dd7aeb1f053cd506508c0999d710a8f07b4c791c63843fc6a807ac",
+      "pypiDigestMatched": true
+    },
+    {
+      "name": "protobuf-6.33.6-cp310-abi3-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/76/5d/683efcd4798e0030c1bab27374fd13a89f7c2515fb1f3123efdfaa5eab57/protobuf-6.33.6-cp310-abi3-win_amd64.whl",
+      "bytes": 437089,
+      "sha256": "0cd27b587afca21b7cfa59a74dcbd48a50f0a6400cfb59391340ad729d91d326",
+      "pypiDigestMatched": true
+    },
+    {
+      "name": "python-3.11.9-embed-amd64.zip",
+      "url": "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip",
+      "releasePage": "https://www.python.org/downloads/release/python-3119/",
+      "officialMd5Matched": true,
+      "sha256": "009d6bf7e3b2ddca3d784fa09f90fe54336d5b60f0e0f305c37f400bf83cfd3b",
+      "bytes": 11249023
+    }
+  ],
+  "files": {
+    "assets.json": {
+      "bytes": 2868,
+      "sha256": "94b2e6877ea9464b195bc7d45805e6e0afbccf4fea657d7c21330c8be712e503"
+    },
+    "astronaut.png": {
+      "bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5"
+    },
+    "downloads/numpy-2.0.2-cp311-cp311-win_amd64.whl": {
+      "bytes": 15910230,
+      "sha256": "286cd40ce2b7d652a6f22efdfc6d1edf879440e53e76a75955bc0c826c7e64dc"
+    },
+    "downloads/onnx-1.17.0-cp311-cp311-win_amd64.whl": {
+      "bytes": 14529142,
+      "sha256": "95c03e38671785036bb704c30cd2e150825f6ab4763df3a4f1d249da48525957"
+    },
+    "downloads/pillow-11.3.0-cp311-cp311-win_amd64.whl": {
+      "bytes": 6986055,
+      "sha256": "1a992e86b0dd7aeb1f053cd506508c0999d710a8f07b4c791c63843fc6a807ac"
+    },
+    "downloads/protobuf-6.33.6-cp310-abi3-win_amd64.whl": {
+      "bytes": 437089,
+      "sha256": "0cd27b587afca21b7cfa59a74dcbd48a50f0a6400cfb59391340ad729d91d326"
+    },
+    "downloads/python-3.11.9-embed-amd64.zip": {
+      "bytes": 11249023,
+      "sha256": "009d6bf7e3b2ddca3d784fa09f90fe54336d5b60f0e0f305c37f400bf83cfd3b"
+    },
+    "native/README.md": {
+      "bytes": 4722,
+      "sha256": "70b78773d3759eb84b0c45b0034740e25431bb67428ad4e64439ab7b2ee25b18"
+    },
+    "native/app/ai_probe.exe": {
+      "bytes": 153600,
+      "sha256": "6b330c653b88ceaa00f0c4399fa0ce61657625a6d970b96bfc77a55d8668159d"
+    },
+    "native/app/libc++.dll": {
+      "bytes": 2008576,
+      "sha256": "936a36ba1b1b0779067f15b77a92752a9ec29d073183969e76610c9caab4485f"
+    },
+    "native/app/libunwind.dll": {
+      "bytes": 190976,
+      "sha256": "fc8c676629fc5c0a1a1c0bace29f2538306a404a1e1dd15bf1707a3b948c7696"
+    },
+    "native/app/onnxruntime.dll": {
+      "bytes": 16462648,
+      "sha256": "7e39e2bdbba836d98071ef28620735ba36a47c554cf794585269aecc50fab0da"
+    },
+    "native/app/onnxruntime_providers_shared.dll": {
+      "bytes": 21816,
+      "sha256": "b9b7ab9e2a8b08ee7ae4a7ac1c8bfd44a741f17ad8d0f764953140a57de0b796"
+    },
+    "native/build/ai_probe.exe-pe.txt": {
+      "bytes": 11206,
+      "sha256": "025b9e1918c1966a949414d002e3e0bd18045611c79da755542c841dfcbc155d"
+    },
+    "native/build/build-0.log": {
+      "bytes": 788,
+      "sha256": "e828e5665a8cfc519e57422fe653dd6ad01f5254f8b3425eb169b3bc99c870c4"
+    },
+    "native/build/build-1.log": {
+      "bytes": 3042,
+      "sha256": "1e47459d74e276e5f7ca6758bc112c2806a7430e2968a2a7faa2bc84c1216f7b"
+    },
+    "native/build/commands.json": {
+      "bytes": 532,
+      "sha256": "ac5ace1691435bca653ddd383269646140cac96c74ad7d0105ad6b191c1f3df3"
+    },
+    "native/build/identity.json": {
+      "bytes": 1473,
+      "sha256": "8cf9a961723f544b6487dc006873486c6828a90fa4f875a216f5e4884fd4d800"
+    },
+    "native/build/libc++.dll-pe.txt": {
+      "bytes": 212557,
+      "sha256": "9450e3c1e9daea15d73526df75db9276f24ca2b3473d06bb8311f108aa947136"
+    },
+    "native/build/libunwind.dll-pe.txt": {
+      "bytes": 7204,
+      "sha256": "756008d6e06f1eea63f6c5b01090caaa70a71d62cff3ec09e5205b9c045953eb"
+    },
+    "native/build/onnxruntime.dll-pe.txt": {
+      "bytes": 26123,
+      "sha256": "4ff84a789f6c9a0dcc85cc50e0464bf908bfabbeaa246c7266b6821424db999b"
+    },
+    "native/build/onnxruntime_providers_shared.dll-pe.txt": {
+      "bytes": 4117,
+      "sha256": "5342b883927bf5a81bfef82cf643c8e61bfbbd5f1049a6d119e599646507d207"
+    },
+    "native/build/pe-imports.json": {
+      "bytes": 343743,
+      "sha256": "b479a18bc262ed3d5b4b6ba211ffd6e3fd0b59a7a4317528dc1ea312834be196"
+    },
+    "native/build/toolchain.cmake": {
+      "bytes": 808,
+      "sha256": "41152b639cccf9d192b3fda74a9a0c4f6e4e8b9baac1f559e3d9c32e03f6e054"
+    },
+    "native/files.json": {
+      "bytes": 4791,
+      "sha256": "67ea035a7788aab7d3e8045afc23a55a80e628615bbdf20df8de64301186c77b"
+    },
+    "native/fixtures/input.f32": {
+      "bytes": 1228800,
+      "sha256": "d085f68b79a2a856160a0ea207180658a3d58da7d77feaca7b1fffcca4136951"
+    },
+    "native/licenses/COPYING": {
+      "bytes": 2326,
+      "sha256": "99a69660981156c21336fdb5661f89341b013c94e4bf9e1c7467b4745718397f"
+    },
+    "native/licenses/COPYING.MinGW-w64-runtime.txt": {
+      "bytes": 12155,
+      "sha256": "1db8da07b436c68833c0673ffee3d9fcb2526047f3820b81661865dfedc79a1f"
+    },
+    "native/licenses/COPYING.MinGW-w64.txt": {
+      "bytes": 5905,
+      "sha256": "f38e6194bd3bfa1b654f118e5acefe0aead437bbe669eee43957ccc65a7127f1"
+    },
+    "native/licenses/COPYING.winpthreads.txt": {
+      "bytes": 2883,
+      "sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177"
+    },
+    "native/licenses/COPYING.winstorecompat.txt": {
+      "bytes": 1099,
+      "sha256": "fa7368d1f93d890c173177475d8ec7aff265a7d08f1f364d66f74d138978ce36"
+    },
+    "native/licenses/LLVM-LICENSE.TXT": {
+      "bytes": 15141,
+      "sha256": "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee"
+    },
+    "native/licenses/onnxruntime-LICENSE": {
+      "bytes": 1094,
+      "sha256": "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674"
+    },
+    "native/licenses/onnxruntime-Privacy.md": {
+      "bytes": 4730,
+      "sha256": "a1e6108942be2f56d9ea93c342462d5ec15fd0510603dae7a654f417e0d4e95f"
+    },
+    "native/licenses/onnxruntime-ThirdPartyNotices.txt": {
+      "bytes": 344457,
+      "sha256": "c53a76501ef60db6f865f20599f220761201ac4057683acefdab37d861b86622"
+    },
+    "native/licenses/rembg-MIT.txt": {
+      "bytes": 1069,
+      "sha256": "90a3215072968fd304669c5389f04f1274a587abdd0507d99dead0f5511f8999"
+    },
+    "native/review-active-cancel.py": {
+      "bytes": 2070,
+      "sha256": "7f2839c82392aa77d0ffa3e0502f97e4d41bd0bd8b8f3ed4608f2b79f54aaadf"
+    },
+    "native/source/CMakeLists.txt": {
+      "bytes": 887,
+      "sha256": "d705797a2c83dc788ab2337f03a275b7fa7b92791cff62ac1dbf31bd27c7a5db"
+    },
+    "native/source/assets.json": {
+      "bytes": 2868,
+      "sha256": "94b2e6877ea9464b195bc7d45805e6e0afbccf4fea657d7c21330c8be712e503"
+    },
+    "native/source/probe.cpp": {
+      "bytes": 9671,
+      "sha256": "55452a2e8d179899f1643a69fb32408f96dc4c80d34435271e7f4e8e9092e3d8"
+    },
+    "requirements.txt": {
+      "bytes": 140,
+      "sha256": "c279d6ca6270085399fe9bbeb3b6b4c06469c199b2207382e8cd6eacb09864a7"
+    },
+    "run.py": {
+      "bytes": 5023,
+      "sha256": "81c773e7582d6c690ac9f5369ccacf99258d8f8d1d7820f3cb557be15e9b355e"
+    },
+    "screen.py": {
+      "bytes": 9104,
+      "sha256": "537ebcd2921e7f008f5ce13ad5fd189d7f244a2c60c9c62e30fc9363db0c54b2"
+    }
+  }
+}

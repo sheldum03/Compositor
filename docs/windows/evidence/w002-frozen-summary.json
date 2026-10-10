@@ -1,0 +1,35 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceName": "My Mac",
+        "modelName": "MacBook Pro",
+        "osBuildNumber": "25F80",
+        "osVersion": "26.5.1",
+        "platform": "macOS"
+      },
+      "expectedFailures": 0,
+      "failedTests": 0,
+      "passedTests": 2,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "Compositor \u00b7 Built with macOS 26.5.1",
+  "expectedFailures": 0,
+  "failedTests": 0,
+  "finishTime": 1789920044.496,
+  "passedTests": 2,
+  "result": "Passed",
+  "skippedTests": 0,
+  "startTime": 1789920038.103,
+  "statistics": [],
+  "testFailures": [],
+  "title": "Test - Compositor",
+  "topInsights": [],
+  "totalTestCount": 2
+}

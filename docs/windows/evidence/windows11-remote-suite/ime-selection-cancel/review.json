@@ -1,0 +1,70 @@
+{
+  "status": "v1 native tab-return cancel failed; v2 retest passed by user report; historical failure retained",
+  "latestV2Review": "v2/review.json",
+  "failureArchive": {
+    "name": "window-flip-20260921-200520-ime-results.zip",
+    "bytes": 38897,
+    "sha256": "dd96c2618d845bde24e602d7db0a5cb0674d8a41362071716038a5cadf22289f",
+    "crcPassed": true
+  },
+  "beforeNontransparentPixels": 11657,
+  "afterNontransparentPixels": 0,
+  "bothPreviewExportPairsMatch": true,
+  "nativeImeInjectedCalls": 0,
+  "failureTransform": {
+    "zoom": 1.5,
+    "angle": 0,
+    "flipped": false,
+    "windowsScaling": 1.5
+  },
+  "localImeCasesPassed": 40,
+  "localSelectionCasesPassed": 48,
+  "existingTextPngCompared": 60,
+  "existingTextPngChanged": 0,
+  "fixCommit": "ed54800",
+  "deploymentTransport": "UU terminal base64 chunks; ordinary UU file transfer stalled",
+  "deltaSha256": "544a11bf1af71146b6b78b6d8ac379e346aaf4f463b2c11307463e6ef1d3f551",
+  "deltaBytes": 132134,
+  "remoteDeltaSha256Matched": true,
+  "windowsRegression": {
+    "imeCases": 40,
+    "imeFailed": 0,
+    "imeExit": 0,
+    "selectionExit": 0,
+    "output": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\ime-fixed-20260921-230957",
+    "probeSha256": "c1a6c0ddb80d2b2d11abae335a95332cd0ffc796e8568de1e436d9070e4ee880",
+    "evidence": "ime-fixed-windows-regression.png",
+    "rawLogs": "stored on Windows; not yet retrieved"
+  },
+  "fixedNativeWindow": {
+    "pid": 44024,
+    "baselineExportCaptured": true,
+    "userRetest": "passed: user confirmed original text fully preserved after select-all, Microsoft Pinyin ceshi and Esc",
+    "cancelScreenshot": "native-cancel-user-confirmed.png",
+    "selectionRestorationVisuallyConfirmed": false,
+    "postFixNativeCommitUndoRedo": {
+      "status": "passed by user report",
+      "feedback": "全部正常",
+      "steps": [
+        "select all; Microsoft Pinyin ceshi; choose 测试; entire text becomes 测试",
+        "Ctrl+Z restores full original text",
+        "Ctrl+Y restores 测试",
+        "Ctrl+Z restores full original text again"
+      ],
+      "independentlyReplayed": false
+    },
+    "postFixNativeTabReturnCancel": {
+      "status": "failed",
+      "feedback": "原文全部消失",
+      "screenshot": "native-tab-cancel-failed.png",
+      "steps": [
+        "switch to brush tab",
+        "return to text tab",
+        "select all",
+        "Microsoft Pinyin ceshi",
+        "Esc without choosing candidate"
+      ]
+    },
+    "cancelPixelsCompared": false
+  }
+}

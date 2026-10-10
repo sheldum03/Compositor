@@ -1,0 +1,29 @@
+{
+  "baseCommit": "5ef92ba609c5069f6bd7c9d9999e5c3bf7d42e63",
+  "overlayFiles": [
+    "windows/Compositor.App/EditorWorkspace.cs",
+    "windows/Compositor.App/MainWindow.cs",
+    "windows/Compositor.App/CanvasView.cs",
+    "windows/Compositor.App/CanvasViewport.cs",
+    "windows/Compositor.Imaging/SoftBrushStroke.cs",
+    "windows/Compositor.App.Checks/Compositor.App.Checks.csproj",
+    "windows/Compositor.App.Checks/Program.cs",
+    "windows/Compositor.App.Checks/CanvasChecks.cs",
+    "windows/Compositor.App.Checks/fixtures/soft-brush-reference.zip",
+    "windows/Compositor.App.Checks/fixtures/soft-brush-reference.json"
+  ],
+  "overlaySha256": {
+    "windows/Compositor.App/EditorWorkspace.cs": "5bf0ffcf654d92d36e7b9b68f9993b90f6e2bc8c510c55c8e89cb21aaf41194b",
+    "windows/Compositor.App/MainWindow.cs": "ac6306675076d64f269df667c975bdafa43d08645b80629facc4584e8b214a3a",
+    "windows/Compositor.App/CanvasView.cs": "d16b23b53bb6960fd06e10671136dbc9b2b81db16c1aebf823b6fda9d4136360",
+    "windows/Compositor.App/CanvasViewport.cs": "24091ddc3e1a0f2284b2f2a9e2df20b94222b7a26cb55000a2f1e316d5ac3361",
+    "windows/Compositor.Imaging/SoftBrushStroke.cs": "8a93617e0a8f787c31f924050451517fba19eead0688cc728e3dcd9ad6da789e",
+    "windows/Compositor.App.Checks/Compositor.App.Checks.csproj": "6b7c092bd0a32fc5cb74985f85df72b6dc47343650b0e8f52ddf5ecaf641be77",
+    "windows/Compositor.App.Checks/Program.cs": "a6b87d2b90a4675ea06c0726af41483a8286b0c75b8d22afa8330804187130be",
+    "windows/Compositor.App.Checks/CanvasChecks.cs": "b6d7aa63e52a1f27bbfd3606f5cee1ab5fe1ec6cdf4ba053614f2825d008023d",
+    "windows/Compositor.App.Checks/fixtures/soft-brush-reference.zip": "76bdbe2db895e6af84423d17056f56eda1694c88b83c2bdf8407db5c59cdfb5a",
+    "windows/Compositor.App.Checks/fixtures/soft-brush-reference.json": "a64e6ec4dfc0a8863d149a15c470ca37dcb0ed2e79adbc6ae49d1dcf9aefcd2d"
+  },
+  "platform": "macOS arm64",
+  "sdk": "10.0.401"
+}

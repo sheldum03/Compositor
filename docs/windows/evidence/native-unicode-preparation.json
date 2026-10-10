@@ -1,0 +1,137 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "a20bc89",
+  "scope": "Native argument encoding preparation; Windows wmain branch unexecuted",
+  "change": "Windows wchar_t argv to native filesystem paths; POSIX argv unchanged; ORT profile filename remains UTF-8",
+  "toolchain": {
+    "cmake": "3.31.6",
+    "compiler": "AppleClang 21",
+    "host": "macOS 26.5.1 arm64",
+    "onnxruntime": "1.30.0",
+    "libheif": "1.23.4",
+    "libde265": "1.1.1"
+  },
+  "steps": [
+    {
+      "probe": "ai",
+      "sanitized": false,
+      "step": "build",
+      "exitCode": 0,
+      "seconds": 1.781
+    },
+    {
+      "probe": "ai",
+      "sanitized": false,
+      "step": "screen",
+      "exitCode": 0,
+      "seconds": 1.851
+    },
+    {
+      "probe": "ai",
+      "sanitized": true,
+      "step": "build",
+      "exitCode": 0,
+      "seconds": 1.488
+    },
+    {
+      "probe": "ai",
+      "sanitized": true,
+      "step": "screen",
+      "exitCode": 0,
+      "seconds": 2.824
+    },
+    {
+      "probe": "heic",
+      "sanitized": false,
+      "step": "build",
+      "exitCode": 0,
+      "seconds": 1.984
+    },
+    {
+      "probe": "heic",
+      "sanitized": false,
+      "step": "screen",
+      "exitCode": 0,
+      "seconds": 1.744
+    },
+    {
+      "probe": "heic",
+      "sanitized": true,
+      "step": "build",
+      "exitCode": 0,
+      "seconds": 1.838
+    },
+    {
+      "probe": "heic",
+      "sanitized": true,
+      "step": "screen",
+      "exitCode": 0,
+      "seconds": 2.77
+    }
+  ],
+  "unicodeChecks": {
+    "ai": {
+      "chineseSpacesAndNonBmp": true,
+      "rawPredictionExact": true,
+      "profileKernelProviders": {
+        "CPUExecutionProvider": 1344
+      },
+      "existingOutputRefusedAndPreserved": true
+    },
+    "heic": {
+      "chineseSpacesAndNonBmp": true,
+      "inputAndOutput": true,
+      "existingOutputRefusedAndPreserved": true
+    }
+  },
+  "releaseSanitizerAndPreviousOutputExact": {
+    "aiOriginalArtifacts": 9,
+    "aiAdditionalUnicodeRawMask": true,
+    "heicRawAndPngArtifacts": 50
+  },
+  "fixedCorpusHashesVerified": {
+    "base": 91,
+    "brush": 9,
+    "extended": 47,
+    "fonts": 11,
+    "invalid": 84,
+    "heic": 33
+  },
+  "sanitizers": {
+    "asan": true,
+    "ubsan": true,
+    "ai": "own C++ instrumented; prebuilt ORT not instrumented",
+    "heic": "own C++ plus already instrumented libheif/libde265",
+    "leakDetection": false
+  },
+  "windowsExecuted": false,
+  "windowsEntryPointCompiled": false,
+  "relocatedHeicBinaryRefreshed": false,
+  "macApplicationTestsRun": false,
+  "remoteWorkflowTriggered": false,
+  "productionFilesChanged": false,
+  "W009Passed": false,
+  "M1Passed": false,
+  "sha256": {
+    "experiments/windows/ai/probe.cpp": "931eb0a69531c4805219b80c97938ed654c04d5a2885f854a61fdb32321c071a",
+    "experiments/windows/ai/screen.py": "537ebcd2921e7f008f5ce13ad5fd189d7f244a2c60c9c62e30fc9363db0c54b2",
+    "experiments/windows/ai/README.md": "05b1e13aa4188185fe5a2b7b27e233539c08b95867511da1df65a72d65c1d4ee",
+    "experiments/windows/heic/probe.cpp": "3caa47ca76e3b0f33db9850d618bf11d36391f0976055f693c0a74ddc3b9453e",
+    "experiments/windows/heic/screen.py": "838de0714011e2183db5c24ac542b3e65b5ec46adc67a5602b10afcd3d45d903",
+    "experiments/windows/heic/README.md": "8b28ffc9426e50557b4f5c05184f6470848d8ad46ae279f307b00f4f79781f50"
+  },
+  "localEvidenceSha256": {
+    "ai-release/screening.json": "22a1acbafe38f3aa62093caa382c32ccb19ccbe184760d67338ce16c9bb316d0",
+    "ai-release-build.log": "93306e50dea9b6d045be0297993d66b78a5fe0c598dfa644609771471ec207e3",
+    "ai-release-screen.log": "22a1acbafe38f3aa62093caa382c32ccb19ccbe184760d67338ce16c9bb316d0",
+    "ai-sanitized/screening.json": "686d37c35a49331a7a2723b20083142bed5a65aebcfdeb57e7c34307a7fbbbf1",
+    "ai-sanitized-build.log": "93306e50dea9b6d045be0297993d66b78a5fe0c598dfa644609771471ec207e3",
+    "ai-sanitized-screen.log": "686d37c35a49331a7a2723b20083142bed5a65aebcfdeb57e7c34307a7fbbbf1",
+    "heic-release/screening.json": "0899c5d2b451c49d85af630623aa5515cc8715f28f5d4ca9e7c48be961114aed",
+    "heic-release-build.log": "83f8f1603b683f3b6a64da6e220abf0efd40f5fa9f437d9540f16a25b7d17438",
+    "heic-release-screen.log": "0899c5d2b451c49d85af630623aa5515cc8715f28f5d4ca9e7c48be961114aed",
+    "heic-sanitized/screening.json": "277b1c45ddbb10c0b8deb846d457b9efa43022d7324f58da915e578206e20b8e",
+    "heic-sanitized-build.log": "83f8f1603b683f3b6a64da6e220abf0efd40f5fa9f437d9540f16a25b7d17438",
+    "heic-sanitized-screen.log": "277b1c45ddbb10c0b8deb846d457b9efa43022d7324f58da915e578206e20b8e"
+  }
+}

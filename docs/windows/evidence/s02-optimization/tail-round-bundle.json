@@ -1,0 +1,14 @@
+{
+  "name": "s02-tail-round-20260922-154731.zip",
+  "bytes": 17829508,
+  "sha256": "48f9983a19b8bfeef943f31fd5f2f21d148d510b482d00321adce4c39a29bcdd",
+  "remoteSha256": "48f9983a19b8bfeef943f31fd5f2f21d148d510b482d00321adce4c39a29bcdd",
+  "crcPassed": true,
+  "entries": [
+    "s02-tail-20260922-150000.zip",
+    "s02-nativeformat-20260922-151024.zip",
+    "s02-tailtrim-20260922-151843.zip",
+    "s02-prescale-20260922-154152.zip",
+    "s02-prescale-repeat-20260922-154455.zip"
+  ]
+}

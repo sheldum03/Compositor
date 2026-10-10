@@ -1,0 +1,87 @@
+{
+  "platform": "macOS 26.5.1",
+  "cases": [
+    {
+      "file": "alpha-tiles.png",
+      "width": 259,
+      "height": 257,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-1.jpg",
+      "width": 23,
+      "height": 17,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-2.jpg",
+      "width": 23,
+      "height": 17,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-3.jpg",
+      "width": 23,
+      "height": 17,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-4.jpg",
+      "width": 23,
+      "height": 17,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-5.jpg",
+      "width": 17,
+      "height": 23,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-6.jpg",
+      "width": 17,
+      "height": 23,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-7.jpg",
+      "width": 17,
+      "height": 23,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "orientation-8.jpg",
+      "width": 17,
+      "height": 23,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "linear-profile.png",
+      "width": 8,
+      "height": 1,
+      "maximum": 0,
+      "pngRoundtripExact": true
+    },
+    {
+      "file": "transparent.jpg",
+      "maximum": 1,
+      "explicitBackground": true
+    },
+    {
+      "file": "half-red.jpg",
+      "maximum": 1,
+      "explicitBackground": true
+    }
+  ],
+  "rejectionChecks": 8,
+  "passed": true
+}

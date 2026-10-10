@@ -1,0 +1,25 @@
+{
+  "name": "s02-tailtrim-20260922-151843.zip",
+  "bytes": 3189535,
+  "sha256": "cff0471def2c69e0d8ab247e59c48d221e8c477bcd0c1aa9c80ff5011cabcaba",
+  "entries": 5,
+  "crcPassed": true,
+  "completed": true,
+  "trials": 62,
+  "renderScaling": 1.5,
+  "finalPixels": {
+    "empty": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    },
+    "existing": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    }
+  },
+  "nativePreview": null
+}

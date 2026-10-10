@@ -1,0 +1,50 @@
+{
+  "activeLayerID" : "00000000-0000-4000-9000-000000000010",
+  "colorSpace" : "sRGB",
+  "documentID" : "00000000-0000-4000-9000-000000000101",
+  "format" : "com.compositor.project",
+  "height" : 613,
+  "layers" : [
+    {
+      "id" : "00000000-0000-4000-9000-000000000010",
+      "imageFile" : "00000000-0000-4000-9000-000000000010.png",
+      "isVisible" : true,
+      "name" : "F11-300-point-center",
+      "opacity" : 0.65,
+      "text" : {
+        "alignment" : "center",
+        "alpha" : 0.8,
+        "blue" : 0.7,
+        "content" : "中文 English 🙂 é\n第二行 — spacing and tracking",
+        "fontPostScriptName" : "SourceHanSansSC-Regular",
+        "fontSizePoints" : 18,
+        "green" : 0.4,
+        "layout" : {
+          "point" : {
+
+          }
+        },
+        "lineSpacingPoints" : 3,
+        "red" : 0.15,
+        "trackingPoints" : 1.25
+      },
+      "transform" : {
+        "flipX" : true,
+        "flipY" : false,
+        "origin" : [
+          70.90858568914041,
+          190.3104272138273
+        ],
+        "rotation" : 13,
+        "sampling" : "High quality",
+        "size" : [
+          1185,
+          232
+        ]
+      }
+    }
+  ],
+  "resolution" : 300,
+  "version" : 8,
+  "width" : 1327
+}

@@ -1,0 +1,20 @@
+{
+  "evidenceSource": "Initially user-pasted summary; subsequently checked against the uploaded original archive. See artifactReview for independent PNG checks and Mac readback.",
+  "environmentEvidence": "native-probe-windows11.json",
+  "testPackageSha256": "d3dac08a54f8f34ae54019ea99a40d1b13faf8b5e70fdff734db75591edafef1",
+  "outputDirectory": "C:\\Users\\Administrator\\Desktop\\CompositorTest\\render-run-20260921-113945",
+  "summary": {
+    "Status": "preparation checks passed; Mac pixel differences are observations, not acceptance",
+    "WindowsExecuted": true,
+    "SampleCount": 20,
+    "PreviewExportMismatches": 0,
+    "SavedProjects": 20
+  },
+  "scope": "Existing fixed-corpus headless CPU Skia composition and renamed project round trips; no native editor window",
+  "limitations": [
+    "Mac reference differences independently confirmed: maximum channel error 2/255; no tolerance accepted",
+    "No real GUI, IME, DPI, GPU or performance acceptance",
+    "W-008 and M1 remain incomplete"
+  ],
+  "artifactReview": "windows11-artifact-review/review-summary.json"
+}

@@ -1,0 +1,10 @@
+--- a/experiments/windows/ai/CMakeLists.txt
++++ b/experiments/windows/ai/CMakeLists.txt
+@@ -15,3 +15,7 @@
+ else()
+     target_compile_options(ai_probe PRIVATE -Wall -Wextra -Werror)
+ endif()
++
++if(MINGW)
++    target_link_options(ai_probe PRIVATE -municode)
++endif()

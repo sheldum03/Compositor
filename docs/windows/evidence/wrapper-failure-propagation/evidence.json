@@ -1,0 +1,15 @@
+{
+  "platform": "macOS; PowerShell 7.6.0",
+  "purpose": "Negative test of actual PowerShell wrapper failure propagation, not Windows product execution",
+  "fault": "Load authentic Windows native DLL under macOS to force native process exit134",
+  "originalWrapperExit": 0,
+  "guardedWrapperExit": 1,
+  "probeExitBothRuns": 134,
+  "archivesBothPreserved": true,
+  "status": "Verified false-success reproduction and corrected failure signal; Windows PowerShell 5.1 still requires target validation",
+  "source": "Parent task independently executed a frozen wrapper and its guarded copy in an isolated macOS diagnostic directory; not a full Windows or current v2-package execution claim",
+  "scriptSha256": {
+    "run-text-fix.ps1": "ec3ec74a081b004f77954e9a9a3b3f9f920cdee1bfb4126a445d55dbccc30068",
+    "run-text-fix-guarded.ps1": "05ee54e9b2ebb49a13fe2c43da24581dc80ee127a064d94b7f07635390e31e16"
+  }
+}

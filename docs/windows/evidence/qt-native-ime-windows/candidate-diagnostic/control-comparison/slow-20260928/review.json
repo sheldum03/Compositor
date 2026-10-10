@@ -1,0 +1,560 @@
+{
+  "windowsExecuted": true,
+  "candidatePositionAccepted": false,
+  "archive": {
+    "name": "qt-ime-control-20260928-112124.zip",
+    "bytes": 7725,
+    "sha256": "834a95d7e17c211374fe2ce86f6281a9a724c548d52757fb9af0778e5de72dbb",
+    "crcPassed": true,
+    "memberHashesVerified": 7
+  },
+  "controls": [
+    {
+      "control": "textedit",
+      "pid": 35128,
+      "exitCode": 0,
+      "rows": 56,
+      "keyIntervalsSeconds": [
+        8.471,
+        7.106,
+        8.285,
+        10.785,
+        7.328,
+        6.885,
+        9.589
+      ],
+      "originalPreservedInSelectedSequence": true,
+      "closedOriginalPreserved": true,
+      "states": [
+        {
+          "utc": "2026-09-28T03:22:34.356Z",
+          "qtCursorRect": [
+            482.5,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            724,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              724,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              724,
+              197
+            ],
+            "style": 128
+          },
+          "preedit": "z",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:22:42.827Z",
+          "qtCursorRect": [
+            501.921875,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            753,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              753,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              753,
+              197
+            ],
+            "style": 128
+          },
+          "preedit": "zh",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:22:49.933Z",
+          "qtCursorRect": [
+            521.3125,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            782,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              782,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              782,
+              197
+            ],
+            "style": 128
+          },
+          "preedit": "zho",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:22:58.218Z",
+          "qtCursorRect": [
+            540.828125,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            811,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              811,
+              126,
+              2,
+              71
+            ],
+            "point": [
+              811,
+              197
+            ],
+            "style": 128
+          },
+          "preedit": "zhon",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T03:23:09.003Z",
+          "qtCursorRect": [
+            102.5625,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            154,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              154,
+              203,
+              1,
+              70
+            ],
+            "point": [
+              154,
+              273
+            ],
+            "style": 128
+          },
+          "preedit": "zhong",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:23:16.331Z",
+          "qtCursorRect": [
+            137.140625,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            206,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              206,
+              203,
+              1,
+              70
+            ],
+            "point": [
+              206,
+              273
+            ],
+            "style": 128
+          },
+          "preedit": "zhong'w",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:23:23.216Z",
+          "qtCursorRect": [
+            154.734375,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            232,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              232,
+              203,
+              2,
+              70
+            ],
+            "point": [
+              232,
+              273
+            ],
+            "style": 128
+          },
+          "preedit": "zhong'we",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:23:32.805Z",
+          "qtCursorRect": [
+            174.25,
+            135,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            261,
+            203
+          ],
+          "candidateForm": {
+            "area": [
+              261,
+              203,
+              2,
+              70
+            ],
+            "point": [
+              261,
+              273
+            ],
+            "style": 128
+          },
+          "preedit": "zhong'wen",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T03:23:45.110Z",
+          "qtCursorRect": [
+            467.3125,
+            84,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            701,
+            126
+          ],
+          "candidateForm": {
+            "area": [
+              701,
+              126,
+              1,
+              71
+            ],
+            "point": [
+              701,
+              197
+            ],
+            "style": 128
+          },
+          "preedit": "",
+          "lines": 1
+        }
+      ]
+    },
+    {
+      "control": "windowtext",
+      "pid": 28548,
+      "exitCode": 0,
+      "rows": 167,
+      "keyIntervalsSeconds": [
+        25.49,
+        8.003,
+        10.77,
+        19.169,
+        10.214,
+        9.419,
+        8.842
+      ],
+      "originalPreservedInSelectedSequence": true,
+      "closedOriginalPreserved": true,
+      "states": [
+        {
+          "utc": "2026-09-28T04:22:04.606Z",
+          "qtCursorRect": [
+            739.5,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1109,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1109,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1109,
+              566
+            ],
+            "style": 128
+          },
+          "preedit": "z",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T04:22:30.096Z",
+          "qtCursorRect": [
+            758.921875,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1138,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1138,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1138,
+              566
+            ],
+            "style": 128
+          },
+          "preedit": "zh",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T04:22:38.099Z",
+          "qtCursorRect": [
+            778.3125,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1167,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1167,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1167,
+              566
+            ],
+            "style": 128
+          },
+          "preedit": "zho",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T04:22:48.869Z",
+          "qtCursorRect": [
+            797.828125,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1197,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1197,
+              495,
+              1,
+              71
+            ],
+            "point": [
+              1197,
+              566
+            ],
+            "style": 128
+          },
+          "preedit": "zhon",
+          "lines": 1
+        },
+        {
+          "utc": "2026-09-28T04:23:08.038Z",
+          "qtCursorRect": [
+            359.5625,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            539,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              539,
+              572,
+              2,
+              70
+            ],
+            "point": [
+              539,
+              642
+            ],
+            "style": 128
+          },
+          "preedit": "zhong",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T04:23:18.252Z",
+          "qtCursorRect": [
+            394.140625,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            591,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              591,
+              572,
+              2,
+              70
+            ],
+            "point": [
+              591,
+              642
+            ],
+            "style": 128
+          },
+          "preedit": "zhong'w",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T04:23:27.671Z",
+          "qtCursorRect": [
+            411.734375,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            618,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              618,
+              572,
+              1,
+              70
+            ],
+            "point": [
+              618,
+              642
+            ],
+            "style": 128
+          },
+          "preedit": "zhong'we",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T04:23:36.513Z",
+          "qtCursorRect": [
+            431.25,
+            381,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            647,
+            572
+          ],
+          "candidateForm": {
+            "area": [
+              647,
+              572,
+              1,
+              70
+            ],
+            "point": [
+              647,
+              642
+            ],
+            "style": 128
+          },
+          "preedit": "zhong'wen",
+          "lines": 2
+        },
+        {
+          "utc": "2026-09-28T04:23:59.590Z",
+          "qtCursorRect": [
+            724.3125,
+            330,
+            1,
+            47
+          ],
+          "systemCaretPoint": [
+            1086,
+            495
+          ],
+          "candidateForm": {
+            "area": [
+              1086,
+              495,
+              2,
+              71
+            ],
+            "point": [
+              1086,
+              566
+            ],
+            "style": 128
+          },
+          "preedit": "",
+          "lines": 1
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Actual candidate position observed in CUA screenshots, not measured by IMM query; no screenshots in ZIP.",
+    "WindowText initial interrupted sequence and temporary rezdo text retained in raw logs; accepted diagnostic sequence starts 04:22:04 UTC after user recovery.",
+    "Slow input reproduces failure; no root cause or product acceptance inferred."
+  ]
+}

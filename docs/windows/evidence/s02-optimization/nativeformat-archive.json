@@ -1,0 +1,25 @@
+{
+  "name": "s02-nativeformat-20260922-151024.zip",
+  "bytes": 3189911,
+  "sha256": "c9ac32480b3417fe3f02bf12a057be4fe44926e6e2b6ea878e06cd0a952f4a2a",
+  "entries": 5,
+  "crcPassed": true,
+  "completed": true,
+  "trials": 62,
+  "renderScaling": 1.5,
+  "finalPixels": {
+    "empty": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    },
+    "existing": {
+      "differentPixels": 0,
+      "maximumChannelError": 0,
+      "width": 4000,
+      "height": 4000
+    }
+  },
+  "nativePreview": null
+}

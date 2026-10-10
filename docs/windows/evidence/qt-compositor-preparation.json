@@ -1,0 +1,148 @@
+{
+  "date": "2026-09-21",
+  "sourceBaseCommit": "bafbcce",
+  "scope": "W-007 composition and minimum round-trip preparation; not Windows execution or M1 acceptance",
+  "toolchain": {
+    "qt": "6.11.2",
+    "cmake": "3.31.6",
+    "compiler": "AppleClang 21.0.0.21000101",
+    "architecture": "arm64",
+    "aqtinstall": "3.3.0",
+    "python": "3.9.6",
+    "qtModules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "linkage": "dynamic",
+    "installedOutsideRepository": true
+  },
+  "qtArchive": {
+    "url": "https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_6112/qt6_6112/qt.qt6.6112.clang_64/6.11.2-0-202608131016qtbase-MacOS-MacOS_15-Clang-MacOS-MacOS_15-X86_64-ARM64.7z",
+    "bytes": 31039494,
+    "officialSha1": "898a61de33218d55538721ce35c61f973768cb07",
+    "officialSha1IndependentlyVerified": true,
+    "sha256": "9592f84f7e26d532c5c56824d1da7c9214a766cb0a17beb5af71022bcfbcd271",
+    "sbomSha256": "444f275a4facd2f90ac267ad741970fefab9570a503f68a3f23178ca16932427",
+    "declaredLicenses": [
+      {
+        "name": "Core",
+        "version": "6.11.2",
+        "declared": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+      },
+      {
+        "name": "Gui",
+        "version": "6.11.2",
+        "declared": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+      },
+      {
+        "name": "Widgets",
+        "version": "6.11.2",
+        "declared": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+      },
+      {
+        "name": "QOffscreenIntegrationPlugin",
+        "version": "6.11.2",
+        "declared": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+      }
+    ],
+    "D07DecisionMade": false
+  },
+  "releaseBuild": {
+    "configureExitCode": 0,
+    "buildExitCode": 0,
+    "newCppWarningsAsErrors": true,
+    "nativeContractTests": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "releaseRun": {
+    "exitCode": 0,
+    "specimens": 20,
+    "actualWidgetPaints": 20,
+    "previewExportExact": 20,
+    "pngRoundTripsExact": 20,
+    "renamedPackages": 20,
+    "packageFiles": 64,
+    "guardCasesRejected": 11,
+    "exactMacFixtures": [
+      "F01",
+      "F02",
+      "F04",
+      "F05",
+      "F06"
+    ],
+    "maximumMacChannelError": 1,
+    "maximumMacAlphaError": 0,
+    "referenceToleranceAccepted": false
+  },
+  "sanitizers": {
+    "asan": true,
+    "ubsan": true,
+    "instrumented": "experiment C++ and native C; prebuilt Qt uninstrumented",
+    "leakDetection": false,
+    "runExitCode": 0,
+    "nativeContractPassed": 1,
+    "outputPngAndPackageFilesByteEqualToRelease": 124
+  },
+  "macReadback": {
+    "suite": "WindowsFixtureTests",
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "testExecutionSeconds": 1.112,
+    "qtPackages": 20,
+    "avaloniaPackages": 20,
+    "testInput": "qt-compositor-02",
+    "finalOutput": "qt-compositor-03",
+    "finalPngAndPackageFilesByteEqualToTestInput": 124,
+    "fullMacSuiteRerun": false
+  },
+  "wholeProcessMacResourceObservation": {
+    "source": "/usr/bin/time -l",
+    "wallSeconds": 0.24,
+    "maximumResidentSetSizeBytes": 20791296,
+    "scope": "all twenty 64x48 specimens and guards; not Windows private memory, VRAM or 4K performance"
+  },
+  "fixedCorpusHashesVerified": 242,
+  "visualInspection": {
+    "artifact": "qt-compositor-contact-sheet.png",
+    "pillow": "11.3.0",
+    "result": "F04-F06 exact; F07 narrow RGB difference bands, alpha exact; model inspection only",
+    "priorAvaloniaMaskAndTextSheetsByteUnchanged": true
+  },
+  "outputDigest": {
+    "algorithm": "SHA-256 of UTF-8 compact JSON array of sorted {path,bytes,sha256} entries",
+    "files": 125,
+    "bytes": 114093,
+    "sha256": "ec65380b38a4568965113e1417370c33d3d27159cfe40b889d0c9ea9da746710"
+  },
+  "nativeLibrarySha256": "7e4beaa21744567512766fa3f25cf3cf5a83e8c4f4953931c70b2c315cb2a6f3",
+  "sha256": {
+    "experiments/windows/qt/.gitignore": "181314065df2f2fdaf920b1a8b5311daa216a2d6489a06ada5b49cc514d89417",
+    "experiments/windows/qt/CMakeLists.txt": "2f31a7fba224afd2885d5e467bdce1d470bfe5942248fe315f83ecbceaf21d52",
+    "experiments/windows/qt/README.md": "05668ff943309be4afa32a63942f64278aac6651021e247570484adf7f02ec57",
+    "experiments/windows/qt/composite.cpp": "243884dd7067d3ee8b3237ef7b7e9f93b486e4bec1f2fb06cd400aab8a12607f",
+    "experiments/windows/qt/installer-requirements.txt": "308a284a1274371cabdf9ff1c2bcd601a0a579b63715c09950b1032f93e98ef3",
+    "experiments/windows/qt/probe.cpp": "83eb8b0ccaeb036c321240b3d31599264efbcb170fcabb4287d140b63b6bb6c2",
+    "experiments/windows/qt/scene.cpp": "4a90aeb7419c096e22de015d1cd52dc3968eb832297d80e7fab320d8e3e52f65",
+    "experiments/windows/qt/scene.hpp": "4fc765f86ec1c1e0c5da7303a24625aa31ca1f84a44428488b6d92e08ea816af",
+    "CompositorTests/WindowsFixtureTests.swift": "45315aeb042b459ad0eb7c90f055fa1f8ae8065f1d708d0405267b2ddf54662c",
+    "scripts/windows/render-probe-contact-sheet.py": "40d682c483e0bc02ae3f0d5984fa67563b45e6510b9c622be93f9819bc83787c",
+    "docs/windows/evidence/qt-compositor-macos.json": "d774ef6a69881a10a97338c95093c0d7c031c34b191300a3dbdca202132e2cb8",
+    "docs/windows/evidence/qt-compositor-summary.json": "1bd6b2967218a2ddfb12234c14f48a7832d641413a27ba1d64d4bae8ec46a6a2",
+    "docs/windows/evidence/qt-compositor-contact-sheet.png": "510ee0a8e440151afdaebf67aa5111e17f7ef010aca370ed58d7f93defaa1f72"
+  },
+  "windowsExecuted": false,
+  "macProductionCodeChanged": false,
+  "nativeCChanged": false,
+  "M1Passed": false,
+  "remaining": [
+    "Qt full soft brush transaction/next stroke/undo path",
+    "Qt transformed text/shared layout/native IME",
+    "Distinct high-quality sampling and general transform path",
+    "Windows same-device execution/performance/deployment",
+    "Remaining M0 decisions and M2-M7 PRD/release gates"
+  ]
+}

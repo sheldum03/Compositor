@@ -1,0 +1,10 @@
+{
+  "host": "tencent-cpu-01",
+  "started": "2026-09-21 15:41:58",
+  "ended": "2026-09-21 15:42:06",
+  "exitCode": 0,
+  "completed": true,
+  "resultFile": "heic-server-results-ps51fix-20260921.zip",
+  "bytes": 19585,
+  "sha256": "c878380e7a4a2dd51b3066e3ff62eb5552daae47053778c274a2241a09d9c2f4"
+}

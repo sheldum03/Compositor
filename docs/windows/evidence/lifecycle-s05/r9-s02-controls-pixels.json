@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "images": [
+    {
+      "run": "r8",
+      "scenario": "empty",
+      "viewport": [
+        [
+          1500,
+          1500
+        ],
+        "75938f5b3fa6c5cfdbe803f05fc7ff05e05a2b7c4dcb4f5e26857ae9204d7eb9"
+      ],
+      "final": [
+        [
+          4000,
+          4000
+        ],
+        "9270050a9cfaacf0d19add99c18f5f6e574212d27525d634fbc8331ca0a0f165"
+      ]
+    },
+    {
+      "run": "r8",
+      "scenario": "existing",
+      "viewport": [
+        [
+          1500,
+          1500
+        ],
+        "72f6388f4e87af9ba0ee9ec4b868908034733c041bec534d9875a1919b865359"
+      ],
+      "final": [
+        [
+          4000,
+          4000
+        ],
+        "50858f900a461b82d3ec9679c0963e41e5880453c9b45828fe25903167cff316"
+      ]
+    },
+    {
+      "run": "previous-pass",
+      "scenario": "empty",
+      "viewport": [
+        [
+          1500,
+          1500
+        ],
+        "75938f5b3fa6c5cfdbe803f05fc7ff05e05a2b7c4dcb4f5e26857ae9204d7eb9"
+      ],
+      "final": [
+        [
+          4000,
+          4000
+        ],
+        "9270050a9cfaacf0d19add99c18f5f6e574212d27525d634fbc8331ca0a0f165"
+      ]
+    },
+    {
+      "run": "previous-pass",
+      "scenario": "existing",
+      "viewport": [
+        [
+          1500,
+          1500
+        ],
+        "72f6388f4e87af9ba0ee9ec4b868908034733c041bec534d9875a1919b865359"
+      ],
+      "final": [
+        [
+          4000,
+          4000
+        ],
+        "50858f900a461b82d3ec9679c0963e41e5880453c9b45828fe25903167cff316"
+      ]
+    }
+  ]
+}

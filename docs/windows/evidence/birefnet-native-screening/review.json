@@ -1,0 +1,30 @@
+{
+  "windowsExecuted": false,
+  "productionModelSelected": false,
+  "weightsRedistributionAccepted": false,
+  "host": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "python": "3.13.5",
+  "numpy": "2.3.5",
+  "Pillow": "12.2.0",
+  "sourceSha256": {
+    "experiments/windows/ai/probe.cpp": "636be28f04a6cfb0c1d16f82e9cf6a33ebc112e4187af13815359cb839b2a48d",
+    "experiments/windows/ai/CMakeLists.txt": "80d58c1cfb1a713d81e3fe86812c84b93336253a088cc4261c316d2ab24bfb19",
+    "experiments/windows/ai/screen-birefnet.py": "7f2d2428f76526b8fae6f00c4299aba1308bb065ac6b0a5f8c1d84b0abf0ffe7",
+    "experiments/windows/ai/review-active-cancel.py": "089982aa372d786a71505fb5c5099376a625315b0088a49376c2b604842ebc0e"
+  },
+  "baselineCommit": "febf508",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "cmakeVersion": "3.31.10",
+  "sdkArchiveSha256": "6ebb5062a934537c352937821f9fe9718e7de1a2db1122a93dd363ffd53a7012",
+  "builds": [
+    "Direct clang++ C++17 O3 NDEBUG warnings as errors",
+    "CMake Release both targets"
+  ],
+  "macReadback": {
+    "exitCode": 0,
+    "passed": 1,
+    "skipped": 0,
+    "logSha256": "062040974dc905d521a838839dae996bc03e49e1ad06742e54e8e3fa752785bf"
+  },
+  "scope": "Native Mac feasibility only; Windows, quality, UI transactions, resource and release acceptance remain open"
+}

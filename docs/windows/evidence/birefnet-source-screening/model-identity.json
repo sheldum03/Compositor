@@ -1,0 +1,39 @@
+{
+  "bytes": 224005088,
+  "sha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+  "githubAssetId": 186739942,
+  "remoteDigest": null,
+  "downloadedFromOfficialReleaseApi": true,
+  "finalRanges": [
+    {
+      "start": 221606267,
+      "end": 222130554,
+      "bytes": 524288
+    },
+    {
+      "start": 222130555,
+      "end": 222654842,
+      "bytes": 524288
+    },
+    {
+      "start": 222654843,
+      "end": 223179130,
+      "bytes": 524288
+    },
+    {
+      "start": 223179131,
+      "end": 223703418,
+      "bytes": 524288
+    },
+    {
+      "start": 223703419,
+      "end": 224005087,
+      "bytes": 301669
+    }
+  ],
+  "previousAttempts": [
+    "Direct GitHub connection timeout",
+    "First API stream stopped at local time budget",
+    "Two resumed streams ended short and were rejected by total-size check; partial file preserved"
+  ]
+}

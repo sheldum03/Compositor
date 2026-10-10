@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "referenceCases": 3,
+  "provisionalAndFinalExact": true,
+  "pointerStroke": "single commit, Escape/capture-loss/close cancellation, source snapshot and other layer preserved",
+  "viewport": "zoom anchor, middle-button and Space plus left-button pan in logical coordinates",
+  "limits": "Headless input at 300x300; no native Windows/DPI/pressure or S02 performance claim."
+}

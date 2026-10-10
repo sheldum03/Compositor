@@ -1,0 +1,983 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "processId": 42996,
+  "title": "Compositor \u2014 Windows \u539F\u578B\u9A8C\u8BC1 \u00B7 native-20260923-224035",
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 36,
+  "textInputEvents": 2,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1,
+  "textState": {
+    "text": "\u4E2D\u6587 English \uD83D\uDE42\n\u8BF7\u5207\u6362\u5FAE\u8F6F\u62FC\u97F3\uFF0C\u5728\u8FD9\u91CC\u8F93\u5165\u3001\u53D6\u6D88\u548C\u786E\u8BA4\u3002",
+    "selectedText": "",
+    "caretIndex": 2,
+    "selectionStart": 2,
+    "selectionEnd": 2,
+    "preedit": null,
+    "angle": 13,
+    "zoom": 1,
+    "flipX": true,
+    "flipY": true,
+    "stretchX": 0.75,
+    "renderScaling": 1,
+    "nativePreeditChanges": 36,
+    "textInputEvents": 2
+  },
+  "events": [
+    {
+      "utc": "2026-09-23T14:40:36.9781214Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T14:40:37.4881605Z",
+      "name": "native-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1.5
+      }
+    },
+    {
+      "utc": "2026-09-23T14:40:37.5044985Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T15:18:34.3859454Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T15:18:34.5910518Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T15:18:35.0673287Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T15:34:19.077686Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:29:08.0329047Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:29:33.1618962Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:29:33.2028238Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:29:33.8797155Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:29:41.6206183Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:29:41.6575658Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:29:52.0463983Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:29:52.1716923Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:29:52.1884535Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:29:52.2422014Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-24T09:29:52.2956459Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-24T09:29:52.313697Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:02.092586Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:02.5748206Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:30:02.6099653Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:13.9015803Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:30:14.0619751Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:14.0686411Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:14.100631Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:14.1309062Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:14.1483552Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:20.3416965Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:20.342204Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:20.758515Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:30:20.8030653Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:27.9984888Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:30:28.4829766Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:30:28.5193993Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:39.3273708Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:30:39.7940543Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:30:39.8316949Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:50.1722188Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:30:50.6389497Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:30:50.6759722Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:50.8674188Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-24T09:30:50.8674253Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-24T09:30:50.9027615Z",
+      "name": "brush-render-thread",
+      "thread": 87,
+      "onUiThread": false,
+      "data": 87
+    },
+    {
+      "utc": "2026-09-24T09:30:58.8631156Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-24T09:30:58.863116Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 0
+    },
+    {
+      "utc": "2026-09-24T09:30:59.66876Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:30:59.7240217Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:59.7283838Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:59.7444175Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:59.7751597Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-24T09:30:59.7953937Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:06.5113246Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:07.0225002Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:31:07.0576091Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:17.0147944Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:31:17.4999065Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:31:17.5411904Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:18.2183066Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:31:18.7516117Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:31:18.7924509Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:28.466943Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:31:28.5222397Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:28.5277767Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:28.5597834Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:28.5845183Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:28.5985292Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:37.1294418Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:31:37.637515Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:31:37.6718525Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:32:01.9210087Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:32:42.9517088Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:32:43.1581743Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:32:43.3796737Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-24T09:32:43.8211834Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:01.3045707Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:33:01.3401218Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:01.3438007Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:01.3525189Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:01.3930124Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:01.4137427Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:10.2758672Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:10.9958423Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:33:11.0359244Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:30.3836554Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:33:30.4346754Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:30.4412319Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:30.4713311Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:30.4920962Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:30.5074127Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:40.652992Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:40.6534558Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:41.2651314Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:33:41.301037Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:33:53.2555577Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:33:53.8430402Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:33:53.8784868Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:34:03.4335938Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:34:04.0353834Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:34:04.0646644Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:34:16.3160717Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-24T09:34:16.8966823Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-24T09:34:16.9286307Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-24T09:34:26.8051846Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-24T09:34:26.806552Z",
+      "name": "native-window-closed",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    }
+  ]
+}

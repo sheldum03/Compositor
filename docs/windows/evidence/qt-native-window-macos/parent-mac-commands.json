@@ -1,0 +1,18 @@
+[
+  [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "-S",
+    "/tmp/compositor-qt-window-parent/source/experiments/windows/qt",
+    "-B",
+    "/tmp/compositor-qt-window-parent/build-mac",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_PREFIX_PATH=/tmp/compositor-qt-6.11.2/6.11.2/macos"
+  ],
+  [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "--build",
+    "/tmp/compositor-qt-window-parent/build-mac",
+    "--parallel",
+    "4"
+  ]
+]

@@ -1,0 +1,19 @@
+{
+  "status": "local regression passed; Windows user reproduction pending",
+  "windowsExecuted": false,
+  "cases": 24,
+  "before": {
+    "invisibleSelections": 24,
+    "incorrectSelections": 12
+  },
+  "backgroundOnly": {
+    "invisibleSelections": 24,
+    "incorrectSelections": 0
+  },
+  "after": {
+    "invisibleSelections": 0,
+    "incorrectSelections": 0
+  },
+  "existingTextPngsByteIdentical": 60,
+  "userObservation": "Windows 11: 100% horizontal flip still cannot accurately drag-select 测试; typing 1 did not exactly replace the two characters. Normal-direction check pending."
+}

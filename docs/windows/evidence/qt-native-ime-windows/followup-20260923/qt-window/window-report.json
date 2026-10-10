@@ -1,0 +1,200 @@
+{
+    "brushEvents": [
+    ],
+    "brushFailure": "",
+    "brushPaints": 0,
+    "checks": {
+    },
+    "errors": [
+    ],
+    "nativeImeAccepted": false,
+    "os": "Windows 11 Version 25H2",
+    "platformPlugin": "windows",
+    "previewBuffer": "one viewport-sized premultiplied image at device pixel ratio, SourceOver on white; no full 4K preview export",
+    "productAccepted": false,
+    "qt": "6.11.2",
+    "saves": [
+        {
+            "commitEventsObserved": 0,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/001-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 8,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/002-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 18,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/003-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 26,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/004-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 34,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/005-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 34,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/006-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 34,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/007-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 34,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/008-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 39,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/009-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 39,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/010-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 39,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/011-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 44,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 2,
+            "content": "中文输入 / Windows IME\nSelect, replace, undo, redo. 😀中文",
+            "directory": "C:/Users/Administrator/Desktop/CompositorTest/native-input-20260922-175634/qt-window/012-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 44,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        }
+    ],
+    "syntheticCheckMode": false,
+    "windowsExecuted": true
+}

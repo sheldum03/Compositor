@@ -1,0 +1,33 @@
+{
+  "sourceCommit": "a869a69a02dd4c78c483a31dc0165412d273e5c9",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "utc": "2026-09-23T14:40:35.472140+00:00",
+  "manifestSha256": "83687eb1b7c30d1896f86ac91d04eb64cdcb26134330d7081dc61d2a3f87145f",
+  "processes": [
+    {
+      "name": "runtime",
+      "pid": 49608,
+      "arguments": [
+        "--info"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "native",
+      "pid": 42996,
+      "arguments": [
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-224035\\app\\Compositor.AvaloniaProbe.dll",
+        "--window",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\remote-suite\\fixtures",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\avalonia-ime-matrix-20260923-224035\\native-20260923-224035",
+        "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-run-20260921-111947\\compositor_native.dll"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "nativeImeAccepted": false,
+  "systemDpiAccepted": false,
+  "runMode": "native-only",
+  "dllSha256": "55909cba56a66a4a2d38eafa28351d2739a3882aadcd39c747d473a6e970aa1a",
+  "executionCompleted": true
+}

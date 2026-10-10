@@ -1,0 +1,25 @@
+[  4%] Building C object native/CMakeFiles/compositor_native.dir/bridge.c.obj
+[  9%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/ContentFill.c.obj
+[ 13%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/BrushPixels.c.obj
+[ 18%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/AdjustPixels.c.obj
+[ 22%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/HealPixels.c.obj
+[ 27%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/LensPixels.c.obj
+[ 31%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/LevelsPixels.c.obj
+[ 36%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/NoisePixels.c.obj
+[ 40%] Building C object native/CMakeFiles/compositor_native.dir/Users/admin/.codex/worktrees/192b/Compositor/Compositor/Rendering/WandPixels.c.obj
+[ 45%] Linking C shared library libcompositor_native.dll
+[ 45%] Built target compositor_native
+[ 50%] Running rcc for resource text_fonts
+[ 54%] Building CXX object native/CMakeFiles/native_contract_tests.dir/contract_tests.cpp.obj
+[ 59%] Building CXX object CMakeFiles/qt_probe.dir/probe.cpp.obj
+[ 63%] Building CXX object CMakeFiles/qt_probe.dir/scene.cpp.obj
+[ 68%] Building CXX object CMakeFiles/qt_probe.dir/composite.cpp.obj
+[ 72%] Linking CXX executable native_contract_tests.exe
+[ 77%] Building CXX object CMakeFiles/qt_probe.dir/brush.cpp.obj
+[ 81%] Building CXX object CMakeFiles/qt_probe.dir/brush_probe.cpp.obj
+[ 86%] Building CXX object CMakeFiles/qt_probe.dir/text_probe.cpp.obj
+[ 86%] Built target native_contract_tests
+[ 90%] Building CXX object CMakeFiles/qt_probe.dir/window.cpp.obj
+[ 95%] Building CXX object CMakeFiles/qt_probe.dir/.qt/rcc/qrc_text_fonts.cpp.obj
+[100%] Linking CXX executable qt_probe.exe
+[100%] Built target qt_probe

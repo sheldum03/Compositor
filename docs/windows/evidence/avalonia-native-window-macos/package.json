@@ -1,0 +1,13 @@
+{
+  "archive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/windows11-test-kit/CompositorWindowTest.zip",
+  "bytes": 46859313,
+  "sha256": "63d489a89a1899a59cf238ae8bb6f90cd4f492c6d4023f30846ccb379137b163",
+  "manifestFiles": 402,
+  "crc": "passed",
+  "eachFileIdentityVerified": true,
+  "assemblySha256": "6214da989f8d527d11a2bc78cce70c8ddc6b939d70e067bc5b73e094cd811bec",
+  "windowsExecuted": false,
+  "scope": "Private native window prototype; reuse verified Windows native DLL and portable .NET runtime",
+  "wrapperSyntax": "PowerShell 7.6 parser passed; target Windows PowerShell 5.1 not executed",
+  "TmdsLicenseSource": "https://raw.githubusercontent.com/tmds/Tmds.DBus/8cb04f66c330b64244e996ff68f685f27f7381a0/COPYING"
+}

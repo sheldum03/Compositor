@@ -1,0 +1,52 @@
+{
+  "first": {
+    "rawSamplesValidated": true,
+    "localCheckOnly": false,
+    "sampledPrivatePeak": 208748544,
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "measuredFrames": 3600,
+        "updateP95": 25.2633,
+        "commitP95": 23.4304,
+        "updatePassed": false,
+        "commitPassed": true
+      },
+      {
+        "scenario": "existing",
+        "measuredFrames": 3600,
+        "updateP95": 27.5309,
+        "commitP95": 19.4789,
+        "updatePassed": false,
+        "commitPassed": true
+      }
+    ],
+    "proposedS02NumbersPassed": false,
+    "scope": "Queued callback after Qt raster paint/endPaint/flush returns, including scheduling; not physical presentation or a framework ranking. PNG files and unobscured native viewport require separate review."
+  },
+  "repeat": {
+    "rawSamplesValidated": true,
+    "localCheckOnly": false,
+    "sampledPrivatePeak": 207814656,
+    "scenarios": [
+      {
+        "scenario": "empty",
+        "measuredFrames": 3600,
+        "updateP95": 25.7781,
+        "commitP95": 23.9221,
+        "updatePassed": false,
+        "commitPassed": true
+      },
+      {
+        "scenario": "existing",
+        "measuredFrames": 3600,
+        "updateP95": 27.2503,
+        "commitP95": 21.2298,
+        "updatePassed": false,
+        "commitPassed": true
+      }
+    ],
+    "proposedS02NumbersPassed": false,
+    "scope": "Queued callback after Qt raster paint/endPaint/flush returns, including scheduling; not physical presentation or a framework ranking. PNG files and unobscured native viewport require separate review."
+  }
+}

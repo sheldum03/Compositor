@@ -1,0 +1,57 @@
+{
+  "onnxruntime": {
+    "version": "1.30.0",
+    "sourceCommit": "f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7",
+    "macArchive": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.30.0/onnxruntime-osx-arm64-1.30.0.tgz",
+      "bytes": 42373116,
+      "sha256": "6ebb5062a934537c352937821f9fe9718e7de1a2db1122a93dd363ffd53a7012",
+      "matchesPublishedGithubDigest": true
+    },
+    "windowsArchive": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.30.0/onnxruntime-win-x64-1.30.0.zip",
+      "bytes": 82645522,
+      "publishedSha256": "c6ba983baf5681af108599675d2a89c2d145512d02de28aed0bff177cd0ba949",
+      "downloadedAndDigestVerified": true,
+      "executed": false
+    },
+    "runtimeLibrary": {
+      "bytes": 43879424,
+      "sha256": "bcc9110f9d638a119de2db7afb3ba9a1da8085f0cb3401e1c48ae1caf450b6fa"
+    },
+    "licenseFiles": {
+      "LICENSE": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+      "ThirdPartyNotices.txt": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3",
+      "Privacy.md": "9703b86132bbe407a7138f9a45689e6996a8ab0ac670529d3699ce753f67538e"
+    },
+    "license": "MIT with included third-party notices; not a final Windows package license inventory"
+  },
+  "model": {
+    "name": "U2NetP",
+    "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx",
+    "bytes": 4574861,
+    "sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+    "upstreamAdapterMd5": "8e83ca70e441ab06c318d82300c84806",
+    "adapterCommit": "202e42649a8492a7c49f808de36608a7d1cbbfe3",
+    "upstreamArchitectureCommit": "ac7e1c817ecab7c7dff5ce6b1abba61cd213ff29",
+    "architectureRepositoryLicense": "Apache-2.0",
+    "convertedWeightsStandaloneLicenseVerified": false,
+    "redistributionApproved": false
+  },
+  "sample": {
+    "name": "NASA Eileen Collins astronaut photograph, scikit-image 512px sample",
+    "url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/astronaut.png",
+    "bytes": 791555,
+    "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+    "rightsSource": "https://scikit-image.org/docs/0.25.x/api/skimage.data.html#skimage.data.astronaut",
+    "rightsStatement": "NASA photograph; public domain / no known copyright restrictions according to scikit-image documentation"
+  },
+  "pinnedSourceSha256": {
+    "rembg-base.py": "ec4c58b33dd47ad6f03883ee375353314b19d5688fffd5c1ddb57bb21e9846a3",
+    "rembg-u2netp.py": "239e7ef52ed6eb53e0fcf191d9c6266d6299d4527b92bf6f384c37850498d8e2",
+    "u2net-license": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "rembg-license": "90a3215072968fd304669c5389f04f1274a587abdd0507d99dead0f5511f8999"
+  },
+  "weightsAndRuntimeCommitted": false,
+  "userImageUploaded": false
+}

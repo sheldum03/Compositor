@@ -1,0 +1,48 @@
+qt.qpa.input.methods: startComposition QTextEdit(0x2447f001500) QWidgetWindow(0x2447f00ed90, name="QWidgetClassWindow") language= 2052
+qt.qpa.input.methods: cursorRectChanged QRect(701,126 1x71)
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(724,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(724,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(724,126 1x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(753,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(753,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(753,126 1x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(782,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(782,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(782,126 1x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(811,126 2x71)
+qt.qpa.input.methods: cursorRectChanged QRect(811,126 2x71)
+qt.qpa.input.methods: cursorRectChanged QRect(811,126 2x71)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(154,203 1x70)
+qt.qpa.input.methods: cursorRectChanged QRect(154,203 1x70)
+qt.qpa.input.methods: cursorRectChanged QRect(154,203 1x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(206,203 1x70)
+qt.qpa.input.methods: cursorRectChanged QRect(206,203 1x70)
+qt.qpa.input.methods: cursorRectChanged QRect(206,203 1x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(232,203 2x70)
+qt.qpa.input.methods: cursorRectChanged QRect(232,203 2x70)
+qt.qpa.input.methods: cursorRectChanged QRect(232,203 2x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(261,203 2x70)
+qt.qpa.input.methods: cursorRectChanged QRect(261,203 2x70)
+qt.qpa.input.methods: cursorRectChanged QRect(261,203 2x70)
+qt.qpa.input.methods: < composition sending markup= 2  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: > composition QTextEdit(0x2447f001500) "COMPSTR COMPATTR CURSORPOS COMPCLAUSE "  composing= true
+qt.qpa.input.methods: cursorRectChanged QRect(701,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(701,126 1x71)
+qt.qpa.input.methods: cursorRectChanged QRect(701,126 1x71)
+qt.qpa.input.methods: < composition sending markup= 1  commit= ""  to  QTextEdit(0x2447f001500)  returns  true
+qt.qpa.input.methods: endComposition false 0x100848

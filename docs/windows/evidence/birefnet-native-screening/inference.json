@@ -1,0 +1,15 @@
+{
+  "onnxruntime": "1.30.0",
+  "execution": "CPU default; one intra/inter-op thread; sequential",
+  "imageSide": 1024,
+  "outputCount": 1,
+  "outputSemantics": "logits",
+  "sessionLoadMilliseconds": 1337.398083,
+  "inferenceMilliseconds": [10041.132709, 9669.977208, 9398.957417],
+  "outputMinimum": -19.4603481293,
+  "outputMaximum": 25.2114620209,
+  "repeatedPredictionsExact": true,
+  "preTerminatedRunRejected": true,
+  "sessionRecovered": true,
+  "activeInferenceCancellationTested": true
+}

@@ -1,0 +1,17 @@
+{
+  "name": "s02-direct-20260922-141439.zip",
+  "bytes": 3193343,
+  "sha256": "ea2081e6d661469e77a8a7eb6910f7237d6c27859e9c17a6f1e88374d8554fb7",
+  "entries": 5,
+  "crcPassed": true,
+  "pixelComparison": [
+    {
+      "name": "empty-final.png",
+      "differentPixels": 0
+    },
+    {
+      "name": "existing-final.png",
+      "differentPixels": 0
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "bytes": 7717659,
+  "sha256": "61d074d63aa28eba01cedc97730140a32f70d64fa3c80617624b4b5e0037c738",
+  "manifestFiles": 27,
+  "crcPassed": true,
+  "onnxWeightFiles": 0,
+  "windowsExecuted": false
+}

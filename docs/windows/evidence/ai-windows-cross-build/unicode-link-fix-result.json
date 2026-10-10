@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "--build",
+    "/tmp/compositor-parent-ai-windows/build",
+    "--parallel",
+    "4"
+  ],
+  "exitCode": 0
+}

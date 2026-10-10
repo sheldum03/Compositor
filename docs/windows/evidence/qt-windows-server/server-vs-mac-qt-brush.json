@@ -1,0 +1,16 @@
+[
+  {
+    "stage": "first",
+    "macQtBaseline": "/tmp/compositor-qt-brush-02",
+    "differentPixels": 0,
+    "maximumPremultipliedChannelError": 0,
+    "maximumAlphaError": 0
+  },
+  {
+    "stage": "final",
+    "macQtBaseline": "/tmp/compositor-qt-brush-02",
+    "differentPixels": 0,
+    "maximumPremultipliedChannelError": 0,
+    "maximumAlphaError": 0
+  }
+]

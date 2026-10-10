@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "9f7e6428b026e2b5b1be3b48715a6daf2a2315fe",
+  "path": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-report-r7-preparation/CompositorS05ReportR7.zip",
+  "bytes": 13869024,
+  "sha256": "be871b29213ccc0a0a8a8562005102db68313e93da25e185e141ad25e4b7b413",
+  "dllSha256": "4ec66edd0fb8946853c2b0f88695bfdc0a984e474583212c998bb2e6e42bd75f",
+  "baseDllSha256": "2ccf8ba6615f9d9389385610a17e4b70327095962a0f6c5e3923fbad3226508e",
+  "checkedDependencies": 29,
+  "windowsExecuted": false
+}

@@ -1,0 +1,22 @@
+[
+  [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "-S",
+    "/private/tmp/compositor-parent-qt-windows/source/experiments/windows/qt",
+    "-B",
+    "/private/tmp/compositor-parent-qt-windows/build",
+    "-G",
+    "Unix Makefiles",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_TOOLCHAIN_FILE=/private/tmp/compositor-parent-qt-windows/toolchain.cmake",
+    "-DCMAKE_PREFIX_PATH=/private/tmp/compositor-parent-qt-windows/qt",
+    "-DQT_HOST_PATH=/tmp/compositor-qt-6.11.2/6.11.2/macos"
+  ],
+  [
+    "/tmp/compositor-windows-cmake-venv/bin/cmake",
+    "--build",
+    "/private/tmp/compositor-parent-qt-windows/build",
+    "--parallel",
+    "4"
+  ]
+]

@@ -1,0 +1,4092 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "processId": 40532,
+  "title": "Compositor \u2014 Windows \u539F\u578B\u9A8C\u8BC1 \u00B7 native-20260923-185914",
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 208,
+  "textInputEvents": 10,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1,
+  "textState": {
+    "text": "\u4E2D\u6587 English \uD83D\uDE42\n\u8BF7\u5207\u6362\u5FAE\u8F6F\u62FC\u97F3\uFF0C\u5728\u8FD9\u91CC\u8F93\u5165\u3001\u53D6\u6D88\u548C\u786E\u8BA4\u3002",
+    "selectedText": "",
+    "caretIndex": 0,
+    "selectionStart": 0,
+    "selectionEnd": 0,
+    "preedit": null,
+    "angle": 0,
+    "zoom": 1,
+    "flipX": false,
+    "flipY": false,
+    "stretchX": 1,
+    "renderScaling": 1,
+    "nativePreeditChanges": 208,
+    "textInputEvents": 10
+  },
+  "events": [
+    {
+      "utc": "2026-09-23T10:59:35.3095626Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:35.7998228Z",
+      "name": "native-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1.5
+      }
+    },
+    {
+      "utc": "2026-09-23T10:59:35.8193896Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:09:41.7587959Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:09:41.9778344Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:09:53.735257Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:09:59.5527701Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:09:59.5708313Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:09:59.612441Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:09:59.6502741Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:09:59.6558813Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:06.3465299Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:15.2369641Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:10:15.2756049Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:22.7599781Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:10:22.8593918Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:22.863085Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:22.8674935Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:22.8843626Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:22.8983812Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:27.5871322Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:27.5875331Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:36.2395348Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:10:36.2908606Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:37.3382382Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:10:46.5031896Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:10:46.5379044Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:47.5850231Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:10:55.5590986Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:10:55.596626Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:56.6713711Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:10:57.5448951Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:10:57.5469821Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:10:57.7336826Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:06.661498Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:07.6392694Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:11:07.6848248Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:07.6902157Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:07.6999964Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:07.7228886Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:07.7330555Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:22.8376503Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:23.2876129Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:11:23.3240719Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:30.0940474Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:11:30.133641Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:30.1375076Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:30.1452879Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:30.1651665Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:30.1730309Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:39.0230804Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:39.0231484Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:39.4706998Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:11:39.52288Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:40.6083002Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:11:41.072152Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:11:41.1079366Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:42.2132304Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:11:42.6732343Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:11:42.7114805Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:56.9709555Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:11:57.4551272Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:11:57.4573376Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:57.7455219Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:11:57.9176083Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:09.2833837Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:12:09.331122Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:09.3349606Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:09.3420417Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:09.3565131Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:09.3712549Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:25.8937448Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:26.3682778Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:12:26.4054978Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:27.5141179Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:12:27.5528379Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:27.5570077Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:27.6340016Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:27.6387287Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:27.6445733Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:35.6147921Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:35.6148233Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:36.0935648Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:12:36.1493562Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:37.2663467Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:12:37.7282596Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:12:37.7661746Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:38.8923714Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:12:39.364287Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:12:39.4020154Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:47.3380616Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:12:47.8385845Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:12:47.841092Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 0.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:48.2482601Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:58.850105Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:12:58.8946251Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:58.8984929Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:58.9040507Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:58.9204174Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:12:58.9363432Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:05.9599454Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:06.4239239Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:13:06.4593987Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:07.5487668Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:13:07.5921858Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:07.5963052Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:07.6115608Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:07.629797Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:07.6398801Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:15.3326586Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:15.3326893Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:15.7335859Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:13:15.782742Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:16.9084437Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:13:17.3369759Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:13:17.3744364Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:18.4901667Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:13:19.0200587Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:13:19.0563274Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:31.1175634Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:13:31.6332726Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:13:31.6355505Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:31.842994Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:32.1090358Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:32.2604911Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:32.4770855Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:32.9084838Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:54.5382884Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:55.6048026Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:13:55.7174193Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:55.7215999Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:55.7437147Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:55.7518462Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:13:55.7585735Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:05.8411524Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:06.2686545Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:14:06.3072713Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:07.3755446Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:14:07.4245503Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:07.428712Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:07.4379464Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:07.4561791Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:07.4648702Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:16.4974235Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:16.497522Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:16.9463097Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:14:16.9939747Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:18.0320704Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:14:18.4807988Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:14:18.5173448Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:19.5682858Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:14:20.0157259Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:14:20.0552891Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:32.2439553Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:14:32.7279626Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:14:32.7324097Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-23T11:14:32.732411Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-23T11:14:32.7538626Z",
+      "name": "brush-render-thread",
+      "thread": 14,
+      "onUiThread": false,
+      "data": 14
+    },
+    {
+      "utc": "2026-09-23T11:14:41.0594733Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-23T11:14:41.0594742Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 0
+    },
+    {
+      "utc": "2026-09-23T11:14:42.2104558Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:14:42.2427075Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:42.2569133Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:42.2626162Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:42.2863435Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:42.293512Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:48.2212863Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:14:48.659752Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:14:48.6917861Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:14.253827Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:15:14.6865978Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:15:14.7257433Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:15.7749863Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:15:16.2391439Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:15:16.2797586Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.4047309Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:15:31.4309546Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.4422598Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.4644741Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.4957547Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5080137Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5205181Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5260086Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5370096Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 11
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5503405Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 12
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5663504Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 13
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5834936Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 15
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5891572Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 16
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5939915Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 18
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.5983715Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 19
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6054801Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 20
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6170026Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 22
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6247144Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 23
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6295478Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 25
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6369399Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 26
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6478001Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 27
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6617907Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 29
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6695992Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 30
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6782369Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 32
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6895452Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 33
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.6942434Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 34
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7031706Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 36
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7148522Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 37
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7279034Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 39
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.740591Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 40
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7462627Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 41
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7518986Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 43
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7645458Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 44
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7739302Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 46
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.7887642Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 47
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.8025858Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 48
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.8095631Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 50
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.8149504Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 51
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.8215522Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 53
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.8356843Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 54
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:31.8493777Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 55
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:44.8782507Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:45.3375775Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:15:45.3738723Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:46.1186226Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:46.3357197Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:47.1267601Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.5278702Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:15:55.5553875Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.5626398Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.6019722Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.6360912Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.662435Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.6671508Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.6772745Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.688774Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 11
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.6981621Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 12
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7030136Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 13
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7086125Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 15
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7175068Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 16
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7274899Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 18
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.741143Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 19
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.747962Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 20
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7704115Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 22
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7795146Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 23
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.7901541Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 25
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8042619Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 26
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8109554Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 27
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8213613Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 29
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8322377Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 30
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8376196Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 32
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8430752Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 33
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8533195Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 34
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8666801Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 36
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.87232Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 37
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8805241Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 39
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.8925788Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 40
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9019923Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 41
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9146334Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 43
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.920694Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 44
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9266824Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 46
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9408807Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 47
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9513788Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 48
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9627505Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 50
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9700065Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 51
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9759829Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 53
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9877751Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 54
+      }
+    },
+    {
+      "utc": "2026-09-23T11:15:55.9973587Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 55
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:09.291189Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:09.7606405Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:16:09.8089469Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:10.96524Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:16:11.0088993Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:11.0132479Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:11.0353673Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:11.049655Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:11.0558542Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:21.1461576Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:21.6210894Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:16:21.65657Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:22.7661116Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:16:22.8161882Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:22.8219996Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:22.8456534Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:22.8574165Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:22.8644193Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:31.3326268Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:31.3326633Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:31.7981399Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:16:31.8519614Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:32.9874219Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:16:33.4166018Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:16:33.4577503Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:34.5620489Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:16:35.0846967Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:16:35.1192767Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:55.2379597Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:16:55.2705942Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:16:55.2736991Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:55.2786281Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:16:55.9130989Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:15.9147172Z",
+      "name": "display-scaling",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-23T11:19:37.9075749Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:45.9262128Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:19:45.9757988Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:45.9812754Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:45.9885619Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:46.0103094Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:46.0391131Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:58.0353296Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:58.5223452Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:19:58.5600399Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:59.6509977Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:19:59.6960826Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:59.7022517Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:59.7263489Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:59.7387914Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:19:59.744461Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:08.7525664Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:08.7526054Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:09.2180361Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:20:09.2565524Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:10.3368137Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:20:10.8188363Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:20:10.8561401Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:11.9504847Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:20:12.4370366Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:20:12.4728286Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:31.5890651Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:20:32.1064499Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:20:32.1086533Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:32.3022446Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:32.5841132Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:32.7176799Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:32.9401201Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:33.182109Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:43.1027394Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:20:43.1527217Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:43.1570426Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:43.1717976Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:43.1943581Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:43.2033113Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:50.623944Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:51.1089325Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:20:51.1441867Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:52.2782542Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:20:52.3244636Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:52.3309455Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:52.3375053Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:52.3622376Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:20:52.3695213Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:00.9710538Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:00.9710896Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:01.4535821Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:21:01.4943023Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:02.6047963Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:21:03.1047293Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:21:03.1447451Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:04.260665Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:21:04.7561003Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:21:04.791073Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:18.0689033Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:21:18.6028104Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:21:18.6064628Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:18.7975536Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:19.0063923Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:19.2472762Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:19.4453519Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:19.8876307Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:21:37.0410433Z",
+      "name": "display-scaling",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 2
+    },
+    {
+      "utc": "2026-09-23T11:22:18.203886Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:19.281526Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:22:19.326557Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:19.3313267Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:19.3475925Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:19.3758269Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:19.3833972Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:28.1983465Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:28.6087582Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:22:28.6459501Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:29.6870432Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:22:29.737066Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:29.7439427Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:29.7664456Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:29.7799672Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:29.786457Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:37.1587892Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:37.1588273Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:37.5671081Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:22:37.6063726Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:38.6672219Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:22:39.1012244Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:22:39.1355216Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:40.1851873Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:22:40.6023746Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:22:40.6388895Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:51.597298Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:22:52.0986222Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:22:52.1009968Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:52.2912166Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:52.5604426Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:52.7170687Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:52.9295316Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:53.3681372Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 0.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:22:53.6504256Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:02.5421409Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:23:02.5873477Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:02.594132Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:02.614184Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:02.6240785Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:02.6305013Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:12.6870065Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:13.1353098Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:23:13.1694124Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:14.2863333Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:23:14.3327934Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:14.3381396Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:14.3633459Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:14.3726618Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:14.3789711Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:24.2457714Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:24.2458057Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:24.6964171Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:23:24.7338936Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:25.839543Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:23:26.2988819Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:23:26.3362276Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:27.4600132Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:23:27.9168868Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:23:27.9490931Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:39.7782956Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-23T11:23:40.3126017Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-23T11:23:40.3151853Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:40.4971151Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false,
+        "flippedY": true,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:40.7091118Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 0.75
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:40.9132837Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:41.1273429Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false,
+        "flippedY": false,
+        "stretchX": 1
+      }
+    },
+    {
+      "utc": "2026-09-23T11:23:59.2956026Z",
+      "name": "display-scaling",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1.5
+    },
+    {
+      "utc": "2026-09-23T11:24:45.0629858Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-23T11:24:53.9453756Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-23T11:24:53.9462361Z",
+      "name": "native-window-closed",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+﻿{
+    "utc":  "2026-09-23T08:54:15.9973642Z",
+    "scope":  "Snapshot of existing Qt native-window exports; does not declare IME acceptance",
+    "originalOutput":  "C:\\Users\\Administrator\\Desktop\\CompositorTest\\native-input-20260922-175634\\qt-window",
+    "windowReportPresent":  true,
+    "executableSha256":  "21E81803A18366CA541F6F6D7A1F1BA652A2B6F8B3A76C500F1D2D2F2F0BB0E2",
+    "processes":  [
+
+                  ],
+    "files":  [
+                  {
+                      "path":  "qt-window\\window-report.json",
+                      "bytes":  8134,
+                      "sha256":  "7DEDC95DB18C12BF7F27183EF6767A07117C30AA779D296D2C12823F03BBBCE6"
+                  },
+                  {
+                      "path":  "qt-window\\001-text\\text-export.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\001-text\\text-preview.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\001-text\\text.json",
+                      "bytes":  378,
+                      "sha256":  "1E38AB76F13633FE1507602CF42B5D8DBACA8C5CAC7F0825AAA3570E0FB2C373"
+                  },
+                  {
+                      "path":  "qt-window\\002-text\\text-export.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\002-text\\text-preview.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\002-text\\text.json",
+                      "bytes":  379,
+                      "sha256":  "6DEA8E6071FC35C8D635E13B0BA3DDFF12EE5A11E2F52247C2BE70E7325E1EC1"
+                  },
+                  {
+                      "path":  "qt-window\\003-text\\text-export.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\003-text\\text-preview.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\003-text\\text.json",
+                      "bytes":  379,
+                      "sha256":  "C13A81B8661BC49EE3F6EDB69F12738A7DEB125BCDBE5CEC03829564BE52812E"
+                  },
+                  {
+                      "path":  "qt-window\\004-text\\text-export.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\004-text\\text-preview.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\004-text\\text.json",
+                      "bytes":  385,
+                      "sha256":  "9DEF3D865A8F3C842F4882AFA4308BE9778B80AC278C2249BFAEAF7F1A4961FC"
+                  },
+                  {
+                      "path":  "qt-window\\005-text\\text-export.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\005-text\\text-preview.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\005-text\\text.json",
+                      "bytes":  379,
+                      "sha256":  "894ABC9B783E3190D4B95F09A00586FDDD29D9245628DE37819F936C434332F2"
+                  },
+                  {
+                      "path":  "qt-window\\006-text\\text-export.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\006-text\\text-preview.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\006-text\\text.json",
+                      "bytes":  385,
+                      "sha256":  "9DEF3D865A8F3C842F4882AFA4308BE9778B80AC278C2249BFAEAF7F1A4961FC"
+                  },
+                  {
+                      "path":  "qt-window\\007-text\\text-export.png",
+                      "bytes":  44504,
+                      "sha256":  "3168E5BC6E1D3BD1F3C681E7A76CBB1528138AFDF788D6F77C872FDB9451C253"
+                  },
+                  {
+                      "path":  "qt-window\\007-text\\text-preview.png",
+                      "bytes":  44504,
+                      "sha256":  "3168E5BC6E1D3BD1F3C681E7A76CBB1528138AFDF788D6F77C872FDB9451C253"
+                  },
+                  {
+                      "path":  "qt-window\\007-text\\text.json",
+                      "bytes":  385,
+                      "sha256":  "9DEF3D865A8F3C842F4882AFA4308BE9778B80AC278C2249BFAEAF7F1A4961FC"
+                  },
+                  {
+                      "path":  "qt-window\\008-text\\text-export.png",
+                      "bytes":  41146,
+                      "sha256":  "FD9E4D0BD9B7611DB700E7A786AF453C7C4F0894BCC5CB22C35FDD448A34D27C"
+                  },
+                  {
+                      "path":  "qt-window\\008-text\\text-preview.png",
+                      "bytes":  41146,
+                      "sha256":  "FD9E4D0BD9B7611DB700E7A786AF453C7C4F0894BCC5CB22C35FDD448A34D27C"
+                  },
+                  {
+                      "path":  "qt-window\\008-text\\text.json",
+                      "bytes":  379,
+                      "sha256":  "450C3EB38A75F2B2D7563DFCA696A1C678C2716E8FEED68DB21E978AADD4C6A8"
+                  },
+                  {
+                      "path":  "qt-window\\009-text\\text-export.png",
+                      "bytes":  44504,
+                      "sha256":  "3168E5BC6E1D3BD1F3C681E7A76CBB1528138AFDF788D6F77C872FDB9451C253"
+                  },
+                  {
+                      "path":  "qt-window\\009-text\\text-preview.png",
+                      "bytes":  44504,
+                      "sha256":  "3168E5BC6E1D3BD1F3C681E7A76CBB1528138AFDF788D6F77C872FDB9451C253"
+                  },
+                  {
+                      "path":  "qt-window\\009-text\\text.json",
+                      "bytes":  385,
+                      "sha256":  "02279AF7E8D5FFBCBD0F9E0A54F42206993A42A2B28C03E3C685A00770FD0A5E"
+                  },
+                  {
+                      "path":  "qt-window\\010-text\\text-export.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\010-text\\text-preview.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\010-text\\text.json",
+                      "bytes":  385,
+                      "sha256":  "02279AF7E8D5FFBCBD0F9E0A54F42206993A42A2B28C03E3C685A00770FD0A5E"
+                  },
+                  {
+                      "path":  "qt-window\\011-text\\text-export.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\011-text\\text-preview.png",
+                      "bytes":  21106,
+                      "sha256":  "5228DBA577E5E7876BB0BE23C6C6AC34E48EA93B87E5203AFFD676F41EAC23CD"
+                  },
+                  {
+                      "path":  "qt-window\\011-text\\text.json",
+                      "bytes":  379,
+                      "sha256":  "8270C0135C2F877CFF3FB6DA087B2C3FC1AA306DECA944E55CC3EB54685F334D"
+                  },
+                  {
+                      "path":  "qt-window\\012-text\\text-export.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\012-text\\text-preview.png",
+                      "bytes":  22568,
+                      "sha256":  "DC527576DC7060AFCA99F37D0DE1A7A86376396599E69B0FCF8C3B89B5D6D812"
+                  },
+                  {
+                      "path":  "qt-window\\012-text\\text.json",
+                      "bytes":  385,
+                      "sha256":  "66B46D8D24FD1802B6440D3F83DFCBA9BB4534FEB0B99D9BF102BAD708BE478B"
+                  }
+              ]
+}

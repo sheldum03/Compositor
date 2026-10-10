@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "64684d879f95663705dd75553b4f358c2444b559",
+  "sourcePatchSha256": "328673405038ae75a47565b21e75e5fffe69cac2e4c1a6f61efee033db2069d0",
+  "exeSha256": "5e5b66bb549fa6a498144ab035867907229b12ce0d5b2656b215768dc9a1dc9d",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "utc": "2026-09-23T09:22:12.155776+00:00",
+  "results": [
+    {
+      "stage": "synthetic",
+      "pid": 26232,
+      "exitCode": 0
+    },
+    {
+      "stage": "text",
+      "pid": 46988,
+      "exitCode": 0
+    },
+    {
+      "stage": "native",
+      "pid": 11728,
+      "exitCode": 0
+    }
+  ],
+  "nativeImeAccepted": false
+}

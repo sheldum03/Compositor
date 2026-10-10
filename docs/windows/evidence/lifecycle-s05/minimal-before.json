@@ -1,0 +1,21 @@
+{
+  "scenario": "S05",
+  "completed": false,
+  "error": "System.IO.InvalidDataException: Closed S05 document is still referenced\n   at BrushPerformanceProbe.Run.ExecuteLong(Action render) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/BrushResourceProbe.cs:line 99",
+  "windowsExecuted": false,
+  "nativeWindow": false,
+  "windowClosed": false,
+  "renderScaling": null,
+  "workload": "4000x4000; 100 local 160px soft strokes with 21 points; undo all/redo all/save/reopen/close; 3 rounds",
+  "baseline": {
+    "PrivateBytes": 0,
+    "WorkingSetBytes": 73908224,
+    "ManagedBytes": 344352,
+    "Handles": 0
+  },
+  "rounds": [],
+  "elapsedMilliseconds": 2174.3698,
+  "resourceAccepted": false,
+  "notes": "Native software canvas callbacks; synthetic input. All three natural post-close samples precede diagnostic full GC at the end. No forced GC between rounds or during edits. Private memory is sampled, not continuous peak; VRAM is not measured. Stable resource tolerance and other tools require separate review.",
+  "diagnosticActualWorkload": "1 edit, 1 round; hardcoded full-workload labels are not acceptance evidence"
+}

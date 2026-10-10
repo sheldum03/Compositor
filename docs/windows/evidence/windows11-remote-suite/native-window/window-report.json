@@ -1,0 +1,733 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 33,
+  "textInputEvents": 5,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1,
+  "events": [
+    {
+      "utc": "2026-09-21T11:11:10.1232405Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T11:11:10.5701224Z",
+      "name": "native-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1.5
+      }
+    },
+    {
+      "utc": "2026-09-21T11:11:10.5860266Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:42:02.5108507Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T11:42:02.5184724Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:42:02.5184738Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-21T11:42:02.5463432Z",
+      "name": "brush-render-thread",
+      "thread": 29,
+      "onUiThread": false,
+      "data": 29
+    },
+    {
+      "utc": "2026-09-21T11:42:36.5441684Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:42:36.5441696Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 0
+    },
+    {
+      "utc": "2026-09-21T11:43:13.0525655Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:13.0671552Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:43:36.4845106Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.5265657Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.5549222Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 3
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.585955Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.5900313Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.630353Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 7
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.6856104Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:36.7226668Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-21T11:43:51.6180452Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.697424Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T11:44:19.895247Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9005775Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9155998Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9251525Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9426371Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 3
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9551682Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9684881Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9765981Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 7
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.9826724Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:19.986719Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:32.6125565Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.6584384Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.6709627Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.6993988Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 3
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.7138865Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.7194083Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.7233266Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 7
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.7281627Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:47.7321165Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:53.029616Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T11:44:53.0298512Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:00.0199426Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:00.0527481Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:00.0596629Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:00.0976799Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:00.1027692Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:06.6192163Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:06.6192348Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:06.64619Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T11:45:06.6478848Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:16.0217561Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:45:36.7307828Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:45:57.8971961Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:46:52.9006926Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T11:46:52.9048954Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T11:46:52.9082263Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T11:46:59.6079404Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:54:32.6987718Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:55:24.6064485Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T11:56:41.7497039Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:56:41.773645Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T11:56:41.8185177Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T11:56:52.3565779Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:56:52.3565831Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-21T11:57:01.1041327Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 149.33333333333326,
+        "y": 248,
+        "milliseconds": 21.5557
+      }
+    },
+    {
+      "utc": "2026-09-21T11:57:01.1047451Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 149.33333333333326,
+        "y": 248,
+        "milliseconds": 0.1081
+      }
+    },
+    {
+      "utc": "2026-09-21T11:57:01.1078933Z",
+      "name": "brush-commit",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "milliseconds": 3.1007,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:57:14.0678957Z",
+      "name": "brush-save-reopen",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "passed": true,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T11:58:02.4318378Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 508.66666666666674,
+        "y": 459.3333333333333,
+        "milliseconds": 6.1886
+      }
+    },
+    {
+      "utc": "2026-09-21T11:58:02.432794Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 508.66666666666674,
+        "y": 459.3333333333333,
+        "milliseconds": 0.003
+      }
+    },
+    {
+      "utc": "2026-09-21T11:58:02.4337153Z",
+      "name": "brush-commit",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "milliseconds": 0.9179,
+        "undoCount": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:58:02.4356191Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:58:02.4356604Z",
+      "name": "brush-undo",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:58:10.4573769Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:58:10.457548Z",
+      "name": "brush-redo",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:58:18.6764261Z",
+      "name": "brush-save-reopen",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "passed": true,
+        "undoCount": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T11:58:18.683006Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:58:18.6830091Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 2
+    },
+    {
+      "utc": "2026-09-21T11:58:18.72286Z",
+      "name": "composition-render-thread",
+      "thread": 27,
+      "onUiThread": false,
+      "data": 27
+    },
+    {
+      "utc": "2026-09-21T11:58:37.6617513Z",
+      "name": "composition-save-reopen",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T11:59:01.5313426Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T11:59:01.5313537Z",
+      "name": "native-window-closed",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    }
+  ]
+}

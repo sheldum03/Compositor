@@ -1,0 +1,244 @@
+{
+  "scope": "Qt S02 replay preparation; not Windows native execution or framework selection",
+  "qt": "6.11.2",
+  "macArchitecture": "arm64",
+  "localRuns": [
+    {
+      "directory": "final-dpi100",
+      "completed": true,
+      "updatesCompleted": 484,
+      "renderScaling": 1,
+      "viewportChecks": [
+        {
+          "DifferentPixels": 0,
+          "MaximumAlphaError": 0,
+          "MaximumChannelError": 0,
+          "MeanAbsoluteChannelError": 0,
+          "PixelsWithErrorAbove1": 0,
+          "height": 1000,
+          "scenario": "empty",
+          "width": 1000
+        },
+        {
+          "DifferentPixels": 0,
+          "MaximumAlphaError": 0,
+          "MaximumChannelError": 0,
+          "MeanAbsoluteChannelError": 0,
+          "PixelsWithErrorAbove1": 0,
+          "height": 1000,
+          "scenario": "existing",
+          "width": 1000
+        }
+      ]
+    },
+    {
+      "directory": "final-dpi150",
+      "completed": true,
+      "updatesCompleted": 484,
+      "renderScaling": 1.5,
+      "viewportChecks": [
+        {
+          "DifferentPixels": 0,
+          "MaximumAlphaError": 0,
+          "MaximumChannelError": 0,
+          "MeanAbsoluteChannelError": 0,
+          "PixelsWithErrorAbove1": 0,
+          "height": 1500,
+          "scenario": "empty",
+          "width": 1500
+        },
+        {
+          "DifferentPixels": 0,
+          "MaximumAlphaError": 0,
+          "MaximumChannelError": 0,
+          "MeanAbsoluteChannelError": 0,
+          "PixelsWithErrorAbove1": 0,
+          "height": 1500,
+          "scenario": "existing",
+          "width": 1500
+        }
+      ]
+    }
+  ],
+  "releaseCtest": {
+    "passed": 2,
+    "failed": 0
+  },
+  "sanitizerCtest": {
+    "passed": 2,
+    "failed": 0,
+    "instrumented": "own C++ and C; prebuilt Qt not instrumented",
+    "leakDetection": false
+  },
+  "negativeChecks": [
+    {
+      "case": "nan-timing",
+      "rejected": true
+    },
+    {
+      "case": "lost-frame",
+      "rejected": true
+    },
+    {
+      "case": "wrong-sequence",
+      "rejected": true
+    },
+    {
+      "case": "viewport-mismatch",
+      "rejected": true
+    },
+    {
+      "case": "premature-success",
+      "rejected": true
+    },
+    {
+      "case": "wrong-opacity",
+      "rejected": true
+    },
+    {
+      "case": "changed-digest",
+      "rejected": true
+    },
+    {
+      "case": "headless-report-as-Windows",
+      "rejected": true
+    },
+    {
+      "case": "native-mode-on-headless-backend",
+      "rejected": true
+    },
+    {
+      "case": "changed-frozen-fixture",
+      "rejected": true
+    }
+  ],
+  "pixelReview": {
+    "viewportComparisons": [
+      {
+        "run": "final-dpi100",
+        "scenario": "empty",
+        "viewportSize": [
+          1000,
+          1000
+        ],
+        "viewportDifferentPixels": 0,
+        "viewportRgbaSha256": "5a6a63370b4bb13c911d5c1db419ec60294f22f3cbe303ea388afa426b11dcc9",
+        "finalRgbaSha256": "d5bb730a7243fc453974e6c23a84ec8d13856797ded1dd7f74b4e112b6d6ce56"
+      },
+      {
+        "run": "final-dpi100",
+        "scenario": "existing",
+        "viewportSize": [
+          1000,
+          1000
+        ],
+        "viewportDifferentPixels": 0,
+        "viewportRgbaSha256": "dcfc7f3c2c38f3b15e9d37de6af720d6102be1371b17da295a916465a39aca5c",
+        "finalRgbaSha256": "6f5fa0e87af71a31f4c4721f32d1129fbc475235927100fe4593614392b0b858"
+      },
+      {
+        "run": "final-dpi150",
+        "scenario": "empty",
+        "viewportSize": [
+          1500,
+          1500
+        ],
+        "viewportDifferentPixels": 0,
+        "viewportRgbaSha256": "0f7ff0d30095fce6327d38fffef6c75a603a881cb6229007fc7a824df4814692",
+        "finalRgbaSha256": "d5bb730a7243fc453974e6c23a84ec8d13856797ded1dd7f74b4e112b6d6ce56"
+      },
+      {
+        "run": "final-dpi150",
+        "scenario": "existing",
+        "viewportSize": [
+          1500,
+          1500
+        ],
+        "viewportDifferentPixels": 0,
+        "viewportRgbaSha256": "5f0fdb4e8d54c419d5109c0ac40795fd3183a20230f1bf5045eb7c5c174732b6",
+        "finalRgbaSha256": "6f5fa0e87af71a31f4c4721f32d1129fbc475235927100fe4593614392b0b858"
+      }
+    ],
+    "existingBrushFilesByteIdentical": 9,
+    "existingCompositionCasesUnchangedExceptTimings": 20,
+    "crossFrameworkObservation": [
+      {
+        "scenario": "empty",
+        "differentPixels": 115521,
+        "maxChannelError": 1,
+        "maxAlphaError": 0,
+        "accepted": false,
+        "scope": "decoded straight RGBA PNG pixels; provisional cross-framework observation"
+      },
+      {
+        "scenario": "existing",
+        "differentPixels": 218977,
+        "maxChannelError": 1,
+        "maxAlphaError": 0,
+        "accepted": false,
+        "scope": "decoded straight RGBA PNG pixels; provisional cross-framework observation"
+      }
+    ],
+    "windowsExecuted": false
+  },
+  "sourceFilesSha256": {
+    "experiments/windows/qt/.gitignore": "181314065df2f2fdaf920b1a8b5311daa216a2d6489a06ada5b49cc514d89417",
+    "experiments/windows/qt/BRUSH.md": "0ca2e9bf7a68e508af75b38acaa9cfc658a8cfbc3a64b52c985b0ff57ecef6cc",
+    "experiments/windows/qt/CMakeLists.txt": "dc143196c8de9c94895d8259a3b2a20b91537a74d5ff59c9daf4912ef588f0ac",
+    "experiments/windows/qt/PERFORMANCE.md": "25d83257a99f406ed17c10fe57345eef7804f033e62f56a131c99d60d9b3b9e0",
+    "experiments/windows/qt/README.md": "f738256375848afd1babac9102a51775c93d3d38d010fa7adb0865338fa54203",
+    "experiments/windows/qt/TEXT.md": "3379e0158f2bbd9c8dcbd2fa4ff91c126f894ea62e08160c0c5c8be25535163b",
+    "experiments/windows/qt/WINDOW.md": "18fa86caa5c0fc7a01079fb6139d06964e662cdcd74ffac66259e870a28e8f3f",
+    "experiments/windows/qt/brush.cpp": "aae1eebef5bf439edd3a4e1c640e4217264a0d465671d3bc96a2caec1d402d46",
+    "experiments/windows/qt/brush.hpp": "4379cc4245895a621e57e21e27be7152e1ac0c30541d8877c805bebb78c27f19",
+    "experiments/windows/qt/brush_performance.cpp": "9fe159ac2960061527796ceab692c3db2d6b14bea717e5dd3fa02a17aa37dc29",
+    "experiments/windows/qt/brush_performance_checks.cpp": "84b5f844fa19511058f77708a7708933a5e47919109c5011d73e111085acc1e0",
+    "experiments/windows/qt/brush_probe.cpp": "3698ba59e99502830f91cfd8ca6374176438e81d2f55646f55e7f84e5b9ce34d",
+    "experiments/windows/qt/composite.cpp": "243884dd7067d3ee8b3237ef7b7e9f93b486e4bec1f2fb06cd400aab8a12607f",
+    "experiments/windows/qt/installer-requirements.txt": "308a284a1274371cabdf9ff1c2bcd601a0a579b63715c09950b1032f93e98ef3",
+    "experiments/windows/qt/probe.cpp": "6f9e58f940c9902169b4cc78dee33a19973a95ec9bd520284e72419b059d049b",
+    "experiments/windows/qt/review-s02.py": "c9586576af83879527c87485804e5f2535c46428b8e0a0e46a5af5ea76cedb16",
+    "experiments/windows/qt/run-font-diagnostic.ps1": "3155032ef094d0d0e5b08ad23341c97f5e8426a21c8921a07d13fd18a5e5c168",
+    "experiments/windows/qt/scene.cpp": "4a90aeb7419c096e22de015d1cd52dc3968eb832297d80e7fab320d8e3e52f65",
+    "experiments/windows/qt/scene.hpp": "4fc765f86ec1c1e0c5da7303a24625aa31ca1f84a44428488b6d92e08ea816af",
+    "experiments/windows/qt/text_probe.cpp": "074866bd82385aee4a7fe78f7ea3e714db3b62522befb3d53bdf3efa0bda088e",
+    "experiments/windows/qt/window.cpp": "cb653d1e1523f7ea8c10668d9f05b2a877451eddbe13a0dac5ac9f970af9d31f",
+    "experiments/windows/qt/window.hpp": "603ab21e8031d484a11eec5c8061ffbaf96c654fc09a4685302e77a9e9cc441d",
+    "experiments/windows/qt/windows-sdk.json": "18b1b328ee7f892e5f577a70da64e0ef3d42d0cbc0ec3716163c7c5b120513a9"
+  },
+  "binaries": [
+    {
+      "path": "/tmp/compositor-qt-s02-win-build/qt_probe.exe",
+      "bytes": 17193984,
+      "sha256": "5b143d515b60981d25fbb7ae44a600528e190be37c76061c25549f098975f075",
+      "windowsExecuted": false
+    },
+    {
+      "path": "/tmp/compositor-qt-s02-win-build/qt_s02_checks.exe",
+      "bytes": 307200,
+      "sha256": "e56b72ed1c70b1d879bce39f0bb46c0fecb4f472ad03d5570b27de018821e1d4",
+      "windowsExecuted": false
+    },
+    {
+      "path": "/tmp/compositor-qt-s02-win-build/native/libcompositor_native.dll",
+      "bytes": 83968,
+      "sha256": "74d0e12e16aa9acca64733be23c83d43199d8ed3dbdef24e48751046a7b966ba",
+      "windowsExecuted": false
+    },
+    {
+      "path": "/tmp/compositor-qt-s02-win-build/native/native_contract_tests.exe",
+      "bytes": 86528,
+      "sha256": "0163fd90787959edaf9f6da7294ecb0893992ab40b1d076dfc7f35c645362351",
+      "windowsExecuted": false
+    },
+    {
+      "path": "/tmp/compositor-qt-s02-build/qt_probe",
+      "bytes": 17212840,
+      "sha256": "d8269745aa7c9886cfd407465aa5a8e30cddd60a3503d242dc4b0f488f80812d",
+      "windowsExecuted": false
+    }
+  ],
+  "windowsCrossBuild": true,
+  "windowsExecuted": false,
+  "M1Accepted": false
+}

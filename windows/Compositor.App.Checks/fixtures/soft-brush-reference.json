@@ -1,0 +1,14 @@
+{
+  "inputSha256": "e982b9f3dbab7dc3eb22541603d692bd143aa012d6dde365e6fe6df1fc98e96f",
+  "referenceSources": {
+    "experiments/windows/avalonia/SoftBrushStroke.cs": "7f44a615b8d713cd1739315bb9e4eef9705f5f8dd0f0f686b3e0197bd9ba5f16",
+    "experiments/windows/avalonia/TiledRaster.cs": "447d643b6c1391cd15fced491ca1c5ece5ce928f6e43d2218dbc8f7a76dfeb96",
+    "experiments/windows/avalonia/TileImageCache.cs": "0a5a16683583b3e69473755323b761cfbc52b8011c37b911a67cfeb3ebe3d62b"
+  },
+  "zipSha256": "76bdbe2db895e6af84423d17056f56eda1694c88b83c2bdf8407db5c59cdfb5a",
+  "generatorRoot": "/Users/admin/.codex/visualizations/2026/10/05/production-brush-reference/generator",
+  "cases": 3,
+  "format": "raw RGBA8 premultiplied sRGB, top-down row-major, 259x257; live provisional tail and settled final",
+  "width": 259,
+  "height": 257
+}

@@ -1,0 +1,162 @@
+{
+  "modelSha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+  "windowsExecuted": false,
+  "files": {
+    "README.md": {
+      "bytes": 2362,
+      "sha256": "aa4a0829ba5e2864093626bf0e5a996cf5b11348c9d8aba3d57ea58db69adff2"
+    },
+    "app/ai_probe.exe": {
+      "bytes": 154112,
+      "sha256": "072e2b84dd8b7d4edf1a2dee4644251402ff9cd7d42455905b35ef4653249c1a"
+    },
+    "app/birefnet_probe.exe": {
+      "bytes": 154112,
+      "sha256": "3b5277552c8e6dbf9f29663d4be5eb8cddf870720453df37a918a9c08b21e171"
+    },
+    "app/libc++.dll": {
+      "bytes": 2008576,
+      "sha256": "936a36ba1b1b0779067f15b77a92752a9ec29d073183969e76610c9caab4485f"
+    },
+    "app/libunwind.dll": {
+      "bytes": 190976,
+      "sha256": "fc8c676629fc5c0a1a1c0bace29f2538306a404a1e1dd15bf1707a3b948c7696"
+    },
+    "app/onnxruntime.dll": {
+      "bytes": 16462648,
+      "sha256": "7e39e2bdbba836d98071ef28620735ba36a47c554cf794585269aecc50fab0da"
+    },
+    "app/onnxruntime_providers_shared.dll": {
+      "bytes": 21816,
+      "sha256": "b9b7ab9e2a8b08ee7ae4a7ac1c8bfd44a741f17ad8d0f764953140a57de0b796"
+    },
+    "astronaut.png": {
+      "bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5"
+    },
+    "build/acquisition-notes.json": {
+      "bytes": 332,
+      "sha256": "fbb74300b60c3eb67784bbc21499404af7130f39ba8723f6cdb626c4252627f5"
+    },
+    "build/ai_probe.exe-pe.txt": {
+      "bytes": 11442,
+      "sha256": "cf3f51556b69257eebe07a7a69370dddfaf0db14f4d4956e68f59c00ef475016"
+    },
+    "build/birefnet_probe.exe-pe.txt": {
+      "bytes": 11448,
+      "sha256": "2ea9e829c577ae4129fab62f7422aec7dc96ebf3a1ed078fde3f847cf8d84d0f"
+    },
+    "build/cmake-build.log": {
+      "bytes": 292,
+      "sha256": "fd8223c5ed41df676557ed2d35c71a7e9b17a8ecd340ef092043649951ca429c"
+    },
+    "build/cmake-configure.log": {
+      "bytes": 968,
+      "sha256": "ad8ac4a145fece4d59ee638f79164ed0fb9111ecfe61119c6d4550f7594c7c66"
+    },
+    "build/identity.json": {
+      "bytes": 1515,
+      "sha256": "a02bab15ad921d045221a7d100b7ee876505f54335ee11d33d6e512b049e80e3"
+    },
+    "build/libc++.dll-pe.txt": {
+      "bytes": 212603,
+      "sha256": "071d6b376770d77721824b5e04e90c2488bbddebe7fe04f837f6871879e622d3"
+    },
+    "build/libunwind.dll-pe.txt": {
+      "bytes": 7250,
+      "sha256": "c4a8d8320baee8946babd6816a2754c3a15ee6431268f9fc3a4224d44cbf6bdc"
+    },
+    "build/onnxruntime.dll-pe.txt": {
+      "bytes": 26202,
+      "sha256": "856005da48f7651840842d21ce0483a65f9f1e52716db5bb55661fcf921cad38"
+    },
+    "build/onnxruntime_providers_shared.dll-pe.txt": {
+      "bytes": 4196,
+      "sha256": "fb8d806575641ca7acbc01ea318160ca004401ae3dae0645a715f287afd1732d"
+    },
+    "build/pe-imports.json": {
+      "bytes": 261467,
+      "sha256": "c6126527c22a07db42b8ca4c569f1f24a0d0e9c3a34276ff0c740dabe0e978c1"
+    },
+    "build/reused-inspection-assets.json": {
+      "bytes": 2326,
+      "sha256": "4ace636da5a411a59083ef09b6d699a51e787b41a2de0c3ee72d558af9610a42"
+    },
+    "build/toolchain.cmake": {
+      "bytes": 1030,
+      "sha256": "f6cd30fb82650a3adf4061215769060c0fac924d2b7c4bc0fbf6bc1db15f7ad5"
+    },
+    "downloads/numpy-2.0.2-cp311-cp311-win_amd64.whl": {
+      "bytes": 15910230,
+      "sha256": "286cd40ce2b7d652a6f22efdfc6d1edf879440e53e76a75955bc0c826c7e64dc"
+    },
+    "downloads/pillow-11.3.0-cp311-cp311-win_amd64.whl": {
+      "bytes": 6986055,
+      "sha256": "1a992e86b0dd7aeb1f053cd506508c0999d710a8f07b4c791c63843fc6a807ac"
+    },
+    "downloads/python-3.11.9-embed-amd64.zip": {
+      "bytes": 11249023,
+      "sha256": "009d6bf7e3b2ddca3d784fa09f90fe54336d5b60f0e0f305c37f400bf83cfd3b"
+    },
+    "licenses/BiRefNet-MIT.txt": {
+      "bytes": 1066,
+      "sha256": "92a7089e0915fc32bc40067560b398f1e6a7a5958abd7d04eda393629a5acefb"
+    },
+    "licenses/COPYING": {
+      "bytes": 2326,
+      "sha256": "99a69660981156c21336fdb5661f89341b013c94e4bf9e1c7467b4745718397f"
+    },
+    "licenses/COPYING.MinGW-w64-runtime.txt": {
+      "bytes": 12155,
+      "sha256": "1db8da07b436c68833c0673ffee3d9fcb2526047f3820b81661865dfedc79a1f"
+    },
+    "licenses/COPYING.MinGW-w64.txt": {
+      "bytes": 5905,
+      "sha256": "f38e6194bd3bfa1b654f118e5acefe0aead437bbe669eee43957ccc65a7127f1"
+    },
+    "licenses/COPYING.winpthreads.txt": {
+      "bytes": 2883,
+      "sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177"
+    },
+    "licenses/COPYING.winstorecompat.txt": {
+      "bytes": 1099,
+      "sha256": "fa7368d1f93d890c173177475d8ec7aff265a7d08f1f364d66f74d138978ce36"
+    },
+    "licenses/LLVM-LICENSE.TXT": {
+      "bytes": 15141,
+      "sha256": "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee"
+    },
+    "licenses/onnxruntime-LICENSE": {
+      "bytes": 1094,
+      "sha256": "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674"
+    },
+    "licenses/onnxruntime-Privacy.md": {
+      "bytes": 4730,
+      "sha256": "a1e6108942be2f56d9ea93c342462d5ec15fd0510603dae7a654f417e0d4e95f"
+    },
+    "licenses/onnxruntime-ThirdPartyNotices.txt": {
+      "bytes": 344457,
+      "sha256": "c53a76501ef60db6f865f20599f220761201ac4057683acefdab37d861b86622"
+    },
+    "run.py": {
+      "bytes": 5092,
+      "sha256": "df1c0e20beaae80baaae42d640b1092653d9ab389a0d4ba7d823efe43b2ad555"
+    },
+    "source/CMakeLists.txt": {
+      "bytes": 1100,
+      "sha256": "80d58c1cfb1a713d81e3fe86812c84b93336253a088cc4261c316d2ab24bfb19"
+    },
+    "source/probe.cpp": {
+      "bytes": 10393,
+      "sha256": "636be28f04a6cfb0c1d16f82e9cf6a33ebc112e4187af13815359cb839b2a48d"
+    },
+    "source/review-active-cancel.py": {
+      "bytes": 2394,
+      "sha256": "089982aa372d786a71505fb5c5099376a625315b0088a49376c2b604842ebc0e"
+    },
+    "source/screen-birefnet.py": {
+      "bytes": 5677,
+      "sha256": "7f2d2428f76526b8fae6f00c4299aba1308bb065ac6b0a5f8c1d84b0abf0ffe7"
+    }
+  }
+}

@@ -123,7 +123,7 @@ struct SelectionTests {
         #expect(session.lassoDraft == nil)
     }
 
-    @Test func cursorBadgeFollowsModifiersButKeepsAnOutlinesStartingMode() {
+    @Test func cursorBadgeFollowsModifiersButKeepsAnOutlinesStartingMode() throws {
         let session = makeSession()
         #expect(session.lassoCursorMode(shift: false, option: false) == .replace)
         #expect(session.lassoCursorMode(shift: true, option: false) == .add)
@@ -141,7 +141,17 @@ struct SelectionTests {
         #expect(session.displayedSelectionMode == .subtract)
         session.updateHeldSelectionKeys(shift: false, option: false)
         #expect(session.displayedSelectionMode == .replace)
-        #expect(CanvasView.lassoCursors.count == 3 && CanvasView.lassoCursors[.replace] == .crosshair)
+        for icon in CanvasView.SelectionIcon.allCases {
+            let cursors = try #require(CanvasView.selectionCursors[icon])
+            for mode in SelectionMode.allCases {
+                let cursor = try #require(cursors[mode])
+                #expect(cursor.hotSpot == NSCursor.crosshair.hotSpot)
+            }
+            let replace = try #require(cursors[.replace]?.image.tiffRepresentation)
+            let add = try #require(cursors[.add]?.image.tiffRepresentation)
+            let subtract = try #require(cursors[.subtract]?.image.tiffRepresentation)
+            #expect(replace != add && replace != subtract && add != subtract)
+        }
     }
 
     @Test func draggingMovesTheOutlineInWholePixelsAsOneUndo() throws {
@@ -377,8 +387,8 @@ struct SelectionTests {
         #expect(try coverage(session, 30, 30) == 255) // a box grown from its center would have reached here
     }
 
-    /// M chooses the Marquee; pressed again it switches Rectangle and Ellipse, and the shape sticks.
-    @Test func mKeyChoosesTheMarqueeThenSwitchesItsShape() throws {
+    /// M chooses the Marquee; only the toolbar changes its shape, which survives tool switches.
+    @Test func mKeyChoosesTheMarqueeAndPreservesTheToolbarShape() throws {
         let session = makeSession()
         let view = CanvasView(session: session)
         func pressM(repeat isARepeat: Bool = false) throws {
@@ -389,12 +399,16 @@ struct SelectionTests {
         try pressM()
         #expect(session.tool == .marquee && session.marqueeKind == .rectangle)
         try pressM()
+        #expect(session.marqueeKind == .rectangle)
+        session.toggleMarqueeKind()
         #expect(session.marqueeKind == .ellipse)
         try pressM(repeat: true)
         #expect(session.marqueeKind == .ellipse, "holding M must not keep switching")
         try pressM()
+        #expect(session.marqueeKind == .ellipse)
+        session.toggleMarqueeKind()
         #expect(session.marqueeKind == .rectangle)
-        try pressM()
+        session.toggleMarqueeKind()
         session.selectTool(.brush)
         try pressM()
         #expect(session.tool == .marquee && session.marqueeKind == .ellipse, "the shape stays as last set")
@@ -441,8 +455,8 @@ struct SelectionTests {
         #expect(try coverage(session, 65, 45) == 255 && coverage(session, 10, 10) == 255, "still adding")
     }
 
-    /// L chooses the Lasso; pressed again it switches Freehand and Polygonal, and the mode sticks.
-    @Test func lKeyChoosesTheLassoThenSwitchesItsMode() throws {
+    /// L chooses the Lasso; only the toolbar changes its mode, which survives tool switches.
+    @Test func lKeyChoosesTheLassoAndPreservesTheToolbarMode() throws {
         let session = makeSession()
         session.selectTool(.marquee)
         let view = CanvasView(session: session)
@@ -454,12 +468,16 @@ struct SelectionTests {
         try pressL()
         #expect(session.tool == .lasso && session.lassoKind == .freehand)
         try pressL()
+        #expect(session.lassoKind == .freehand)
+        session.toggleLassoKind()
         #expect(session.lassoKind == .polygonal)
         try pressL(repeat: true)
         #expect(session.lassoKind == .polygonal, "holding L must not keep switching")
         try pressL()
+        #expect(session.lassoKind == .polygonal)
+        session.toggleLassoKind()
         #expect(session.lassoKind == .freehand)
-        try pressL()
+        session.toggleLassoKind()
         session.selectTool(.brush)
         try pressL()
         #expect(session.tool == .lasso && session.lassoKind == .polygonal, "the mode stays as last set")

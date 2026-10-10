@@ -1,0 +1,9 @@
+{
+  "platform": "macOS / PowerShell 7.6",
+  "method": "Run exact packaged wrapper with portable Mac runtime and verified Windows DLL to force a real load failure",
+  "nativeExitCode": 134,
+  "wrapperExitCode": 1,
+  "archivePreserved": true,
+  "archiveCrc": "passed",
+  "targetWindowsPowerShellExecuted": false
+}

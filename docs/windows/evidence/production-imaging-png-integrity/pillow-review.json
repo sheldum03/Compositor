@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "decoder": "Pillow",
+  "cases": [
+    {
+      "file": "alpha-tiles.png.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-1.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-2.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-3.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-4.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-5.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-6.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-7.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "orientation-8.jpg.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "linear-profile.png.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "split-idat.png.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "ancillary-after-idat.png.png",
+      "maximum": 0,
+      "colorMetadataPresent": true
+    },
+    {
+      "file": "transparent.jpg",
+      "maximum": 1
+    },
+    {
+      "file": "half-red.jpg",
+      "maximum": 1
+    }
+  ]
+}

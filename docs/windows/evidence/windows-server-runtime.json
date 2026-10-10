@@ -1,0 +1,48 @@
+{
+  "date": "2026-09-21",
+  "nodeAlias": "tencent-cpu-01",
+  "source": "Agent-observed Tencent Cloud TAT UI results via Computer Use; read-back transcription, not downloaded raw log",
+  "os": "Windows Server 2022 Datacenter x64 10.0.20348",
+  "download": {
+    "utc": "2026-09-21T06:02:53.3038204Z",
+    "curlExit": 0,
+    "beforeBytes": 22583158,
+    "afterBytes": 36960258,
+    "expectedBytes": 36960258,
+    "sha512": "844fa99e16fd6f44e0a7c29def7a82d7846902334d6a955248a9519a4dddb3f5acceb9c9223bef69f8c83b8ae2417537e5b76dddf79fb7117dc85b5039bc1297",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.12/dotnet-runtime-10.0.12-win-x64.zip"
+  },
+  "runtimeExecution": {
+    "utc": "2026-09-21T06:05:11.5903914Z",
+    "dotnetExit": 0,
+    "command": "dotnet.exe --list-runtimes",
+    "runtime": "Microsoft.NETCore.App 10.0.12",
+    "portableDirectory": "C:\\CompositorValidation\\tools\\dotnet-10.0.12",
+    "freeGiB": 9.6
+  },
+  "earlierCompilerDownload": {
+    "utc": "2026-09-21T02:36:17.0705309Z",
+    "curlExit": 28,
+    "beforeBytes": 16627762,
+    "afterBytes": 21395506,
+    "expectedBytes": 190677197,
+    "warning": "TAT wrapper ExitCode 0 did not mean curl/download succeeded"
+  },
+  "initialRuntimeAttempt": {
+    "startConsoleTime": "2026-09-21 14:00:31",
+    "exitCode": 1,
+    "reason": "Windows PowerShell 5.1 Stop treats curl progress on stderr as NativeCommandError. Next attempt used --silent and captured LASTEXITCODE; downloaded partial file preserved."
+  },
+  "changes": [
+    "Downloaded verified official portable runtime archive",
+    "Extracted into new private tools directory after hash check and existing-destination refusal",
+    "Ran --list-runtimes with process-local telemetry opt-out"
+  ],
+  "notPerformed": [
+    "No global PATH or system-wide installer changes",
+    "No firewall, account, password, reboot, paid resources, or existing RDP session changes",
+    "No project test execution in this turn",
+    "Old text diagnostic bundle was prepared locally but never uploaded; discarded after Win11 evidence arrived"
+  ],
+  "acceptance": "Runtime is executable on Server; not evidence of Windows11, product correctness, GUI, GPU or performance acceptance."
+}

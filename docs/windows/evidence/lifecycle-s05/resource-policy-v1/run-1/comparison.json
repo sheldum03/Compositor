@@ -1,0 +1,123 @@
+{
+  "elapsedSeconds": 1206.4618295,
+  "blocks": [
+    {
+      "rounds": [
+        1,
+        9
+      ],
+      "privateMiB": [
+        256.9883,
+        515.6602
+      ],
+      "handles": [
+        542,
+        556
+      ]
+    },
+    {
+      "rounds": [
+        10,
+        18
+      ],
+      "privateMiB": [
+        362.3242,
+        456.9531
+      ],
+      "handles": [
+        546,
+        559
+      ]
+    },
+    {
+      "rounds": [
+        19,
+        27
+      ],
+      "privateMiB": [
+        359.3398,
+        512.8672
+      ],
+      "handles": [
+        540,
+        551
+      ]
+    }
+  ],
+  "naturalPrivateDrops": [
+    {
+      "round": 9,
+      "privateDropBytes": 5050368,
+      "gen2Before": 22,
+      "gen2After": 24
+    },
+    {
+      "round": 10,
+      "privateDropBytes": 104796160,
+      "gen2Before": 24,
+      "gen2After": 26
+    },
+    {
+      "round": 13,
+      "privateDropBytes": 87187456,
+      "gen2Before": 30,
+      "gen2After": 32
+    },
+    {
+      "round": 14,
+      "privateDropBytes": 6266880,
+      "gen2Before": 32,
+      "gen2After": 34
+    },
+    {
+      "round": 17,
+      "privateDropBytes": 87445504,
+      "gen2Before": 38,
+      "gen2After": 40
+    },
+    {
+      "round": 18,
+      "privateDropBytes": 11780096,
+      "gen2Before": 40,
+      "gen2After": 42
+    },
+    {
+      "round": 21,
+      "privateDropBytes": 76189696,
+      "gen2Before": 46,
+      "gen2After": 48
+    },
+    {
+      "round": 24,
+      "privateDropBytes": 4763648,
+      "gen2Before": 50,
+      "gen2After": 54
+    },
+    {
+      "round": 25,
+      "privateDropBytes": 82309120,
+      "gen2Before": 54,
+      "gen2After": 55
+    },
+    {
+      "round": 26,
+      "privateDropBytes": 1200128,
+      "gen2Before": 55,
+      "gen2After": 59
+    },
+    {
+      "round": 27,
+      "privateDropBytes": 72712192,
+      "gen2Before": 59,
+      "gen2After": 61
+    }
+  ],
+  "priorTotalAllocatedBytes": 7563312680,
+  "currentTotalAllocatedBytes": 7530989192,
+  "allocatedChangePercent": -0.427372096957912,
+  "priorFinalManagedBytes": 7976152,
+  "currentFinalManagedBytes": 7912800,
+  "retainedDocuments": 0,
+  "resourceAccepted": false,
+  "limits": "Natural GC counts and memory drops are associated observations, not proof of exclusive causality. No native ownership attribution."
+}

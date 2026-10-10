@@ -1,0 +1,19 @@
+{
+  "status": "local preparation passed; Windows native matrix pending",
+  "windowsExecuted": false,
+  "nativeImeAccepted": false,
+  "systemDpiAccepted": false,
+  "selectionCombinations": 192,
+  "imeClientCancelCases": 40,
+  "imeClientTabCases": 24,
+  "actualProbeMouseSelectionDirections": 2,
+  "exactPreviewExportPairs": 2,
+  "redEvidence": "window-final.log: Export text state differs; clicking export cleared selection before the fix",
+  "fix": "TextBox.ClearSelectionOnLostFocus=false on the probe editor",
+  "redEvidenceCaveat": "window-final report predates explicit headless labeling; nativeWindow=true there is incorrect metadata, not native execution",
+  "finalReportNativeWindow": false,
+  "localArchive": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/avalonia-ime-matrix-20260923/local-evidence.zip",
+  "localArchiveSha256": "ec0165dd0f19fa811a79d3ea1f2d9f2edadfb0bbc7e34ad14563aa422af73502",
+  "localArchiveBytes": 2232461,
+  "localArchiveFiles": 402
+}

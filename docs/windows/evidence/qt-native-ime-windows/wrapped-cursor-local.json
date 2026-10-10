@@ -1,0 +1,160 @@
+{
+    "passed": true,
+    "platform": "offscreen",
+    "qt": "6.11.2",
+    "results": [
+        {
+            "expectedCaretTopLeft": [
+                463.5625,
+                51
+            ],
+            "itemAnchorRect": [
+                463.5625,
+                51,
+                1,
+                47
+            ],
+            "itemCursorRect": [
+                463.5625,
+                51,
+                1,
+                47
+            ],
+            "lineCount": 1,
+            "lineIndex": 0,
+            "mappedExactly": true,
+            "matchesLayout": true,
+            "preedit": "z",
+            "preeditStart": 31,
+            "transformed": false,
+            "viewCursorRect": [
+                717.5625,
+                260,
+                1,
+                47
+            ],
+            "viewExpected": [
+                717.5625,
+                260,
+                1,
+                47
+            ],
+            "visualPosition": 32
+        },
+        {
+            "expectedCaretTopLeft": [
+                163.25,
+                102
+            ],
+            "itemAnchorRect": [
+                163.25,
+                102,
+                1,
+                47
+            ],
+            "itemCursorRect": [
+                163.25,
+                102,
+                1,
+                47
+            ],
+            "lineCount": 2,
+            "lineIndex": 1,
+            "mappedExactly": true,
+            "matchesLayout": true,
+            "preedit": "zhong'wen",
+            "preeditStart": 31,
+            "transformed": false,
+            "viewCursorRect": [
+                417.25,
+                311,
+                1,
+                47
+            ],
+            "viewExpected": [
+                417.25,
+                311,
+                1,
+                47
+            ],
+            "visualPosition": 40
+        },
+        {
+            "expectedCaretTopLeft": [
+                463.5625,
+                51
+            ],
+            "itemAnchorRect": [
+                463.5625,
+                51,
+                1,
+                47
+            ],
+            "itemCursorRect": [
+                463.5625,
+                51,
+                1,
+                47
+            ],
+            "lineCount": 1,
+            "lineIndex": 0,
+            "mappedExactly": true,
+            "matchesLayout": true,
+            "preedit": "z",
+            "preeditStart": 31,
+            "transformed": true,
+            "viewCursorRect": [
+                295.87991547023773,
+                136.8303341601196,
+                30.457531754730553,
+                51.50399247233577
+            ],
+            "viewExpected": [
+                295.87991547023773,
+                136.8303341601196,
+                30.457531754730553,
+                51.50399247233577
+            ],
+            "visualPosition": 32
+        },
+        {
+            "expectedCaretTopLeft": [
+                163.25,
+                102
+            ],
+            "itemAnchorRect": [
+                163.25,
+                102,
+                1,
+                47
+            ],
+            "itemCursorRect": [
+                163.25,
+                102,
+                1,
+                47
+            ],
+            "lineCount": 2,
+            "lineIndex": 1,
+            "mappedExactly": true,
+            "matchesLayout": true,
+            "preedit": "zhong'wen",
+            "preeditStart": 31,
+            "transformed": true,
+            "viewCursorRect": [
+                589.1027330627555,
+                379.7347661513775,
+                30.457531754730553,
+                51.50399247233577
+            ],
+            "viewExpected": [
+                589.1027330627555,
+                379.7347661513775,
+                30.457531754730553,
+                51.50399247233577
+            ],
+            "visualPosition": 40
+        }
+    ],
+    "windowsImeExecuted": false
+}

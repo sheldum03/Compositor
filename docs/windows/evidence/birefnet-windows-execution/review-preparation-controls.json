@@ -1,0 +1,6 @@
+{
+  "macArchiveRejectedAsWindows": true,
+  "adaptedMacPixelsAndCancellationReviewExit": 0,
+  "windowsExecuted": false,
+  "scope": "Review script controls using existing Mac raw data, not a new inference or Windows run"
+}

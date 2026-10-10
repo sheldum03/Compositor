@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "platform": "macOS 26.5.1",
+  "headless": true,
+  "checks": [
+    "failed open preserves session",
+    "tile preview byte parity",
+    "actual rename/visibility/reorder/undo/redo buttons",
+    "dirty title",
+    "PNG/JPEG export",
+    "save-as existing protection",
+    "cancel/save/discard close dialogs",
+    "failed close-save preserves document",
+    "saved layer and pixel roundtrip"
+  ],
+  "limits": "Headless Avalonia window integration only; native file dialogs, native IME/DPI, Windows packaging and performance not tested."
+}

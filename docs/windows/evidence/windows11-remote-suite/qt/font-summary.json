@@ -1,0 +1,51 @@
+﻿{
+    "packageUnchanged":  true,
+    "visualInspectionRequired":  true,
+    "nativeImeExecuted":  false,
+    "os":  "Microsoft Windows NT 10.0.26200.0",
+    "windowsExecuted":  true,
+    "completed":  true,
+    "fonts":  [
+                  {
+                      "sha256":  "451DF9BB5546055AF625FF86AA72695DF43E8E170B4C6C1316FE44E9C7A22F7C",
+                      "name":  "seguiemj.ttf",
+                      "bytes":  12934920,
+                      "present":  true
+                  },
+                  {
+                      "sha256":  "8134DBCD09E7B123C9A7F229D49CFFBCB01352CC72EA5E1076B65D0DCA9F73CD",
+                      "name":  "segoeui.ttf",
+                      "bytes":  959752,
+                      "present":  true
+                  }
+              ],
+    "powershell":  "5.1.26100.9444",
+    "nativeWindowsFontDatabaseTested":  false,
+    "packageManifestSha256":  "26A9FEF349D3A109F13BCB339E42D01722E35868591FEE453664D0041380D7AF",
+    "productAccepted":  false,
+    "cases":  [
+                  {
+                      "reportComplete":  true,
+                      "elapsedSeconds":  1.5055094,
+                      "exitCode":  0,
+                      "fontDirectory":  null,
+                      "resolvedFonts":  [
+                                            "Source Han Sans SC"
+                                        ],
+                      "case":  "default-fontdir",
+                      "error":  null
+                  },
+                  {
+                      "reportComplete":  true,
+                      "elapsedSeconds":  1.8186955,
+                      "exitCode":  0,
+                      "fontDirectory":  "C:\\WINDOWS\\Fonts",
+                      "resolvedFonts":  [
+                                            "Segoe UI Emoji",
+                                            "Source Han Sans SC"
+                                        ],
+                      "case":  "system-fontdir",
+                      "error":  null
+                  }
+              ]
+}

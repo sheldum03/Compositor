@@ -1,0 +1,13 @@
+{
+  "baseCommit": "c9ede9aa4b6b0814359a9f8441834a4a6e52da67",
+  "overlaySha256": {
+    "windows/Compositor.App/EditorWorkspace.cs": "d1b2db767c13f336a0bf6a223e79f334a0ab207b263553a37162732608f70148",
+    "windows/Compositor.App/MainWindow.cs": "5d9a43a56c7fa2c0e961b954d1e156bb4021efb32a3ca8306233f14786ec2b6e",
+    "windows/Compositor.App/CanvasView.cs": "5911ac67a32d4f3a41aed1b444624bec382850991021c1bc0f0926bc7cce04d7",
+    "windows/Compositor.App.Checks/Program.cs": "3c51bccd648afd1cbf2c90d0cfc5924fb418c7bb41da2f43678b713a1901c676",
+    "windows/Compositor.App.Checks/NewDocumentChecks.cs": "4396ff6170052a80f1b8b00ad6ae2237b680d8ebcc9a7ce462bc29b76c7bd0e4"
+  },
+  "platform": "macOS arm64",
+  "sdk": "10.0.401",
+  "nativeWindowsExecuted": false
+}

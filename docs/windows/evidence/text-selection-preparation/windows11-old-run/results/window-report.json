@@ -1,0 +1,1464 @@
+{
+  "status": "native-window observations; manual IME/DPI/visual acceptance required",
+  "windowsExecuted": true,
+  "nativeWindow": true,
+  "requestedRendering": "Software",
+  "nativeLibrarySha256": "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+  "nativePreeditChanges": 61,
+  "textInputEvents": 4,
+  "injectedInputMethodCalls": 0,
+  "renderScaling": 1.5,
+  "events": [
+    {
+      "utc": "2026-09-21T07:47:26.0489962Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 13,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T07:47:26.59748Z",
+      "name": "native-window-opened",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "platform": "Microsoft Windows NT 10.0.26200.0",
+        "scaling": 1.5
+      }
+    },
+    {
+      "utc": "2026-09-21T07:47:26.6130432Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T07:48:05.5950701Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T07:48:05.7943735Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T07:48:05.8029516Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T07:48:05.8317646Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T08:08:36.0229471Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T08:08:36.0229719Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T08:08:36.1810242Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:19.7952983Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:20.2652941Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:20.9640722Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:21.3316186Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T10:00:21.3316232Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-21T10:00:21.3444136Z",
+      "name": "brush-render-thread",
+      "thread": 58,
+      "onUiThread": false,
+      "data": 58
+    },
+    {
+      "utc": "2026-09-21T10:00:21.8111745Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T10:00:21.8111764Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 2
+    },
+    {
+      "utc": "2026-09-21T10:00:21.8294836Z",
+      "name": "composition-render-thread",
+      "thread": 58,
+      "onUiThread": false,
+      "data": 58
+    },
+    {
+      "utc": "2026-09-21T10:00:22.769706Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T10:00:22.769708Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 1
+    },
+    {
+      "utc": "2026-09-21T10:00:23.2032848Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 312,
+        "y": 244,
+        "milliseconds": 18.3943
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.2146859Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 312,
+        "y": 263.33333333333337,
+        "milliseconds": 10.5088
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.2297438Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 312,
+        "y": 267.33333333333337,
+        "milliseconds": 14.7012
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.249005Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 310,
+        "y": 290.6666666666667,
+        "milliseconds": 15.8384
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.2915873Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 293.33333333333337,
+        "y": 361.33333333333337,
+        "milliseconds": 42.3337
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.3928697Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 226.66666666666669,
+        "y": 526,
+        "milliseconds": 98.6065
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.508303Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 150,
+        "y": 588.6666666666666,
+        "milliseconds": 112.1087
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.5654504Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 157.33333333333337,
+        "y": 561.3333333333333,
+        "milliseconds": 53.452
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.5687717Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 157.33333333333337,
+        "y": 561.3333333333333,
+        "milliseconds": 0.0048
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:23.5965944Z",
+      "name": "brush-commit",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "milliseconds": 27.7819,
+        "undoCount": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.0130151Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 128.66666666666669,
+        "y": 298.6666666666667,
+        "milliseconds": 7.2629
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.0197411Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 122,
+        "y": 296,
+        "milliseconds": 6.383
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.0339583Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 118.66666666666669,
+        "y": 292.6666666666667,
+        "milliseconds": 10.6927
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.0516846Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 108.00000000000003,
+        "y": 286.6666666666667,
+        "milliseconds": 13.8745
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.0744734Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 98.66666666666669,
+        "y": 281.33333333333337,
+        "milliseconds": 19.1617
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.096437Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 80.66666666666669,
+        "y": 268,
+        "milliseconds": 18.4922
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.1305902Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 34.666666666666686,
+        "y": 245.33333333333337,
+        "milliseconds": 30.5266
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.1698139Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -31.999999999999986,
+        "y": 222,
+        "milliseconds": 35.2284
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.1926229Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -45.333333333333314,
+        "y": 219.33333333333337,
+        "milliseconds": 19.1278
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2113438Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -42.66666666666664,
+        "y": 219.33333333333337,
+        "milliseconds": 2.7342
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2186628Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -36.66666666666664,
+        "y": 220,
+        "milliseconds": 2.1084
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2277598Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -29.999999999999986,
+        "y": 222,
+        "milliseconds": 2.746
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2353892Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -21.999999999999986,
+        "y": 223.33333333333337,
+        "milliseconds": 2.9648
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2454548Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -15.999999999999986,
+        "y": 224,
+        "milliseconds": 4.7884
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2541548Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": -7.999999999999972,
+        "y": 227.33333333333337,
+        "milliseconds": 5.6529
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2643432Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 2.842170943040401E-14,
+        "y": 227.33333333333337,
+        "milliseconds": 6.2658
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2711124Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 10.000000000000028,
+        "y": 228,
+        "milliseconds": 6.4961
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2821258Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 20.666666666666686,
+        "y": 229.33333333333337,
+        "milliseconds": 7.5787
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.2925779Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 34.00000000000003,
+        "y": 231.33333333333337,
+        "milliseconds": 10.1787
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.3083346Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 48.666666666666686,
+        "y": 232.66666666666669,
+        "milliseconds": 12.3089
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.3305325Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 87.33333333333334,
+        "y": 235.33333333333337,
+        "milliseconds": 22.0146
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.3871052Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 178,
+        "y": 244.66666666666669,
+        "milliseconds": 52.7264
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.4732338Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 275.33333333333337,
+        "y": 270.6666666666667,
+        "milliseconds": 82.2467
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.566178Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 380.00000000000006,
+        "y": 322,
+        "milliseconds": 88.9887
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.6329406Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 414.00000000000006,
+        "y": 315.33333333333337,
+        "milliseconds": 62.7035
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.6368623Z",
+      "name": "brush-pointer-update",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "x": 414.00000000000006,
+        "y": 315.33333333333337,
+        "milliseconds": 0.0084
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:24.6615924Z",
+      "name": "brush-commit",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "milliseconds": 24.7213,
+        "undoCount": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:26.1475317Z",
+      "name": "brush-cancel",
+      "thread": 2,
+      "onUiThread": true,
+      "data": null
+    },
+    {
+      "utc": "2026-09-21T10:00:26.1475349Z",
+      "name": "tab-selection",
+      "thread": 2,
+      "onUiThread": true,
+      "data": 0
+    },
+    {
+      "utc": "2026-09-21T10:00:28.5226144Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:29.2182133Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:30.764342Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:31.8505602Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:32.4329383Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:00:33.4672045Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:13.1930377Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T10:01:29.928705Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.0079191Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.1597048Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 3
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.3221467Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.4773385Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.5130134Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 7
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.7334435Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:30.7807235Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-21T10:01:46.3091923Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:05.2461329Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:05.4484487Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:05.5828097Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:05.6876811Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:05.9292579Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:06.0205998Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:06.1253014Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 10
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:06.2781633Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 11
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:06.3538815Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 12
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:07.2694061Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 11
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:07.4411761Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 10
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:07.6794951Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:07.781782Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:07.9451848Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:08.1096077Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:08.2731325Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:09.2560769Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 3
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:09.3921889Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:09.5979673Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:09.6605539Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 7
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:09.8797391Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:09.969818Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:10.5118604Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:02:10.5121596Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:03:36.7266888Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T10:03:37.0236231Z",
+      "name": "text-preview-export",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "DifferentPixels": 0,
+        "MaximumChannelError": 0,
+        "MeanAbsoluteChannelError": 0,
+        "MaximumAlphaError": 0,
+        "PixelsWithErrorAbove1": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:20.8265089Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:31.8651339Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T10:05:35.4036412Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:35.5986734Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:36.465452Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:36.6909724Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:36.8654502Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:41.410063Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:45.9490104Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:46.1500772Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:46.7283772Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:46.8306663Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:46.9364575Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:47.2345292Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:05:47.234542Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:23.4269727Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T10:06:23.5324744Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:24.2441175Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:25.8717947Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:28.7726977Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:29.0823635Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:29.7406736Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:30.2007103Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:30.8700838Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": true
+      }
+    },
+    {
+      "utc": "2026-09-21T10:06:47.1735762Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 0.5,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:04.1235148Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T10:07:05.3961184Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:05.480823Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:05.6620356Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 3
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:05.8274859Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:06.0118452Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:06.0500406Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 7
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:06.2667926Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:06.325662Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 9
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:12.4046829Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:12.4047015Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 8
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:12.4055207Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T10:07:15.4432904Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T10:07:35.2131009Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 1
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:35.4430934Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:35.5879136Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 4
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:35.628549Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 5
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:35.7156956Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 6
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:35.9688387Z",
+      "name": "native-preedit-change",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 0
+      }
+    },
+    {
+      "utc": "2026-09-21T10:07:35.9688498Z",
+      "name": "text-input",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "length": 2
+      }
+    },
+    {
+      "utc": "2026-09-21T10:10:00.8307844Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T10:10:00.9191453Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1,
+        "flipped": false
+      }
+    },
+    {
+      "utc": "2026-09-21T10:10:04.6571695Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": true
+    },
+    {
+      "utc": "2026-09-21T10:10:06.7062173Z",
+      "name": "text-focus",
+      "thread": 2,
+      "onUiThread": true,
+      "data": false
+    },
+    {
+      "utc": "2026-09-21T10:10:06.8177391Z",
+      "name": "text-transform",
+      "thread": 2,
+      "onUiThread": true,
+      "data": {
+        "angle": 0,
+        "zoom": 1.5,
+        "flipped": false
+      }
+    }
+  ]
+}

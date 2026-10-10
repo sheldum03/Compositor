@@ -1,0 +1,19 @@
+﻿{
+    "status":  "passed",
+    "windowsExecuted":  true,
+    "toolchain":  "LLVM-MinGW (not MSVC)",
+    "utc":  "2026-09-21T03:19:50.1402809Z",
+    "exports":  19,
+    "dllSha256":  "046ad66d8da01625985f29f59fd5b39035adc0483dc43eb141d678b4e931320f",
+    "contract":  "PASS: 8 C algorithms through shared-library C++ linkage; pointer=8 size_t=8 long=4",
+    "ctypes":  {
+                   "status":  "passed",
+                   "boundary":  "ctypes (not P/Invoke)",
+                   "system":  "Windows",
+                   "machine":  "AMD64",
+                   "pointerBytes":  8,
+                   "sizeTBytes":  8,
+                   "longBytes":  4,
+                   "traceAllocationReleaseCycles":  1000
+               }
+}

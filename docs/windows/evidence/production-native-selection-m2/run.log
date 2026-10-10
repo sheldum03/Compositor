@@ -1,0 +1,2 @@
+PASS: native wand sampling, connectivity, alpha, padded rows, bounds, hole winding and owned outline memory
+PASS: edit, undo, redo, safe save, rejected-save protection, reopen, export, validated backup recovery, cleanup-failure commit, precommit rollback, v1-v8 recognition and write protection, hierarchy rejection, scaled-source write protection, changed-asset protection, tile snapshots, history image budget, native C pixels

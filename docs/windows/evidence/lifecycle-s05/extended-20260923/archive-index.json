@@ -1,0 +1,34 @@
+{
+  "rawEvidenceDirectory": "/Users/admin/.codex/visualizations/2026/09/20/01a0bf7d-45c7-7403-8411-eb985b4d9ff8/s05-extended-20260923",
+  "files": {
+    "S05Extended.zip": {
+      "bytes": 13872358,
+      "sha256": "5d4887baa9479fd123afb4dbee8741da98df0260281e119c43947db8168c1f88"
+    },
+    "s05-extended-20260923-180340.zip": {
+      "bytes": 37427017,
+      "sha256": "df1e374919f9c6a808accb7c086d94d7d05da61bf41c7a3c3b45ed8dabbaa6e8"
+    },
+    "S05Core.zip": {
+      "bytes": 32266,
+      "sha256": "4de64d5410b06354305f9939fb4aeb5ab7359d842213bd98fd31eedebca7bcf2"
+    },
+    "s05-core-20260923-182340.zip": {
+      "bytes": 3051,
+      "sha256": "244ae4cb37d79e942ec65ecf324f55c5ee4c1033d3d2394d22321409eaa621da"
+    },
+    "windows-checkpoint-round15.json": {
+      "bytes": 18021013,
+      "sha256": "c9db0b9bf12f1d3dbc33f731d464ff76489811170013539837634cc1e4c36c31"
+    },
+    "local-run/report.json": {
+      "bytes": 29452602,
+      "sha256": "e8c9494baaafc68eba827b603464d769aa7446ebe782222b007386c0d7cb6a9e"
+    },
+    "windows-resources.png": {
+      "bytes": 187945,
+      "sha256": "41bc0d01194a9716f33e79a84c9f0e4304eb5ef8e2fd153e4ba2a223345916c5"
+    }
+  },
+  "resourceAccepted": false
+}

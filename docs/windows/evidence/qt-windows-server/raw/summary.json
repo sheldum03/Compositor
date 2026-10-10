@@ -1,0 +1,35 @@
+﻿{
+    "WindowsExecuted":  true,
+    "PreparationChecksPassed":  true,
+    "NativeImeExecuted":  false,
+    "ProductAcceptance":  false,
+    "OS":  "Microsoft Windows NT 10.0.20348.0",
+    "PowerShell":  "5.1.20348.3932",
+    "SourceCommit":  "cbc28f592ac80fbb5d13d76b90bd746bb058a2ce",
+    "Steps":  [
+                  {
+                      "Name":  "native",
+                      "ExitCode":  0,
+                      "ReportComplete":  true,
+                      "Error":  null
+                  },
+                  {
+                      "Name":  "composite",
+                      "ExitCode":  0,
+                      "ReportComplete":  true,
+                      "Error":  null
+                  },
+                  {
+                      "Name":  "brush",
+                      "ExitCode":  0,
+                      "ReportComplete":  true,
+                      "Error":  null
+                  },
+                  {
+                      "Name":  "text",
+                      "ExitCode":  0,
+                      "ReportComplete":  true,
+                      "Error":  null
+                  }
+              ]
+}

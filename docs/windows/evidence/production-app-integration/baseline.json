@@ -1,0 +1,15 @@
+{
+  "commit": "275588f",
+  "overlays": [
+    "windows/Compositor.App/packages.lock.json",
+    "windows/Compositor.App/RasterBitmap.cs",
+    "windows/Compositor.App/MainWindow.cs",
+    "windows/Compositor.App/EditorWorkspace.cs",
+    "windows/Compositor.App/Compositor.App.csproj",
+    "windows/Compositor.App/Program.cs",
+    "windows/Compositor.App.Checks/packages.lock.json",
+    "windows/Compositor.App.Checks/Compositor.App.Checks.csproj",
+    "windows/Compositor.App.Checks/Program.cs"
+  ],
+  "initialWorktreeRun": "attempt1 exited 0; included concurrent uncommitted per-layer core, superseded for acceptance by frozen source run"
+}

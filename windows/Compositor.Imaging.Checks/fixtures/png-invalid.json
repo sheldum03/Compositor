@@ -1,0 +1,17 @@
+[
+  "missing-iend.png",
+  "truncated-iend.png",
+  "bad-iend-crc.png",
+  "extra-tail.png",
+  "bad-ancillary-crc.png",
+  "bad-idat-crc.png",
+  "unknown-critical.png",
+  "repeated-ihdr.png",
+  "idat-gap.png",
+  "invalid-chunk-name.png",
+  "oversized-chunk.png",
+  "no-idat.png",
+  "nonempty-iend.png",
+  "invalid-plte.png",
+  "late-plte.png"
+]

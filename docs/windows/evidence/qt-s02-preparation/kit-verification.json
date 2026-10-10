@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "406c239de656f83f9290fe6c04398f3adaeea8cd",
+  "syntaxCheckedPythonFiles": 3,
+  "payloadFiles": 4,
+  "dependencies": 8,
+  "fixtureFiles": 10,
+  "localInstallMatchesManifest": true,
+  "duplicateInstallRefused": true,
+  "sourceArchiveMatchesWorkingSource": true,
+  "nonWindowsRunRefused": true,
+  "windowsExecuted": false
+}

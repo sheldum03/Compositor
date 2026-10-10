@@ -1,0 +1,11 @@
+{
+  "closeSent": true,
+  "exited": true,
+  "exitCode": null,
+  "closeMilliseconds": 315.6145,
+  "stderrBytes": 0,
+  "completed": false,
+  "windowClosed": true,
+  "updatesAttempted": 4254,
+  "error": "System.Threading.Tasks.TaskCanceledException: A task was canceled.\r\n   at BrushPerformanceProbe.Run.Update(BrushPoint point, Action render) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/BrushPerformanceProbe.cs:line 172\r\n   at BrushPerformanceProbe.Run.Execute(Int32 measuredCount, Action render) in /Users/admin/.codex/worktrees/192b/Compositor/experiments/windows/avalonia/BrushPerformanceProbe.cs:line 214"
+}

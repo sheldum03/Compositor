@@ -1,0 +1,6 @@
+{
+  "output/native-selection/global-mask.bin": "f7651e53321085136ee58c15661e9e502b047c72c46e166306d214cca63f4417",
+  "output/native-selection/padded-rgba.bin": "2595a57622ffa441503828cbf70aac378bc22b3338c8f309cb9f63a053197cd3",
+  "output/native-selection/results.json": "41c89b3e66fec1b64fdec0bc9a0abfdb41e4820b00ee238fffa354059c5cf806",
+  "libcompositor_native.dylib": "0c622bf774035965d7867df58b6470bc56818bdd32a6ba78d427625b60413df3"
+}

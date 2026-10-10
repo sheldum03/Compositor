@@ -1,0 +1,16 @@
+{
+  "baseSourceCommit": "f1ac69a7657bc42245feeda6d494ba4f1cb19406",
+  "payload": {
+    "CoreControl.deps.json": "3dc33d0efaa65ab363a52260ce8b322fb952c6432c5cd00ff527b04606ba0377",
+    "TileImageCache.cs": "0a5a16683583b3e69473755323b761cfbc52b8011c37b911a67cfeb3ebe3d62b",
+    "CoreControl.csproj": "b597fb0d262c72787e3506512bb2b4a4a592c00efef52f13eb8f2a47609bf635",
+    "TiledRaster.cs": "447d643b6c1391cd15fced491ca1c5ece5ce928f6e43d2218dbc8f7a76dfeb96",
+    "SoftBrushStroke.cs": "7f44a615b8d713cd1739315bb9e4eef9705f5f8dd0f0f686b3e0197bd9ba5f16",
+    "CoreControl.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+    "CoreControl.dll": "71d5838e648d8ddb192c021245204886052bcca79a5c7c40af95f40d412bb5c6",
+    "Program.cs": "138085def9669c55c8144f39ea258e32a564630c5c803fc77ba826c79522528f",
+    "run.py": "8a7443a2623e573c076fbd88ea4630404df319e079e1904519d3ddfc16bd6162"
+  },
+  "skiaSharpSha256": "17ee1284313749f73a5cf5f309318d831741a8d6d397c998c5fc6485843c28bb",
+  "scope": "Core-only 27-round control; not native-window acceptance"
+}

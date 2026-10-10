@@ -1,0 +1,109 @@
+{
+    "brushEvents": [
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 8.552208
+        },
+        {
+            "error": "",
+            "event": "append",
+            "milliseconds": 106.650417
+        },
+        {
+            "error": "",
+            "event": "release-commit",
+            "milliseconds": 100.861875
+        },
+        {
+            "error": "",
+            "event": "press",
+            "milliseconds": 9.528459
+        },
+        {
+            "error": "",
+            "event": "append",
+            "milliseconds": 92.753667
+        },
+        {
+            "error": "",
+            "event": "release-commit",
+            "milliseconds": 96.331042
+        }
+    ],
+    "brushFailure": "",
+    "brushPaints": 13,
+    "checks": {
+    },
+    "errors": [
+    ],
+    "nativeImeAccepted": false,
+    "os": "macOS Tahoe (26.5.1)",
+    "platformPlugin": "cocoa",
+    "previewBuffer": "one viewport-sized premultiplied image at device pixel ratio, SourceOver on white; no full 4K preview export",
+    "productAccepted": false,
+    "qt": "6.11.2",
+    "saves": [
+        {
+            "commitEventsObserved": 0,
+            "content": "中文窗口 Qt English 😀\n实际输入与撤销",
+            "directory": "/tmp/compositor-qt-native-window-01/001-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 0,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "commitEventsObserved": 1,
+            "content": "a",
+            "directory": "/tmp/compositor-qt-native-window-01/002-text",
+            "kind": "text",
+            "nativeImeAccepted": false,
+            "preeditEventsObserved": 1,
+            "previewExport": {
+                "DifferentPixels": 0,
+                "MaximumAlphaError": 0,
+                "MaximumChannelError": 0,
+                "MeanAbsoluteChannelError": 0,
+                "PixelsWithErrorAbove1": 0
+            }
+        },
+        {
+            "directory": "/tmp/compositor-qt-native-window-01/003-brush",
+            "kind": "brush",
+            "project": "/tmp/compositor-qt-native-window-01/003-brush/brush.comp",
+            "undoCount": 1
+        },
+        {
+            "directory": "/tmp/compositor-qt-native-window-01/004-brush",
+            "kind": "brush",
+            "project": "/tmp/compositor-qt-native-window-01/004-brush/brush.comp",
+            "undoCount": 2
+        },
+        {
+            "directory": "/tmp/compositor-qt-native-window-01/005-brush",
+            "kind": "brush",
+            "project": "/tmp/compositor-qt-native-window-01/005-brush/brush.comp",
+            "undoCount": 1
+        },
+        {
+            "directory": "/tmp/compositor-qt-native-window-01/006-brush",
+            "kind": "brush",
+            "project": "/tmp/compositor-qt-native-window-01/006-brush/brush.comp",
+            "undoCount": 2
+        },
+        {
+            "directory": "/tmp/compositor-qt-native-window-01/007-F04",
+            "kind": "composition",
+            "project": "/tmp/compositor-qt-native-window-01/007-F04/F04.comp"
+        }
+    ],
+    "syntheticCheckMode": false,
+    "windowsExecuted": false
+}

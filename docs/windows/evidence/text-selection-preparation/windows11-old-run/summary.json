@@ -1,0 +1,12 @@
+﻿{
+    "ExitCode":  -532462766,
+    "WindowsExecuted":  true,
+    "NativeWindow":  true,
+    "NativePreeditChanges":  61,
+    "TextInputEvents":  4,
+    "TextExports":  4,
+    "BrushSaves":  0,
+    "CompositionSaves":  0,
+    "ActionErrors":  0,
+    "Scope":  "Native window observations; IME candidate placement, focus, DPI and visual acceptance require manual review"
+}

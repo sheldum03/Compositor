@@ -1,0 +1,2 @@
+# Fixture JSON is byte-hashed by the Windows/macOS probes; keep LF bytes stable.
+/docs/windows/fixtures/**/*.json -text

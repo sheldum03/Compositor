@@ -1,0 +1,62 @@
+[
+  {
+    "scenario": "empty",
+    "gcCollections": [
+      249,
+      69,
+      25
+    ],
+    "groups": [
+      {
+        "overBudget": false,
+        "count": 3464,
+        "means": {
+          "AppendMilliseconds": 1.6999886258660508,
+          "PaintMilliseconds": 2.1317456697459582,
+          "SceneToRenderMilliseconds": 5.445481408775982,
+          "NativePixelCopyBytes": 4818182.503464203
+        }
+      },
+      {
+        "overBudget": true,
+        "count": 136,
+        "means": {
+          "AppendMilliseconds": 1.9054625,
+          "PaintMilliseconds": 2.292385294117647,
+          "SceneToRenderMilliseconds": 20.17652205882353,
+          "NativePixelCopyBytes": 4957605.647058823
+        }
+      }
+    ]
+  },
+  {
+    "scenario": "existing",
+    "gcCollections": [
+      250,
+      76,
+      27
+    ],
+    "groups": [
+      {
+        "overBudget": false,
+        "count": 2950,
+        "means": {
+          "AppendMilliseconds": 1.8953365084745764,
+          "PaintMilliseconds": 4.286913152542373,
+          "SceneToRenderMilliseconds": 3.3171661016949154,
+          "NativePixelCopyBytes": 4672561.290847458
+        }
+      },
+      {
+        "overBudget": true,
+        "count": 650,
+        "means": {
+          "AppendMilliseconds": 3.218742307692308,
+          "PaintMilliseconds": 4.677212461538462,
+          "SceneToRenderMilliseconds": 16.812239384615385,
+          "NativePixelCopyBytes": 5508250.387692308
+        }
+      }
+    ]
+  }
+]

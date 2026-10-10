@@ -1,0 +1,34 @@
+[
+  {
+    "scenario": "empty",
+    "reference": "QtMac",
+    "differentPixels": 69022,
+    "maximumChannelError": 1,
+    "maximumAlphaError": 0,
+    "accepted": false
+  },
+  {
+    "scenario": "empty",
+    "reference": "AvaloniaWindows",
+    "differentPixels": 109935,
+    "maximumChannelError": 1,
+    "maximumAlphaError": 0,
+    "accepted": false
+  },
+  {
+    "scenario": "existing",
+    "reference": "QtMac",
+    "differentPixels": 129384,
+    "maximumChannelError": 1,
+    "maximumAlphaError": 0,
+    "accepted": false
+  },
+  {
+    "scenario": "existing",
+    "reference": "AvaloniaWindows",
+    "differentPixels": 203017,
+    "maximumChannelError": 1,
+    "maximumAlphaError": 0,
+    "accepted": false
+  }
+]

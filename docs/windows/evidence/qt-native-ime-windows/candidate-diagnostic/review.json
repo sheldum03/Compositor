@@ -1,0 +1,39 @@
+{
+  "nativeCandidatePosition": "failed observation; preedit caret near screenshot (560,370), candidate near (720,363)",
+  "archive": "qt-ime-trace-20260923-171634.zip",
+  "archiveBytes": 39388,
+  "archiveSha256": "410653910ce894cfe6868ea837330cdd6e05f31e4a71710f2a76d42836a05b05",
+  "exitCode": 0,
+  "pid": 49208,
+  "nativeLoggingRules": "qt.qpa.input.methods.debug=true",
+  "observedRects": [
+    [
+      1086,
+      501,
+      2,
+      71
+    ],
+    [
+      1197,
+      501,
+      1,
+      71
+    ],
+    [
+      539,
+      578,
+      2,
+      70
+    ],
+    [
+      647,
+      578,
+      1,
+      70
+    ]
+  ],
+  "finding": "Qt Windows cursorRectChanged receives changing current-line geometry, including wrap. This rules out a missing Qt notification in this run; native candidate remains near initial preedit start. Imm32 return values and system caret are not recorded.",
+  "localNotificationAndGeometryPassed": true,
+  "nativeImeAccepted": false,
+  "initialRemoteFocusError": "First input entered background Avalonia preedit and was canceled; then Qt focused explicitly. First Qt attempt left literal z; Ctrl+Z restored original before stable second attempt."
+}

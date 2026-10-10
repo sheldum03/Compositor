@@ -1,0 +1,210 @@
+name: Windows native and framework probes
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/windows-implementation]
+    paths:
+      - .github/workflows/windows-native-probe.yml
+      - .gitattributes
+      - experiments/windows/native/**
+      - experiments/windows/dotnet-bridge/**
+      - experiments/windows/avalonia/**
+      - experiments/windows/qt/**
+      - docs/windows/fixtures/**
+      - Compositor/Resources/Fonts/SourceHanSansSC-Regular.otf
+      - Compositor/Resources/Licenses/SourceHanSans-OFL.txt
+      - Compositor/Rendering/*Pixels.c
+      - Compositor/Rendering/*Pixels.h
+      - Compositor/Rendering/ContentFill.c
+      - Compositor/Rendering/ContentFill.h
+
+permissions:
+  contents: read
+
+jobs:
+  native-bridge:
+    runs-on: windows-2025
+    timeout-minutes: 40
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: experiments/windows/dotnet-bridge/global.json
+      - name: Record runner and install pinned CMake
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          New-Item -ItemType Directory -Force build/evidence | Out-Null
+          Get-ComputerInfo -Property WindowsProductName, WindowsVersion, OsBuildNumber, OsArchitecture |
+            ConvertTo-Json | Set-Content build/evidence/os.json
+          @("ImageOS=$env:ImageOS", "ImageVersion=$env:ImageVersion", "Commit=$env:GITHUB_SHA") |
+            Set-Content build/evidence/runner.txt
+          dotnet --info | Tee-Object build/evidence/dotnet.txt
+          # CMake 4.2 adds the Visual Studio 18 2026 generator used by windows-2025.
+          python -m pip install cmake==4.2.3
+          cmake --version | Tee-Object build/evidence/cmake.txt
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw "Visual Studio installation with x64 C++ tools was not found." }
+          $devenv = Get-Item "$vs/Common7/IDE/devenv.exe" -ErrorAction Stop
+          $vsMajor = $devenv.VersionInfo.ProductMajorPart
+          $year = switch ($vsMajor) {
+            18 { 2026 }
+            17 { 2022 }
+            16 { 2019 }
+            15 { 2017 }
+            default { throw "Unsupported Visual Studio major $vsMajor." }
+          }
+          $generator = "Visual Studio $vsMajor $year"
+          if (-not ((cmake --help | Out-String) -match [regex]::Escape($generator))) {
+            throw "CMake has no '$generator' generator."
+          }
+          "VS_GENERATOR=$generator" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "VS_INSTALLATION=$vs" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "Generator=$generator" | Tee-Object build/evidence/msvc-generator.txt
+      - name: Build the existing C sources with MSVC
+        id: native-build
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          cmake -S experiments/windows/native -B build/native -G "$env:VS_GENERATOR" -A x64 2>&1 |
+            Tee-Object build/evidence/configure.txt
+          cmake --build build/native --config Release --parallel 4 2>&1 |
+            Tee-Object build/evidence/build.txt
+      - name: Run C++ contract tests
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          ctest --test-dir build/native -C Release --output-on-failure -V --output-junit "${PWD}/build/evidence/native-tests.xml" 2>&1 |
+            Tee-Object build/evidence/ctest.txt
+      - name: Check DLL exports and ctypes boundary
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $vs = $env:VS_INSTALLATION
+          $dumpbin = Get-ChildItem "$vs/VC/Tools/MSVC/*/bin/Hostx64/x64/dumpbin.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          if (!$dumpbin) { throw "dumpbin.exe not found" }
+          & $dumpbin.FullName /EXPORTS build/native/Release/compositor_native.dll | Tee-Object build/evidence/exports.txt
+          python experiments/windows/native/ffi_smoke.py build/native/Release/compositor_native.dll |
+            Tee-Object build/evidence/ctypes.json
+      - name: Run C# P/Invoke with pinned managed pixels
+        working-directory: experiments/windows/dotnet-bridge
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet build -c Release 2>&1 | Tee-Object ../../../build/evidence/dotnet-build.txt
+          dotnet run -c Release --no-build -- ../../../build/native/Release/compositor_native.dll |
+            Tee-Object ../../../build/evidence/pinvoke.json
+      - name: Restore and build the locked Avalonia probe
+        id: avalonia-build
+        working-directory: experiments/windows/avalonia
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet restore --locked-mode 2>&1 | Tee-Object ../../../build/evidence/avalonia-restore.txt
+          dotnet build -c Release --no-restore 2>&1 | Tee-Object ../../../build/evidence/avalonia-build.txt
+      - name: Run Avalonia composition and project round trips
+        if: ${{ !cancelled() && steps.avalonia-build.outcome == 'success' }}
+        working-directory: experiments/windows/avalonia
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet run -c Release --no-build -- ../../../docs/windows/fixtures ../../../build/avalonia/composite ../../../build/native/Release/compositor_native.dll 2>&1 |
+            Tee-Object ../../../build/evidence/avalonia-composite.txt
+      - name: Run Avalonia two-stroke 4K brush checks
+        if: ${{ !cancelled() && steps.avalonia-build.outcome == 'success' }}
+        working-directory: experiments/windows/avalonia
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet run -c Release --no-build -- --brush ../../../docs/windows/fixtures/brush ../../../build/avalonia/brush ../../../build/native/Release/compositor_native.dll 2>&1 |
+            Tee-Object ../../../build/evidence/avalonia-brush.txt
+      - name: Run Avalonia shared text layout and synthetic input checks
+        if: ${{ !cancelled() && steps.avalonia-build.outcome == 'success' }}
+        working-directory: experiments/windows/avalonia
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet run -c Release --no-build -- --text ../../../docs/windows/fixtures/extended ../../../build/avalonia/text ../../../build/native/Release/compositor_native.dll 2>&1 |
+            Tee-Object ../../../build/evidence/avalonia-text.txt
+      - name: Download and verify the pinned Windows Qt SDK
+        id: qt-sdk
+        if: ${{ !cancelled() && steps.native-build.outcome == 'success' }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $sdk = Get-Content experiments/windows/qt/windows-sdk.json -Raw | ConvertFrom-Json
+          $archive = "$env:RUNNER_TEMP/qtbase.7z"
+          $qtRoot = "$env:RUNNER_TEMP/compositor-qt"
+          Invoke-WebRequest $sdk.url -OutFile $archive
+          if ((Get-Item $archive).Length -ne $sdk.bytes -or (Get-FileHash $archive -Algorithm SHA256).Hash -ne $sdk.sha256) {
+            throw "Qt SDK archive identity mismatch"
+          }
+          7z x $archive "-o$qtRoot" -y 2>&1 | Tee-Object build/evidence/qt-extract.txt
+          "[Paths]`nPrefix=.." | Set-Content "$qtRoot/bin/qt.conf" -Encoding ascii
+          & "$qtRoot/bin/qtpaths.exe" --query | Tee-Object build/evidence/qt-paths.txt
+          $prefix = & "$qtRoot/bin/qtpaths.exe" --query QT_INSTALL_PREFIX
+          if ($prefix.Replace('\', '/').TrimEnd('/') -ne $qtRoot.Replace('\', '/').TrimEnd('/')) {
+            throw "Qt SDK prefix is not relocated"
+          }
+          "QT_ROOT=$qtRoot" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "QT_PLUGIN_PATH=$qtRoot/plugins" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "QT_QPA_PLATFORM=offscreen" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "QT_SCALE_FACTOR=1" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "$qtRoot/bin" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          "${PWD}/build/qt/native/Release" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          Copy-Item "$qtRoot/sbom/qtbase-6.11.2.spdx.json" build/evidence/qtbase-6.11.2.spdx.json
+          Get-FileHash -Algorithm SHA256 -Path "$qtRoot/bin/Qt6Core.dll", "$qtRoot/bin/Qt6Gui.dll", "$qtRoot/bin/Qt6Widgets.dll", "$qtRoot/plugins/platforms/qoffscreen.dll" |
+            Select-Object Path, Hash | ConvertTo-Json | Set-Content build/evidence/qt-sdk-files.json
+      - name: Build the Qt probe with MSVC
+        id: qt-build
+        if: ${{ !cancelled() && steps.qt-sdk.outcome == 'success' }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          cmake -S experiments/windows/qt -B build/qt -G "$env:VS_GENERATOR" -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_ROOT" 2>&1 |
+            Tee-Object build/evidence/qt-configure.txt
+          cmake --build build/qt --config Release --parallel 4 2>&1 | Tee-Object build/evidence/qt-build.txt
+      - name: Run the Qt build's native contract tests
+        if: ${{ !cancelled() && steps.qt-build.outcome == 'success' }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          ctest --test-dir build/qt -C Release --output-on-failure -V --output-junit "${PWD}/build/evidence/qt-native-tests.xml" 2>&1 |
+            Tee-Object build/evidence/qt-ctest.txt
+      - name: Run Qt composition and project round trips
+        if: ${{ !cancelled() && steps.qt-build.outcome == 'success' }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          & build/qt/Release/qt_probe.exe docs/windows/fixtures build/qt-output/composite 2>&1 |
+            Tee-Object build/evidence/qt-composite.txt
+      - name: Run Qt two-stroke 4K brush checks
+        if: ${{ !cancelled() && steps.qt-build.outcome == 'success' }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          & build/qt/Release/qt_probe.exe --brush docs/windows/fixtures/brush build/qt-output/brush 2>&1 |
+            Tee-Object build/evidence/qt-brush.txt
+      - name: Run Qt shared text layout and synthetic input checks
+        if: ${{ !cancelled() && steps.qt-build.outcome == 'success' }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          & build/qt/Release/qt_probe.exe --text docs/windows/fixtures/extended build/qt-output/text 2>&1 |
+            Tee-Object build/evidence/qt-text.txt
+      - name: Retain evidence even when a check fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-native-${{ github.sha }}
+          path: |
+            build/evidence/
+            build/native/CMakeCache.txt
+            build/native/Testing/Temporary/LastTest.log
+            build/native/Release/compositor_native.dll
+            build/native/Release/native_contract_tests.exe
+            build/avalonia/
+            experiments/windows/avalonia/packages.lock.json
+            experiments/windows/avalonia/bin/Release/net10.0/
+            build/qt-output/
+            build/qt/CMakeCache.txt
+            build/qt/Testing/Temporary/LastTest.log
+            build/qt/Release/qt_probe.exe
+            build/qt/native/Release/compositor_native.dll
+            build/qt/native/Release/native_contract_tests.exe
+            build/qt/Licenses/
+            experiments/windows/qt/windows-sdk.json
+          retention-days: 14

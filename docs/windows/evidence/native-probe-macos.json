@@ -1,0 +1,77 @@
+{
+  "date": "2026-09-21",
+  "scope": "W-006 preparation only; no Windows execution; no P/Invoke execution",
+  "sourceBaseCommit": "19b39329e1bdae19cbcdcb029c88572c692d7ee4",
+  "system": {
+    "name": "Darwin",
+    "machine": "arm64",
+    "macOS": "26.5.1"
+  },
+  "tools": {
+    "cmake": "3.31.6",
+    "clang": "Apple clang 21.0.0 (clang-2100.1.1.101)"
+  },
+  "ctest": {
+    "release": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "log": "native-release-macos.txt"
+    },
+    "debugASanUBSan": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "log": "native-sanitized-macos.txt",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "leakSanitizerExecuted": false
+    }
+  },
+  "ctypes": {
+    "status": "passed",
+    "boundary": "ctypes (not P/Invoke)",
+    "system": "Darwin",
+    "machine": "arm64",
+    "pointerBytes": 8,
+    "sizeTBytes": 8,
+    "longBytes": 8,
+    "traceAllocationReleaseCycles": 1000
+  },
+  "exportedCSymbols": [
+    "adjust_gradient_map",
+    "adjust_grain",
+    "brush_alpha_bounds",
+    "compositor_free",
+    "compositor_heal_bounds",
+    "compositor_wand_mask",
+    "content_fill",
+    "heal_coverage_bounds",
+    "layer_extract_alpha",
+    "layer_restore_alpha",
+    "layer_unpremultiply_opaque",
+    "lens_distort",
+    "levels_apply",
+    "levels_histogram",
+    "noise_add",
+    "rgba_clamp_premultiplied",
+    "spot_heal",
+    "wand_mask",
+    "wand_trace"
+  ],
+  "sha256": {
+    "Compositor/Rendering/AdjustPixels.c": "c25f751ec85b44f79071986b871c65cc2f8cc2141279fec5f73bc9401354839b",
+    "Compositor/Rendering/BrushPixels.c": "edd380a97598f76bd20ce04c7d6fd204e85d7a75f96b854da6e686e3d8a6b377",
+    "Compositor/Rendering/ContentFill.c": "591a0c2203d8ec044c239a025ce97986d98929b67d2ed22afda60f173ea491d8",
+    "Compositor/Rendering/HealPixels.c": "3798009ddd69cb4fa49730a22278b5d9c53d96dbb4dcef54df2e6330af6f5c62",
+    "Compositor/Rendering/LensPixels.c": "06851d9d50f7d7a163cc97a5b889caba1ad0b44ef7b10accd8799405bae72d3c",
+    "Compositor/Rendering/LevelsPixels.c": "e0f1251908dde36606e33e89191eb78c542c493c651b0cd31f89b1e0ed6b5053",
+    "Compositor/Rendering/NoisePixels.c": "47a31cdc99fe875c5abb408d367f8e0cc23a2200f24797a421f82dbf2dcff5cb",
+    "Compositor/Rendering/WandPixels.c": "e96aa626c6507a3743ed38876ab63f89b118c39c111585fa5ae89c92266e7f18",
+    "experiments/windows/native/CMakeLists.txt": "a81531e6a42ef19b0cf071ab587ee81120bb633a56f769970a3e3866c60163bd",
+    "experiments/windows/native/README.md": "2df513d21d86baa3fb15e37065218c0118ba3b8091175dc3abab8d4f1c5ce0a9",
+    "experiments/windows/native/bridge.c": "c3f4d8d68eefb3dda4b9c3e4e90e50c8a04fd8afa78b3de01fd1f1a5de4fbdb1",
+    "experiments/windows/native/bridge.h": "e0b8aba003422da64f32ac6f5b3d53f82e17124b6c483028d65d780ea43f2573",
+    "experiments/windows/native/contract_tests.cpp": "faf9ecc6cdc65f1b48e28369715190e3ebc442e7561e20b810bd3cf0e35012f1",
+    "experiments/windows/native/ffi_smoke.py": "740bf1d0babd82da73d2d00f91305199e7a6d87ef3c6d23c5fece0b7739e6188"
+  }
+}

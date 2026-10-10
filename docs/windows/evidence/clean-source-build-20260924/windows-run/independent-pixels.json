@@ -1,0 +1,341 @@
+{
+  "decodedRgbaPairs": 67,
+  "mismatches": 0,
+  "checks": [
+    {
+      "a": "composite/F03-preview.png",
+      "b": "composite/F03-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F03-export.png",
+      "b": "composite/F03-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B03-preview.png",
+      "b": "composite/B03-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B03-export.png",
+      "b": "composite/B03-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F06-preview.png",
+      "b": "composite/F06-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F06-export.png",
+      "b": "composite/F06-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B06-preview.png",
+      "b": "composite/B06-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B06-export.png",
+      "b": "composite/B06-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B13-preview.png",
+      "b": "composite/B13-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B13-export.png",
+      "b": "composite/B13-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B10-preview.png",
+      "b": "composite/B10-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B10-export.png",
+      "b": "composite/B10-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B05-preview.png",
+      "b": "composite/B05-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B05-export.png",
+      "b": "composite/B05-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F05-preview.png",
+      "b": "composite/F05-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F05-export.png",
+      "b": "composite/F05-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B09-preview.png",
+      "b": "composite/B09-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B09-export.png",
+      "b": "composite/B09-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B12-preview.png",
+      "b": "composite/B12-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B12-export.png",
+      "b": "composite/B12-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B07-preview.png",
+      "b": "composite/B07-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B07-export.png",
+      "b": "composite/B07-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F07-preview.png",
+      "b": "composite/F07-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F07-export.png",
+      "b": "composite/F07-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B02-preview.png",
+      "b": "composite/B02-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B02-export.png",
+      "b": "composite/B02-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F02-preview.png",
+      "b": "composite/F02-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F02-export.png",
+      "b": "composite/F02-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B08-preview.png",
+      "b": "composite/B08-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B08-export.png",
+      "b": "composite/B08-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F01-preview.png",
+      "b": "composite/F01-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F01-export.png",
+      "b": "composite/F01-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B01-preview.png",
+      "b": "composite/B01-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B01-export.png",
+      "b": "composite/B01-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F04-preview.png",
+      "b": "composite/F04-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/F04-export.png",
+      "b": "composite/F04-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B04-preview.png",
+      "b": "composite/B04-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B04-export.png",
+      "b": "composite/B04-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B11-preview.png",
+      "b": "composite/B11-export.png",
+      "equal": true
+    },
+    {
+      "a": "composite/B11-export.png",
+      "b": "composite/B11-reopened.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-point-left-preview.png",
+      "b": "text/F11-300-point-left-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-point-left-preview.png",
+      "b": "text/F11-300-point-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-point-right-preview.png",
+      "b": "text/F11-72-point-right-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-point-right-preview.png",
+      "b": "text/F11-72-point-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-point-left-preview.png",
+      "b": "text/F11-72-point-left-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-point-left-preview.png",
+      "b": "text/F11-72-point-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-box-right-preview.png",
+      "b": "text/F11-72-box-right-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-box-right-preview.png",
+      "b": "text/F11-72-box-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-point-center-preview.png",
+      "b": "text/F11-72-point-center-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-point-center-preview.png",
+      "b": "text/F11-72-point-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-box-center-preview.png",
+      "b": "text/F11-300-box-center-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-box-center-preview.png",
+      "b": "text/F11-300-box-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-point-center-preview.png",
+      "b": "text/F11-300-point-center-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-point-center-preview.png",
+      "b": "text/F11-300-point-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-point-right-preview.png",
+      "b": "text/F11-300-point-right-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-point-right-preview.png",
+      "b": "text/F11-300-point-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-box-left-preview.png",
+      "b": "text/F11-300-box-left-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-box-left-preview.png",
+      "b": "text/F11-300-box-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-box-center-preview.png",
+      "b": "text/F11-72-box-center-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-box-center-preview.png",
+      "b": "text/F11-72-box-center-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-box-right-preview.png",
+      "b": "text/F11-300-box-right-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-300-box-right-preview.png",
+      "b": "text/F11-300-box-right-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-box-left-preview.png",
+      "b": "text/F11-72-box-left-export.png",
+      "equal": true
+    },
+    {
+      "a": "text/F11-72-box-left-preview.png",
+      "b": "text/F11-72-box-left-cancelled.png",
+      "equal": true
+    },
+    {
+      "a": "brush/first-preview.png",
+      "b": "brush/first.png",
+      "equal": true
+    },
+    {
+      "a": "brush/final-preview.png",
+      "b": "brush/final.png",
+      "equal": true
+    },
+    {
+      "a": "brush/final.png",
+      "b": "brush/reopened.png",
+      "equal": true
+    }
+  ]
+}

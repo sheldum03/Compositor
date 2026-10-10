@@ -1,0 +1,47 @@
+.NET SDK:
+ Version:           10.0.401
+ Commit:            e34a38d2ae
+ Workload version:  10.0.400-manifests.63b36e85
+ MSBuild version:   18.9.11+e34a38d2a
+
+运行时环境:
+ OS Name:     Windows
+ OS Version:  10.0.26200
+ OS Platform: Windows
+ RID:         win-x64
+ Base Path:   C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\sdk\sdk\10.0.401\
+
+已安装 .NET 工作负载:
+没有要显示的已安装工作负载。
+已配置为在安装新清单时使用 workload sets。
+未安装任何 workload sets。运行 “dotnet workload restore” 以安装工作负载集。
+
+Host:
+  Version:      10.0.12
+  Architecture: x64
+  Commit:       95017c711e
+
+.NET SDKs installed:
+  10.0.401 [C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\sdk\sdk]
+
+.NET runtimes installed:
+  Microsoft.AspNetCore.App 10.0.12 [C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\sdk\shared\Microsoft.AspNetCore.App]
+  Microsoft.NETCore.App 10.0.12 [C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\sdk\shared\Microsoft.NETCore.App]
+  Microsoft.WindowsDesktop.App 10.0.12 [C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\sdk\shared\Microsoft.WindowsDesktop.App]
+
+Other architectures found:
+  None
+
+Environment variables:
+  DOTNET_CLI_HOME                          [C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\cli]
+  DOTNET_CLI_TELEMETRY_OPTOUT              [1]
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE        [1]
+
+global.json file:
+  C:\Users\Administrator\Desktop\CompositorTest\clean-source-build-20260924-103752\source\experiments\windows\avalonia\global.json
+
+Learn more:
+  https://aka.ms/dotnet/info
+
+Download .NET:
+  https://aka.ms/dotnet/download
