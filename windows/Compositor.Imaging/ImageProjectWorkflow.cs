@@ -61,6 +61,8 @@ public static class ImageProjectWorkflow
         {
             var rasters = new Dictionary<Guid, TileRaster>();
             var masks = new Dictionary<Guid, GrayTileRaster>();
+            var normalizedRasters = new HashSet<Guid>();
+            var normalizedMasks = new HashSet<Guid>();
             foreach (JsonNode? node in session.Current["layers"]!.AsArray())
             {
                 var layer = node!.AsObject();
@@ -72,19 +74,35 @@ public static class ImageProjectWorkflow
                     ProjectStore.CheckAssetHash(session, name, image);
                     TileRaster loadedRaster = ImageCodec.Load(image);
                     ProjectStore.CheckAssetHash(session, name, image);
-                    rasters.Add(id, loadedRaster);
+                    GrayTileRaster? loadedMask = null;
+                    if (layer["maskFile"] is { } maskNode)
+                    {
+                        string maskName = maskNode.GetValue<string>();
+                        string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
+                        ProjectStore.CheckAssetHash(session, maskName, maskPath);
+                        loadedMask = ImageCodec.LoadGrayMask(maskPath);
+                        ProjectStore.CheckAssetHash(session, maskName, maskPath);
+                    }
+                    var normalized = NormalizeLoadedAssets(session, id, loadedRaster, loadedMask);
+                    rasters.Add(id, normalized.Raster);
+                    if (normalized.Mask is not null) masks.Add(id, normalized.Mask);
+                    if (normalized.RasterChanged) normalizedRasters.Add(id);
+                    if (normalized.MaskChanged) normalizedMasks.Add(id);
                 }
-                if (layer["maskFile"] is { } maskNode)
+                else if (layer["maskFile"] is { } maskNode)
                 {
                     string maskName = maskNode.GetValue<string>();
                     string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
                     ProjectStore.CheckAssetHash(session, maskName, maskPath);
                     GrayTileRaster loadedMask = ImageCodec.LoadGrayMask(maskPath);
                     ProjectStore.CheckAssetHash(session, maskName, maskPath);
-                    masks.Add(id, loadedMask);
+                    var normalized = NormalizeLoadedAssets(session, id, new TileRaster(session.Width, session.Height), loadedMask);
+                    if (normalized.Mask is not null) masks.Add(id, normalized.Mask);
+                    if (normalized.MaskChanged) normalizedMasks.Add(id);
                 }
             }
             session.AttachLayerRasters(rasters, masks.Count == 0 ? null : masks);
+            session.MarkNormalizedAssets(normalizedRasters, normalizedMasks);
             return session;
         }
         string imagePath = Path.Combine(session.SourceDirectory, "images", session.ImageName);
@@ -100,8 +118,36 @@ public static class ImageProjectWorkflow
             ProjectStore.CheckAssetHash(session, maskName, maskPath);
             mask = ImageCodec.LoadGrayMask(maskPath);
         }
-        session.AttachRaster(raster, mask);
+        Guid layerId = Guid.Parse(session.Current["layers"]![0]!["id"]!.GetValue<string>());
+        var normalizedSingle = NormalizeLoadedAssets(session, layerId, raster, mask);
+        session.AttachRaster(normalizedSingle.Raster, normalizedSingle.Mask);
+        session.MarkNormalizedAssets(normalizedSingle.RasterChanged ? [layerId] : [], normalizedSingle.MaskChanged ? [layerId] : []);
         return session;
+    }
+
+    private sealed record NormalizedAssets(TileRaster Raster, GrayTileRaster? Mask, bool RasterChanged, bool MaskChanged);
+
+    private static NormalizedAssets NormalizeLoadedAssets(ProjectSession session, Guid layerId,
+        TileRaster raster, GrayTileRaster? mask)
+    {
+        bool rasterChanged = raster.Width != session.Width || raster.Height != session.Height;
+        bool maskChanged = mask is not null && (mask.Width != session.Width || mask.Height != session.Height);
+        if (!rasterChanged && !maskChanged) return new(raster, mask, false, false);
+        JsonObject layer = session.Current["layers"]!.AsArray()
+            .Single(node => Guid.Parse(node!["id"]!.GetValue<string>()) == layerId)!.AsObject();
+        JsonObject transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Layer transform data is missing.");
+        GrayTileRaster? normalizedMask = mask;
+        if (mask is not null)
+        {
+            GrayTileRaster localMask = ResolveLayerMask(mask, layer, raster.Width, raster.Height);
+            normalizedMask = rasterChanged ? TransformCachedMask(localMask, transform, session.Width, session.Height) : localMask;
+        }
+        TileRaster normalizedRaster = rasterChanged
+            ? TransformCachedRaster(raster, transform, session.Width, session.Height)
+            : raster;
+        session.NormalizeLayerForEditing(layerId, rasterChanged);
+        return new(normalizedRaster, normalizedMask, rasterChanged, maskChanged);
     }
 
     public static TileRaster RenderFlatNormal(string projectDirectory) =>

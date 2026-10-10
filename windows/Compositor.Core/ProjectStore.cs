@@ -72,8 +72,6 @@ public static class ProjectStore
         CheckPlain(images);
         string imageName = "";
         if (layers.Count == 1) imageName = layers[0]?["imageFile"]?.GetValue<string>() ?? "";
-        bool allImageSizesMatch = true;
-        bool allMaskSizesMatch = true;
         foreach (var layerNode in layers)
         {
             var layer = layerNode!.AsObject();
@@ -91,12 +89,7 @@ public static class ProjectStore
                 CheckPlain(asset);
                 if (new FileInfo(asset).Length > 512L * 1024 * 1024)
                     throw new InvalidDataException("Asset exceeds 512 MiB.");
-                var dimensions = CheckPng(asset, key == "maskFile");
-                if (dimensions != ((uint)width, (uint)height))
-                {
-                    if (key == "imageFile") allImageSizesMatch = false;
-                    else allMaskSizesMatch = false;
-                }
+                _ = CheckPng(asset, key == "maskFile");
             }
         }
         int imageLayerCount = layers.Count(layer => layer!["imageFile"] is not null);
@@ -105,7 +98,6 @@ public static class ProjectStore
             (long)imageLayerCount * width * height <= 100_000_000 &&
             manifest.All(pair => new[] { "activeLayerID", "colorSpace", "documentID", "format", "height", "layers", "resolution", "version", "width" }.Contains(pair.Key)) &&
             layers.All(node => IsEditableLayer(node!.AsObject(), width, height, allowGroups: true)) &&
-            allImageSizesMatch && allMaskSizesMatch &&
             Directory.GetFiles(images).Length == imageLayerCount + maskCount &&
             Directory.GetDirectories(images).Length == 0;
         var assetHashes = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);

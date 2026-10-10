@@ -324,6 +324,33 @@ public sealed class ProjectSession
         sourceLayerMasks = attachedMasks;
     }
 
+    internal void NormalizeLayerForEditing(Guid layerId, bool resetLayerTransform)
+    {
+        int index = FindLayer(layerId);
+        var layer = Current["layers"]![index]!.AsObject();
+        layer.Remove("maskPlacement");
+        if (!resetLayerTransform) return;
+        var transform = layer["transform"]?.AsObject()
+            ?? throw new InvalidDataException("Layer transform data is missing.");
+        transform["origin"] = new JsonArray(0, 0);
+        transform["size"] = new JsonArray(Width, Height);
+        transform["rotation"] = 0;
+        transform["flipX"] = false;
+        transform["flipY"] = false;
+    }
+
+    internal void MarkNormalizedAssets(IEnumerable<Guid> rasterIds, IEnumerable<Guid> maskIds)
+    {
+        HashSet<Guid> rasters = rasterIds.ToHashSet();
+        HashSet<Guid> masks = maskIds.ToHashSet();
+        if (sourceLayerRasters is not null)
+            sourceLayerRasters = sourceLayerRasters.Where(pair => !rasters.Contains(pair.Key))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+        if (sourceLayerMasks is not null)
+            sourceLayerMasks = sourceLayerMasks.Where(pair => !masks.Contains(pair.Key))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+    }
+
     public TileRaster GetLayerRaster(Guid layerId)
     {
         int index = FindLayer(layerId);
