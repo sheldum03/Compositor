@@ -857,6 +857,10 @@ public sealed class MainWindow : Window
         canvas.LayerMoveChanged += (offset, snap) => LayerMoveStep(() => Workspace.PreviewLayerMove(offset, snap && snapMove.IsChecked == true));
         canvas.LayerMoveFinished += () => LayerMoveStep(Workspace.FinishLayerMove, finished: true);
         canvas.LayerMoveCanceled += () => LayerMoveStep(Workspace.CancelLayerMove, finished: true);
+        canvas.LayerTransformStarted += _ => LayerTransformStep(() => Workspace.BeginLayerTransform(SelectedLayerIds()));
+        canvas.LayerTransformChanged += (scale, rotation) => LayerTransformStep(() => Workspace.PreviewLayerTransform(scale, rotation));
+        canvas.LayerTransformFinished += () => LayerTransformStep(Workspace.FinishLayerTransform, finished: true);
+        canvas.LayerTransformCanceled += () => LayerTransformStep(Workspace.CancelLayerTransform, finished: true);
         canvas.ShapeStarted += point => ShapeStep(() =>
         {
             var rgb = Workspace.ForegroundColor.Rgb;
@@ -1500,6 +1504,22 @@ public sealed class MainWindow : Window
         toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = shapeOptions.IsEnabled = gradientOptions.IsEnabled = projectTabs.IsEnabled = !Workspace.HasActiveStroke;
     }
 
+    private void LayerTransformStep(Action step, bool finished = false)
+    {
+        try
+        {
+            step();
+            if (finished) Refresh(); else RefreshPreview();
+            status.Text = finished ? "图层变换已结束。" : "变换图层中… 拖动控制点缩放，拖动上方圆点旋转，Shift 以 15° 递进，Esc 取消。";
+        }
+        catch (Exception error)
+        {
+            canvas.Cancel(); Workspace.CancelLayerTransform(); Refresh();
+            status.Text = "图层变换未完成：" + error.Message;
+        }
+        toolbar.IsEnabled = sidebar.IsEnabled = brushOptions.IsEnabled = shapeOptions.IsEnabled = gradientOptions.IsEnabled = projectTabs.IsEnabled = !Workspace.HasActiveStroke;
+    }
+
     private void ShapeStep(Action step, string message = "形状操作已结束。")
     {
         try
@@ -1600,6 +1620,9 @@ public sealed class MainWindow : Window
         bool groupedProject = Workspace.Session?.HasGroups == true;
         bool canTransform = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
             Workspace.Session?.CanTransformLayers(selectedItems.Select(item => item.Id).ToArray()) == true;
+        bool canTransformOverlay = canTransform && selectedItems.Length == 1 && selected is { IsGroup: false, IsAdjustment: false };
+        canvas.SetLayerTransformOverlay(canTransformOverlay && Workspace.Session is { } overlaySession
+            ? overlaySession.GetLayerTransform(selected!.Id) : null);
         if (Workspace.HasGradientPreview && (selected?.Id != selectedId || multiple))
         {
             Workspace.CommitGradient();
@@ -2093,6 +2116,12 @@ public sealed class MainWindow : Window
         layerMoveTool.IsEnabled = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
             Workspace.Session?.CanTransformLayers(SelectedLayerIds()) == true;
         canvas.LayerMoveEnabled = layerMoveTool.IsChecked == true && layerMoveTool.IsEnabled;
+        FlatLayerInfo? transformSelected = Workspace.Session is { } transformSession && selectedId is { } transformId
+            ? transformSession.Layers.SingleOrDefault(layer => layer.Id == transformId) : null;
+        canvas.LayerTransformEnabled = canvas.LayerMoveEnabled &&
+            (layers.SelectedItems?.OfType<FlatLayerInfo>().Count() ?? 0) == 1 &&
+            transformSelected is { IsGroup: false, IsAdjustment: false };
+        canvas.InvalidateVisual();
         navigationOptions.IsVisible = canvas.HandEnabled || canvas.ZoomEnabled;
         zoomPercent.IsVisible = applyZoom.IsVisible = zoomUnit.IsVisible = canvas.ZoomEnabled;
         navigationOptions.IsEnabled = !Workspace.HasActiveStroke;

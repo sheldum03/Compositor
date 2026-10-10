@@ -48,6 +48,8 @@ public sealed class EditorWorkspace
     private bool gradientDragging;
     private sealed record LayerMoveEdit(Guid[] LayerIds, Vector Offset, bool Snap, bool Duplicate);
     private LayerMoveEdit? layerMoveEdit;
+    private sealed record LayerTransformEdit(Guid[] LayerIds, double Scale, double Rotation);
+    private LayerTransformEdit? layerTransformEdit;
     private TileRaster? clipboardRaster;
     private GrayTileRaster? clipboardMask;
     private Guid? clipboardLayerId;
@@ -69,7 +71,8 @@ public sealed class EditorWorkspace
     private readonly List<GrayTileRaster?> selectionHistory = [null];
     private int selectionHistoryCursor;
     public bool HasActiveStroke => brush is not null || maskBrush is not null || cloneBrush is not null || blurBrush is not null ||
-        healingBrush is not null || warpBrush is not null || gradientDragging || ShapePreview is not null || layerMoveEdit is not null;
+        healingBrush is not null || warpBrush is not null || gradientDragging || ShapePreview is not null ||
+        layerMoveEdit is not null || layerTransformEdit is not null;
     public ShapeDraft? ShapePreview { get; private set; }
     public bool CanCreateShape => Session is { HasGroups: false } && CanEdit && !HasActiveStroke && !HasFloatingSelection;
     public bool HasGradientPreview => gradientEdit is not null;
@@ -1224,6 +1227,7 @@ public sealed class EditorWorkspace
         else if (gradientDragging) { CancelGradient(); return; }
         else if (ShapePreview is not null) { CancelShape(); return; }
         else if (layerMoveEdit is not null) { CancelLayerMove(); return; }
+        else if (layerTransformEdit is not null) { CancelLayerTransform(); return; }
         else return;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
@@ -1664,6 +1668,40 @@ public sealed class EditorWorkspace
     {
         if (layerMoveEdit is null) return;
         layerMoveEdit = null;
+        Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
+    }
+
+    public void BeginLayerTransform(IReadOnlyList<Guid> layerIds)
+    {
+        RequireIdle();
+        RequireEditableSession();
+        if (layerIds.Count != 1 || !RequireSession().CanTransformLayers(layerIds))
+            throw new InvalidOperationException("请选择一个可变换的可见像素图层。");
+        CancelFilterPreview();
+        layerTransformEdit = new(layerIds.ToArray(), 1, 0);
+    }
+
+    public void PreviewLayerTransform(double scale, double rotation)
+    {
+        var edit = layerTransformEdit ?? throw new InvalidOperationException("当前没有图层变换草稿。");
+        if (!double.IsFinite(scale) || scale <= 0 || scale > 100 || !double.IsFinite(rotation))
+            throw new ArgumentOutOfRangeException(nameof(scale));
+        ProjectSession preview = RequireSession().CreateLayerTransformPreview(edit.LayerIds, scale, rotation);
+        Preview = ImageProjectWorkflow.RenderFlatNormal(preview);
+        layerTransformEdit = edit with { Scale = scale, Rotation = rotation };
+    }
+
+    public void FinishLayerTransform()
+    {
+        if (layerTransformEdit is not { } edit) return;
+        layerTransformEdit = null;
+        Edit(session => session.TransformLayers(edit.LayerIds, 0, 0, edit.Scale, edit.Rotation));
+    }
+
+    public void CancelLayerTransform()
+    {
+        if (layerTransformEdit is null) return;
+        layerTransformEdit = null;
         Preview = ImageProjectWorkflow.RenderFlatNormal(RequireSession());
     }
 

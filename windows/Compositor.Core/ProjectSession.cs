@@ -1589,6 +1589,16 @@ public sealed class ProjectSession
         return preview;
     }
 
+    public ProjectSession CreateLayerTransformPreview(IReadOnlyList<Guid> layerIds, double scale, double rotation)
+    {
+        RequireGroupStructureEditing();
+        var preview = new ProjectSession(SavedDirectory, (JsonObject)Current.DeepClone(), "", CanEdit,
+            ReadOnlyMemory<byte>.Empty, AssetHashes, SourceFormatVersion);
+        preview.snapshots[0] = new Snapshot(preview.Current, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, 0);
+        preview.TransformLayers(layerIds, 0, 0, scale, rotation);
+        return preview;
+    }
+
     public ProjectSession CreateLayerDuplicateMovePreview(Guid layerId, double offsetX, double offsetY, bool snap)
     {
         RequireLayerStructureEditing();

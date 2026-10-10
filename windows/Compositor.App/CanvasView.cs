@@ -17,6 +17,9 @@ public sealed class CanvasView : Control
     private bool shaping;
     private bool textPlacing;
     private Point textPlacementStart;
+    private int layerTransformHandle = -1;
+    private Point layerTransformStart;
+    private LayerTransformInfo? layerTransformOverlay;
     private (Point Start, bool Moved)? layerMoveStart;
     private (Point Start, double Scale, bool Moved)? zoomDrag;
     private ShapeDraft? shapeDraft;
@@ -49,10 +52,11 @@ public sealed class CanvasView : Control
     public bool HandEnabled { get; set; }
     public bool ZoomEnabled { get; set; }
     public bool LayerMoveEnabled { get; set; }
+    public bool LayerTransformEnabled { get; set; }
     public Func<Point, int?>? TextHitTest { get; set; }
     public Func<Point, Guid?>? LayerHitTest { get; set; }
     public Point? LastDocumentPointer { get; private set; }
-    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping && zoomDrag is null && layerMoveStart is null;
+    public bool IsDrawing => captured is not null && !panning && !selecting && !movingSelection && !freeDistorting && !gradientDragging && !shaping && zoomDrag is null && layerMoveStart is null && layerTransformHandle < 0;
     public bool IsSelecting => captured is not null && selecting;
     public Rect? SelectionRect => selectionRect;
     public int TextSelectionOverlayCount => textSelectionPolygons.Count;
@@ -84,6 +88,10 @@ public sealed class CanvasView : Control
     public event Action<Vector, bool>? LayerMoveChanged;
     public event Action? LayerMoveFinished;
     public event Action? LayerMoveCanceled;
+    public event Action<KeyModifiers>? LayerTransformStarted;
+    public event Action<double, double>? LayerTransformChanged;
+    public event Action? LayerTransformFinished;
+    public event Action? LayerTransformCanceled;
 
     public CanvasView()
     {
@@ -98,6 +106,16 @@ public sealed class CanvasView : Control
             LastDocumentPointer = document;
             if (!pan && LayerMoveEnabled && properties.IsLeftButtonPressed)
             {
+                if (LayerTransformEnabled && (layerTransformHandle = FindLayerTransformHandle(view)) >= 0)
+                {
+                    Focus();
+                    layerTransformStart = document;
+                    captured = e.Pointer;
+                    captured.Capture(this);
+                    LayerTransformStarted?.Invoke(e.KeyModifiers);
+                    e.Handled = true;
+                    return;
+                }
                 if (LayerHitTest?.Invoke(document) is { } hit) LayerPicked?.Invoke(hit);
                 Focus();
                 layerMoveStart = (document, false);
@@ -209,6 +227,12 @@ public sealed class CanvasView : Control
             Point view = e.GetPosition(this);
             LastDocumentPointer = Viewport.ToDocument(view);
             if (captured != e.Pointer) return;
+            if (layerTransformHandle >= 0)
+            {
+                MoveLayerTransform(Viewport.ToDocument(view), e.KeyModifiers);
+                e.Handled = true;
+                return;
+            }
             if (layerMoveStart is not null)
             {
                 MoveLayers(Viewport.ToDocument(view), e.KeyModifiers);
@@ -260,6 +284,16 @@ public sealed class CanvasView : Control
         PointerReleased += (_, e) =>
         {
             if (captured != e.Pointer) return;
+            if (layerTransformHandle >= 0)
+            {
+                MoveLayerTransform(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers);
+                layerTransformHandle = -1;
+                captured = null;
+                e.Pointer.Capture(null);
+                LayerTransformFinished?.Invoke();
+                e.Handled = true;
+                return;
+            }
             if (layerMoveStart is not null)
             {
                 MoveLayers(Viewport.ToDocument(e.GetPosition(this)), e.KeyModifiers);
@@ -441,6 +475,15 @@ public sealed class CanvasView : Control
     public void Cancel()
     {
         if (captured is null) return;
+        if (layerTransformHandle >= 0)
+        {
+            layerTransformHandle = -1;
+            var transformPointer = captured;
+            captured = null;
+            transformPointer.Capture(null);
+            LayerTransformCanceled?.Invoke();
+            return;
+        }
         if (layerMoveStart is not null)
         {
             layerMoveStart = null;
@@ -545,6 +588,12 @@ public sealed class CanvasView : Control
     public void SetFreeDistortCorners(IReadOnlyList<Point>? corners)
     {
         freeDistortCorners = corners is { Count: 4 } ? corners.ToArray() : [];
+        InvalidateVisual();
+    }
+
+    public void SetLayerTransformOverlay(LayerTransformInfo? transform)
+    {
+        layerTransformOverlay = transform;
         InvalidateVisual();
     }
 
@@ -671,6 +720,21 @@ public sealed class CanvasView : Control
                 context.DrawEllipse(Brushes.White, pen, handle, 6, 6);
             }
         }
+        if (LayerTransformEnabled && layerTransformOverlay is { } transform)
+        {
+            Point[] handles = LayerTransformPoints(transform);
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(230, 28, 104, 190)), Math.Max(1, 1 / Viewport.Scale));
+            for (int index = 0; index < 4; index++)
+                context.DrawLine(pen, Viewport.ToView(handles[index * 2]), Viewport.ToView(handles[((index + 1) % 4) * 2]));
+            Point topMid = Viewport.ToView(handles[1]), rotation = Viewport.ToView(handles[8]);
+            context.DrawLine(pen, topMid, rotation);
+            for (int index = 0; index < 8; index++)
+            {
+                Point handle = Viewport.ToView(handles[index]);
+                context.DrawEllipse(Brushes.White, pen, handle, 6, 6);
+            }
+            context.DrawEllipse(Brushes.White, pen, rotation, 7, 7);
+        }
     }
 
     private int FindGradientHandle(Point view)
@@ -729,6 +793,70 @@ public sealed class CanvasView : Control
         FreeDistortChanged?.Invoke((Point[])freeDistortCorners.Clone());
         InvalidateVisual();
     }
+
+    private int FindLayerTransformHandle(Point view)
+    {
+        if (layerTransformOverlay is not { } transform) return -1;
+        Point[] handles = LayerTransformPoints(transform);
+        double nearestDistance = 12 * 12;
+        int nearest = -1;
+        for (int index = 0; index < handles.Length; index++)
+        {
+            Point point = Viewport.ToView(handles[index]);
+            double distance = Math.Pow(point.X - view.X, 2) + Math.Pow(point.Y - view.Y, 2);
+            if (distance <= nearestDistance)
+            {
+                nearest = index;
+                nearestDistance = distance;
+            }
+        }
+        return nearest;
+    }
+
+    private void MoveLayerTransform(Point document, KeyModifiers modifiers)
+    {
+        if (layerTransformOverlay is not { } transform) return;
+        if (layerTransformHandle == 8)
+        {
+            Point center = ToPoint(transform.ToDocument(0.5, 0.5));
+            Vector start = layerTransformStart - center, current = document - center;
+            if (start.Length < 0.001 || current.Length < 0.001) return;
+            double degrees = Math.Atan2(current.Y, current.X) * 180 / Math.PI - Math.Atan2(start.Y, start.X) * 180 / Math.PI;
+            if (modifiers.HasFlag(KeyModifiers.Shift)) degrees = Math.Round(degrees / 15, MidpointRounding.AwayFromZero) * 15;
+            LayerTransformChanged?.Invoke(1, degrees);
+            return;
+        }
+        (double X, double Y) local = transform.FromDocument(document.X, document.Y);
+        (double X, double Y) initial = transform.FromDocument(layerTransformStart.X, layerTransformStart.Y);
+        double currentX = local.X - 0.5, currentY = local.Y - 0.5;
+        double initialX = initial.X - 0.5, initialY = initial.Y - 0.5;
+        double scale = layerTransformHandle is 1 or 5
+            ? Math.Abs(initialY) < 0.001 ? 1 : currentY / initialY
+            : layerTransformHandle is 3 or 7
+                ? Math.Abs(initialX) < 0.001 ? 1 : currentX / initialX
+                : (currentX * initialX + currentY * initialY) / Math.Max(0.001, initialX * initialX + initialY * initialY);
+        scale = Math.Clamp(scale, 0.05, 100);
+        LayerTransformChanged?.Invoke(scale, 0);
+    }
+
+    private static Point ToPoint((double X, double Y) point) => new(point.X, point.Y);
+
+    private Point[] LayerTransformPoints(LayerTransformInfo transform)
+    {
+        Point[] corners =
+        [
+            ToPoint(transform.ToDocument(0, 0)), ToPoint(transform.ToDocument(1, 0)),
+            ToPoint(transform.ToDocument(1, 1)), ToPoint(transform.ToDocument(0, 1))
+        ];
+        Point top = Midpoint(corners[0], corners[1]), right = Midpoint(corners[1], corners[2]);
+        Point bottom = Midpoint(corners[2], corners[3]), left = Midpoint(corners[3], corners[0]);
+        Vector edge = corners[1] - corners[0];
+        Vector normal = edge.Length < 0.001 ? new Vector(0, -1) : new Vector(edge.Y, -edge.X) / edge.Length;
+        Point rotation = top + normal * (30 / Math.Max(Viewport.Scale, 0.001));
+        return [corners[0], top, corners[1], right, corners[2], bottom, corners[3], left, rotation];
+    }
+
+    private static Point Midpoint(Point first, Point second) => new((first.X + second.X) / 2, (first.Y + second.Y) / 2);
 
     private static Rect Normalize(Point start, Point end) => new(
         Math.Min(start.X, end.X), Math.Min(start.Y, end.Y),
