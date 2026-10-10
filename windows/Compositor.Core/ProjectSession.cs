@@ -924,7 +924,8 @@ public sealed class ProjectSession
         return InsertLayer(layer, raster, destinationIndex);
     }
 
-    public Guid AddTextLayer(string name, TextLayerMetadata metadata, TileRaster raster, int destinationIndex)
+    public Guid AddTextLayer(string name, TextLayerMetadata metadata, TileRaster raster, int destinationIndex,
+        (double X, double Y)? origin = null)
     {
         RequireLayerStructureEditing();
         CheckRasterSize(raster);
@@ -938,12 +939,18 @@ public sealed class ProjectSession
         layer["opacity"] = 1d;
         layer["blendMode"] = "Normal";
         layer["text"] = CreateTextNode(assigned);
+        if (origin is { } point)
+        {
+            if (!double.IsFinite(point.X) || !double.IsFinite(point.Y))
+                throw new ArgumentOutOfRangeException(nameof(origin));
+            layer["transform"]!.AsObject()["origin"] = new JsonArray(point.X, point.Y);
+        }
         return InsertLayer(layer, raster, destinationIndex);
     }
 
-    public Guid AddExposureAdjustment(string name, ExposureSettings settings, int destinationIndex)
+    public Guid AddExposureAdjustment(string name, ExposureSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -951,12 +958,12 @@ public sealed class ProjectSession
             ["kind"] = "Exposure",
             ["exposureSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
-    public Guid AddLevelsAdjustment(string name, LevelsSettings settings, int destinationIndex)
+    public Guid AddLevelsAdjustment(string name, LevelsSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -964,12 +971,12 @@ public sealed class ProjectSession
             ["kind"] = "Levels",
             ["levelsSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
-    public Guid AddHueSaturationAdjustment(string name, HueSaturationSettings settings, int destinationIndex)
+    public Guid AddHueSaturationAdjustment(string name, HueSaturationSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -977,12 +984,12 @@ public sealed class ProjectSession
             ["kind"] = "Hue/Saturation",
             ["hueSaturationSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
-    public Guid AddCurvesAdjustment(string name, CurvesSettings settings, int destinationIndex)
+    public Guid AddCurvesAdjustment(string name, CurvesSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -990,7 +997,7 @@ public sealed class ProjectSession
             ["kind"] = "Curves",
             ["curvesSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public ExposureSettings GetExposureAdjustment(Guid layerId)
@@ -1006,7 +1013,7 @@ public sealed class ProjectSession
 
     public void SetExposureAdjustment(Guid layerId, ExposureSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1032,7 +1039,7 @@ public sealed class ProjectSession
 
     public void SetLevelsAdjustment(Guid layerId, LevelsSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1058,7 +1065,7 @@ public sealed class ProjectSession
 
     public void SetHueSaturationAdjustment(Guid layerId, HueSaturationSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1084,7 +1091,7 @@ public sealed class ProjectSession
 
     public void SetCurvesAdjustment(Guid layerId, CurvesSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1097,9 +1104,9 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddGradientMapAdjustment(string name, GradientMapSettings settings, int destinationIndex)
+    public Guid AddGradientMapAdjustment(string name, GradientMapSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -1107,7 +1114,7 @@ public sealed class ProjectSession
             ["kind"] = "Gradient Map",
             ["gradientMapSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public GradientMapSettings GetGradientMapAdjustment(Guid layerId)
@@ -1123,7 +1130,7 @@ public sealed class ProjectSession
 
     public void SetGradientMapAdjustment(Guid layerId, GradientMapSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1136,9 +1143,9 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddGaussianBlurAdjustment(string name, GaussianBlurSettings settings, int destinationIndex)
+    public Guid AddGaussianBlurAdjustment(string name, GaussianBlurSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -1146,7 +1153,7 @@ public sealed class ProjectSession
             ["kind"] = "Gaussian Blur",
             ["gaussianBlurSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public GaussianBlurSettings GetGaussianBlurAdjustment(Guid layerId)
@@ -1162,7 +1169,7 @@ public sealed class ProjectSession
 
     public void SetGaussianBlurAdjustment(Guid layerId, GaussianBlurSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1175,9 +1182,9 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddMotionBlurAdjustment(string name, MotionBlurSettings settings, int destinationIndex)
+    public Guid AddMotionBlurAdjustment(string name, MotionBlurSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -1185,7 +1192,7 @@ public sealed class ProjectSession
             ["kind"] = "Motion Blur",
             ["motionBlurSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public MotionBlurSettings GetMotionBlurAdjustment(Guid layerId)
@@ -1201,7 +1208,7 @@ public sealed class ProjectSession
 
     public void SetMotionBlurAdjustment(Guid layerId, MotionBlurSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1214,9 +1221,9 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddNoiseAdjustment(string name, NoiseSettings settings, int destinationIndex)
+    public Guid AddNoiseAdjustment(string name, NoiseSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -1224,7 +1231,7 @@ public sealed class ProjectSession
             ["kind"] = "Add Noise",
             ["noiseSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public NoiseSettings GetNoiseAdjustment(Guid layerId)
@@ -1240,7 +1247,7 @@ public sealed class ProjectSession
 
     public void SetNoiseAdjustment(Guid layerId, NoiseSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1253,9 +1260,9 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddLensCorrectionAdjustment(string name, LensCorrectionSettings settings, int destinationIndex)
+    public Guid AddLensCorrectionAdjustment(string name, LensCorrectionSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -1263,7 +1270,7 @@ public sealed class ProjectSession
             ["kind"] = "Lens Correction",
             ["lensCorrectionSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public LensCorrectionSettings GetLensCorrectionAdjustment(Guid layerId)
@@ -1279,7 +1286,7 @@ public sealed class ProjectSession
 
     public void SetLensCorrectionAdjustment(Guid layerId, LensCorrectionSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -1292,9 +1299,9 @@ public sealed class ProjectSession
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
     }
 
-    public Guid AddGrainAdjustment(string name, GrainSettings settings, int destinationIndex)
+    public Guid AddGrainAdjustment(string name, GrainSettings settings, int destinationIndex, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentStructureEditing(parentId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         var layer = CreateBlankLayer(name, Width, Height);
         layer["adjustment"] = new JsonObject
@@ -1302,7 +1309,7 @@ public sealed class ProjectSession
             ["kind"] = "Grain",
             ["grainSettings"] = settings.ToJson()
         };
-        return InsertAdjustmentLayer(layer, destinationIndex);
+        return InsertAdjustmentLayer(layer, destinationIndex, parentId);
     }
 
     public GrainSettings GetGrainAdjustment(Guid layerId)
@@ -1318,7 +1325,7 @@ public sealed class ProjectSession
 
     public void SetGrainAdjustment(Guid layerId, GrainSettings settings)
     {
-        RequireLayerStructureEditing();
+        RequireAdjustmentEditing(layerId);
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
         int index = FindLayer(layerId);
         var current = Current["layers"]![index]!["adjustment"]?.AsObject()
@@ -2109,7 +2116,7 @@ public sealed class ProjectSession
         var layer = (JsonObject)Current["layers"]![index]!.DeepClone();
         layer["name"] = name;
         if (Layers[index].IsAdjustment)
-            return InsertAdjustmentLayer(layer, index + 1);
+            return InsertAdjustmentLayer(layer, index + 1, null);
         GrayTileRaster? mask = Current["layers"]![index]!["maskFile"] is not null
             ? CloneMask(GetLayerMask(layerId) ?? throw new InvalidDataException("Layer mask asset is missing."))
             : null;
@@ -2579,7 +2586,7 @@ public sealed class ProjectSession
         return id;
     }
 
-    private Guid InsertAdjustmentLayer(JsonObject layer, int destinationIndex)
+    private Guid InsertAdjustmentLayer(JsonObject layer, int destinationIndex, Guid? parentId)
     {
         string name = layer["name"]!.GetValue<string>();
         if (string.IsNullOrWhiteSpace(name) || name.Length > 1000)
@@ -2588,13 +2595,39 @@ public sealed class ProjectSession
         if (destinationIndex < 0 || destinationIndex > count)
             throw new ArgumentOutOfRangeException(nameof(destinationIndex));
         if (count >= 10000) throw new NotSupportedException("Adding a layer exceeds the layer limit.");
+        ValidateAdjustmentInsertion(destinationIndex, parentId);
         Guid id = Guid.NewGuid();
         layer["id"] = id.ToString("D");
+        if (parentId is { } parent)
+            layer["parentID"] = parent.ToString("D");
         var next = (JsonObject)Current.DeepClone();
         next["layers"]!.AsArray().Insert(destinationIndex, layer);
         next["activeLayerID"] = id.ToString("D");
         Commit(new Snapshot(next, snapshots[cursor].LayerRasters, snapshots[cursor].LayerMasks, ++nextRevision));
         return id;
+    }
+
+    private void ValidateAdjustmentInsertion(int destinationIndex, Guid? parentId)
+    {
+        if (parentId is not { } parent)
+        {
+            if (HasGroups && destinationIndex < Layers.Count && Layers[destinationIndex].ParentId is not null)
+                throw new NotSupportedException("Root adjustment layers must stay outside group subtrees.");
+            return;
+        }
+        int parentIndex = FindLayer(parent);
+        if (!Layers[parentIndex].IsGroup)
+            throw new ArgumentException("The adjustment parent must be a group.", nameof(parentId));
+        if (destinationIndex <= parentIndex || destinationIndex > Layers.Count)
+            throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        int lastDescendant = parentIndex;
+        for (int index = parentIndex + 1; index < Layers.Count; index++)
+        {
+            if (!IsDescendantOf(Layers[index], parent)) break;
+            lastDescendant = index;
+        }
+        if (destinationIndex > lastDescendant + 1)
+            throw new NotSupportedException("The adjustment must stay inside its parent group.");
     }
 
     private void RequireLayerStructureEditing()
@@ -2605,6 +2638,21 @@ public sealed class ProjectSession
             throw new InvalidOperationException("Open the editable project through ImageProjectWorkflow first.");
         if (HasGroups)
             throw new NotSupportedException("Layer structure changes are not supported for grouped projects in this slice.");
+    }
+
+    private void RequireAdjustmentStructureEditing(Guid? parentId)
+    {
+        if (HasGroups || parentId is not null) RequireGroupStructureEditing();
+        else RequireLayerStructureEditing();
+    }
+
+    private void RequireAdjustmentEditing(Guid layerId)
+    {
+        int index = FindLayer(layerId);
+        if (!Layers[index].IsAdjustment)
+            throw new InvalidOperationException("Layer is not an adjustment layer.");
+        if (HasGroups || Layers[index].ParentId is not null) RequireGroupStructureEditing();
+        else RequireLayerStructureEditing();
     }
 
     private void RequireCrossProjectCopyEditing()

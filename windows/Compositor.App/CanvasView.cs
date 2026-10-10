@@ -64,6 +64,7 @@ public sealed class CanvasView : Control
     public event Action<Point, Point>? SelectionMoveFinished;
     public event Action? SelectionCanceled;
     public event Action<int, bool>? TextCaretPressed;
+    public event Action<Point>? TextPlaceRequested;
     public event Action<Point>? ColorSampled;
     public event Action<Point>? CloneSourceSelected;
     public event Action<IReadOnlyList<Point>>? FreeDistortChanged;
@@ -158,6 +159,8 @@ public sealed class CanvasView : Control
             {
                 if (TextHitTest?.Invoke(document) is { } characterIndex)
                     TextCaretPressed?.Invoke(characterIndex, e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                else if (document.X >= 0 && document.Y >= 0 && document.X < Bitmap.PixelSize.Width && document.Y < Bitmap.PixelSize.Height)
+                    TextPlaceRequested?.Invoke(document);
                 e.Handled = true;
                 return;
             }

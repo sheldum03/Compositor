@@ -209,7 +209,7 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
-    public void AddTextLayer(string content = "文字", bool box = false)
+    public Guid AddTextLayer(string content = "文字", bool box = false, Point? position = null)
     {
         RequireIdle();
         ProjectSession session = RequireSession();
@@ -224,8 +224,10 @@ public sealed class EditorWorkspace
         int index = session.ActiveLayerId is { } active
             ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
             : session.Layers.Count;
-        session.AddTextLayer("文字", metadata, raster, index);
+        Guid id = session.AddTextLayer("文字", metadata, raster, index,
+            position is { } point ? (point.X, point.Y) : null);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+        return id;
     }
 
     public void AddShapeLayer(ShapeSettings settings, Rect? bounds = null)
@@ -290,10 +292,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddExposureAdjustment("Exposure", new ExposureSettings(exposure, offset, gamma), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddExposureAdjustment("Exposure", new ExposureSettings(exposure, offset, gamma), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -302,10 +302,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddLevelsAdjustment("Levels", settings ?? new LevelsSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddLevelsAdjustment("Levels", settings ?? new LevelsSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -314,10 +312,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddHueSaturationAdjustment("Hue/Saturation", settings ?? new HueSaturationSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddHueSaturationAdjustment("Hue/Saturation", settings ?? new HueSaturationSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -326,10 +322,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddCurvesAdjustment("Curves", settings ?? new CurvesSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddCurvesAdjustment("Curves", settings ?? new CurvesSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -338,10 +332,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddGradientMapAdjustment("Gradient Map", settings ?? new GradientMapSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddGradientMapAdjustment("Gradient Map", settings ?? new GradientMapSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -350,10 +342,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddGaussianBlurAdjustment("Gaussian Blur", settings ?? new GaussianBlurSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddGaussianBlurAdjustment("Gaussian Blur", settings ?? new GaussianBlurSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -362,10 +352,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddMotionBlurAdjustment("Motion Blur", settings ?? new MotionBlurSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddMotionBlurAdjustment("Motion Blur", settings ?? new MotionBlurSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -374,10 +362,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddNoiseAdjustment("Add Noise", settings ?? new NoiseSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddNoiseAdjustment("Add Noise", settings ?? new NoiseSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -386,10 +372,8 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddLensCorrectionAdjustment("Lens Correction", settings ?? new LensCorrectionSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddLensCorrectionAdjustment("Lens Correction", settings ?? new LensCorrectionSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
@@ -398,11 +382,33 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
-        session.AddGrainAdjustment("Grain", settings ?? new GrainSettings(), index);
+        (int index, Guid? parentId) = AdjustmentDestination(session);
+        session.AddGrainAdjustment("Grain", settings ?? new GrainSettings(), index, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
+    }
+
+    private static (int Index, Guid? ParentId) AdjustmentDestination(ProjectSession session)
+    {
+        if (session.ActiveLayerId is not { } active)
+            return (session.Layers.Count, null);
+        int index = session.Layers.ToList().FindIndex(layer => layer.Id == active);
+        FlatLayerInfo selected = session.Layers[index];
+        if (!selected.IsGroup) return (index + 1, selected.ParentId);
+        int lastDescendant = index;
+        for (int candidate = index + 1; candidate < session.Layers.Count; candidate++)
+        {
+            Guid? parent = session.Layers[candidate].ParentId;
+            bool descendant = false;
+            var seen = new HashSet<Guid>();
+            while (parent is { } current && seen.Add(current))
+            {
+                if (current == selected.Id) { descendant = true; break; }
+                parent = session.Layers.FirstOrDefault(layer => layer.Id == current)?.ParentId;
+            }
+            if (!descendant) break;
+            lastDescendant = candidate;
+        }
+        return (lastDescendant + 1, selected.Id);
     }
 
     public void PreviewGaussianBlurFilter(GaussianBlurSettings settings)

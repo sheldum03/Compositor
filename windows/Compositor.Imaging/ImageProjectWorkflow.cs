@@ -590,8 +590,6 @@ public static class ImageProjectWorkflow
                 if (TextLayerWorkflow.Inspect(session).Single(status => status.Metadata.Id == text.Id).FontAvailable)
                     raster = TextLayerWorkflow.RenderRaster(text, raster, session.Resolution);
             }
-            if (raster.Width != width || raster.Height != height)
-                throw new InvalidDataException("Layer image dimensions do not match the canvas.");
             if (layer["maskFile"] is { } maskFile)
             {
                 string maskPath = Path.Combine(session.SourceDirectory, "images", maskFile.GetValue<string>());

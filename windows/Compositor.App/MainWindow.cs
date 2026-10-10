@@ -953,6 +953,12 @@ public sealed class MainWindow : Window
             RefreshTextOverlay();
             status.Text = "文字光标已定位。";
         };
+        canvas.TextPlaceRequested += point => _ = ExecuteAsync(async () =>
+        {
+            Guid id = await Task.Run(() => Workspace.AddTextLayer(position: point));
+            selectedId = id;
+            textTool.IsChecked = true;
+        });
         paint.IsCheckedChanged += (_, _) =>
         {
             if (paint.IsChecked == true) { rectangleSelect.IsChecked = false; clonePaint.IsChecked = false; blurPaint.IsChecked = false; healingPaint.IsChecked = false; smudgePaint.IsChecked = false; liquifyPaint.IsChecked = false; maskPaint.IsChecked = false; eyedropper.IsChecked = false; }
@@ -1844,7 +1850,7 @@ public sealed class MainWindow : Window
                 button.IsEnabled = Workspace.CanEdit && selected is { IsGroup: false, IsText: false, IsAdjustment: false } &&
                     !multiple && !Workspace.HasFloatingSelection;
             if (button.Name == "AddExposureAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name is "AddRectangleShape" or "AddEllipseShape" or "AddGradientLayer")
                 button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
@@ -1858,29 +1864,29 @@ public sealed class MainWindow : Window
             if (button.Name == "ApplyExposureAdjustment")
                 button.IsEnabled = showExposureEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddLevelsAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyLevelsAdjustment")
                 button.IsEnabled = showLevelsEditor && !Workspace.HasFloatingSelection;
             if (button.Name is "AutoLevelsContrast" or "AutoLevelsColor" or "AutoLevelsNeutral")
                 button.IsEnabled = showLevelsEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddHueSaturationAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyHueSaturationAdjustment")
                 button.IsEnabled = showHueSaturationEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddCurvesAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyCurvesAdjustment")
                 button.IsEnabled = showCurvesEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddGradientMapAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyGradientMapAdjustment")
                 button.IsEnabled = showGradientMapEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddGaussianBlurAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyGaussianBlurAdjustment")
                 button.IsEnabled = showGaussianBlurEditor && !Workspace.HasFloatingSelection;
@@ -1927,22 +1933,22 @@ public sealed class MainWindow : Window
             if (button.Name is "CommitSelectionGrain" or "CancelSelectionGrain")
                 button.IsEnabled = Workspace.HasFilterPreview;
             if (button.Name == "AddMotionBlurAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyMotionBlurAdjustment")
                 button.IsEnabled = showMotionBlurEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddNoiseAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyNoiseAdjustment")
                 button.IsEnabled = showNoiseEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddLensCorrectionAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyLensCorrectionAdjustment")
                 button.IsEnabled = showLensCorrectionEditor && !Workspace.HasFloatingSelection;
             if (button.Name == "AddGrainAdjustment")
-                button.IsEnabled = Workspace.CanEdit && !groupedProject && selected is not null && !multiple &&
+                button.IsEnabled = Workspace.CanEdit && selected is not null && !multiple &&
                     !Workspace.HasFloatingSelection;
             if (button.Name == "ApplyGrainAdjustment")
                 button.IsEnabled = showGrainEditor && !Workspace.HasFloatingSelection;
