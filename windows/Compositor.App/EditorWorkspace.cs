@@ -101,6 +101,18 @@ public sealed class EditorWorkspace
     public long SelectedPixels => Selection?.CoveredPixels ?? 0;
     public bool IsDirty => Session?.IsDirty ?? false;
     public string? ProjectDirectory => Session?.SavedDirectory;
+    public bool CanCropSelection
+    {
+        get
+        {
+            if (!CanEdit || HasActiveStroke || HasFloatingSelection || SelectionBounds is not { } bounds ||
+                Session is not { } session || session.HasGroups || bounds.Width < 1 || bounds.Height < 1)
+                return false;
+            return session.Layers.All(layer => !layer.IsGroup && !layer.IsAdjustment && !layer.IsText &&
+                !layer.IsShape && !layer.IsGradient && session.IsLayerTransformIdentity(layer.Id) &&
+                (!layer.HasMask || IsFullCanvasTransform(session.GetLayerMaskTransform(layer.Id), session.Width, session.Height)));
+        }
+    }
 
     public (double Red, double Green, double Blue)? SamplePreviewColor(double x, double y)
     {
@@ -1934,6 +1946,28 @@ public sealed class EditorWorkspace
 
     internal void ResizeImage(int width, int height, ResizeFilter filter) => ResizeDocument(width, height, scale: true, filter);
 
+    public void CropToSelection()
+    {
+        RequireIdle();
+        if (!CanCropSelection) throw new NotSupportedException("按选区裁剪目前只支持无组、无变换的平面栅格工程。");
+        var session = RequireSession();
+        Rect bounds = SelectionBounds!.Value;
+        int left = Math.Clamp((int)Math.Floor(bounds.Left), 0, session.Width - 1);
+        int top = Math.Clamp((int)Math.Floor(bounds.Top), 0, session.Height - 1);
+        int right = Math.Clamp((int)Math.Ceiling(bounds.Right), left + 1, session.Width);
+        int bottom = Math.Clamp((int)Math.Ceiling(bounds.Bottom), top + 1, session.Height);
+        int width = right - left, height = bottom - top;
+        if (width == session.Width && height == session.Height && left == 0 && top == 0)
+            throw new ArgumentException("选区已经覆盖整个画布。", nameof(SelectionBounds));
+        var rasters = session.Layers.Where(layer => !layer.IsAdjustment)
+            .ToDictionary(layer => layer.Id, layer => CropRaster(session.GetLayerRaster(layer.Id), left, top, width, height));
+        var masks = session.Layers.Where(layer => layer.HasMask)
+            .ToDictionary(layer => layer.Id, layer => CropMask(session.GetLayerMask(layer.Id)!, left, top, width, height));
+        Edit(current => current.ResizeDocument(width, height, rasters, masks.Count == 0 ? null : masks));
+        ClearSelectionWithoutHistory();
+        ResetSelectionHistory();
+    }
+
     public void RotateDocument90(bool clockwise) {
         RequireIdle();
         var session = RequireSession();
@@ -2673,6 +2707,24 @@ public sealed class EditorWorkspace
         return GrayTileRaster.FromCoverage(height, width, output);
     }
 
+    private static TileRaster CropRaster(TileRaster source, int left, int top, int width, int height)
+    {
+        byte[] input = ToRgba(source), output = new byte[checked(width * height * 4)];
+        for (int y = 0; y < height; y++)
+            input.AsSpan(((top + y) * source.Width + left) * 4, width * 4)
+                .CopyTo(output.AsSpan(y * width * 4, width * 4));
+        return FromRgba(width, height, output);
+    }
+
+    private static GrayTileRaster CropMask(GrayTileRaster source, int left, int top, int width, int height)
+    {
+        byte[] input = ToCoverage(source), output = new byte[checked(width * height)];
+        for (int y = 0; y < height; y++)
+            input.AsSpan((top + y) * source.Width + left, width)
+                .CopyTo(output.AsSpan(y * width, width));
+        return GrayTileRaster.FromCoverage(width, height, output);
+    }
+
     private static Rect SelectionBoundsFor(GrayTileRaster raster)
     {
         int left = raster.Width, top = raster.Height, right = -1, bottom = -1;
@@ -2692,6 +2744,10 @@ public sealed class EditorWorkspace
         }
         return new Rect(left, top, right - left + 1, bottom - top + 1);
     }
+
+    private static bool IsFullCanvasTransform(LayerTransformInfo transform, int width, int height) =>
+        transform.X == 0 && transform.Y == 0 && transform.Width == width && transform.Height == height &&
+        transform.Rotation == 0 && !transform.FlipX && !transform.FlipY;
 
     private void ApplySelectionState(GrayTileRaster? selection)
     {

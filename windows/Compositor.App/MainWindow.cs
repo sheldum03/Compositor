@@ -279,6 +279,7 @@ public sealed class MainWindow : Window
         toolbar.Children.Add(new TextBlock { Text = "羽化半径", VerticalAlignment = VerticalAlignment.Center });
         toolbar.Children.Add(selectionFeatherRadius);
         toolbar.Children.Add(Command("FeatherSelection", "羽化选区", FeatherSelectionAsync, document: true));
+        toolbar.Children.Add(Command("CropToSelection", "按选区裁剪", CropToSelectionAsync, document: true));
         toolbar.Children.Add(Command("ContentFill", "内容填充", ContentFillAsync, document: true));
         toolbar.Children.Add(Command("CopySelection", "复制选区", CopySelectionAsync, document: true));
         toolbar.Children.Add(Command("CopyMergedSelection", "合并复制", CopyMergedSelectionAsync, document: true));
@@ -1592,7 +1593,7 @@ public sealed class MainWindow : Window
         {
             button.IsEnabled = Workspace.Session is not null &&
                 (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
-            if (groupedProject && button.Name is "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
+            if (groupedProject && button.Name is ("CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise" or "CropToSelection"))
                 button.IsEnabled = false;
         }
         if (Workspace.HasFloatingSelection)
@@ -1602,6 +1603,8 @@ public sealed class MainWindow : Window
             button.IsEnabled = Workspace.HasFloatingSelection;
         foreach (var button in documentButtons.Where(button => button.Name == "ContentFill"))
             button.IsEnabled = Workspace.CanContentFill;
+        foreach (var button in documentButtons.Where(button => button.Name == "CropToSelection"))
+            button.IsEnabled = Workspace.CanCropSelection;
         layers.IsEnabled = !Workspace.HasFloatingSelection;
         pixelGrid.IsEnabled = Workspace.Session is not null;
         eyedropper.IsEnabled = Workspace.Session is not null && !Workspace.HasFloatingSelection;
@@ -2837,6 +2840,8 @@ public sealed class MainWindow : Window
         moveSelection.IsEnabled = Workspace.HasSelection;
         return Task.CompletedTask;
     }
+
+    private Task CropToSelectionAsync() => Task.Run(Workspace.CropToSelection);
 
     private Task ContentFillAsync() => Task.Run(Workspace.ApplyContentFill);
 
