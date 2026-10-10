@@ -1,5 +1,9 @@
 # Windows 实施记录
 
+## 2026-10-10：调整层独立栅格蒙版
+
+调整层现在可以复用既有图层蒙版事务创建和编辑独立 Gray8 蒙版；核心校验允许 `maskFile`、窗口蒙版入口开放，平面与缓存合成都会按 `maskEnabled`、蒙版放置和灰度覆盖把调整结果混合回背景。调整层仍不能参与 `maskSourceID` 剪贴关系，未知设置和复杂变换继续保持拒绝边界。按用户要求未执行编译、测试、校验或验收。
+
 ## 2026-10-10：组内调整层 pass-through 渲染
 
 放开合法父组内的 v8 调整层校验，并在缓存合成中按同级顺序把 Exposure、Levels、Hue/Saturation、Curves、Gradient Map、Gaussian Blur、Motion Blur、Noise、Lens Correction 和 Grain 作用到已有背景；不创建伪像素资产，透明度沿用调整层混合。组内调整层蒙版、剪贴源及未知设置仍保持拒绝边界。按用户要求未执行编译、测试、校验或验收。

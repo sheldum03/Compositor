@@ -426,7 +426,6 @@ public sealed class ProjectSession
     {
         RequireMaskEditing();
         int index = FindLayer(layerId);
-        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不支持图层蒙版。");
         if (Current["layers"]![index]!["maskFile"] is not null) return;
         var next = (JsonObject)Current.DeepClone();
         var layer = next["layers"]![index]!.AsObject();
@@ -443,7 +442,6 @@ public sealed class ProjectSession
     {
         if (!CanEdit) throw new NotSupportedException("This project is read-only.");
         int index = FindLayer(layerId);
-        if (Layers[index].IsAdjustment) throw new NotSupportedException("调整层不支持图层蒙版。");
         if (Current["layers"]![index]!["maskFile"] is null)
             throw new InvalidOperationException("Layer does not have a raster mask.");
         var current = snapshots[cursor].LayerMasks

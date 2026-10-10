@@ -2041,7 +2041,7 @@ public sealed class MainWindow : Window
             foreach (var button in documentButtons.Where(button => button.Name is "CopySelection" or "CutSelection" or "PasteSelection" or "LoadAlphaSelection"))
                 button.IsEnabled = false;
         foreach (var button in maskButtons)
-            button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null && selected.IsAdjustment == false &&
+            button.IsEnabled = Workspace.CanEdit && !multiple && selected is not null &&
                 (button.Name == "AddMask" || selected.HasMask);
         maskRadius.IsEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;
         bool maskPlacementEnabled = Workspace.CanEdit && !multiple && selected?.HasMask == true;

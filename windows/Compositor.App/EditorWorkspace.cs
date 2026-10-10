@@ -958,7 +958,7 @@ public sealed class EditorWorkspace
             if (!CanGradient(mask)) throw new InvalidOperationException("当前图层或蒙版不能绘制渐变。");
             var session = RequireSession();
             if (session.ActiveLayerId != layerId) throw new InvalidOperationException("请先选择渐变的目标图层。");
-            TileRaster source = session.Layers.Single(layer => layer.Id == layerId).IsGroup
+            TileRaster source = session.Layers.Single(layer => layer.Id == layerId) is { IsGroup: true } or { IsAdjustment: true }
                 ? new TileRaster(session.Width, session.Height) : EditablePixelSource(session, layerId);
             GrayTileRaster? sourceMask = mask ? session.GetLayerMask(layerId) : null;
             GrayTileRaster? selection = Selection is not { } currentSelection ? null : sourceMask is { } currentMask
@@ -2222,7 +2222,7 @@ public sealed class EditorWorkspace
         GrayTileRaster current = session.GetLayerMask(maskBrushLayer)!;
         GrayTileRaster next = current.Combine(coverage,
             maskBrushReveal ? GraySelectionOperation.Add : GraySelectionOperation.Subtract);
-        TileRaster brushBounds = session.Layers.Single(layer => layer.Id == maskBrushLayer).IsGroup
+        TileRaster brushBounds = session.Layers.Single(layer => layer.Id == maskBrushLayer) is { IsGroup: true } or { IsAdjustment: true }
             ? new TileRaster(session.Width, session.Height)
             : session.GetLayerRaster(maskBrushLayer);
         return ImageProjectWorkflow.RenderFlatNormal(session, maskBrushLayer, brushBounds, next);

@@ -11,7 +11,8 @@ public static class ImageProjectWorkflow
     private sealed record FlatLayerRender(JsonObject Manifest, Guid Id, TileRaster? Raster,
         ExposureSettings? Exposure, LevelsSettings? Levels, HueSaturationSettings? HueSaturation,
         CurvesSettings? Curves, GradientMapSettings? GradientMap, GaussianBlurSettings? GaussianBlur,
-        MotionBlurSettings? MotionBlur, NoiseSettings? Noise, LensCorrectionSettings? LensCorrection, GrainSettings? Grain);
+        MotionBlurSettings? MotionBlur, NoiseSettings? Noise, LensCorrectionSettings? LensCorrection, GrainSettings? Grain,
+        GrayTileRaster? Mask = null);
 
     public static ProjectSession Import(string imagePath, string projectDirectory)
     {
@@ -593,27 +594,40 @@ public static class ImageProjectWorkflow
             Guid id = Guid.Parse(layer["id"]!.GetValue<string>());
             if (layer["adjustment"] is { } adjustmentNode)
             {
+                GrayTileRaster? adjustmentMask = null;
+                if (layer["maskFile"] is { } maskFileNode)
+                {
+                    string maskName = maskFileNode.GetValue<string>();
+                    string maskPath = Path.Combine(session.SourceDirectory, "images", maskName);
+                    adjustmentMask = overrideLayerId == id && overrideMask is not null
+                        ? overrideMask
+                        : session.TryGetLoadedLayerMask(id, out var loadedMask)
+                        ? loadedMask : ImageCodec.LoadGrayMask(maskPath);
+                    if (session.CanEdit && session.AssetHashes.ContainsKey(maskName))
+                        ProjectStore.CheckAssetHash(session, maskName, maskPath);
+                    if (!(layer["maskEnabled"]?.GetValue<bool>() ?? true)) adjustmentMask = null;
+                }
                 string? kind = adjustmentNode["kind"]?.GetValue<string>();
                 if (kind == "Exposure" && ExposureSettings.TryRead(adjustmentNode["exposureSettings"], out var exposure))
-                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null, null, null, null, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, exposure, null, null, null, null, null, null, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Levels" && LevelsSettings.TryRead(adjustmentNode["levelsSettings"], out var levels))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, levels, null, null, null, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, levels, null, null, null, null, null, null, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Hue/Saturation" && HueSaturationSettings.TryRead(adjustmentNode["hueSaturationSettings"], out var hueSaturation))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, hueSaturation, null, null, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, hueSaturation, null, null, null, null, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Curves" && CurvesSettings.TryRead(adjustmentNode["curvesSettings"], out var curves))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, curves, null, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, curves, null, null, null, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Gradient Map" && GradientMapSettings.TryRead(adjustmentNode["gradientMapSettings"], out var gradientMap))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, gradientMap, null, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, gradientMap, null, null, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Gaussian Blur" && GaussianBlurSettings.TryRead(adjustmentNode["gaussianBlurSettings"], out var gaussianBlur))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, gaussianBlur, null, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, gaussianBlur, null, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Motion Blur" && MotionBlurSettings.TryRead(adjustmentNode["motionBlurSettings"], out var motionBlur))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, motionBlur, null, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, motionBlur, null, null, null, Mask: adjustmentMask));
                 else if (kind == "Add Noise" && NoiseSettings.TryRead(adjustmentNode["noiseSettings"], out var noise))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, noise, null, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, noise, null, null, Mask: adjustmentMask));
                 else if (kind == "Lens Correction" && LensCorrectionSettings.TryRead(adjustmentNode["lensCorrectionSettings"], out var lensCorrection))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, null, lensCorrection, null));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, null, lensCorrection, null, Mask: adjustmentMask));
                 else if (kind == "Grain" && GrainSettings.TryRead(adjustmentNode["grainSettings"], out var grain))
-                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, null, null, grain));
+                    prepared.Add(new FlatLayerRender(layer, id, null, null, null, null, null, null, null, null, null, null, grain, Mask: adjustmentMask));
                 else throw new NotSupportedException("Only valid Exposure, Levels, Hue/Saturation, Curves, Gradient Map, Gaussian Blur, Motion Blur, Add Noise, Lens Correction and Grain adjustment layers are supported.");
                 continue;
             }
@@ -706,7 +720,7 @@ public static class ImageProjectWorkflow
                     layer.MotionBlur is not null || layer.Noise is not null || layer.LensCorrection is not null || layer.Grain is not null)
                 {
                     result = ApplyAdjustment(result, layer.Exposure, layer.Levels, layer.HueSaturation, layer.Curves, layer.GradientMap, layer.GaussianBlur, layer.MotionBlur, layer.Noise, layer.LensCorrection, layer.Grain,
-                        layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
+                        layer.Manifest["opacity"]?.GetValue<double>() ?? 1, layer.Mask, layer.Manifest);
                     continue;
                 }
                 var clipped = new List<FlatLayerRender>();
@@ -728,9 +742,10 @@ public static class ImageProjectWorkflow
         }
         return result;
 
-        static TileRaster ApplyAdjustment(TileRaster source, ExposureSettings? exposure, LevelsSettings? levels,
+        TileRaster ApplyAdjustment(TileRaster source, ExposureSettings? exposure, LevelsSettings? levels,
             HueSaturationSettings? hueSaturation, CurvesSettings? curves, GradientMapSettings? gradientMap,
-            GaussianBlurSettings? gaussianBlur, MotionBlurSettings? motionBlur, NoiseSettings? noise, LensCorrectionSettings? lensCorrection, GrainSettings? grain, double opacity)
+            GaussianBlurSettings? gaussianBlur, MotionBlurSettings? motionBlur, NoiseSettings? noise, LensCorrectionSettings? lensCorrection, GrainSettings? grain,
+            double opacity, GrayTileRaster? mask, JsonObject layerManifest)
         {
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
                 throw new InvalidDataException("Adjustment layer opacity is invalid.");
@@ -756,18 +771,23 @@ public static class ImageProjectWorkflow
                 : grain is { } grainSettings
                 ? RasterCompositor.ApplyGrain(source, grainSettings)
                 : throw new InvalidDataException("Adjustment settings are missing.");
-            if (opacity == 1) return adjusted;
+            GrayTileRaster? resolvedMask = mask is null ? null : ResolveLayerMask(mask, layerManifest, source.Width, source.Height);
+            if (opacity == 1 && resolvedMask is null) return adjusted;
             var result = new TileRaster(source.Width, source.Height);
             for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
             for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
             {
                 byte[] original = source.ReadTileCopy(column, row);
                 byte[] changed = adjusted.ReadTileCopy(column, row);
+                byte[]? coverage = resolvedMask?.ReadTileCopy(column, row);
                 for (int i = 0; i < original.Length; i += 4)
+                {
+                    double weight = opacity * (coverage is null ? 1 : coverage[i / 4] / 255d);
                     for (int channel = 0; channel < 3; channel++)
                         original[i + channel] = (byte)Math.Round(
-                            original[i + channel] * (1 - opacity) + changed[i + channel] * opacity,
+                            original[i + channel] * (1 - weight) + changed[i + channel] * weight,
                             MidpointRounding.AwayFromZero);
+                }
                 result = result.ReplaceTile(column, row, original);
             }
             return result;
@@ -942,7 +962,8 @@ public static class ImageProjectWorkflow
             if (!(layer.Manifest["isVisible"]?.GetValue<bool>() ?? true))
                 return backdrop;
             if (layer.Manifest["adjustment"] is JsonObject adjustment)
-                return ApplyCachedAdjustment(backdrop, adjustment, layer.Manifest["opacity"]?.GetValue<double>() ?? 1);
+                return ApplyCachedAdjustment(backdrop, adjustment, layer.Manifest["opacity"]?.GetValue<double>() ?? 1,
+                    layer.Mask, inheritedMasks, layer.Manifest);
             if (layer.Raster is not null)
             {
                 TileRaster raster = ResolveLeaf(layer.Id);
@@ -967,7 +988,8 @@ public static class ImageProjectWorkflow
                 if (!(child.Manifest["isVisible"]?.GetValue<bool>() ?? true)) continue;
                 if (child.Manifest["adjustment"] is JsonObject adjustment)
                 {
-                    result = ApplyCachedAdjustment(result, adjustment, child.Manifest["opacity"]?.GetValue<double>() ?? 1);
+                    result = ApplyCachedAdjustment(result, adjustment, child.Manifest["opacity"]?.GetValue<double>() ?? 1,
+                        child.Mask, groupMasks, child.Manifest);
                     continue;
                 }
                 if (child.Raster is null)
@@ -1013,7 +1035,8 @@ public static class ImageProjectWorkflow
                 throw new NotSupportedException("Cached layer appearance is not supported.");
         }
 
-        TileRaster ApplyCachedAdjustment(TileRaster source, JsonObject adjustment, double opacity)
+        TileRaster ApplyCachedAdjustment(TileRaster source, JsonObject adjustment, double opacity,
+            GrayTileRaster? layerMask, IReadOnlyList<GrayTileRaster> inheritedMasks, JsonObject layerManifest)
         {
             if (!double.IsFinite(opacity) || opacity is < 0 or > 1)
                 throw new NotSupportedException("Cached adjustment opacity is invalid.");
@@ -1040,18 +1063,28 @@ public static class ImageProjectWorkflow
             else if (kind == "Grain" && GrainSettings.TryRead(adjustment["grainSettings"], out GrainSettings grain))
                 adjusted = RasterCompositor.ApplyGrain(source, grain);
             else throw new NotSupportedException("Cached adjustment settings are invalid.");
-            if (opacity == 1) return adjusted;
+            if (!(layerManifest["maskEnabled"]?.GetValue<bool>() ?? true)) layerMask = null;
+            GrayTileRaster? resolvedLayerMask = layerMask is null
+                ? null : ResolveLayerMask(layerMask, layerManifest, source.Width, source.Height);
+            if (opacity == 1 && resolvedLayerMask is null && inheritedMasks.Count == 0) return adjusted;
             var result = new TileRaster(source.Width, source.Height);
             for (int row = 0; row * TileRaster.TileSize < source.Height; row++)
             for (int column = 0; column * TileRaster.TileSize < source.Width; column++)
             {
                 byte[] original = source.ReadTileCopy(column, row);
                 byte[] changed = adjusted.ReadTileCopy(column, row);
+                byte[]? localCoverage = resolvedLayerMask?.ReadTileCopy(column, row);
+                byte[][] inheritedCoverage = inheritedMasks.Select(mask => mask.ReadTileCopy(column, row)).ToArray();
                 for (int i = 0; i < original.Length; i += 4)
+                {
+                    double coverage = localCoverage is null ? 1 : localCoverage[i / 4] / 255d;
+                    foreach (byte[] inherited in inheritedCoverage) coverage *= inherited[i / 4] / 255d;
+                    double weight = opacity * coverage;
                     for (int channel = 0; channel < 3; channel++)
                         original[i + channel] = (byte)Math.Round(
-                            original[i + channel] * (1 - opacity) + changed[i + channel] * opacity,
+                            original[i + channel] * (1 - weight) + changed[i + channel] * weight,
                             MidpointRounding.AwayFromZero);
+                }
                 result = result.ReplaceTile(column, row, original);
             }
             return result;
@@ -1436,7 +1469,7 @@ public static class ImageProjectWorkflow
             };
             if (!settingsValid || layer["blendMode"]?.GetValue<string>() is { } adjustmentBlend && adjustmentBlend != "Normal" ||
                 layer["imageFile"] is not null || layer["text"] is not null ||
-                layer["maskFile"] is not null || layer["maskSourceID"] is not null) return false;
+                layer["maskSourceID"] is not null) return false;
         }
         else if (layer["imageFile"] is null) return false;
         if (layer["shape"] is { } shape && (!ShapeSettings.TryRead(shape, out _) ||
