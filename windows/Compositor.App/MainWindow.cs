@@ -953,9 +953,14 @@ public sealed class MainWindow : Window
             RefreshTextOverlay();
             status.Text = "文字光标已定位。";
         };
-        canvas.TextPlaceRequested += point => _ = ExecuteAsync(async () =>
+        canvas.TextPlacementFinished += (start, end) => _ = ExecuteAsync(async () =>
         {
-            Guid id = await Task.Run(() => Workspace.AddTextLayer(position: point));
+            Rect bounds = new(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y),
+                Math.Abs(end.X - start.X), Math.Abs(end.Y - start.Y));
+            bool box = bounds.Width >= 2;
+            Point position = box ? bounds.Position : start;
+            Guid id = await Task.Run(() => Workspace.AddTextLayer(box: box,
+                boxWidth: box ? bounds.Width : null, position: position));
             selectedId = id;
             textTool.IsChecked = true;
         });

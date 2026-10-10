@@ -209,17 +209,19 @@ public sealed class EditorWorkspace
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 
-    public Guid AddTextLayer(string content = "文字", bool box = false, Point? position = null)
+    public Guid AddTextLayer(string content = "文字", bool box = false, double? boxWidth = null, Point? position = null)
     {
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
         string font = TextLayerWorkflow.AvailableFonts.FirstOrDefault()
             ?? throw new NotSupportedException("No usable font is installed.");
-        double? boxWidth = box ? Math.Min(360, session.Width) : null;
+        double? layoutWidth = box ? boxWidth ?? Math.Min(360, session.Width) : null;
+        if (layoutWidth is not null && (!double.IsFinite(layoutWidth.Value) || layoutWidth.Value < 1 || layoutWidth.Value > session.Width))
+            throw new ArgumentOutOfRangeException(nameof(boxWidth));
         var color = ForegroundColor.Rgb;
         var metadata = new TextLayerMetadata(Guid.Empty, "", content, font, 18,
-            color.Red, color.Green, color.Blue, 1, "left", 0, 0, box ? "box" : "point", boxWidth);
+            color.Red, color.Green, color.Blue, 1, "left", 0, 0, box ? "box" : "point", layoutWidth);
         TileRaster raster = TextLayerWorkflow.RenderText(metadata, session.Width, session.Height, session.Resolution);
         int index = session.ActiveLayerId is { } active
             ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1

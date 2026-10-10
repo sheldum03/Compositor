@@ -15,6 +15,8 @@ public sealed class CanvasView : Control
     private bool freeDistorting;
     private bool gradientDragging;
     private bool shaping;
+    private bool textPlacing;
+    private Point textPlacementStart;
     private (Point Start, bool Moved)? layerMoveStart;
     private (Point Start, double Scale, bool Moved)? zoomDrag;
     private ShapeDraft? shapeDraft;
@@ -64,7 +66,7 @@ public sealed class CanvasView : Control
     public event Action<Point, Point>? SelectionMoveFinished;
     public event Action? SelectionCanceled;
     public event Action<int, bool>? TextCaretPressed;
-    public event Action<Point>? TextPlaceRequested;
+    public event Action<Point, Point>? TextPlacementFinished;
     public event Action<Point>? ColorSampled;
     public event Action<Point>? CloneSourceSelected;
     public event Action<IReadOnlyList<Point>>? FreeDistortChanged;
@@ -160,7 +162,13 @@ public sealed class CanvasView : Control
                 if (TextHitTest?.Invoke(document) is { } characterIndex)
                     TextCaretPressed?.Invoke(characterIndex, e.KeyModifiers.HasFlag(KeyModifiers.Shift));
                 else if (document.X >= 0 && document.Y >= 0 && document.X < Bitmap.PixelSize.Width && document.Y < Bitmap.PixelSize.Height)
-                    TextPlaceRequested?.Invoke(document);
+                {
+                    Focus();
+                    textPlacing = true;
+                    textPlacementStart = document;
+                    captured = e.Pointer;
+                    captured.Capture(this);
+                }
                 e.Handled = true;
                 return;
             }
@@ -204,6 +212,12 @@ public sealed class CanvasView : Control
             if (layerMoveStart is not null)
             {
                 MoveLayers(Viewport.ToDocument(view), e.KeyModifiers);
+                e.Handled = true;
+                return;
+            }
+            if (textPlacing)
+            {
+                LastDocumentPointer = Viewport.ToDocument(view);
                 e.Handled = true;
                 return;
             }
@@ -254,6 +268,16 @@ public sealed class CanvasView : Control
                 captured = null;
                 e.Pointer.Capture(null);
                 if (moved) LayerMoveFinished?.Invoke(); else LayerMoveCanceled?.Invoke();
+                e.Handled = true;
+                return;
+            }
+            if (textPlacing)
+            {
+                Point end = Viewport.ToDocument(e.GetPosition(this));
+                textPlacing = false;
+                captured = null;
+                e.Pointer.Capture(null);
+                TextPlacementFinished?.Invoke(textPlacementStart, end);
                 e.Handled = true;
                 return;
             }
@@ -424,6 +448,14 @@ public sealed class CanvasView : Control
             captured = null;
             movePointer.Capture(null);
             LayerMoveCanceled?.Invoke();
+            return;
+        }
+        if (textPlacing)
+        {
+            textPlacing = false;
+            var textPointer = captured;
+            captured = null;
+            textPointer.Capture(null);
             return;
         }
         if (zoomDrag is not null)
