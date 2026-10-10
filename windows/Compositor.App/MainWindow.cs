@@ -1620,9 +1620,9 @@ public sealed class MainWindow : Window
         bool groupedProject = Workspace.Session?.HasGroups == true;
         bool canTransform = Workspace.CanEdit && !Workspace.HasFloatingSelection &&
             Workspace.Session?.CanTransformLayers(selectedItems.Select(item => item.Id).ToArray()) == true;
-        bool canTransformOverlay = canTransform && selectedItems.Length == 1 && selected is { IsGroup: false, IsAdjustment: false };
+        bool canTransformOverlay = canTransform && selectedItems.Length > 0;
         canvas.SetLayerTransformOverlay(canTransformOverlay && Workspace.Session is { } overlaySession
-            ? overlaySession.GetLayerTransform(selected!.Id) : null);
+            ? overlaySession.GetTransformBounds(selectedItems.Select(item => item.Id).ToArray()) : null);
         if (Workspace.HasGradientPreview && (selected?.Id != selectedId || multiple))
         {
             Workspace.CommitGradient();
@@ -2119,8 +2119,8 @@ public sealed class MainWindow : Window
         FlatLayerInfo? transformSelected = Workspace.Session is { } transformSession && selectedId is { } transformId
             ? transformSession.Layers.SingleOrDefault(layer => layer.Id == transformId) : null;
         canvas.LayerTransformEnabled = canvas.LayerMoveEnabled &&
-            (layers.SelectedItems?.OfType<FlatLayerInfo>().Count() ?? 0) == 1 &&
-            transformSelected is { IsGroup: false, IsAdjustment: false };
+            (layers.SelectedItems?.OfType<FlatLayerInfo>().Any() ?? false) &&
+            transformSelected is { IsAdjustment: false };
         canvas.InvalidateVisual();
         navigationOptions.IsVisible = canvas.HandEnabled || canvas.ZoomEnabled;
         zoomPercent.IsVisible = applyZoom.IsVisible = zoomUnit.IsVisible = canvas.ZoomEnabled;

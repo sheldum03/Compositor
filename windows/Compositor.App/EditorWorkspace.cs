@@ -1675,8 +1675,8 @@ public sealed class EditorWorkspace
     {
         RequireIdle();
         RequireEditableSession();
-        if (layerIds.Count != 1 || !RequireSession().CanTransformLayers(layerIds))
-            throw new InvalidOperationException("请选择一个可变换的可见像素图层。");
+        if (layerIds.Count == 0 || !RequireSession().CanTransformLayers(layerIds))
+            throw new InvalidOperationException("请选择可变换的可见像素图层。");
         CancelFilterPreview();
         layerTransformEdit = new(layerIds.ToArray(), 1, 0);
     }

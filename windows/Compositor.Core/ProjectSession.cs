@@ -1579,6 +1579,12 @@ public sealed class ProjectSession
         { return false; }
     }
 
+    public LayerTransformInfo GetTransformBounds(IReadOnlyList<Guid> layerIds)
+    {
+        RequireGroupStructureEditing();
+        return TransformBox(TransformMemberIds(layerIds));
+    }
+
     public ProjectSession CreateLayerMovePreview(IReadOnlyList<Guid> layerIds, double offsetX, double offsetY, bool snap)
     {
         RequireGroupStructureEditing();
