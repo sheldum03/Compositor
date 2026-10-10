@@ -74,7 +74,7 @@ public sealed class EditorWorkspace
         healingBrush is not null || warpBrush is not null || gradientDragging || ShapePreview is not null ||
         layerMoveEdit is not null || layerTransformEdit is not null;
     public ShapeDraft? ShapePreview { get; private set; }
-    public bool CanCreateShape => Session is { HasGroups: false } && CanEdit && !HasActiveStroke && !HasFloatingSelection;
+    public bool CanCreateShape => Session is not null && CanEdit && !HasActiveStroke && !HasFloatingSelection;
     public bool HasGradientPreview => gradientEdit is not null;
     public (Point Start, Point End)? GradientLine => gradientEdit is { } edit ? (edit.Start, edit.End) : null;
     public bool HasFloatingSelection => floatingRaster is not null;
@@ -226,11 +226,9 @@ public sealed class EditorWorkspace
         var metadata = new TextLayerMetadata(Guid.Empty, "", content, font, 18,
             color.Red, color.Green, color.Blue, 1, "left", 0, 0, box ? "box" : "point", layoutWidth);
         TileRaster raster = TextLayerWorkflow.RenderText(metadata, session.Width, session.Height, session.Resolution);
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
+        (int index, Guid? parentId) = AdjustmentDestination(session);
         Guid id = session.AddTextLayer("文字", metadata, raster, index,
-            position is { } point ? (point.X, point.Y) : null);
+            position is { } point ? (point.X, point.Y) : null, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
         return id;
     }
@@ -240,16 +238,14 @@ public sealed class EditorWorkspace
         RequireIdle();
         ProjectSession session = RequireSession();
         RequireEditableSession();
-        int index = session.ActiveLayerId is { } active
-            ? session.Layers.ToList().FindIndex(layer => layer.Id == active) + 1
-            : session.Layers.Count;
+        (int index, Guid? parentId) = AdjustmentDestination(session);
         string baseName = settings.Kind == "Ellipse" ? "椭圆" : "矩形";
         int number = 1;
         var names = session.Layers.Select(layer => layer.Name).ToHashSet(StringComparer.Ordinal);
         while (names.Contains($"{baseName} {number}")) number++;
         LayerTransformInfo? placement = bounds is { } rect
             ? new(rect.X, rect.Y, rect.Width, rect.Height, 0, false, false) : null;
-        session.AddShapeLayer($"{baseName} {number}", settings, index, placement);
+        session.AddShapeLayer($"{baseName} {number}", settings, index, placement, parentId);
         Preview = ImageProjectWorkflow.RenderFlatNormal(session);
     }
 

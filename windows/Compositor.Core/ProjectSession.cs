@@ -852,10 +852,12 @@ public sealed class ProjectSession
         return InsertLayer(CreateBlankLayer(name, Width, Height), raster, destinationIndex);
     }
 
-    public Guid AddShapeLayer(string name, ShapeSettings settings, int destinationIndex, LayerTransformInfo? placement = null)
+    public Guid AddShapeLayer(string name, ShapeSettings settings, int destinationIndex, LayerTransformInfo? placement = null,
+        Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         if (!settings.IsValid) throw new ArgumentOutOfRangeException(nameof(settings));
+        ValidateLayerInsertion(destinationIndex, parentId);
         placement ??= new LayerTransformInfo(0, 0, Width, Height, 0, false, false);
         if (!double.IsFinite(placement.X) || !double.IsFinite(placement.Y) || !double.IsFinite(placement.Width) ||
             !double.IsFinite(placement.Height) || !double.IsFinite(placement.Rotation) || placement.Width < 1 ||
@@ -869,6 +871,7 @@ public sealed class ProjectSession
         transform["rotation"] = placement.Rotation;
         transform["flipX"] = placement.FlipX;
         transform["flipY"] = placement.FlipY;
+        if (parentId is { } parent) layer["parentID"] = parent.ToString("D");
         return InsertLayer(layer, RasterCompositor.CreateShape(Width, Height, settings,
             placement.Width, placement.Height), destinationIndex);
     }
@@ -952,10 +955,11 @@ public sealed class ProjectSession
     }
 
     public Guid AddTextLayer(string name, TextLayerMetadata metadata, TileRaster raster, int destinationIndex,
-        (double X, double Y)? origin = null)
+        (double X, double Y)? origin = null, Guid? parentId = null)
     {
-        RequireLayerStructureEditing();
+        RequireGroupStructureEditing();
         CheckRasterSize(raster);
+        ValidateLayerInsertion(destinationIndex, parentId);
         Guid id = Guid.NewGuid();
         string imageFile = id.ToString("D").ToUpperInvariant() + ".png";
         TextLayerMetadata assigned = metadata with { Id = id, ImageFile = imageFile };
@@ -966,6 +970,7 @@ public sealed class ProjectSession
         layer["opacity"] = 1d;
         layer["blendMode"] = "Normal";
         layer["text"] = CreateTextNode(assigned);
+        if (parentId is { } parent) layer["parentID"] = parent.ToString("D");
         if (origin is { } point)
         {
             if (!double.IsFinite(point.X) || !double.IsFinite(point.Y))
@@ -2671,6 +2676,29 @@ public sealed class ProjectSession
         }
         if (destinationIndex > lastDescendant + 1)
             throw new NotSupportedException("The adjustment must stay inside its parent group.");
+    }
+
+    private void ValidateLayerInsertion(int destinationIndex, Guid? parentId)
+    {
+        if (parentId is not { } parent)
+        {
+            if (HasGroups && destinationIndex < Layers.Count && Layers[destinationIndex].ParentId is not null)
+                throw new NotSupportedException("Root layers must stay outside group subtrees.");
+            return;
+        }
+        int parentIndex = FindLayer(parent);
+        if (!Layers[parentIndex].IsGroup)
+            throw new ArgumentException("The layer parent must be a group.", nameof(parentId));
+        if (destinationIndex <= parentIndex || destinationIndex > Layers.Count)
+            throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        int lastDescendant = parentIndex;
+        for (int index = parentIndex + 1; index < Layers.Count; index++)
+        {
+            if (!IsDescendantOf(Layers[index], parent)) break;
+            lastDescendant = index;
+        }
+        if (destinationIndex > lastDescendant + 1)
+            throw new NotSupportedException("The layer must stay inside its parent group.");
     }
 
     private void RequireLayerStructureEditing()

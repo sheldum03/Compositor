@@ -1592,7 +1592,7 @@ public sealed class MainWindow : Window
         {
             button.IsEnabled = Workspace.Session is not null &&
                 (Workspace.CanEdit || button.Name is "ExportPng" or "ExportJpeg" or "Fit" or "ActualSize");
-            if (groupedProject && button.Name is "AddLayer" or "AddTextLayer" or "AddBoxTextLayer" or "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
+            if (groupedProject && button.Name is "AddLayer" or "CanvasSize" or "ImageSize" or "RotateClockwise" or "RotateCounterClockwise")
                 button.IsEnabled = false;
         }
         if (Workspace.HasFloatingSelection)
